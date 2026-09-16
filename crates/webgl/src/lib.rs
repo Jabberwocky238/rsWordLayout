@@ -140,7 +140,29 @@ mod browser {
             gl.enable(Gl::BLEND);
             gl.blend_func(Gl::SRC_ALPHA, Gl::ONE_MINUS_SRC_ALPHA);
 
-            Ok(WebGlRenderer { gl, program, vbo, ibo, u_proj })
+            // 图集纹理。先建成 1×1 的不透明白：纯色批次采样左上角那个纹素，
+            // 在字形图集上传之前也能正确画出矩形类片段。
+            let atlas = gl.create_texture().ok_or("无法创建图集纹理")?;
+            gl.bind_texture(Gl::TEXTURE_2D, Some(&atlas));
+            gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_MIN_FILTER, Gl::LINEAR as i32);
+            gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_MAG_FILTER, Gl::LINEAR as i32);
+            gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_WRAP_S, Gl::CLAMP_TO_EDGE as i32);
+            gl.tex_parameteri(Gl::TEXTURE_2D, Gl::TEXTURE_WRAP_T, Gl::CLAMP_TO_EDGE as i32);
+            // R8 单通道：着色器取 .r 当覆盖率。
+            gl.pixel_storei(Gl::UNPACK_ALIGNMENT, 1);
+            gl.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+                Gl::TEXTURE_2D,
+                0,
+                Gl::R8 as i32,
+                1,
+                1,
+                0,
+                Gl::RED,
+                Gl::UNSIGNED_BYTE,
+                Some(&[255u8]),
+            )?;
+
+            Ok(WebGlRenderer { gl, program, vbo, ibo, u_proj, atlas })
         }
 
         /// 清屏。
@@ -165,6 +187,9 @@ mod browser {
 
             let proj = vp.ortho();
             gl.uniform_matrix4fv_with_f32_array(self.u_proj.as_ref(), false, &proj);
+
+            gl.active_texture(Gl::TEXTURE0);
+            gl.bind_texture(Gl::TEXTURE_2D, Some(&self.atlas));
 
             gl.bind_buffer(Gl::ARRAY_BUFFER, Some(&self.vbo));
             gl.buffer_data_with_u8_array(

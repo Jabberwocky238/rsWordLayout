@@ -30,8 +30,13 @@ use crate::measure::FontSpec;
 
 use super::GlyphQuad;
 
-/// 一个字形的栅格化结果：单通道覆盖率位图。
-pub struct RasterGlyph {
+/// 一个字形的度量与位图尺寸，不含像素数据。
+///
+/// 纯 POD，可跨 C ABI 传递——覆盖率数据另行以指针+长度给出，
+/// 因为 `Vec` 的布局没有保证，带上它就无法 `repr(C)`。
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[repr(C)]
+pub struct GlyphMetrics {
     /// 位图宽高（像素）。可以是 0×0，表示空白字形（如空格），仍应缓存以免反复栅格化。
     pub width: u32,
     pub height: u32,
@@ -40,42 +45,55 @@ pub struct RasterGlyph {
     pub top: f32,
     /// 排版推进量，像素。
     pub advance: f32,
+}
+
+/// 一个字形的栅格化结果：度量 + 单通道覆盖率位图。
+pub struct RasterGlyph {
+    pub metrics: GlyphMetrics,
     /// `width * height` 个覆盖率字节，行优先。空白字形为空。
     pub coverage: Vec<u8>,
 }
 
+impl RasterGlyph {
+    pub fn width(&self) -> u32 {
+        self.metrics.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.metrics.height
+    }
+}
+
+/// 字形标识：**shaping 的产物，不是字符**。
+///
+/// 全 Unicode 下「一字符一字形」不成立：`fi` 连字是两字符一字形，阿拉伯字母的
+/// 词首/词中/词尾/独立四种形态共用一个码位，印度系文字还会重排。所以图集必须按
+/// 字体内的字形编号索引，由 shaper（HarfBuzz / skrifa）给出。
+///
+/// `face` 区分不同字体文件——同一 glyph id 在不同字体里是完全不同的形状。
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GlyphKey {
+    /// 字体标识，通常是 face 的内容哈希。
+    pub face: String,
+    /// 字体内的字形编号。
+    pub glyph_id: u32,
+    /// 字号，半点。同一字形不同字号要分别栅格化。
+    pub size_half_points: u32,
+}
+
+impl GlyphKey {
+    pub fn new(face: impl Into<String>, glyph_id: u32, size_half_points: u32) -> GlyphKey {
+        GlyphKey { face: face.into(), glyph_id, size_half_points }
+    }
+}
+
 /// 字形栅格化器，由调用方实现。
 ///
-/// 同一 `(ch, font)` 必须给出同一结果——图集会缓存，结果不稳定会导致画面抖动。
+/// 同一 key 必须给出同一结果——图集会缓存，结果不稳定会导致画面抖动。
 pub trait Rasterizer {
-    /// 栅格化一个字形。返回 `None` 表示该字体画不出这个字符，
-    /// 调用方应当自行做 fallback 后再交给图集。
-    fn rasterize(&mut self, ch: char, font: &FontSpec) -> Option<RasterGlyph>;
-}
-
-/// 缓存键：字符 + 影响字形外观的字体参数。
-///
-/// 字号用整数半点而非浮点，避免浮点做哈希键。颜色不在键里——着色器用图集的
-/// 覆盖率当 alpha，颜色来自顶点，所以同一字形不同颜色可以共用。
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct Key {
-    ch: char,
-    family: String,
-    size_half_points: u32,
-    bold: bool,
-    italic: bool,
-}
-
-impl Key {
-    fn new(ch: char, f: &FontSpec) -> Key {
-        Key {
-            ch,
-            family: f.family.clone(),
-            size_half_points: f.size_half_points,
-            bold: f.bold,
-            italic: f.italic,
-        }
-    }
+    /// 栅格化一个字形。返回 `None` 表示该字体画不出这个字形，
+    /// 调用方应当先做 fallback（见 docx-layout 的 `fontenv::select`）再交给图集。
+    fn rasterize(&mut self, key: &GlyphKey) -> Option<RasterGlyph>;
 }
 
 /// 图集里一个已放置的字形。
@@ -123,7 +141,7 @@ pub struct GlyphAtlas {
     width: u32,
     height: u32,
     pixels: Vec<u8>,
-    slots: HashMap<Key, Slot>,
+    slots: HashMap<GlyphKey, Slot>,
     shelves: Vec<Shelf>,
     clock: u64,
     dirty: Option<DirtyRect>,
@@ -189,16 +207,10 @@ impl GlyphAtlas {
     /// 取一个字形，必要时栅格化并放入图集。
     ///
     /// 返回 `None` 表示栅格化失败或字形大到放不进图集。
-    pub fn get(
-        &mut self,
-        ch: char,
-        font: &FontSpec,
-        r: &mut dyn Rasterizer,
-    ) -> Option<GlyphQuad> {
+    pub fn get(&mut self, key: &GlyphKey, r: &mut dyn Rasterizer) -> Option<GlyphQuad> {
         self.clock += 1;
-        let key = Key::new(ch, font);
 
-        if let Some(slot) = self.slots.get_mut(&key) {
+        if let Some(slot) = self.slots.get_mut(key) {
             slot.used = self.clock;
             let (y, h) = (slot.y, slot.h);
             let quad = slot.quad;
@@ -206,8 +218,8 @@ impl GlyphAtlas {
             return Some(quad);
         }
 
-        let g = r.rasterize(ch, font)?;
-        self.insert(key, &g)
+        let g = r.rasterize(key)?;
+        self.insert(key.clone(), &g)
     }
 
     /// 标记某行最近被用过，避免它被优先淘汰。
@@ -218,16 +230,16 @@ impl GlyphAtlas {
         }
     }
 
-    fn insert(&mut self, key: Key, g: &RasterGlyph) -> Option<GlyphQuad> {
+    fn insert(&mut self, key: GlyphKey, g: &RasterGlyph) -> Option<GlyphQuad> {
         // 空白字形（空格等）不占图集，但要缓存以免反复栅格化。
-        if g.width == 0 || g.height == 0 {
+        if g.metrics.width == 0 || g.metrics.height == 0 {
             let quad = GlyphQuad {
                 u0: 0.0,
                 v0: 0.0,
                 u1: 0.0,
                 v1: 0.0,
-                left: g.left,
-                top: g.top,
+                left: g.metrics.left,
+                top: g.metrics.top,
                 width: 0.0,
                 height: 0.0,
             };
@@ -238,8 +250,8 @@ impl GlyphAtlas {
             return Some(quad);
         }
 
-        let need_w = g.width + PADDING;
-        let need_h = g.height + PADDING;
+        let need_w = g.metrics.width + PADDING;
+        let need_h = g.metrics.height + PADDING;
         if need_w > self.width || need_h > self.height {
             // 字形比整个图集还大：放弃，调用方会跳过它而不是画错。
             return None;
@@ -258,16 +270,16 @@ impl GlyphAtlas {
         let quad = GlyphQuad {
             u0: x as f32 / self.width as f32,
             v0: y as f32 / self.height as f32,
-            u1: (x + g.width) as f32 / self.width as f32,
-            v1: (y + g.height) as f32 / self.height as f32,
-            left: g.left,
-            top: g.top,
-            width: g.width as f32,
-            height: g.height as f32,
+            u1: (x + g.metrics.width) as f32 / self.width as f32,
+            v1: (y + g.metrics.height) as f32 / self.height as f32,
+            left: g.metrics.left,
+            top: g.metrics.top,
+            width: g.metrics.width as f32,
+            height: g.metrics.height as f32,
         };
         self.slots.insert(
             key,
-            Slot { y, h: g.height, quad, used: self.clock },
+            Slot { y, h: g.metrics.height, quad, used: self.clock },
         );
         Some(quad)
     }
@@ -367,15 +379,15 @@ impl GlyphAtlas {
 
     /// 把覆盖率位图写进图集，并累计脏区域。
     fn blit(&mut self, x: u32, y: u32, g: &RasterGlyph) {
-        for row in 0..g.height {
-            let src = (row as usize) * (g.width as usize);
+        for row in 0..g.metrics.height {
+            let src = (row as usize) * (g.metrics.width as usize);
             let dst = ((y + row) as usize) * (self.width as usize) + (x as usize);
-            let n = g.width as usize;
+            let n = g.metrics.width as usize;
             if src + n <= g.coverage.len() && dst + n <= self.pixels.len() {
                 self.pixels[dst..dst + n].copy_from_slice(&g.coverage[src..src + n]);
             }
         }
-        self.mark_dirty(x, y, g.width, g.height);
+        self.mark_dirty(x, y, g.metrics.width, g.metrics.height);
     }
 
     fn mark_dirty(&mut self, x: u32, y: u32, w: u32, h: u32) {
@@ -401,28 +413,46 @@ impl GlyphAtlas {
     }
 }
 
-/// 把图集接到 [`super::GlyphSource`]：查询时按需填充。
+/// 文字整形器：把一段文字变成字形序列。
 ///
-/// `GlyphSource::glyph` 是 `&self`，而按需填充要改图集，所以这里用内部可变性。
-/// 单线程使用（wasm 与大多数渲染循环都是），故用 `RefCell` 而非锁。
-pub struct AtlasSource<'a, R: Rasterizer> {
-    atlas: std::cell::RefCell<&'a mut GlyphAtlas>,
-    raster: std::cell::RefCell<&'a mut R>,
+/// 由调用方以 HarfBuzz / skrifa 实现。本 crate 不做 shaping——它是由字体的
+/// GSUB/GPOS 表决定的确定性查表，不是布局要解的问题。
+pub trait Shaper {
+    fn shape(&self, text: &str, font: &FontSpec) -> Vec<super::ShapedGlyph>;
 }
 
-impl<'a, R: Rasterizer> AtlasSource<'a, R> {
-    pub fn new(atlas: &'a mut GlyphAtlas, raster: &'a mut R) -> AtlasSource<'a, R> {
+/// 把图集接到 [`super::GlyphSource`]：查询时按需填充。
+///
+/// `GlyphSource` 的方法是 `&self`，而按需填充要改图集，所以这里用内部可变性。
+/// 单线程使用（wasm 与大多数渲染循环都是），故用 `RefCell` 而非锁。
+pub struct AtlasSource<'a, R: Rasterizer, S: Shaper> {
+    atlas: std::cell::RefCell<&'a mut GlyphAtlas>,
+    raster: std::cell::RefCell<&'a mut R>,
+    shaper: &'a S,
+}
+
+impl<'a, R: Rasterizer, S: Shaper> AtlasSource<'a, R, S> {
+    pub fn new(
+        atlas: &'a mut GlyphAtlas,
+        raster: &'a mut R,
+        shaper: &'a S,
+    ) -> AtlasSource<'a, R, S> {
         AtlasSource {
             atlas: std::cell::RefCell::new(atlas),
             raster: std::cell::RefCell::new(raster),
+            shaper,
         }
     }
 }
 
-impl<R: Rasterizer> super::GlyphSource for AtlasSource<'_, R> {
-    fn glyph(&self, ch: char, font: &FontSpec) -> Option<GlyphQuad> {
+impl<R: Rasterizer, S: Shaper> super::GlyphSource for AtlasSource<'_, R, S> {
+    fn shape(&self, text: &str, font: &FontSpec) -> Vec<super::ShapedGlyph> {
+        self.shaper.shape(text, font)
+    }
+
+    fn glyph(&self, key: &GlyphKey) -> Option<GlyphQuad> {
         let mut atlas = self.atlas.borrow_mut();
         let mut raster = self.raster.borrow_mut();
-        atlas.get(ch, font, &mut **raster)
+        atlas.get(key, &mut **raster)
     }
 }

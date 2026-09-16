@@ -16,10 +16,22 @@ license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 rsword = { path = "/home/zq/coding/rsWordParser/crates/rsword" }
+# 字体环境与布局契约来自 docx-layout（MIT OR Apache-2.0）：
+# 它的 fontenv 用 skrifa 读 OpenType，提供按码位的覆盖查询与环境指纹，
+# 正是全 Unicode 字体 fallback 需要的东西，不必在本仓库重造。
+docx-layout = { path = "/home/zq/coding/docx-layout/crates/docx-layout" }
+docx-layout-contract = { path = "/home/zq/coding/docx-layout/crates/docx-layout-contract" }
 rsword-layout-core = { path = "crates/core" }
 rsword-layout-wasm = { path = "crates/wasm" }
 rsword-layout-cffi = { path = "crates/cffi" }
 serde_json = "1"
+# skrifa 只给字形轮廓，不做光栅化（它自己的依赖仅 bytemuck + core_maths）。
+# zeno 是配套的 2D 路径光栅化器，OutlinePen 与它的 PathBuilder 天然对接。
+skrifa = "=0.44.0"
+zeno = "=0.3.3"
+# HarfBuzz shaping 算法的纯 Rust 移植。选它而不是链接 libs/harfbuzz 的 C 库，
+# 是因为 wasm 目标要能编译——纯 Rust 才走得通。
+rustybuzz = "=0.20.1"
 
 [workspace.lints.rust]
 # cffi 要暴露 C ABI（extern "C" + 裸指针），与 forbid 不相容，所以整个 workspace 放开。

@@ -25,20 +25,46 @@ use crate::geom::{Rect, Twips};
 
 pub mod atlas;
 pub mod batch;
+#[cfg(feature = "raster")]
+pub mod raster;
+#[cfg(feature = "shape")]
+pub mod shape;
 pub mod vertex;
 
-pub use atlas::{AtlasSource, DirtyRect, GlyphAtlas, RasterGlyph, Rasterizer};
+pub use atlas::{
+    AtlasSource, DirtyRect, GlyphAtlas, GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer, Shaper,
+};
 pub use batch::{Batch, BatchKind, Frame, FrameBuilder};
+#[cfg(feature = "raster")]
+pub use raster::SkrifaRasterizer;
+#[cfg(feature = "shape")]
+pub use shape::RustybuzzShaper;
 pub use vertex::{Vertex, px_from_twips};
 
-/// 字形图集查询。
+/// 一段文字 shaping 之后的一个字形。
 ///
-/// GPU 后端需要知道「这个字符用这个字体画出来，在图集的哪个 UV 区域、占多大」。
-/// 光栅化与图集管理由调用方负责（通常接 FreeType / swash / fontdue），
+/// 全 Unicode 下「一字符一字形」不成立（连字、阿拉伯语形态、印度语重排），
+/// 所以绘制的单位是 shaper 产出的字形而不是 `char`。
+#[derive(Debug, Clone, PartialEq)]
+pub struct ShapedGlyph {
+    pub key: atlas::GlyphKey,
+    /// 相对该段起点的笔位推进，像素。
+    pub x_advance: f32,
+    /// 相对基线的偏移，像素（组合符号定位用）。
+    pub x_offset: f32,
+    pub y_offset: f32,
+}
+
+/// 字形来源：把一段文字变成已定位的字形，并给出各自在图集中的位置。
+///
+/// shaping 与栅格化都由调用方负责（HarfBuzz / skrifa / 浏览器 Canvas2D），
 /// 本 crate 不引入字体依赖——与 [`crate::measure::FontMetrics`] 的分工理由相同。
 pub trait GlyphSource {
+    /// 把一段同字体的文字 shape 成字形序列。
+    fn shape(&self, text: &str, font: &crate::measure::FontSpec) -> Vec<ShapedGlyph>;
+
     /// 查一个字形的图集位置。返回 `None` 表示该字形缺失，后端应跳过而不是画错。
-    fn glyph(&self, ch: char, font: &crate::measure::FontSpec) -> Option<GlyphQuad>;
+    fn glyph(&self, key: &atlas::GlyphKey) -> Option<GlyphQuad>;
 }
 
 /// 一个字形在图集中的位置与它相对基线的摆放。

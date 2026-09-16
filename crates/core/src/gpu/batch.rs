@@ -129,18 +129,26 @@ impl FrameBuilder {
         self.ensure(BatchKind::Glyph, None);
         let mut pen_x = super::to_px(t.x, self.dpi);
         let base_y = super::to_px(t.baseline_y, self.dpi);
-        for ch in t.text.chars() {
-            if let Some(g) = src.glyph(ch, &t.font) {
-                if g.width > 0.0 && g.height > 0.0 {
-                    self.quad(
-                        (pen_x + g.left, base_y - g.top, g.width, g.height),
-                        (g.u0, g.v0, g.u1, g.v1),
-                        t.color,
-                        1.0,
-                    );
-                }
-                pen_x += g.width.max(0.0);
+        // 先 shape 再逐字形取图集位置：连字与阿拉伯语形态没有对应的单个 char，
+        // 按 char 遍历会画错。
+        for sg in src.shape(&t.text, &t.font) {
+            if let Some(g) = src.glyph(&sg.key)
+                && g.width > 0.0
+                && g.height > 0.0
+            {
+                self.quad(
+                    (
+                        pen_x + sg.x_offset + g.left,
+                        base_y - sg.y_offset - g.top,
+                        g.width,
+                        g.height,
+                    ),
+                    (g.u0, g.v0, g.u1, g.v1),
+                    t.color,
+                    1.0,
+                );
             }
+            pen_x += sg.x_advance;
         }
     }
 
