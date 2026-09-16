@@ -1,0 +1,5 @@
+/target
+**/*.rs.bk
+
+# 渲染产物，由 `cargo run --bin render` 生成
+/fixtures/*.html
