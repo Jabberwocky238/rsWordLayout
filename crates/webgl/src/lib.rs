@@ -1,0 +1,294 @@
+//! WebGL2 后端（wasm 目标）。
+//!
+//! 与 `vulkan` / `opengl` 两个 crate 不同，本 crate **有实际实现**：WebGL 的上下文就在
+//! 浏览器里，没有「交给调用方去接」的余地，所以这里直接编译着色器、建缓冲、发绘制命令。
+//!
+//! 编译：
+//!
+//! ```sh
+//! cargo build -p rsword-layout-webgl --target wasm32-unknown-unknown --release
+//! wasm-bindgen target/wasm32-unknown-unknown/release/rsword_layout_webgl.wasm --out-dir pkg --target web
+//! ```
+//!
+//! 顶点数据来自 [`rsword_layout_core::gpu::Frame`]，与另外两个后端同源——
+//! 同一份布局产物在三个 API 上画出的几何完全一致。
+//!
+//! # 为什么这里再导出一次 `LayoutSession`
+//!
+//! 布局会话定义在 `rsword-layout-wasm`，但**两个 wasm 模块各有独立的线性内存**，
+//! JS 没法把 A 模块造的对象传进 B 模块的方法。所以给 JS 用的那一个 `.wasm`
+//! 必须同时含有会话与渲染器——本 crate 负责把两者装进同一个模块，
+//! 打包时只对 `rsword_layout_webgl.wasm` 跑 wasm-bindgen。
+
+
+
+
+/// 顶点步长（字节），与 `rsword_layout_core::gpu::vertex::Vertex` 一致。
+/// 供宿主设置 `glVertexAttribPointer` 时使用。
+pub const VERTEX_STRIDE: usize = rsword_layout_core::gpu::vertex::Vertex::STRIDE;
+
+/// 顶点着色器（GLSL ES 3.0）。原生构建下也导出，供宿主自行接 GL 时参考。
+pub const VS: &str = r#"#version 300 es
+layout(location = 0) in vec2 a_pos;
+layout(location = 1) in vec2 a_uv;
+layout(location = 2) in vec4 a_color;
+uniform mat4 u_proj;
+out vec2 v_uv;
+out vec4 v_color;
+void main() {
+    v_uv = a_uv;
+    v_color = a_color;
+    gl_Position = u_proj * vec4(a_pos, 0.0, 1.0);
+}
+"#;
+
+/// 片段着色器。字形图集单通道；纯色批次采样到不透明白纹素，共用同一路径。
+pub const FS: &str = r#"#version 300 es
+precision mediump float;
+in vec2 v_uv;
+in vec4 v_color;
+uniform sampler2D u_atlas;
+out vec4 frag;
+void main() {
+    float a = texture(u_atlas, v_uv).r;
+    frag = vec4(v_color.rgb, v_color.a * a);
+}
+"#;
+
+/// 浏览器实现。只在 wasm32 下编译——`web_sys` 在原生目标上不存在，
+/// 而本 crate 在原生构建时仍需可用（`Vertex` 常量、着色器源码供宿主参考）。
+#[cfg(target_arch = "wasm32")]
+mod browser {
+    use super::{FS, VS};
+    use rsword_layout_core::gpu::batch::BatchKind;
+    use rsword_layout_core::gpu::vertex::Vertex;
+    use rsword_layout_core::gpu::{Frame, Viewport};
+    use wasm_bindgen::prelude::*;
+    use web_sys::{
+        WebGl2RenderingContext as Gl, WebGlBuffer, WebGlProgram, WebGlShader, WebGlTexture,
+        WebGlUniformLocation,
+    };
+
+    fn compile(gl: &Gl, kind: u32, src: &str) -> Result<WebGlShader, String> {
+        let sh = gl.create_shader(kind).ok_or("无法创建 shader")?;
+        gl.shader_source(&sh, src);
+        gl.compile_shader(&sh);
+        if gl
+            .get_shader_parameter(&sh, Gl::COMPILE_STATUS)
+            .as_bool()
+            .unwrap_or(false)
+        {
+            Ok(sh)
+        } else {
+            Err(gl.get_shader_info_log(&sh).unwrap_or_else(|| "shader 编译失败".into()))
+        }
+    }
+
+    fn link(gl: &Gl, vs: &WebGlShader, fs: &WebGlShader) -> Result<WebGlProgram, String> {
+        let p = gl.create_program().ok_or("无法创建 program")?;
+        gl.attach_shader(&p, vs);
+        gl.attach_shader(&p, fs);
+        gl.link_program(&p);
+        if gl
+            .get_program_parameter(&p, Gl::LINK_STATUS)
+            .as_bool()
+            .unwrap_or(false)
+        {
+            Ok(p)
+        } else {
+            Err(gl.get_program_info_log(&p).unwrap_or_else(|| "program 链接失败".into()))
+        }
+    }
+
+    /// WebGL2 渲染器：持有 program 与缓冲，可反复提交不同帧。
+    #[wasm_bindgen]
+    pub struct WebGlRenderer {
+        gl: Gl,
+        program: WebGlProgram,
+        vbo: WebGlBuffer,
+        ibo: WebGlBuffer,
+        u_proj: Option<WebGlUniformLocation>,
+        /// 字形图集。左上角第一个纹素必须是不透明白，纯色批次靠它复用同一套着色器。
+        atlas: WebGlTexture,
+    }
+
+    #[wasm_bindgen]
+    impl WebGlRenderer {
+        /// 从一个 canvas 元素 id 建渲染器。
+        #[wasm_bindgen(constructor)]
+        pub fn new(canvas_id: &str) -> Result<WebGlRenderer, JsValue> {
+            let win = web_sys::window().ok_or("无 window")?;
+            let doc = win.document().ok_or("无 document")?;
+            let el = doc
+                .get_element_by_id(canvas_id)
+                .ok_or_else(|| JsValue::from_str(&format!("找不到 canvas #{canvas_id}")))?;
+            let canvas: web_sys::HtmlCanvasElement = el.dyn_into()?;
+            let gl: Gl = canvas
+                .get_context("webgl2")?
+                .ok_or("浏览器不支持 WebGL2")?
+                .dyn_into()?;
+
+            let vs = compile(&gl, Gl::VERTEX_SHADER, VS).map_err(|e| JsValue::from_str(&e))?;
+            let fs = compile(&gl, Gl::FRAGMENT_SHADER, FS).map_err(|e| JsValue::from_str(&e))?;
+            let program = link(&gl, &vs, &fs).map_err(|e| JsValue::from_str(&e))?;
+
+            let vbo = gl.create_buffer().ok_or("无法创建 VBO")?;
+            let ibo = gl.create_buffer().ok_or("无法创建 IBO")?;
+            let u_proj = gl.get_uniform_location(&program, "u_proj");
+
+            // 文字是预乘 alpha 的图集，用标准 alpha 混合。
+            gl.enable(Gl::BLEND);
+            gl.blend_func(Gl::SRC_ALPHA, Gl::ONE_MINUS_SRC_ALPHA);
+
+            Ok(WebGlRenderer { gl, program, vbo, ibo, u_proj })
+        }
+
+        /// 清屏。
+        pub fn clear(&self, r: f32, g: f32, b: f32) {
+            self.gl.clear_color(r, g, b, 1.0);
+            self.gl.clear(Gl::COLOR_BUFFER_BIT);
+        }
+    }
+
+    impl WebGlRenderer {
+        /// 提交一帧。`Frame` 来自 `rsword_layout_core::gpu::build_page`。
+        ///
+        /// 顶点以 `f32` 视图上传：[`Vertex`] 是 `#[repr(C)]` 的紧密 POD，
+        /// 整块重解释为 `f32` 切片是安全的（布局由 core 的 `repr_c` 测试钉死）。
+        pub fn draw(&self, frame: &Frame, vp: &Viewport) -> Result<(), String> {
+            if frame.is_empty() {
+                return Ok(());
+            }
+            let gl = &self.gl;
+            gl.viewport(0, 0, vp.width_px as i32, vp.height_px as i32);
+            gl.use_program(Some(&self.program));
+
+            let proj = vp.ortho();
+            gl.uniform_matrix4fv_with_f32_array(self.u_proj.as_ref(), false, &proj);
+
+            gl.bind_buffer(Gl::ARRAY_BUFFER, Some(&self.vbo));
+            gl.buffer_data_with_u8_array(
+                Gl::ARRAY_BUFFER,
+                &vertices_to_bytes(&frame.vertices),
+                Gl::DYNAMIC_DRAW,
+            );
+
+            let stride = Vertex::STRIDE as i32;
+            for (loc, offset, size) in [
+                (0, Vertex::OFFSET_POS, 2),
+                (1, Vertex::OFFSET_UV, 2),
+                (2, Vertex::OFFSET_COLOR, 4),
+            ] {
+                gl.enable_vertex_attrib_array(loc);
+                gl.vertex_attrib_pointer_with_i32(loc, size, Gl::FLOAT, false, stride, offset as i32);
+            }
+
+            gl.bind_buffer(Gl::ELEMENT_ARRAY_BUFFER, Some(&self.ibo));
+            gl.buffer_data_with_u8_array(
+                Gl::ELEMENT_ARRAY_BUFFER,
+                &indices_to_bytes(&frame.indices),
+                Gl::DYNAMIC_DRAW,
+            );
+
+            for batch in &frame.batches {
+                // 纹理绑定由调用方在 batch 之间处理；Image 批次需要各自的纹理，
+                // 这里跳过而不是画错——缺纹理时画出来的会是整块纯色。
+                if batch.kind == BatchKind::Image {
+                    continue;
+                }
+                gl.draw_elements_with_i32(
+                    Gl::TRIANGLES,
+                    batch.index_count as i32,
+                    Gl::UNSIGNED_INT,
+                    (batch.index_offset as i32) * 4,
+                );
+            }
+            Ok(())
+        }
+    }
+
+    /// 顶点切片 → 字节。
+    ///
+    /// 本 crate `unsafe_code = "forbid"`，不能用 `transmute` / `align_to` 做零拷贝重解释，
+    /// 所以显式序列化。每页几千个顶点，拷贝开销远小于一次 GPU 上传，换来整个 crate 无 `unsafe`。
+    fn vertices_to_bytes(v: &[Vertex]) -> Vec<u8> {
+        let mut out = Vec::with_capacity(std::mem::size_of_val(v));
+        for x in v {
+            for f in [x.x, x.y, x.u, x.v, x.r, x.g, x.b, x.a] {
+                out.extend_from_slice(&f.to_ne_bytes());
+            }
+        }
+        out
+    }
+
+    fn indices_to_bytes(v: &[u32]) -> Vec<u8> {
+        let mut out = Vec::with_capacity(std::mem::size_of_val(v));
+        for i in v {
+            out.extend_from_slice(&i.to_ne_bytes());
+        }
+        out
+    }
+
+
+}
+
+#[cfg(target_arch = "wasm32")]
+pub use browser::WebGlRenderer;
+
+// ---------------------------------------------------------------------------
+// 给 JS 的统一入口：会话与渲染器必须在同一个 wasm 模块里（见文件头说明）
+// ---------------------------------------------------------------------------
+
+#[cfg(target_arch = "wasm32")]
+mod js_api {
+    use rsword_layout_wasm::LayoutSession as CoreSession;
+    use wasm_bindgen::prelude::*;
+
+    use crate::browser::WebGlRenderer;
+
+    /// 一次布局会话：docx 进来，排好版，按页交给渲染器画。
+    #[wasm_bindgen]
+    pub struct LayoutSession {
+        inner: CoreSession,
+    }
+
+    #[wasm_bindgen]
+    impl LayoutSession {
+        /// 解析并排版。`dpi`：96 = CSS 像素，192 = 2x HiDPI；传 0 或负数按 96 处理。
+        #[wasm_bindgen(constructor)]
+        pub fn new(docx: &[u8], dpi: f32) -> Result<LayoutSession, JsValue> {
+            CoreSession::build(docx, dpi)
+                .map(|inner| LayoutSession { inner })
+                .map_err(|e| JsValue::from_str(&e))
+        }
+
+        #[wasm_bindgen(getter)]
+        pub fn page_count(&self) -> usize {
+            self.inner.page_count()
+        }
+
+        /// 某页的像素宽高 `[w, h]`；越界返回空数组。
+        pub fn page_size(&self, index: usize) -> Vec<f32> {
+            self.inner.page_size(index)
+        }
+
+        /// 某页的片段数，用于自查布局是否产出了内容。
+        pub fn fragment_count(&self, index: usize) -> usize {
+            self.inner.fragment_count(index)
+        }
+
+        /// 把某页画到渲染器上。
+        ///
+        /// 字形图集未接入，所以文字批次为空——当前只画得出矩形类片段。
+        pub fn render_page(&self, r: &WebGlRenderer, index: usize) -> Result<(), JsValue> {
+            let (frame, vp) = self
+                .inner
+                .frame(index, None)
+                .ok_or_else(|| JsValue::from_str(&format!("页号越界：{index}")))?;
+            r.draw(&frame, &vp).map_err(|e| JsValue::from_str(&e))
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub use js_api::LayoutSession;

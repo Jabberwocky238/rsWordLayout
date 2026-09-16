@@ -68,15 +68,15 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
         Value::Object(_) => {
             let kind = inlines.get("kind").and_then(Value::as_str).unwrap_or("");
             if kind == "run" {
-                if let Some(t) = inlines.get("text").and_then(Value::as_str) {
-                    if !t.is_empty() {
-                        let props = inlines.get("props").cloned().unwrap_or(Value::Null);
-                        out.push(Run {
-                            text: t.to_string(),
-                            font: run_font(&props, base_size, base_bold),
-                            color: Color::BLACK,
-                        });
-                    }
+                if let Some(t) = inlines.get("text").and_then(Value::as_str)
+                    && !t.is_empty()
+                {
+                    let props = inlines.get("props").cloned().unwrap_or(Value::Null);
+                    out.push(Run {
+                        text: t.to_string(),
+                        font: run_font(&props, base_size, base_bold),
+                        color: Color::BLACK,
+                    });
                 }
             } else if kind == "field" {
                 if let Some(r) = inlines.get("result") {
@@ -88,6 +88,49 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
         }
         _ => {}
     }
+}
+
+
+/// `w:jc` → 对齐。`both` / `distribute` 都按两端对齐处理。
+fn read_align(props: &Value) -> Align {
+    match props.get("jc").and_then(Value::as_str) {
+        Some("center") => Align::Center,
+        Some("right") | Some("end") => Align::Right,
+        Some("both") | Some("distribute") => Align::Justify,
+        _ => Align::Left,
+    }
+}
+
+/// `w:ind` → (左, 右, 首行)。`hanging` 是负的首行缩进，与 `firstLine` 互斥。
+fn read_indent(props: &Value) -> (Twips, Twips, Twips) {
+    let ind = match props.get("indent") {
+        Some(v) => v,
+        None => return (0, 0, 0),
+    };
+    let num = |k: &str| ind.get(k).and_then(Value::as_i64).unwrap_or(0) as Twips;
+    // start/end 是 Strict 的写法，left/right 是 Transitional 的。
+    let left = if ind.get("start").is_some() { num("start") } else { num("left") };
+    let right = if ind.get("end").is_some() { num("end") } else { num("right") };
+    let first = if ind.get("hanging").is_some() { -num("hanging") } else { num("firstLine") };
+    (left, right, first)
+}
+
+/// `w:spacing` → (行距规则, 值, 段前, 段后)。段前后取不到时用样式默认。
+fn read_spacing(props: &Value, def_before: Twips, def_after: Twips)
+    -> (LineRule, Twips, Twips, Twips)
+{
+    let sp = match props.get("spacing") {
+        Some(v) => v,
+        None => return (LineRule::Auto, 240, def_before, def_after),
+    };
+    let num = |k: &str| sp.get(k).and_then(Value::as_i64).map(|v| v as Twips);
+    let rule = match sp.get("lineRule").and_then(Value::as_str) {
+        Some("exact") => LineRule::Exact,
+        Some("atLeast") => LineRule::AtLeast,
+        _ => LineRule::Auto,
+    };
+    let line = num("line").unwrap_or(240);
+    (rule, line, num("before").unwrap_or(def_before), num("after").unwrap_or(def_after))
 }
 
 /// 把 `document()` 的 JSON 转成段落序列。
@@ -131,16 +174,25 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             });
         }
 
+        let props = block.get("props").cloned().unwrap_or(Value::Null);
+        let (indent_left, indent_right, indent_first_line) = read_indent(&props);
+        let (line_rule, line_value, space_before, space_after) =
+            read_spacing(&props, before, after);
+
         paras.push(Para {
             runs,
-            align: Align::Left,
-            space_before: before,
-            space_after: after,
-            line_rule: LineRule::Auto,
-            line_value: 240,
-            keep_next,
+            align: read_align(&props),
+            indent_left,
+            indent_right,
+            indent_first_line,
+            space_before,
+            space_after,
+            line_rule,
+            line_value,
+            keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),
+            keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
+            page_break_before: props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
             source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
-            ..Para::default()
         });
     }
 

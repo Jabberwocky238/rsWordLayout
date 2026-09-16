@@ -1,17 +1,30 @@
-[package]
-name = "rsword-layout"
-version = "0.1.0"
+[workspace]
+resolver = "3"
+members = [
+  "crates/core",
+  "crates/wasm",
+  "crates/cffi",
+  "crates/vulkan",
+  "crates/opengl",
+  "crates/webgl",
+]
+
+[workspace.package]
 edition = "2024"
 rust-version = "1.88"
 license = "MIT OR Apache-2.0"
-publish = false
 
-[dependencies]
-rsword = { path = "../../rsWordParser/crates/rsword" }
+[workspace.dependencies]
+rsword = { path = "/home/zq/coding/rsWordParser/crates/rsword" }
+rsword-layout-core = { path = "crates/core" }
+rsword-layout-wasm = { path = "crates/wasm" }
+rsword-layout-cffi = { path = "crates/cffi" }
 serde_json = "1"
 
-[lints.rust]
-unsafe_code = "forbid"
+[workspace.lints.rust]
+# cffi 要暴露 C ABI（extern "C" + 裸指针），与 forbid 不相容，所以整个 workspace 放开。
+# 各 crate 内部仍应优先写安全代码：目前只有 cffi 的边界层与 wasm 的顶点上传需要 unsafe。
+unsafe_code = "allow"
 
-[lints.clippy]
+[workspace.lints.clippy]
 all = { level = "warn", priority = -1 }

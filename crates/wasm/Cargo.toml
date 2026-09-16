@@ -1,0 +1,15 @@
+[package]
+name = "rsword-layout-wasm"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+rsword-layout-core = { workspace = true, features = ["gpu"] }
+rsword = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

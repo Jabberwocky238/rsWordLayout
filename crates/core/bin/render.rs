@@ -6,12 +6,12 @@
 //! 不参与任何排版决策——这正是要验证的东西。
 
 use rsword::bind::native::SessionTable;
-use rsword_layout::bridge::paras_from_document;
-use rsword_layout::canvas::{Canvas, TextRun};
-use rsword_layout::engine::{Engine, PageSetup};
-use rsword_layout::fragment::Fragment;
-use rsword_layout::simple_metrics::SimpleMetrics;
-use rsword_layout::svg::SvgCanvas;
+use rsword_layout_core::bridge::paras_from_document;
+use rsword_layout_core::canvas::{Canvas, TextRun};
+use rsword_layout_core::engine::{Engine, PageSetup};
+use rsword_layout_core::fragment::Fragment;
+use rsword_layout_core::simple_metrics::SimpleMetrics;
+use rsword_layout_core::svg::SvgCanvas;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1);

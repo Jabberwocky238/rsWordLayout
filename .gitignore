@@ -1,5 +1,13 @@
 /target
 **/*.rs.bk
 
-# 渲染产物，由 `cargo run --bin render` 生成
+# 渲染产物，由 `cargo run -p rsword-layout-core --bin render` 生成
 /fixtures/*.html
+
+# wasm-bindgen 产物，由 scripts/prepare-webgl.sh 里的命令生成
+/crates/*/pkg/
+
+# 前端依赖与构建输出
+node_modules/
+/crates/webgl/web/dist/
+.vite/

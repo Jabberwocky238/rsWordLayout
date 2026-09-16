@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rsword-layout · WebGL</title>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<header class="bar">
+  <b>rsword-layout</b>
+  <span class="tag">WebGL2</span>
+  <label class="btn">
+    打开 .docx
+    <input type="file" id="file" accept=".docx" hidden>
+  </label>
+  <span class="sp"></span>
+  <button id="prev" disabled>←</button>
+  <span id="pageinfo">—</span>
+  <button id="next" disabled>→</button>
+  <span class="sp"></span>
+  <label class="zoom">
+    DPI
+    <select id="dpi">
+      <option value="96">96 (1x)</option>
+      <option value="144">144 (1.5x)</option>
+      <option value="192">192 (2x)</option>
+    </select>
+  </label>
+</header>
+
+<div id="drop" class="drop">
+  <div>
+    <p class="big">把 .docx 拖到这里</p>
+    <p class="dim">解析与排版全部在浏览器里完成，文件不会上传</p>
+  </div>
+</div>
+
+<div id="stage" class="stage" hidden>
+  <canvas id="cv"></canvas>
+</div>
+
+<pre id="log" class="log"></pre>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

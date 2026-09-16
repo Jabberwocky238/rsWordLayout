@@ -1,0 +1,36 @@
+[package]
+name = "rsword-layout-webgl"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rsword-layout-core = { workspace = true, features = ["gpu"] }
+
+# 绑定层按编译目标二选一：
+#   wasm32  → rsword-layout-wasm（同为 wasm 目标，类型直接传递，无需跨 ABI）
+#   其余    → rsword-layout-cffi（原生构建下走 C ABI，便于宿主程序共用同一份布局）
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+rsword-layout-wasm = { workspace = true }
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies.web-sys]
+version = "0.3"
+features = [
+  "Document", "Window", "Element", "HtmlCanvasElement",
+  "WebGl2RenderingContext", "WebGlProgram", "WebGlShader",
+  "WebGlBuffer", "WebGlVertexArrayObject", "WebGlUniformLocation",
+  "WebGlTexture",
+]
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rsword-layout-cffi = { workspace = true }
+
+[lints]
+workspace = true

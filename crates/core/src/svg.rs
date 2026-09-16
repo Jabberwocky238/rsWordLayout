@@ -42,7 +42,7 @@ impl SvgCanvas {
     pub fn into_html(self, title: &str) -> String {
         let mut s = String::new();
         s.push_str("<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"utf-8\">\n");
-        let _ = write!(s, "<title>{}</title>\n", esc(title));
+        let _ = writeln!(s, "<title>{}</title>", esc(title));
         s.push_str(
             "<style>\n\
              :root{color-scheme:light dark}\n\
@@ -56,10 +56,10 @@ impl SvgCanvas {
              @media (prefers-color-scheme:dark){body{background:#3a3a3a}}\n\
              </style>\n</head>\n<body>\n",
         );
-        let _ = write!(
+        let _ = writeln!(
             s,
             "<div class=\"bar\"><b>{}</b><span>{} 页</span>\
-             <span>rsword-layout · SVG 后端</span></div>\n",
+             <span>rsword-layout · SVG 后端</span></div>",
             esc(title),
             self.pages.len()
         );

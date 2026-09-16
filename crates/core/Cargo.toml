@@ -1,0 +1,37 @@
+[package]
+name = "rsword-layout-core"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# bin/ 与 examples/ 不在 src/ 下，Cargo 不会自动发现。
+[[bin]]
+name = "render"
+path = "bin/render.rs"
+
+[[example]]
+name = "dump"
+path = "examples/dump.rs"
+
+[[test]]
+name = "repr_c"
+path = "tests/repr_c.rs"
+
+[[test]]
+name = "atlas"
+path = "tests/atlas.rs"
+required-features = ["gpu"]
+
+[features]
+default = []
+# 布局产物 → 顶点/索引缓冲 + 绘制批次。与图形 API 无关，三个后端共用。
+gpu = []
+
+[dependencies]
+rsword = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

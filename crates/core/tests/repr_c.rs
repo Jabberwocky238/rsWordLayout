@@ -6,9 +6,9 @@
 
 use std::mem::{align_of, offset_of, size_of};
 
-use rsword_layout::canvas::Color;
-use rsword_layout::geom::{Margins, Point, Rect, Size, Twips};
-use rsword_layout::measure::{BreakOpportunity, TextMetrics};
+use rsword_layout_core::canvas::Color;
+use rsword_layout_core::geom::{Margins, Point, Rect, Size, Twips};
+use rsword_layout_core::measure::{BreakOpportunity, TextMetrics};
 
 #[test]
 fn twips_is_i32() {

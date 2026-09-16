@@ -1,0 +1,84 @@
+:root {
+  color-scheme: light dark;
+  --bg: #8a8a8a;
+  --fg: #fff;
+  --panel: rgba(0, 0, 0, .28);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #343434; }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 1000px;
+  margin: 0 auto 14px;
+}
+.bar b { font-size: 16px; }
+.sp { flex: 0 0 8px; }
+
+.tag {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--panel);
+}
+
+.btn, button, select {
+  font: inherit;
+  color: inherit;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+button:disabled { opacity: .4; cursor: default; }
+.btn:hover, button:not(:disabled):hover { background: rgba(0, 0, 0, .4); }
+.zoom { display: flex; align-items: center; gap: 6px; }
+select { padding: 4px 6px; }
+
+.drop {
+  max-width: 1000px;
+  margin: 0 auto;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border: 2px dashed rgba(255, 255, 255, .35);
+  border-radius: 10px;
+}
+.drop.over { border-color: #fff; background: rgba(255, 255, 255, .08); }
+.big { font-size: 18px; margin: 0 0 6px; }
+.dim { opacity: .75; margin: 0; font-size: 13px; }
+
+.stage { text-align: center; }
+canvas {
+  background: #fff;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .45);
+  max-width: 100%;
+  height: auto;
+}
+
+.log {
+  max-width: 1000px;
+  margin: 14px auto 0;
+  padding: 10px 14px;
+  background: var(--panel);
+  border-radius: 6px;
+  font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  min-height: 1.6em;
+}
