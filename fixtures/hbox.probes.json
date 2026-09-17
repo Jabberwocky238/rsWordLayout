@@ -1,0 +1,83 @@
+{
+  "sha256": "9d972f7bfb755aecfcc7cda53f00f59ceebbedf84ebeb6c8e6adc5ca7d09078c",
+  "probes": [
+    {
+      "tag": "r0",
+      "kind": "right",
+      "textIndex": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "r1",
+      "kind": "right",
+      "textIndex": 1,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "r2",
+      "kind": "right",
+      "textIndex": 2,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "r3",
+      "kind": "right",
+      "textIndex": 3,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "t0",
+      "kind": "justify",
+      "reps": 3,
+      "sizeHalfPoints": 26,
+      "family": "Luminari"
+    },
+    {
+      "tag": "t1",
+      "kind": "justify",
+      "reps": 5,
+      "sizeHalfPoints": 26,
+      "family": "Luminari"
+    },
+    {
+      "tag": "s00",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "s20",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 20,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "s40",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 40,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "s80",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 80,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    }
+  ]
+}
