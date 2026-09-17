@@ -1,0 +1,183 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-vmisc.md",
+  "bundle": "/Users/user/Documents/rsword-captures/vmisc",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 15,
+    "pdfPages": 15,
+    "sweepPositions": 174,
+    "linesFromSweep": 53
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "P0": {
+      "prediction": "P0 每条基线都在 0.24pt 栅格上",
+      "n": 53,
+      "ok": 53,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "P1": {
+      "prediction": "P1 段落间距：Δ(sp) − Δ(0) = sp/20 pt",
+      "n": 6,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [
+        {
+          "spaceAfter": 120,
+          "对": 0,
+          "无间距差": 15.84,
+          "有间距差": 22.08,
+          "实测增量": 6.24,
+          "预测": 6.0,
+          "偏离": 0.24
+        },
+        {
+          "spaceAfter": 120,
+          "对": 1,
+          "无间距差": 16.08,
+          "有间距差": 21.84,
+          "实测增量": 5.76,
+          "预测": 6.0,
+          "偏离": -0.24
+        },
+        {
+          "spaceAfter": 240,
+          "对": 0,
+          "无间距差": 15.84,
+          "有间距差": 28.08,
+          "实测增量": 12.24,
+          "预测": 12.0,
+          "偏离": 0.24
+        },
+        {
+          "spaceAfter": 240,
+          "对": 1,
+          "无间距差": 16.08,
+          "有间距差": 27.84,
+          "实测增量": 11.76,
+          "预测": 12.0,
+          "偏离": -0.24
+        },
+        {
+          "spaceAfter": 480,
+          "对": 0,
+          "无间距差": 15.84,
+          "有间距差": 40.08,
+          "实测增量": 24.24,
+          "预测": 24.0,
+          "偏离": 0.24
+        },
+        {
+          "spaceAfter": 480,
+          "对": 1,
+          "无间距差": 16.08,
+          "有间距差": 39.84,
+          "实测增量": 23.76,
+          "预测": 24.0,
+          "偏离": -0.24
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    },
+    "P2": {
+      "prediction": "P2 w:position：y_normal − y_raised = val/2 pt",
+      "n": 4,
+      "ok": 2,
+      "undecidable": 0,
+      "misses": [
+        {
+          "tag": "f",
+          "val": 6,
+          "y_normal": 84.95999999999992,
+          "y_raised": 81.83999999999992,
+          "实测差": 3.12,
+          "预测": 3.0,
+          "偏离": 0.12
+        },
+        {
+          "tag": "h",
+          "val": -6,
+          "y_normal": 84.95999999999992,
+          "y_raised": 88.07999999999993,
+          "实测差": -3.12,
+          "预测": -3.0,
+          "偏离": -0.12
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    },
+    "P3": {
+      "prediction": "P3 atLeast：line 大于自然行高时与 exact 同解",
+      "n": 18,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [
+        {
+          "lineTwips": 400,
+          "行": 0,
+          "atLeast 格数": 364,
+          "exact 格数": 367,
+          "差": -3
+        },
+        {
+          "lineTwips": 400,
+          "行": 1,
+          "atLeast 格数": 447,
+          "exact 格数": 450,
+          "差": -3
+        },
+        {
+          "lineTwips": 400,
+          "行": 2,
+          "atLeast 格数": 531,
+          "exact 格数": 534,
+          "差": -3
+        },
+        {
+          "lineTwips": 400,
+          "行": 3,
+          "atLeast 格数": 614,
+          "exact 格数": 617,
+          "差": -3
+        },
+        {
+          "lineTwips": 400,
+          "行": 4,
+          "atLeast 格数": 697,
+          "exact 格数": 700,
+          "差": -3
+        },
+        {
+          "lineTwips": 400,
+          "行": 5,
+          "atLeast 格数": 781,
+          "exact 格数": 784,
+          "差": -3
+        },
+        {
+          "lineTwips": 520,
+          "行": 0,
+          "atLeast 格数": 389,
+          "exact 格数": 387,
+          "差": 2
+        },
+        {
+          "lineTwips": 520,
+          "行": 1,
+          "atLeast 格数": 497,
+          "exact 格数": 495,
+          "差": 2
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    }
+  }
+}
