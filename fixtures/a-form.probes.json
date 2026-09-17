@@ -1,0 +1,134 @@
+{
+  "sha256": "7cbb3657575cc27832033d8a695814018dd5f5bee74202c00f6ad8ec18965ec2",
+  "linesPerGroup": 10,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "a-form",
+      "lineTwips": 206,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "b",
+      "kind": "a-form",
+      "lineTwips": 210,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "c",
+      "kind": "a-form",
+      "lineTwips": 214,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "d",
+      "kind": "a-form",
+      "lineTwips": 238,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "e",
+      "kind": "a-form",
+      "lineTwips": 240,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "f",
+      "kind": "a-form",
+      "lineTwips": 260,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "g",
+      "kind": "a-form",
+      "lineTwips": 264,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "h",
+      "kind": "a-form",
+      "lineTwips": 270,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "i",
+      "kind": "a-form",
+      "lineTwips": 272,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "j",
+      "kind": "a-form",
+      "lineTwips": 280,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "k",
+      "kind": "a-form",
+      "lineTwips": 288,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "l",
+      "kind": "a-form",
+      "lineTwips": 296,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "m",
+      "kind": "a-form",
+      "lineTwips": 298,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "n",
+      "kind": "a-form",
+      "lineTwips": 302,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "o",
+      "kind": "a-form",
+      "lineTwips": 304,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "p",
+      "kind": "a-form",
+      "lineTwips": 308,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    }
+  ]
+}
