@@ -54,15 +54,15 @@ def _sweep_script(doc_expr: str) -> str:
 set theDoc to {doc_expr}
 set theRange to text object of theDoc
 set eoc to end of content of theRange
-set rows to {{}}
+set acc to {{}}
 repeat with i from 0 to (eoc - 1)
     set r to create range theDoc start i end i
     set ln to (get range information r information type first character line number)
     set pg to (get range information r information type active end page number)
-    set end of rows to ((i as text) & "," & (ln as text) & "," & (pg as text))
+    set end of acc to ((i as text) & "," & (ln as text) & "," & (pg as text))
 end repeat
 set AppleScript's text item delimiters to linefeed
-set out to rows as text
+set out to acc as text
 set AppleScript's text item delimiters to ""
 return (eoc as text) & linefeed & "---" & linefeed & out
 """
@@ -76,15 +76,16 @@ def _paragraphs_script(doc_expr: str) -> str:
     """
     return f"""
 set theDoc to {doc_expr}
-set rows to {{}}
-repeat with p in paragraphs of text object of theDoc
-    set r to text object of p
+set acc to {{}}
+set n to count of paragraphs of text object of theDoc
+repeat with i from 1 to n
+    set r to text object of (paragraph i of text object of theDoc)
     set s to start of content of r
     set e to end of content of r
-    set end of rows to ((s as text) & "," & (e as text))
+    set end of acc to ((s as text) & "," & (e as text))
 end repeat
 set AppleScript's text item delimiters to linefeed
-set out to rows as text
+set out to acc as text
 set AppleScript's text item delimiters to ""
 return out
 """
