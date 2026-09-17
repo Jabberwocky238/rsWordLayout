@@ -467,6 +467,8 @@ pub struct PositionedGlyph {
     /// 笔位，twips。
     pub x: Twips,
     pub y: Twips,
+    /// 笔位纵向的**精确值**，单位 1/7200 英寸。见 [`TextFragment::baseline_fine`]。
+    pub y_fine: i64,
     /// 推进量，twips。整形器给出，比较器用它核对相邻字形的错位。
     pub advance_x: Twips,
     pub advance_y: Twips,
@@ -506,6 +508,8 @@ pub enum DrawCmd {
         /// 段落起点（基线左端），twips。`glyphs` 为空时后端靠它定位。
         origin_x: Twips,
         origin_y: Twips,
+        /// 段落起点基线的**精确** y，单位 1/7200 英寸。见 [`TextFragment::baseline_fine`]。
+        origin_y_fine: i64,
         text: String,
         font: crate::font::FontSpec,
         paint: Paint,
@@ -743,8 +747,13 @@ pub enum Fragment {
 #[derive(Debug, Clone)]
 pub struct TextFragment {
     pub x: Twips,
-    /// 基线绝对 y（页内坐标）。
+    /// 基线绝对 y（页内坐标），twips。**有残差**：栅格点落不到整 twips 上。
     pub baseline_y: Twips,
+    /// 基线绝对 y 的**精确值**，单位 1/7200 英寸。
+    ///
+    /// `baseline_y` 是它落到整 twips 的结果，而 Word 的栅格是 0.24pt = 4.8 twips，
+    /// 取整必然有残差、且沿页累加。要与 Word 逐位相比，就得读这一个。
+    pub baseline_fine: i64,
     pub text: String,
     pub font: FontSpec,
     pub color: Color,
@@ -1109,7 +1118,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     cursor_fine = fine(area.y);
                     line_index = 0;
                 }
-                self.place_line(&mut page, &line, para, coarse(cursor_fine), line_index);
+                self.place_line(&mut page, &line, para, cursor_fine, line_index);
                 line_index += 1;
                 // **精确累加**：用 height_fine 而不是取整后的 height。
                 cursor_fine += line.height_fine;
@@ -1142,7 +1151,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         page: &mut Page,
         line: &PendingLine,
         para: &Para,
-        top: Twips,
+        top_fine: i64,
         line_index: u32,
     ) {
         // 用本行实际落到的区间，而不是整个正文宽度——有环绕时两者不同。
@@ -1167,7 +1176,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             0
         };
 
-        let baseline_y = top + line.baseline;
+        // 基线落位：在 1/7200 英寸上加好再交给度量量化到它的栅格。
+        // 先取整到 twips 再量化是不行的——0.24pt = 4.8 twips，取整就把栅格点碾碎了。
+        let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
+        let coarse = |f: i64| ((f as f64) / FINE_PER_TWIP as f64).round() as Twips;
+        let baseline_fine = self
+            .metrics
+            .quantize_baseline_fine(top_fine + fine(line.baseline));
+        let baseline_y = coarse(baseline_fine);
         let last = line.pieces.len().saturating_sub(1);
         for (i, p) in line.pieces.iter().enumerate() {
             let x = base_x + offset + p.dx + justify_gap * (i as Twips);
@@ -1183,7 +1199,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             page.fragments.push(Fragment::Text(TextFragment {
                 x,
                 // 抬升是**向上**的，而页内 y 向下增长，所以要减。
-                baseline_y: baseline_y - p.rise,
+                baseline_y: coarse(baseline_fine - fine(p.rise)),
+                baseline_fine: baseline_fine - fine(p.rise),
                 text,
                 font: p.font.clone(),
                 color: p.color,
@@ -1215,6 +1232,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             page.fragments.push(Fragment::Text(TextFragment {
                 x: base_x + offset,
                 baseline_y,
+                baseline_fine,
                 text,
                 font: para
                     .runs
@@ -1665,6 +1683,7 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
                     glyphs,
                     origin_x: t.x,
                     origin_y: t.baseline_y,
+                    origin_y_fine: t.baseline_fine,
                     text: t.text.clone(),
                     font: t.font.clone(),
                     paint: Paint::solid(t.color),
@@ -1750,6 +1769,7 @@ fn position_glyphs(
                 glyph_id: g.glyph_id,
                 x: pen + g.x_offset,
                 y: t.baseline_y - g.y_offset,
+                y_fine: t.baseline_fine - i64::from(g.y_offset) * FINE_PER_TWIP,
                 advance_x: g.x_advance,
                 advance_y: 0,
                 size_half_points: t.font.size_half_points,

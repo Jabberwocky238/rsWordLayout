@@ -128,6 +128,7 @@ fn distance_is_euclidean() {
     let a = GlyphRecord {
         origin_x: 0,
         origin_y: 0,
+        origin_y_fine: i64::from(0) * rsword_layout_core::font::FINE_PER_TWIP,
         advance_x: 0,
         advance_y: 0,
         face: "f".into(),

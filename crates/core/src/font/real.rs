@@ -218,6 +218,23 @@ impl FontMetrics for RealMetrics<'_> {
         super::linebreak::break_opportunities(text)
     }
 
+    fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {
+        // 栅格步距换算到 1/7200 英寸：0.24pt = 4.8 twips = **24 个单位**，是整数，
+        // 所以这里的量化是精确的整数运算，不像落到 twips 那样必然有残差。
+        let Some(step_twips) = self.grid.step() else { return y_fine };
+        let step = (step_twips * FINE_PER_TWIP as f64).round() as i64;
+        if step <= 0 {
+            return y_fine;
+        }
+        // 四舍五入到最近的栅格点（远离零，与 `quantize` 的其余处一致）。
+        let half = step / 2;
+        if y_fine >= 0 {
+            (y_fine + half) / step * step
+        } else {
+            -((-y_fine + half) / step * step)
+        }
+    }
+
     fn natural_height_fine(&self, text: &str, font: &FontSpec) -> i64 {
         // **不整形**：行高只取决于字体的纵向量，所以这条比 `measure` 便宜得多——
         // 布局主干会为每个片段调用它。

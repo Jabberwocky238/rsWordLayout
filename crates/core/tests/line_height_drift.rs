@@ -119,3 +119,74 @@ fn a_metrics_without_fine_override_still_works() {
         assert!(pair[1] > pair[0], "行没有往下走：{ys:?}");
     }
 }
+
+/// 基线必须落在度量声明的栅格上，**一条不差**。
+///
+/// 这是三份互相独立的夹具量出来的：Word for Mac 把每条基线放在 1/300 英寸
+/// （0.24pt）的栅格上，**1080 条基线零例外**（见 `docs/PREREG-2026-09-17-*.md`
+/// 的 Q0 / R0）。它是本项目目前证据最硬的一条。
+///
+/// 引擎原来做不到，而且是**结构上**做不到：落位走 `Twips`（1/1440 英寸），
+/// 而 0.24pt = **4.8 twips**，栅格点根本落不到整 twips 上。实测那会儿
+/// 240 条基线里落在栅格上的是 **0** 条。改成在 1/7200 英寸上落位并交给度量
+/// 量化之后是 240 条。
+struct QuantisingMetrics;
+
+/// 0.24pt = 4.8 twips = **24 个 1/7200 英寸**，整数——所以量化是精确的。
+const GRID_FINE: i64 = 24;
+
+impl FontMetrics for QuantisingMetrics {
+    fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
+        GridMetrics.measure(text, font)
+    }
+    fn break_opportunities(&self, text: &str) -> Vec<BreakOpportunity> {
+        SimpleMetrics.break_opportunities(text)
+    }
+    fn natural_height_fine(&self, text: &str, font: &FontSpec) -> i64 {
+        GridMetrics.natural_height_fine(text, font)
+    }
+    fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {
+        (y_fine + GRID_FINE / 2) / GRID_FINE * GRID_FINE
+    }
+}
+
+#[test]
+fn every_baseline_lands_on_the_metrics_grid() {
+    use rsword_layout_core::Fragment;
+
+    let paras: Vec<Para> = (0..20).map(|i| para(&format!("L{i}"))).collect();
+    let pages = Engine::new(&QuantisingMetrics, PageSetup::a4()).layout(&paras);
+
+    let mut n = 0;
+    for page in &pages {
+        for f in &page.fragments {
+            if let Fragment::Text(t) = f {
+                n += 1;
+                assert_eq!(
+                    t.baseline_fine % GRID_FINE,
+                    0,
+                    "第 {n} 条基线落在栅格外：{} (1/7200 英寸)",
+                    t.baseline_fine
+                );
+            }
+        }
+    }
+    assert_eq!(n, 20, "应当排出 20 行");
+}
+
+/// 自证上面那条有鉴别力：不量化的度量给出的基线**不**全在栅格上。
+///
+/// 少了这条，`quantize_baseline_fine` 哪天变成恒等，上面那条也可能碰巧全绿。
+#[test]
+fn without_quantising_the_baselines_miss_the_grid() {
+    use rsword_layout_core::Fragment;
+
+    let paras: Vec<Para> = (0..20).map(|i| para(&format!("L{i}"))).collect();
+    let pages = Engine::new(&GridMetrics, PageSetup::a4()).layout(&paras);
+    let off = pages
+        .iter()
+        .flat_map(|p| p.fragments.iter())
+        .filter(|f| matches!(f, Fragment::Text(t) if t.baseline_fine % GRID_FINE != 0))
+        .count();
+    assert!(off > 0, "这组输入区分不出量化与不量化，本组测试没有鉴别力");
+}

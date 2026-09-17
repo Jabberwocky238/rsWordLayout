@@ -45,6 +45,14 @@ fn pt(twips: Twips) -> f64 {
     f64::from(twips) / 20.0
 }
 
+/// 1/7200 英寸 → 点。
+///
+/// 纵坐标走这一条而不是 [`pt`]：Word 的基线在 0.24pt = 4.8 twips 的栅格上，
+/// 先落到整 twips 再换算，残差会沿页累加，与 Word 就逐位对不上了。
+fn pt_fine(fine: i64) -> f64 {
+    fine as f64 / (20.0 * crate::font::FINE_PER_TWIP as f64)
+}
+
 fn num(v: f64) -> String {
     if v == v.trunc() && v.abs() < 1e15 {
         format!("{v:.1}")
@@ -170,7 +178,7 @@ pub fn to_trace_json(record: &LayoutRecord, meta: &TraceMeta) -> String {
                     "            {{\"origin\": [{}, {}], \"advance\": [{}, {}], \
                      \"glyphId\": {}, \"face\": {}, \"sizeHalfPoints\": {}, \"sourceChar\": {}}}",
                     num(pt(glyph.origin_x)),
-                    num(pt(glyph.origin_y)),
+                    num(pt_fine(glyph.origin_y_fine)),
                     num(pt(glyph.advance_x)),
                     num(pt(glyph.advance_y)),
                     glyph.glyph_id,

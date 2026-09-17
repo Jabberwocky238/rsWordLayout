@@ -99,6 +99,11 @@ pub struct GlyphRecord {
     /// 字形原点（笔位），twips。这是与 Word PDF 直接对比的量。
     pub origin_x: Twips,
     pub origin_y: Twips,
+    /// 原点纵向的**精确值**，单位 1/7200 英寸。
+    ///
+    /// 与 Word 逐位相比必须读这一个：Word 的基线落在 0.24pt = **4.8 twips** 的栅格上，
+    /// `origin_y` 取整到 twips 的残差会沿页累加（实测一页 20 行攒到 2.4pt）。
+    pub origin_y_fine: i64,
     /// 推进向量，twips。
     pub advance_x: Twips,
     pub advance_y: Twips,
@@ -264,6 +269,7 @@ impl GlyphRecord {
         GlyphRecord {
             origin_x: g.x,
             origin_y: g.y,
+            origin_y_fine: g.y_fine,
             advance_x: g.advance_x,
             advance_y: g.advance_y,
             face: g.face.clone(),

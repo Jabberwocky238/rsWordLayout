@@ -288,6 +288,23 @@ pub trait FontMetrics {
         i64::from(self.measure(text, font).natural_height()) * FINE_PER_TWIP
     }
 
+    /// 把一条基线的纵向位置量化到本度量的栅格，单位 1/7200 英寸。
+    ///
+    /// **这是已确立的观测**，不是猜测：Word for Mac 把每条基线放在
+    /// 1/300 英寸（0.24pt）的栅格上，三份互相独立的夹具、1080 条基线、
+    /// **零例外**（见 `docs/PREREG-2026-09-17-*.md` 的 Q0 / R0）。
+    ///
+    /// 为什么非得在 1/7200 英寸上做：布局的 `Twips` 是 1/1440 英寸，
+    /// 而 0.24pt = **4.8 twips**——栅格点根本落不到整 twips 上，
+    /// 两者只在 1/7200 英寸上通约（0.24pt = 24 个单位，整数）。
+    /// 所以落位若走 twips，引擎的基线**在结构上就不可能**落到 Word 的栅格上。
+    ///
+    /// 默认恒等：不做量化的实现（如 [`crate::SimpleMetrics`]）没有栅格可言。
+    /// **做量化的实现应当覆盖它。**
+    fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {
+        y_fine
+    }
+
     /// 空行高度：没有任何文字时，行高取决于段落标记的字体。
     fn empty_line_metrics(&self, font: &FontSpec) -> TextMetrics {
         self.measure("", font)
