@@ -56,4 +56,26 @@ def run(source: str, timeout: float = 120.0) -> str:
 
 
 def tell_word(body: str, timeout: float = 120.0) -> str:
-    return run('tell application %s\n%s\nend tell' % (literal(WORD_BUNDLE), body), timeout=timeout)
+    """把 `body` 发给 Word。
+
+    外面套一层 `with timeout of N seconds`，**这一层不是多余的**：
+
+    - `run()` 的 `timeout` 管的是 `osascript` 这个**进程**能跑多久；
+    - AppleScript 自己对每个 Apple event 另有一个超时，**默认 120 秒**，
+      到点就抛 -1712，与进程超时毫无关系。
+
+    两者不设成一致时，长活儿会在 120 秒整被 AppleScript 掐掉，而调用方以为
+    自己给了半小时。实测就是这么栽的：采集包目录第一次用会弹文件夹授权框，
+    人还没走到键盘前，事件已经超时，采集失败，框也跟着消失。
+
+    取 `timeout + 1` 是让**进程**超时晚于**事件**超时：这样超时总是以
+    AppleScript 的 -1712 形式回来（Word 状态明确），而不是进程被杀
+    （Word 可能还在干活，状态不明）。
+    """
+    inner = int(timeout) + 1
+    return run(
+        "with timeout of %d seconds\n"
+        "tell application %s\n%s\nend tell\n"
+        "end timeout" % (inner, literal(WORD_BUNDLE), body),
+        timeout=timeout + 30.0,
+    )
