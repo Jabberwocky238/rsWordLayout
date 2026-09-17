@@ -1,0 +1,88 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-breaks-sections.md",
+  "clueIndependence": "S2 的线索取自已见数据（n=1 旧观察），按 §7.5 记为非独立检验",
+  "bundle": "/Users/user/Documents/rsword-captures/breaks-sections",
+  "bundleState": "UNDECIDABLE",
+  "coverage": {
+    "wordPagesInSweep": 15,
+    "pdfPages": 15,
+    "sweepPositions": 96,
+    "linesFromSweep": 33
+  },
+  "lineDenominators": {
+    "lines": 19,
+    "ok": 19,
+    "fail": 0,
+    "undecidable": 6
+  },
+  "marksCheck": "OK",
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "S0": {
+      "prediction": "S0 每条基线都在 0.24pt 栅格上",
+      "n": 19,
+      "ok": 19,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "S1": {
+      "prediction": "S1 分页符三分：计数模型与实测相符",
+      "n": 5,
+      "ok": 5,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "byKind": {
+        "break-line-itself": {
+          "ok": 2,
+          "fail": 0,
+          "und": 0
+        },
+        "break-mid": {
+          "ok": 3,
+          "fail": 0,
+          "und": 0
+        }
+      },
+      "verdict": "OK"
+    },
+    "S2": {
+      "prediction": "S2 分节边界那一步比常规多 0.24pt",
+      "n": 3,
+      "ok": 0,
+      "undecidable": 1,
+      "misses": [
+        {
+          "pair": 0,
+          "无分节差": 17.04,
+          "有分节差": 17.04,
+          "实测增量": 0.0,
+          "预测": 0.24,
+          "偏离": -0.24
+        },
+        {
+          "pair": 1,
+          "无分节差": 17.04,
+          "有分节差": 17.04,
+          "实测增量": 0.0,
+          "预测": 0.24,
+          "偏离": -0.24
+        }
+      ],
+      "notes": [
+        {
+          "tag": "f",
+          "pair": 2,
+          "hasSection": true,
+          "reason": "该组行数不足",
+          "行数": 0
+        }
+      ],
+      "verdict": "FAIL"
+    }
+  }
+}
