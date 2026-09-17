@@ -41,12 +41,18 @@ def covered_chars(path, chars: str | set[str]) -> set[str]:
         return set()
     base = tables["cmap"]
     n_tables = struct.unpack(">H", data[base + 2 : base + 4])[0]
-    sub = None
+
+    # **按优先级挑子表，不是「循环到最后一个」**。
+    # 原来那样写会被排在后面的子表覆盖掉正确的那个：Zapfino 因此被读成
+    # 「一个 ASCII 字形都没有」，而换一组待查字符又读成「只缺 012345」——
+    # 同一个字体两次给出互相矛盾的答案，正是这个 bug 露出来的样子。
+    PREF = ((3, 10), (3, 1), (0, 6), (0, 4), (0, 3), (0, 1), (0, 0))
+    found: dict[tuple[int, int], int] = {}
     for i in range(n_tables):
         rec = base + 4 + 8 * i
         pid, eid, off = struct.unpack(">HHI", data[rec : rec + 8])
-        if (pid, eid) in ((3, 1), (3, 10), (0, 3), (0, 4), (0, 6)):
-            sub = base + off
+        found.setdefault((pid, eid), base + off)
+    sub = next((found[k] for k in PREF if k in found), None)
     if sub is None:
         return set()
 
