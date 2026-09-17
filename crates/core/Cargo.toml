@@ -49,6 +49,11 @@ name = "slots"
 path = "tests/slots.rs"
 
 [[test]]
+name = "advance_accumulation"
+path = "tests/advance_accumulation.rs"
+required-features = ["fontenv"]
+
+[[test]]
 name = "real_metrics"
 path = "tests/real_metrics.rs"
 required-features = ["fontenv"]

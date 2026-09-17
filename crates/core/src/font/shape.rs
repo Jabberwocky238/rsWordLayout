@@ -20,7 +20,7 @@ use std::collections::HashMap;
 
 use rustybuzz::{Face, UnicodeBuffer};
 
-use crate::layout::{Twips, points_to_twips};
+use crate::layout::{TWIPS_PER_POINT, Twips};
 use super::FontSpec;
 use crate::layout::{ShapedRun, TextShaper};
 
@@ -115,28 +115,41 @@ impl RustybuzzShaper {
         let out = rustybuzz::shape(&face, features, buf);
 
         // rustybuzz 的位置量以字体设计单位计；先换到点，再换到 twips。
-        let upem = face.units_per_em() as f32;
-        let pt_size = size_half_points as f32 / 2.0;
-        let to_twips = |v: i32| -> Twips {
-            if upem <= 0.0 {
-                return 0;
-            }
-            points_to_twips(f64::from(v as f32 * pt_size / upem))
-        };
+        //
+        // **全程用 f64，且只在落位时取一次整。** 逐字形各取各的整会沿行累加：
+        // 实测 Word 给 `e` 5.3280pt、引擎给 5.3500pt（差 1 twip），
+        // 到第 20 个字形就攒到 3 twips（0.15pt）。
+        //
+        // 手法是：把未取整的累计推进量留在 f64 里，**推进量取相邻取整位置之差**。
+        // 这样任意前缀和都恰好等于「精确累计值取整」，位置不会漂——
+        // 而单个推进量仍是整 twips，`ShapedRun` 的契约不变。
+        let upem = f64::from(face.units_per_em());
+        if upem <= 0.0 {
+            return Vec::new();
+        }
+        let pt_size = f64::from(size_half_points) / 2.0;
+        let exact = |v: i32| -> f64 { f64::from(v) * pt_size / upem * f64::from(TWIPS_PER_POINT) };
 
         let infos = out.glyph_infos();
         let positions = out.glyph_positions();
-        infos
-            .iter()
-            .zip(positions.iter())
-            .map(|(info, pos)| ShapedRun {
+        let mut acc = 0.0f64;
+        let mut acc_twips: Twips = 0;
+        let mut runs = Vec::with_capacity(infos.len());
+        for (info, pos) in infos.iter().zip(positions.iter()) {
+            let next = acc + exact(pos.x_advance);
+            let next_twips = next.round() as Twips;
+            runs.push(ShapedRun {
                 face_index,
                 glyph_id: info.glyph_id,
-                x_advance: to_twips(pos.x_advance),
-                x_offset: to_twips(pos.x_offset),
-                y_offset: to_twips(pos.y_offset),
-            })
-            .collect()
+                x_advance: next_twips - acc_twips,
+                // 偏移是相对本字形的，不参与累计，各自取整即可。
+                x_offset: exact(pos.x_offset).round() as Twips,
+                y_offset: exact(pos.y_offset).round() as Twips,
+            });
+            acc = next;
+            acc_twips = next_twips;
+        }
+        runs
     }
 
     /// 已注册的 face 数。
