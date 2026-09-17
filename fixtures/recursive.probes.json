@@ -1,0 +1,134 @@
+{
+  "sha256": "0e189e160fa5d9b5b3946951bba25c3c10cd1447d120045d57348af61e5b7259",
+  "linesPerGroup": 20,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "recursive",
+      "lineTwips": 252,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "b",
+      "kind": "recursive",
+      "lineTwips": 276,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "c",
+      "kind": "recursive",
+      "lineTwips": 348,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "d",
+      "kind": "recursive",
+      "lineTwips": 372,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "e",
+      "kind": "recursive",
+      "lineTwips": 234,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "f",
+      "kind": "recursive",
+      "lineTwips": 266,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "g",
+      "kind": "recursive",
+      "lineTwips": 274,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "h",
+      "kind": "recursive",
+      "lineTwips": 278,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "i",
+      "kind": "recursive",
+      "lineTwips": 252,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "j",
+      "kind": "recursive",
+      "lineTwips": 276,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "k",
+      "kind": "recursive",
+      "lineTwips": 348,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "l",
+      "kind": "recursive",
+      "lineTwips": 372,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "m",
+      "kind": "recursive",
+      "lineTwips": 234,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "n",
+      "kind": "recursive",
+      "lineTwips": 266,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "o",
+      "kind": "recursive",
+      "lineTwips": 274,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "p",
+      "kind": "recursive",
+      "lineTwips": 278,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    }
+  ]
+}
