@@ -16,7 +16,7 @@ use skrifa::outline::{DrawSettings, OutlinePen};
 use skrifa::{FontRef, MetadataProvider};
 use zeno::{Format, Mask, PathBuilder};
 
-use super::atlas::{GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer};
+use crate::atlas::{GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer};
 
 /// 把 skrifa 的画笔命令转成 zeno 的路径。
 ///

@@ -10,13 +10,19 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-rsword-layout-core = { workspace = true, features = ["gpu"] }
+rsword-layout-core = { workspace = true }
+# 顶点布局常量在原生构建下也导出（供宿主自行接 GL 参考），所以不放在 target 块里。
+rsword-layout-gpu = { workspace = true }
 
 # 绑定层按编译目标二选一：
 #   wasm32  → rsword-layout-wasm（同为 wasm 目标，类型直接传递，无需跨 ABI）
 #   其余    → rsword-layout-cffi（原生构建下走 C ABI，便于宿主程序共用同一份布局）
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rsword-layout-wasm = { workspace = true }
+# 浏览器里要真的画出字：core 管整形（与分辨率无关），gpu 管栅格化。
+rsword-layout-core = { workspace = true, features = ["shape"] }
+rsword-layout-gpu = { workspace = true, features = ["raster"] }
+docx-layout = { workspace = true }
 wasm-bindgen = "0.2"
 js-sys = "0.3"
 

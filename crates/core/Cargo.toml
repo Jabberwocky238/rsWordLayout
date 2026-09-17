@@ -24,37 +24,26 @@ name = "probe_shape"
 path = "examples/probe_shape.rs"
 required-features = ["shape"]
 
-[[example]]
-name = "probe_raster"
-path = "examples/probe_raster.rs"
-required-features = ["raster"]
-
 [[test]]
 name = "repr_c"
 path = "tests/repr_c.rs"
 
 [[test]]
-name = "atlas"
-path = "tests/atlas.rs"
-required-features = ["gpu"]
+name = "paint"
+path = "tests/paint.rs"
+
 
 [features]
 default = []
-# 布局产物 → 顶点/索引缓冲 + 绘制批次。与图形 API 无关，三个后端共用。
-gpu = []
-# 用 skrifa 读轮廓 + zeno 光栅化的 Rasterizer 实现。
-# 单独成 feature：不做 GPU 渲染的调用方（如 SVG 后端）不必带上这两个依赖。
-raster = ["gpu", "dep:skrifa", "dep:zeno"]
-# rustybuzz 实现的 Shaper：连字、阿拉伯语形态、印度语重排都靠它。
-shape = ["gpu", "dep:rustybuzz"]
+# rustybuzz 整形。产物是 glyph id 与 twips 推进量，与分辨率无关，故留在 core；
+# 栅格化需要知道目标 DPI，归 rsword-layout-gpu。
+shape = ["dep:rustybuzz"]
 
 [dependencies]
 rsword = { workspace = true }
 serde_json = { workspace = true }
 docx-layout = { workspace = true }
 docx-layout-contract = { workspace = true }
-skrifa = { workspace = true, optional = true }
-zeno = { workspace = true, optional = true }
 rustybuzz = { workspace = true, optional = true }
 
 [lints]

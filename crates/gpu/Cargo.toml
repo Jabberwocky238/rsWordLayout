@@ -1,0 +1,29 @@
+[package]
+name = "rsword-layout-gpu"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[features]
+default = []
+# skrifa 读轮廓 + zeno 光栅化。栅格化必须知道目标分辨率，所以它属于本 crate 而非 core。
+raster = ["dep:skrifa", "dep:zeno"]
+
+[[example]]
+name = "probe_raster"
+path = "examples/probe_raster.rs"
+required-features = ["raster"]
+
+[[test]]
+name = "atlas"
+path = "tests/atlas.rs"
+
+[dependencies]
+rsword-layout-core = { workspace = true }
+skrifa = { workspace = true, optional = true }
+zeno = { workspace = true, optional = true }
+
+[lints]
+workspace = true

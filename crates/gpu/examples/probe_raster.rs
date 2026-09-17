@@ -2,9 +2,9 @@
 //!
 //! 编译通过不等于画得对，所以这里把覆盖率位图用 ASCII 打出来肉眼可验。
 
-use rsword_layout_core::gpu::atlas::GlyphKey;
-use rsword_layout_core::gpu::raster::SkrifaRasterizer;
-use rsword_layout_core::gpu::{GlyphAtlas, Rasterizer};
+use rsword_layout_gpu::atlas::GlyphKey;
+use rsword_layout_gpu::raster::SkrifaRasterizer;
+use rsword_layout_gpu::{GlyphAtlas, Rasterizer};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let candidates = [

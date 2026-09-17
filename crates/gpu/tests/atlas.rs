@@ -5,7 +5,7 @@
 //!
 //! 键是 shaping 产出的 glyph id 而非 `char`——连字与阿拉伯语形态没有对应的单个字符。
 
-use rsword_layout_core::gpu::{GlyphAtlas, GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer};
+use rsword_layout_gpu::{GlyphAtlas, GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer};
 
 /// 桩栅格化器：给每个字形一个固定大小的实心方块，便于断言。
 struct Stub {

@@ -11,7 +11,8 @@ publish = false
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
-rsword-layout-core = { workspace = true, features = ["gpu"] }
+rsword-layout-core = { workspace = true }
+rsword-layout-gpu = { workspace = true }
 rsword = { workspace = true }
 serde_json = { workspace = true }
 

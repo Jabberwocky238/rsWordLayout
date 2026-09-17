@@ -18,7 +18,7 @@ use rsword::bind::native::SessionTable;
 use rsword_layout_core::bridge::paras_from_document;
 use rsword_layout_core::engine::{Engine, PageSetup};
 use rsword_layout_core::fragment::LaidOutDocument;
-use rsword_layout_core::gpu::{Frame, Viewport, build_page};
+use rsword_layout_core::paint::{PaintList, PaintPage, TextShaper, paint_document, paint_page};
 use rsword_layout_core::simple_metrics::SimpleMetrics;
 
 /// 一次会话：持有排好版的文档，可反复取页。
@@ -33,13 +33,13 @@ impl LayoutSession {
         self.doc.page_count()
     }
 
-    /// 某页的像素宽高，返回 `[w, h]`。越界返回空数组。
-    pub fn page_size(&self, index: usize) -> Vec<f32> {
+    /// 某页的宽高，**单位 twips**，返回 `[w, h]`。越界返回空数组。
+    ///
+    /// 不返回像素：换算要知道目标 DPI，那是后端的事。调用方拿 twips
+    /// 自己按 `twips / 1440 * dpi` 换，或交给 `rsword_layout_gpu::Viewport`。
+    pub fn page_size_twips(&self, index: usize) -> Vec<i32> {
         match self.doc.pages.get(index) {
-            Some(p) => {
-                let vp = Viewport::from_page(p.size, self.dpi);
-                vec![vp.width_px, vp.height_px]
-            }
+            Some(p) => vec![p.size.width, p.size.height],
             None => Vec::new(),
         }
     }
@@ -75,20 +75,27 @@ impl LayoutSession {
         })
     }
 
-    /// 取某页的 GPU 数据。渲染后端用这个。
+    /// 取某页的**矢量**绘制指令。
     ///
-    /// `glyphs` 为 `None` 时文字批次为空——没有字形图集就画不了字，
-    /// 与其画错不如不画。
-    pub fn frame(
+    /// 与旧的 `frame(index, glyphs)` 的关键差别：这里不产生像素，也不需要 DPI。
+    /// 坐标一律是 twips，要栅格化的后端自己带 `Viewport` 去 `rsword_layout_gpu`，
+    /// 能直接输出矢量的后端（SVG / PDF）则根本不必栅格化。
+    ///
+    /// `shaper` 为 `None` 时 `PaintCmd::Glyphs` 的字形序列为空但保留原文，
+    /// 能直接排文字的后端照样能画。
+    pub fn paint(
         &self,
         index: usize,
-        glyphs: Option<&dyn rsword_layout_core::gpu::GlyphSource>,
-    ) -> Option<(Frame, Viewport)> {
+        shaper: Option<&dyn TextShaper>,
+        faces: &[String],
+    ) -> Option<PaintPage> {
         let page = self.doc.pages.get(index)?;
-        Some((
-            build_page(page, self.dpi, glyphs),
-            Viewport::from_page(page.size, self.dpi),
-        ))
+        Some(paint_page(page, shaper, faces))
+    }
+
+    /// 整篇文档的绘制指令。
+    pub fn paint_all(&self, shaper: Option<&dyn TextShaper>, faces: &[String]) -> PaintList {
+        paint_document(&self.doc, shaper, faces)
     }
 
     pub fn dpi(&self) -> f32 {

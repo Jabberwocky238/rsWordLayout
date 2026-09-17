@@ -4,7 +4,7 @@
 //! 从调用方手里拿走，也违反本 crate 的零图形依赖原则。它提供的是接 Vulkan 所需的
 //! 全部**描述信息**：顶点输入描述、缓冲尺寸、绘制序列、以及 NDC 约定的差异说明。
 //!
-//! 调用方拿 [`rsword_layout_core::gpu::Frame`] 与这里的常量，几十行就能填完 `VkGraphicsPipelineCreateInfo`。
+//! 调用方拿 [`rsword_layout_gpu::Frame`] 与这里的常量，几十行就能填完 `VkGraphicsPipelineCreateInfo`。
 //!
 //! # 与其他后端的唯一实质差异：NDC 的 y 轴
 //!
@@ -12,8 +12,8 @@
 //! 已经把像素坐标（y 向下）映射为 y 向上的 NDC，所以 **Vulkan 需要额外翻转一次**：
 //! 要么用负高度的 viewport（`VK_KHR_maintenance1`，推荐），要么用 [`ortho_vk`]。
 
-use rsword_layout_core::gpu::Viewport;
-use rsword_layout_core::gpu::vertex::Vertex;
+use rsword_layout_gpu::Viewport;
+use rsword_layout_gpu::vertex::Vertex;
 
 /// `VkVertexInputBindingDescription` 的取值。
 pub const BINDING: u32 = 0;

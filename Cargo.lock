@@ -317,6 +317,7 @@ version = "0.1.0"
 dependencies = [
  "rsword",
  "rsword-layout-core",
+ "rsword-layout-gpu",
  "serde_json",
 ]
 
@@ -329,6 +330,13 @@ dependencies = [
  "rsword",
  "rustybuzz",
  "serde_json",
+]
+
+[[package]]
+name = "rsword-layout-gpu"
+version = "0.1.0"
+dependencies = [
+ "rsword-layout-core",
  "skrifa",
  "zeno",
 ]
@@ -337,14 +345,14 @@ dependencies = [
 name = "rsword-layout-opengl"
 version = "0.1.0"
 dependencies = [
- "rsword-layout-core",
+ "rsword-layout-gpu",
 ]
 
 [[package]]
 name = "rsword-layout-vulkan"
 version = "0.1.0"
 dependencies = [
- "rsword-layout-core",
+ "rsword-layout-gpu",
 ]
 
 [[package]]
@@ -360,9 +368,11 @@ dependencies = [
 name = "rsword-layout-webgl"
 version = "0.1.0"
 dependencies = [
+ "docx-layout",
  "js-sys",
  "rsword-layout-cffi",
  "rsword-layout-core",
+ "rsword-layout-gpu",
  "rsword-layout-wasm",
  "wasm-bindgen",
  "web-sys",

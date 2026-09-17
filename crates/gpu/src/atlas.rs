@@ -26,9 +26,7 @@
 
 use std::collections::HashMap;
 
-use crate::measure::FontSpec;
-
-use super::GlyphQuad;
+use crate::GlyphQuad;
 
 /// 一个字形的度量与位图尺寸，不含像素数据。
 ///
@@ -413,44 +411,29 @@ impl GlyphAtlas {
     }
 }
 
-/// 文字整形器：把一段文字变成字形序列。
+/// 把图集接到 [`crate::GlyphSource`]：查询时按需填充。
 ///
-/// 由调用方以 HarfBuzz / skrifa 实现。本 crate 不做 shaping——它是由字体的
-/// GSUB/GPOS 表决定的确定性查表，不是布局要解的问题。
-pub trait Shaper {
-    fn shape(&self, text: &str, font: &FontSpec) -> Vec<super::ShapedGlyph>;
-}
-
-/// 把图集接到 [`super::GlyphSource`]：查询时按需填充。
+/// 只负责「查字形位置」。整形不在这里——它的产物与分辨率无关，归 core
+/// 的 `paint::TextShaper`；本 crate 只做与像素有关的事。
 ///
-/// `GlyphSource` 的方法是 `&self`，而按需填充要改图集，所以这里用内部可变性。
-/// 单线程使用（wasm 与大多数渲染循环都是），故用 `RefCell` 而非锁。
-pub struct AtlasSource<'a, R: Rasterizer, S: Shaper> {
+/// `GlyphSource::glyph` 是 `&self` 而按需填充要改图集，故用内部可变性。
+/// 单线程使用（wasm 与大多数渲染循环都是），用 `RefCell` 而非锁。
+pub struct AtlasSource<'a, R: Rasterizer> {
     atlas: std::cell::RefCell<&'a mut GlyphAtlas>,
     raster: std::cell::RefCell<&'a mut R>,
-    shaper: &'a S,
 }
 
-impl<'a, R: Rasterizer, S: Shaper> AtlasSource<'a, R, S> {
-    pub fn new(
-        atlas: &'a mut GlyphAtlas,
-        raster: &'a mut R,
-        shaper: &'a S,
-    ) -> AtlasSource<'a, R, S> {
+impl<'a, R: Rasterizer> AtlasSource<'a, R> {
+    pub fn new(atlas: &'a mut GlyphAtlas, raster: &'a mut R) -> AtlasSource<'a, R> {
         AtlasSource {
             atlas: std::cell::RefCell::new(atlas),
             raster: std::cell::RefCell::new(raster),
-            shaper,
         }
     }
 }
 
-impl<R: Rasterizer, S: Shaper> super::GlyphSource for AtlasSource<'_, R, S> {
-    fn shape(&self, text: &str, font: &FontSpec) -> Vec<super::ShapedGlyph> {
-        self.shaper.shape(text, font)
-    }
-
-    fn glyph(&self, key: &GlyphKey) -> Option<GlyphQuad> {
+impl<R: Rasterizer> crate::GlyphSource for AtlasSource<'_, R> {
+    fn glyph(&self, key: &GlyphKey) -> Option<crate::GlyphQuad> {
         let mut atlas = self.atlas.borrow_mut();
         let mut raster = self.raster.borrow_mut();
         atlas.get(key, &mut **raster)

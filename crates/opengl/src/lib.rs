@@ -3,7 +3,7 @@
 //! 与 `vulkan` 模块同理：不链接 GL、不引入 `glow` / `gl` 依赖，只给接上去所需的描述。
 //! 提供可直接编译的 GLSL 着色器源码——文字与色块共用一套，靠图集的纯色纹素统一。
 
-use rsword_layout_core::gpu::vertex::Vertex;
+use rsword_layout_gpu::vertex::Vertex;
 
 pub const STRIDE: i32 = Vertex::STRIDE as i32;
 pub const OFFSET_POS: usize = Vertex::OFFSET_POS;

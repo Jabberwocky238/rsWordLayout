@@ -19,7 +19,8 @@
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 
 use rsword_layout_core::fragment::LaidOutDocument;
-use rsword_layout_core::gpu::{Frame, Viewport, build_page};
+use rsword_layout_core::paint::paint_page;
+use rsword_layout_gpu::{Frame, Viewport, build_page};
 
 /// 错误码。0 为成功，负值为失败。
 pub const RSL_OK: c_int = 0;
@@ -170,7 +171,7 @@ pub unsafe extern "C" fn rsl_page_size(
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
-    let vp = Viewport::from_page(p.size, s.dpi);
+    let vp = Viewport::from_page(p.size.width, p.size.height, s.dpi);
     unsafe {
         *out_w = vp.width_px;
         *out_h = vp.height_px;
@@ -214,8 +215,10 @@ pub unsafe extern "C" fn rsl_frame_sizes(
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
+    // 先转成矢量绘制指令，再按 viewport 栅格化——分辨率只在后一步进入。
     // 没有 GlyphSource：文字批次为空，只产出矩形类几何。
-    let f = build_page(page, s.dpi, None);
+    let vp = Viewport::from_page(page.size.width, page.size.height, s.dpi);
+    let f = build_page(&paint_page(page, None, &[]), &vp, None);
     unsafe {
         *out_vertex_bytes = f.vertex_bytes();
         *out_index_bytes = f.index_bytes();
@@ -259,7 +262,8 @@ pub unsafe extern "C" fn rsl_frame_copy(
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
-    let f = build_page(page, s.dpi, None);
+    let vp = Viewport::from_page(page.size.width, page.size.height, s.dpi);
+    let f = build_page(&paint_page(page, None, &[]), &vp, None);
 
     if vertices_cap < f.vertex_bytes() || indices_cap < f.index_bytes()
         || batches_cap < f.batches.len()
@@ -281,7 +285,7 @@ pub unsafe extern "C" fn rsl_frame_copy(
 
 /// 实际拷贝。`Vertex` 与 `u32` 都是紧密 POD，可整块 memcpy。
 fn copy_frame(f: &Frame, vertices: *mut c_void, indices: *mut c_void, batches: *mut RslBatch) {
-    use rsword_layout_core::gpu::batch::BatchKind;
+    use rsword_layout_gpu::batch::BatchKind;
 
     if !f.vertices.is_empty() {
         unsafe {
@@ -339,7 +343,7 @@ pub unsafe extern "C" fn rsl_page_ortho(
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
-    let m = Viewport::from_page(p.size, s.dpi).ortho();
+    let m = Viewport::from_page(p.size.width, p.size.height, s.dpi).ortho();
     unsafe { std::ptr::copy_nonoverlapping(m.as_ptr(), out, 16) };
     RSL_OK
 }
@@ -353,7 +357,7 @@ pub extern "C" fn rsl_version() -> *const c_char {
 /// 供 C 侧自查的常量：一个顶点多少字节。
 #[unsafe(no_mangle)]
 pub extern "C" fn rsl_vertex_stride() -> usize {
-    rsword_layout_core::gpu::vertex::Vertex::STRIDE
+    rsword_layout_gpu::vertex::Vertex::STRIDE
 }
 
 /// 让 `CStr` 参数不至于未使用；保留给将来按名字取配置。

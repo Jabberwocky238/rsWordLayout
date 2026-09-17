@@ -7,7 +7,7 @@ license.workspace = true
 publish = false
 
 [dependencies]
-rsword-layout-core = { workspace = true, features = ["gpu"] }
+rsword-layout-core = { workspace = true }
 rsword = { workspace = true }
 serde_json = { workspace = true }
 

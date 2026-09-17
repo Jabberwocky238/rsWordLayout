@@ -20,10 +20,9 @@ use std::collections::HashMap;
 
 use rustybuzz::{Face, UnicodeBuffer};
 
+use crate::geom::{Twips, points_to_twips};
 use crate::measure::FontSpec;
-
-use super::ShapedGlyph;
-use super::atlas::{GlyphKey, Shaper};
+use crate::paint::{ShapedRun, TextShaper};
 
 /// rustybuzz 整形器。
 ///
@@ -31,9 +30,12 @@ use super::atlas::{GlyphKey, Shaper};
 /// 建议统一用 `docx_layout::fontenv` 的 `FaceId::sha256()`。
 #[derive(Default)]
 pub struct RustybuzzShaper {
-    faces: HashMap<String, (Vec<u8>, u32)>,
+    /// (face 标识, 字节, TTC 序号)。用有序表而非哈希表：
+    /// `ShapedRun::face_index` 是下标，paint 层据此查 `FaceId`。
+    faces: Vec<(String, Vec<u8>, u32)>,
+    by_name: HashMap<String, usize>,
     /// 缺字体时用哪个 face 兜底。
-    default_face: Option<String>,
+    default_face: Option<usize>,
 }
 
 impl RustybuzzShaper {
@@ -41,30 +43,51 @@ impl RustybuzzShaper {
         RustybuzzShaper::default()
     }
 
-    pub fn add_face(&mut self, face: impl Into<String>, bytes: Vec<u8>, index: u32) {
+    /// 注册一份字体，返回它的下标（即 [`ShapedRun::face_index`]）。
+    pub fn add_face(&mut self, face: impl Into<String>, bytes: Vec<u8>, index: u32) -> usize {
         let name = face.into();
+        let at = self.faces.len();
+        self.by_name.insert(name.clone(), at);
+        self.faces.push((name, bytes, index));
         if self.default_face.is_none() {
-            self.default_face = Some(name.clone());
+            self.default_face = Some(at);
         }
-        self.faces.insert(name, (bytes, index));
+        at
     }
 
     /// 指定按 `FontSpec::family` 找不到时用哪个 face。
-    pub fn set_default_face(&mut self, face: impl Into<String>) {
-        self.default_face = Some(face.into());
+    pub fn set_default_face(&mut self, index: usize) {
+        self.default_face = Some(index);
+    }
+
+    /// 按下标取 face 标识，供 paint 层构造 `FaceId` 列表。
+    pub fn face_id(&self, index: usize) -> Option<&str> {
+        self.faces.get(index).map(|(n, _, _)| n.as_str())
+    }
+
+    /// 全部 face 标识，顺序与下标一致。
+    pub fn face_ids(&self) -> Vec<String> {
+        self.faces.iter().map(|(n, _, _)| n.clone()).collect()
     }
 
     /// 对指定 face 整形一段文字。
     ///
     /// 返回空表示该 face 未注册或字体无法解析——调用方应据此换字体重试，
     /// 而不是把空结果当作「这段文字不占宽度」。
+    /// 对指定 face 整形一段文字。
+    ///
+    /// **产出单位是 twips，不是像素**——整形结果由字体的 GSUB/GPOS 表决定，
+    /// 与分辨率无关，所以它属于 core。栅格化才需要知道目标 DPI。
+    ///
+    /// 返回空表示该 face 未注册或字体无法解析；调用方应据此换字体重试，
+    /// 而不是把空结果当作「这段文字不占宽度」。
     pub fn shape_with_face(
         &self,
-        face_id: &str,
+        face_index: usize,
         text: &str,
         size_half_points: u32,
-    ) -> Vec<ShapedGlyph> {
-        let Some((bytes, index)) = self.faces.get(face_id) else {
+    ) -> Vec<ShapedRun> {
+        let Some((_, bytes, index)) = self.faces.get(face_index) else {
             return Vec::new();
         };
         let Some(face) = Face::from_slice(bytes, *index) else {
@@ -74,27 +97,32 @@ impl RustybuzzShaper {
         let mut buf = UnicodeBuffer::new();
         buf.push_str(text);
         // 方向与脚本由 rustybuzz 按内容推断：阿拉伯语自动走 RTL，
-        // 混排时它会按 Unicode 的脚本属性分段。
+        // 混排时按 Unicode 的脚本属性分段。
         buf.guess_segment_properties();
 
         let out = rustybuzz::shape(&face, &[], buf);
 
-        // rustybuzz 的位置量以字体设计单位计，需按 upem 缩放到像素。
-        // units_per_em 返回 i32，f32::from 对 i32 无实现（可能丢精度），故用 as。
+        // rustybuzz 的位置量以字体设计单位计；先换到点，再换到 twips。
         let upem = face.units_per_em() as f32;
-        let px = size_half_points as f32 / 2.0;
-        let scale = if upem > 0.0 { px / upem } else { 0.0 };
+        let pt_size = size_half_points as f32 / 2.0;
+        let to_twips = |v: i32| -> Twips {
+            if upem <= 0.0 {
+                return 0;
+            }
+            points_to_twips(f64::from(v as f32 * pt_size / upem))
+        };
 
         let infos = out.glyph_infos();
         let positions = out.glyph_positions();
         infos
             .iter()
             .zip(positions.iter())
-            .map(|(info, pos)| ShapedGlyph {
-                key: GlyphKey::new(face_id, info.glyph_id, size_half_points),
-                x_advance: pos.x_advance as f32 * scale,
-                x_offset: pos.x_offset as f32 * scale,
-                y_offset: pos.y_offset as f32 * scale,
+            .map(|(info, pos)| ShapedRun {
+                face_index,
+                glyph_id: info.glyph_id,
+                x_advance: to_twips(pos.x_advance),
+                x_offset: to_twips(pos.x_offset),
+                y_offset: to_twips(pos.y_offset),
             })
             .collect()
     }
@@ -109,17 +137,13 @@ impl RustybuzzShaper {
     }
 }
 
-impl Shaper for RustybuzzShaper {
-    fn shape(&self, text: &str, font: &FontSpec) -> Vec<ShapedGlyph> {
+impl TextShaper for RustybuzzShaper {
+    fn shape(&self, text: &str, font: &FontSpec) -> Vec<ShapedRun> {
         // FontSpec::family 是 OOXML 里的字体名，未必等于注册时用的 face 标识；
-        // 先直接试，再退到默认 face。真正的按族选字体应走 fontenv。
-        let face = if self.faces.contains_key(&font.family) {
-            Some(font.family.clone())
-        } else {
-            self.default_face.clone()
-        };
+        // 先直接试，再退到默认 face。真正的按族选字体应走 docx-layout 的 fontenv。
+        let face = self.by_name.get(&font.family).copied().or(self.default_face);
         match face {
-            Some(f) => self.shape_with_face(&f, text, font.size_half_points),
+            Some(i) => self.shape_with_face(i, text, font.size_half_points),
             None => Vec::new(),
         }
     }

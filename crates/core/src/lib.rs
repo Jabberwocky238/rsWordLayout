@@ -9,8 +9,9 @@ pub mod engine;
 pub mod fragment;
 pub mod geom;
 pub mod measure;
+pub mod paint;
 pub mod simple_metrics;
 pub mod svg;
 
-#[cfg(feature = "gpu")]
-pub mod gpu;
+#[cfg(feature = "shape")]
+pub mod shape;

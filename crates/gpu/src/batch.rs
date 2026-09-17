@@ -3,12 +3,15 @@
 //! 一帧 = 一个顶点缓冲 + 一个索引缓冲 + 若干批次。批次只在**需要换纹理或换管线**时才切分，
 //! 所以纯文字页通常只有一个批次。
 
-use crate::canvas::Color;
-use crate::fragment::TextFragment;
-use crate::geom::Rect;
+use rsword_layout_core::canvas::Color;
+use rsword_layout_core::geom::Rect;
+use rsword_layout_core::measure::FontSpec;
+use rsword_layout_core::paint::PositionedGlyph;
 
-use super::vertex::{SOLID_UV, Vertex};
-use super::{GlyphSource, rect_px};
+use crate::atlas::GlyphKey;
+
+use crate::vertex::{SOLID_UV, Vertex};
+use crate::{GlyphSource, rect_px};
 
 /// 批次类型决定用哪个纹理与混合模式。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -124,31 +127,39 @@ impl FrameBuilder {
     ///
     /// `glyphs` 为 `None` 时**只推进笔位、不产生顶点**——没有图集就画不了字，
     /// 与其画错不如不画，调用方能从批次为空看出缺了字形源。
-    pub fn push_text(&mut self, t: &TextFragment, glyphs: Option<&dyn GlyphSource>) {
+    /// 画一串已定位的字形。
+    ///
+    /// 与旧版的关键差别：**整形已经在 core 做完了**。这里拿到的是绝对坐标的字形，
+    /// 只需把 twips 换成像素、查图集取 UV。整形属于 core（产物与分辨率无关），
+    /// 栅格化属于本 crate（必须知道目标分辨率）——这条线就划在这里。
+    ///
+    /// `glyphs` 为 `None` 时不产生顶点：没有图集就画不了字，与其画错不如不画。
+    pub fn push_glyphs(
+        &mut self,
+        positioned: &[PositionedGlyph],
+        color: Color,
+        _font: &FontSpec,
+        glyphs: Option<&dyn GlyphSource>,
+    ) {
         let Some(src) = glyphs else { return };
+        if positioned.is_empty() {
+            return;
+        }
         self.ensure(BatchKind::Glyph, None);
-        let mut pen_x = super::to_px(t.x, self.dpi);
-        let base_y = super::to_px(t.baseline_y, self.dpi);
-        // 先 shape 再逐字形取图集位置：连字与阿拉伯语形态没有对应的单个 char，
-        // 按 char 遍历会画错。
-        for sg in src.shape(&t.text, &t.font) {
-            if let Some(g) = src.glyph(&sg.key)
-                && g.width > 0.0
-                && g.height > 0.0
-            {
-                self.quad(
-                    (
-                        pen_x + sg.x_offset + g.left,
-                        base_y - sg.y_offset - g.top,
-                        g.width,
-                        g.height,
-                    ),
-                    (g.u0, g.v0, g.u1, g.v1),
-                    t.color,
-                    1.0,
-                );
+        for pg in positioned {
+            let key = GlyphKey::new(pg.face.clone(), pg.glyph_id, pg.size_half_points);
+            let Some(g) = src.glyph(&key) else { continue };
+            if g.width <= 0.0 || g.height <= 0.0 {
+                continue;
             }
-            pen_x += sg.x_advance;
+            let x = crate::to_px(pg.x, self.dpi);
+            let y = crate::to_px(pg.y, self.dpi);
+            self.quad(
+                (x + g.left, y - g.top, g.width, g.height),
+                (g.u0, g.v0, g.u1, g.v1),
+                color,
+                1.0,
+            );
         }
     }
 
