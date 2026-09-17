@@ -183,8 +183,12 @@ impl LayoutRecord {
 
     /// 从绘制指令摊出记录。
     ///
-    /// `DrawCmd::DrawGlyphs` 的每条指令视为一行——这是当前引擎的产出粒度：
-    /// 布局引擎按行产出 `TextFragment`，每个 fragment 一条指令。
+    /// **按 `DrawGlyphs` 的 `line` 合并，而不是一条指令一行。** 绘制指令是按**片段**出的，
+    /// 一行里换字体、上标、分页符都会把它切开；把一条指令当一行，行这一层就被 run 切碎，
+    /// 比较器的行层配对必然对不上——而且失败**看起来像「引擎少排了行」，
+    /// 其实是记账粒度错了**，查起来会往分页的方向白跑一趟。
+    ///
+    /// 实测：MR1 夹具 Word 排 20 行，按指令数则是 29 条；差额正是一行里的多个 run。
     pub fn from_paint(list: &crate::layout::PaintList) -> LayoutRecord {
         let mut out = LayoutRecord::default();
         for (index, page) in list.pages.iter().enumerate() {
@@ -194,25 +198,47 @@ impl LayoutRecord {
                 height: page.height,
                 lines: Vec::new(),
             };
+            let mut current: Option<u32> = None;
             for cmd in &page.cmds {
-                if let crate::layout::DrawCmd::DrawGlyphs {
+                let crate::layout::DrawCmd::DrawGlyphs {
                     glyphs,
                     terminator,
                     source,
+                    line,
                     ..
                 } = cmd
-                {
+                else {
+                    continue;
+                };
+
+                let piece_source = source.map(|(a, b)| SourceRange::new(a, b));
+                if current == Some(*line) {
+                    // 同一行的后续片段：并进上一条记录。
+                    let last = rec.lines.last_mut().expect("current 非空时必有记录");
+                    last.glyphs.extend(glyphs.iter().map(GlyphRecord::from_positioned));
+                    // 行的源区间是各片段的并集；缺一个就整条给 None，
+                    // 让比较器报「判不了」而不是拿半截区间去配对。
+                    last.source = match (last.source, piece_source) {
+                        (Some(a), Some(b)) => Some(SourceRange::new(a.start.min(b.start), a.end.max(b.end))),
+                        _ => None,
+                    };
+                    // 终止符只有行末片段带真实值，所以后来的覆盖先前的。
+                    if *terminator != LineTerminator::Wrapped {
+                        last.terminator = *terminator;
+                    }
+                } else {
                     rec.lines.push(LineRecord {
                         glyphs: glyphs.iter().map(GlyphRecord::from_positioned).collect(),
                         // 取片段自己的区间，而不是从字形序列反推——后者在没接
                         // shaper 时会丢，而源区间与是否栅格化无关。
-                        source: source.map(|(a, b)| SourceRange::new(a, b)),
+                        source: piece_source,
                         // 终止符由 paint 层随指令带下来；缺失时保持 Wrapped
                         // （自动换行），不猜。
                         terminator: *terminator,
                         box_top: 0,
                         box_height: 0,
                     });
+                    current = Some(*line);
                 }
             }
             out.pages.push(rec);

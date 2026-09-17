@@ -511,11 +511,14 @@ pub enum DrawCmd {
         paint: Paint,
         /// 本行以什么结束。比较器按计数约定核对字形数，故须随指令带下来。
         terminator: crate::oracle::LineTerminator,
-        /// 本片段的源字符区间（UTF-16，相对所在段落）。
+        /// 本片段的源字符区间（UTF-16，**全篇偏移**）。
         ///
         /// 独立于 `glyphs` 存在：能直接排文字的后端不需要字形序列，
         /// 此时 `glyphs` 为空，源区间不该跟着丢。
         source: Option<(u32, u32)>,
+        /// 本片段属于本页第几行。**同一行的多条指令带同一个值**，
+        /// 下游据此把它们合回一行（见 [`TextFragment::line`]）。
+        line: u32,
     },
     /// 画图片。`id` 是媒体句柄，`rect` 是目标区域。
     ///
@@ -749,11 +752,18 @@ pub struct TextFragment {
     pub source_node: Option<u32>,
     /// 本片段所在行的终止符。只有行末片段带真实值，行中片段是 `Wrapped`。
     pub terminator: crate::oracle::LineTerminator,
-    /// 本片段覆盖的源字符区间（UTF-16 单位，相对所在段落）。
+    /// 本片段覆盖的源字符区间（UTF-16 单位，**全篇偏移**）。
     ///
     /// 比较器按读序配对，需要它把字形对回源字符。`None` 表示引擎未能确定，
     /// 比较器据此报「判不了」而不是猜一个区间。
     pub source: Option<(u32, u32)>,
+    /// 本片段属于本页第几行，从 0 计。
+    ///
+    /// **一行可能有多个片段**（换字体、上标、分页符都会把行切开），而绘制指令是
+    /// 按片段出的。没有这个字段，下游就只能把「一条指令」当「一行」，于是行这一层
+    /// 被 run 切碎——比较器的行层配对必然对不上，且失败**看起来像「引擎少排了行」，
+    /// 其实是记账粒度错了**。
+    pub line: u32,
 }
 
 /// 一行。保留行信息而不直接摊平成 Fragment，是因为对齐、两端对齐的空白分配、
@@ -960,6 +970,11 @@ struct PendingLine {
     /// 与 `Para::page_break_before` 不同：那条是段落属性（`w:pageBreakBefore`），
     /// 这条是段**内**任意位置的手动分页符，所以必须挂在行上而不是段上。
     page_break_after: bool,
+    /// 本行起点在全篇 UTF-16 偏移空间里的下标。
+    ///
+    /// 有片段时可以从片段推，但**空行没有片段**——而空行同样要有源位置，
+    /// 否则它的行记录就只能给 `None`，下游会读成「判不了」。
+    source_start: u32,
 }
 
 pub struct Engine<'m, M: FontMetrics> {
@@ -1000,6 +1015,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut page = Page::new(self.setup.size, area);
         let mut cursor = area.y;
 
+        // 本页内的行号。一行可能出多个片段，下游要靠它把它们合回一行；
+        // 翻页时归零。
+        let mut line_index: u32 = 0;
+
         // 全篇 UTF-16 偏移游标。与 Word 的 `Range.Start/End` 同一套数法：
         // 各段文本依次拼接，**每段末尾算一个终止符**（`\r`，带 `w:sectPr` 的段是 `\x0c`，
         // 都占 1 个 UTF-16 单位）。段内的软回车与分页符已经以 U+FFFC 占位符
@@ -1022,6 +1041,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             if para.page_break_before && !page.fragments.is_empty() {
                 pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
                 cursor = area.y;
+                line_index = 0;
             }
 
             cursor += para.space_before;
@@ -1033,6 +1053,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             {
                 pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
                 cursor = area.y;
+                line_index = 0;
             }
 
             // keepNext：本段是最后一段时无意义；否则要保证下一段至少第一行同页。
@@ -1055,8 +1076,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 if cursor + needed > area.bottom() && !page.fragments.is_empty() {
                     pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
                     cursor = area.y;
+                    line_index = 0;
                 }
-                self.place_line(&mut page, &line, para, cursor);
+                self.place_line(&mut page, &line, para, cursor, line_index);
+                line_index += 1;
                 cursor += line.height;
 
                 // 段内手动分页符：本行之后翻页。
@@ -1066,6 +1089,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 if line.page_break_after {
                     pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
                     cursor = area.y;
+                    line_index = 0;
                 }
             }
 
@@ -1077,7 +1101,18 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     }
 
     /// 把一行放到页面上，处理水平对齐。
-    fn place_line(&self, page: &mut Page, line: &PendingLine, para: &Para, top: Twips) {
+    /// 把一行放到页面上。
+    ///
+    /// `line_index` 是本页内的行号，随每个片段带下去——一行可能有多个片段，
+    /// 下游要靠它把它们合回一行。
+    fn place_line(
+        &self,
+        page: &mut Page,
+        line: &PendingLine,
+        para: &Para,
+        top: Twips,
+        line_index: u32,
+    ) {
         // 用本行实际落到的区间，而不是整个正文宽度——有环绕时两者不同。
         let first = if line.is_first { para.indent_first_line } else { 0 };
         let avail = (line.span.width() - first).max(0);
@@ -1120,6 +1155,30 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 source_node: para.source_node,
                 source: Some(p.source),
                 terminator,
+                line: line_index,
+            }));
+        }
+
+        // 空行也要产出一个片段。
+        //
+        // 没有它，空行就**没有任何绘制指令**，于是下游根本看不到这一行——
+        // 而 Word 是给空行一条行记录的（实测：独占一行的分页符、空段落都有）。
+        // 那种缺失在比较器里表现为「引擎少排了行」，查起来像分页错，其实是这里漏了。
+        if line.pieces.is_empty() {
+            page.fragments.push(Fragment::Text(TextFragment {
+                x: base_x + offset,
+                baseline_y,
+                text: String::new(),
+                font: para
+                    .runs
+                    .first()
+                    .map(|r| r.font.clone())
+                    .unwrap_or_else(|| FontSpec::new("Times New Roman", 24)),
+                color: para.runs.first().map(|r| r.color).unwrap_or(Color::BLACK),
+                source_node: para.source_node,
+                source: Some((line.source_start, line.source_start)),
+                terminator: if line.is_last { para.terminator } else { crate::oracle::LineTerminator::Wrapped },
+                line: line_index,
             }));
         }
     }
@@ -1165,6 +1224,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 is_first: true,
                 span,
                 page_break_after: false,
+                source_start: source_base,
             });
             return lines;
         }
@@ -1172,6 +1232,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut cur: Vec<LinePiece> = Vec::new();
         // 全篇 UTF-16 偏移游标，作为各片段源区间的起点。从本段基点起算，不从 0。
         let mut consumed: u32 = source_base;
+        // 当前行起点，供空行用（空行没有片段可推）。
+        let mut line_start: u32 = source_base;
         let mut cur_w: Twips = 0;
         let mut cur_ascent: Twips = 0;
         let mut cur_descent: Twips = 0;
@@ -1239,7 +1301,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             is_first: first_line,
                             span,
                             page_break_after: kind.breaks_page(),
+                            source_start: line_start,
                         });
+                        line_start = consumed;
                         cur_w = 0;
                         cur_ascent = 0;
                         cur_descent = 0;
@@ -1333,7 +1397,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     is_first: first_line,
                     span,
                     page_break_after: false,
+                    source_start: line_start,
                 });
+                line_start = consumed;
                 cur_w = 0;
                 cur_ascent = 0;
                 cur_descent = 0;
@@ -1359,6 +1425,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 is_first: first_line,
                 span,
                 page_break_after: false,
+                source_start: line_start,
             });
         } else if let Some(last) = lines.last_mut() {
             last.is_last = true;
@@ -1507,6 +1574,7 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
                     paint: Paint::solid(t.color),
                     terminator: t.terminator,
                     source: t.source,
+                    line: t.line,
                 });
             }
         }

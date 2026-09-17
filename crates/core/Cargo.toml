@@ -49,6 +49,10 @@ name = "slots"
 path = "tests/slots.rs"
 
 [[test]]
+name = "line_records"
+path = "tests/line_records.rs"
+
+[[test]]
 name = "section_breaks"
 path = "tests/section_breaks.rs"
 

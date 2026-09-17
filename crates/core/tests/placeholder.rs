@@ -110,10 +110,10 @@ fn placeholder_still_occupies_one_source_unit() {
     // 它不画不占宽，但**占一个源字符位**——Word 的 `Range` 数它。
     // 不占位的话，其后每个片段的源区间都会前移一格，
     // 而那种错在几何上看不出来，只会让配对悄悄错位。
+    // 两个片段在同一行，行记录取并集（见 tests/line_records.rs），
+    // 所以这里看整行：4 个字符的文本却跨 5 个源位——多出的那一位就是占位符。
     let got = ranges(&paint(&[para("ab\u{FFFC}cd")]));
-    // "ab" 是 [0,2)，占位符吃掉 2，"cd" 应当从 3 起。
-    assert_eq!(got.first().copied(), Some((0, 2)), "{got:?}");
-    assert_eq!(got.last().copied(), Some((3, 5)), "占位符没有占掉一个源位：{got:?}");
+    assert_eq!(got, vec![(0, 5)], "占位符没有占掉一个源位：{got:?}");
 }
 
 #[test]
@@ -132,7 +132,7 @@ fn placeholder_at_run_start_and_end_is_handled() {
 
 #[test]
 fn consecutive_placeholders_each_take_one_unit() {
+    // 2 个字符的文本跨 4 个源位 ⇒ 两个占位符各占 1 位。
     let got = ranges(&paint(&[para("a\u{FFFC}\u{FFFC}b")]));
-    assert_eq!(got.first().copied(), Some((0, 1)), "{got:?}");
-    assert_eq!(got.last().copied(), Some((3, 4)), "两个占位符应当各占 1 位：{got:?}");
+    assert_eq!(got, vec![(0, 4)], "两个占位符应当各占 1 位：{got:?}");
 }
