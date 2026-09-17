@@ -1,0 +1,58 @@
+{
+  "sha256": "df9e8bccd20357ce69b95ca70c0a7b20220029d7370bb8042dfe40da8004322d",
+  "probes": [
+    {
+      "tag": "t0",
+      "kind": "justify",
+      "reps": 4,
+      "sizeHalfPoints": 26,
+      "family": "Luminari"
+    },
+    {
+      "tag": "t1",
+      "kind": "justify",
+      "reps": 6,
+      "sizeHalfPoints": 26,
+      "family": "Luminari"
+    },
+    {
+      "tag": "t2",
+      "kind": "justify",
+      "reps": 9,
+      "sizeHalfPoints": 26,
+      "family": "Luminari"
+    },
+    {
+      "tag": "s00",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "s15",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 15,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "s30",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 30,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "s60",
+      "kind": "letter-spacing",
+      "spacingHalfPoints": 60,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    }
+  ]
+}
