@@ -32,6 +32,7 @@ cd tools/measure
 ./wm adopt <既有 run> bundle/            # 折算既有采集，不驱动 Word
 ./wm model bundle/                      # §3 折成页/行/字形，逐行报三态
 ./wm control repeat|positive|negative A B   # §9.3 / §9.4 对照
+./wm selfcheck trace.json               # 只查轨迹与契约，**不需要 Word 采集**
 ./wm compare bundle/ trace.json         # §9.6 引擎 vs Word
 ```
 
@@ -96,6 +97,21 @@ cargo run --features fontenv --bin layout-trace -- \
 
 **这条是看过 `PRECHECK_NEITHER` 读数之后才成形的，所以只靠它配上的行标 `backtest=True`，
 不当独立检验**（§7.5）。
+
+## 先跑 `selfcheck`，再跑 `compare`
+
+Word 采集很贵（要真 Word、要授权、要核字体），而**有一类错在轨迹自己身上就能看出来**：
+契约说了什么、轨迹又填了什么，两者对不上。这类错必须先清掉——否则拿去和 Word 比，
+差值里混着记账错，分不出是布局错还是记账错。
+
+`selfcheck` 查四条，都不碰 Word：
+
+| | |
+| --- | --- |
+| 字形层覆盖 | 没接整形器时字形序列为空。那是**没覆盖**，不是「量过且为 0」（§7.4） |
+| 源区间是全篇偏移 | 段内偏移与全篇偏移长得几乎一样，但对不上 Word 的 `Range` |
+| 自报终止符字形数 vs 实画 | 两个数出自同一份记录，对不上就是自相矛盾 |
+| 一行一条记录 | 按 run 出的记录被当成行，会让行层配对必然失败 |
 
 ## 验收定义里必须一起读的东西
 

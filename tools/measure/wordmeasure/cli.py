@@ -8,6 +8,7 @@
     glyphs      §2.2 单读一份 PDF 的逐字形几何
     model       §3  把采集包折成「页 → 行 → 字形」，逐行报三态
     control     §9.3/§9.4 重复性、正对照、阴性对照
+    selfcheck   只查轨迹与契约对不对得上，不需要 Word 采集
     compare     §9.6 引擎轨迹 vs Word 采集包
 """
 
@@ -20,7 +21,7 @@ from pathlib import Path
 
 from . import FAIL, OK, UNDECIDABLE, capture as capture_mod
 from . import compare as compare_mod
-from . import adopt, controls, counting, pdfglyphs, preflight, wordmodel
+from . import adopt, controls, counting, pdfglyphs, preflight, selfcheck, wordmodel
 
 DEFAULT_FAMILIES = ["Liberation Serif", "Liberation Sans", "Carlito"]
 
@@ -181,6 +182,28 @@ def cmd_control(args):
     return 0 if record["state"] == OK else (2 if record["state"] == UNDECIDABLE else 1)
 
 
+def cmd_selfcheck(args):
+    trace = _load_trace(Path(args.trace))
+    result = selfcheck.run(trace)
+    if args.output or args.json:
+        _dump(result, args.output)
+        return 0 if result["state"] == OK else (2 if result["state"] == UNDECIDABLE else 1)
+
+    print("state=%s   %s" % (result["state"], args.trace))
+    for check in result["checks"]:
+        print("  %-9s %s" % (check["state"], check["check"]))
+        if check.get("reason"):
+            print("            %s" % check["reason"])
+        for conflict in check.get("conflicts", [])[: args.limit]:
+            print("            p%d L%d %s：自报 %d 个，实画 %d 个（glyphId %s）"
+                  % (conflict["page"], conflict["line"], conflict["terminator"],
+                     conflict["declaredExpected"], conflict["actuallyEmitted"],
+                     conflict["glyphIds"]))
+        for sample in check.get("sample", [])[: args.limit]:
+            print("            p%d L%d 接着上一条的 %d" % (sample["page"], sample["line"], sample["continuesFrom"]))
+    return 0 if result["state"] == OK else (2 if result["state"] == UNDECIDABLE else 1)
+
+
 def cmd_compare(args):
     bundle = capture_mod.load_bundle(Path(args.bundle))
     reference = wordmodel.build(bundle)
@@ -296,6 +319,11 @@ def build_parser():
     p.add_argument("bundle_a")
     p.add_argument("bundle_b")
     p.set_defaults(func=cmd_control)
+
+    p = common(sub.add_parser("selfcheck", help="只查轨迹与契约对不对得上，不需要 Word 采集"))
+    p.add_argument("trace")
+    p.add_argument("--limit", type=int, default=4)
+    p.set_defaults(func=cmd_selfcheck)
 
     p = common(sub.add_parser("compare", help="§9.6 引擎轨迹 vs Word 采集包"))
     p.add_argument("bundle")
