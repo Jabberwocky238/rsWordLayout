@@ -34,15 +34,20 @@ def falsifiers(bundle, model, probes_doc):
     if pre != "PASS":
         fired.append({"id": "F-A", "detail": f"采前核查 result={pre!r}"})
 
+    # F-B **直接采信采集包里的核查结论**，不在这里另算一遍。
+    #
+    # 判据文说的是「采后 PDF 里出现申请之外的字体名」。「叫什么」这件事只有字体文件
+    # 说了算：`Bodoni 72 Smallcaps Book` 声明的 PostScript 名是
+    # `BodoniSvtyTwoSCITCTT-Book`，而 PDF 子集名用的就是 PostScript 名。
+    # 判据脚本自己拿族名做字符串包含，就会把没被替换的字体判成替换——
+    # 第一次采集正是这么废掉的（见 `captures/first-line-2026-09-17-void/`）。
+    #
+    # 采集侧的核查读字体文件的 name 表，并且**多查一问**：PDF 里有没有账面之外的名字。
+    # 那一问才是「有没有被替换」。这里读它的结论，重复实现只会再错一次。
     subs = meta.get("fontSubstitution") or {}
-    req = {f.replace("-", "").replace(" ", "").lower() for f in FONTS}
-    unexpected = []
-    for n in subs.get("pdfFontNames", []):
-        b = n.split("+", 1)[-1].replace("-", "").replace(" ", "").lower()
-        if not any(r in b or b in r for r in req):
-            unexpected.append(n)
-    if subs.get("result") != "PASS" or unexpected:
-        fired.append({"id": "F-B", "detail": f"字体核查 {subs.get('result')!r}，额外字体={unexpected}"})
+    if subs.get("result") != "PASS":
+        fired.append({"id": "F-B", "detail": f"字体核查 {subs.get('result')!r}，"
+                                             f"账外字体={subs.get('unexpectedNames')}"})
 
     fx = meta.get("fixture") or {}
     declared, actual = probes_doc.get("sha256"), (fx.get("before") or {}).get("sha256")

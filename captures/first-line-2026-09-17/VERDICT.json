@@ -1,0 +1,62 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-first-line.md",
+  "bundle": "/Users/user/Documents/rsword-captures/first-line",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 24,
+    "pdfPages": 24,
+    "sweepPositions": 216,
+    "linesFromSweep": 72
+  },
+  "lineDenominators": {
+    "lines": 72,
+    "ok": 72,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "T0": {
+      "prediction": "T0 每条基线都在 0.24pt 栅格上",
+      "n": 72,
+      "ok": 72,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "T1": {
+      "prediction": "T1 b₀ = quantize(72 + natural − 量化后的 descent)",
+      "n": 24,
+      "ok": 22,
+      "undecidable": 0,
+      "misses": [
+        {
+          "tag": "t",
+          "family": "Apple Chancery",
+          "sizePt": 21.0,
+          "实测": 95.51999999999987,
+          "预测": 95.28,
+          "差": 0.24
+        },
+        {
+          "tag": "v",
+          "family": "Bodoni 72 Smallcaps Book",
+          "sizePt": 11.5,
+          "实测": 82.79999999999995,
+          "预测": 82.56,
+          "差": 0.24
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    }
+  },
+  "control": {
+    "form": "对照（不作预测）：quantize(72 + (ascender + lineGap)/upem × 字号)",
+    "n": 24,
+    "ok": 20
+  }
+}
