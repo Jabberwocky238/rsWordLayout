@@ -13,32 +13,12 @@
 //! - ascent 0.8 em、descent 0.2 em、line gap 0.15 em
 
 use crate::layout::{Twips, half_points_to_twips};
+use super::linebreak::is_cjk;
 use super::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
 
 pub struct SimpleMetrics;
 
 /// 判断是否是「可在其后断行」的 CJK 字符（不含行首禁则处理）。
-fn is_cjk(c: char) -> bool {
-    matches!(c as u32,
-        0x1100..=0x11FF   | // 谚文字母
-        0x2E80..=0x2EFF   | // 部首补充
-        0x3000..=0x303F   | // CJK 符号与标点
-        0x3040..=0x30FF   | // 假名
-        0x3400..=0x4DBF   | // 扩展 A
-        0x4E00..=0x9FFF   | // 基本区
-        0xAC00..=0xD7AF   | // 谚文音节
-        0xF900..=0xFAFF   | // 兼容表意
-        0xFF00..=0xFF60   | // 全角形式
-        0x20000..=0x2FA1F   // 扩展 B 及以后
-    )
-}
-
-/// 行首禁则：这些字符不能出现在行首，断点要往前挪。
-fn is_no_line_start(c: char) -> bool {
-    matches!(c, '，' | '。' | '、' | '；' | '：' | '？' | '！' | '）' | '】' | '》' | '」' | '』'
-                | ',' | '.' | ';' | ':' | '?' | '!' | ')' | ']' | '}' | '”' | '’')
-}
-
 impl SimpleMetrics {
     /// 单个字符的推进宽度（em 的千分比，避免浮点累积误差）。
     fn advance_permille(c: char) -> i64 {
@@ -81,30 +61,7 @@ impl FontMetrics for SimpleMetrics {
     }
 
     fn break_opportunities(&self, text: &str) -> Vec<BreakOpportunity> {
-        let mut out = Vec::new();
-        let mut chars = text.char_indices().peekable();
-        while let Some((i, c)) = chars.next() {
-            let next_start = i + c.len_utf8();
-            let next_char = chars.peek().map(|&(_, n)| n);
-            // 西文：空格之后可断。
-            let after_space = c == ' ' || c == '\t';
-            // CJK：字与字之间可断，但下一个字是行首禁则字符时不断。
-            let cjk_boundary = is_cjk(c)
-                && next_char.is_some_and(|n| !is_no_line_start(n));
-            // CJK 之前是西文、之后是 CJK 的边界也可断。
-            let enter_cjk = next_char.is_some_and(is_cjk) && !is_cjk(c) && !after_space;
-
-            if after_space || cjk_boundary || enter_cjk {
-                out.push(BreakOpportunity { offset: next_start, hyphen: false });
-            }
-        }
-        // 串尾总是一个合法断点。
-        if !text.is_empty() {
-            let end = text.len();
-            if out.last().map(|b| b.offset) != Some(end) {
-                out.push(BreakOpportunity { offset: end, hyphen: false });
-            }
-        }
-        out
+        // 断点与字体无关，桩度量与真度量共用同一套（见 `super::linebreak`）。
+        super::linebreak::break_opportunities(text)
     }
 }

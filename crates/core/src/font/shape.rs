@@ -86,6 +86,7 @@ impl RustybuzzShaper {
         face_index: usize,
         text: &str,
         size_half_points: u32,
+        kerning: bool,
     ) -> Vec<ShapedRun> {
         let Some((_, bytes, index)) = self.faces.get(face_index) else {
             return Vec::new();
@@ -100,7 +101,18 @@ impl RustybuzzShaper {
         // 混排时按 Unicode 的脚本属性分段。
         buf.guess_segment_properties();
 
-        let out = rustybuzz::shape(&face, &[], buf);
+        // 字距调整默认**关**（OOXML `w:kern` 的语义，见 `FontSpec::kerning`）。
+        // rustybuzz 不传 feature 时默认开，所以必须显式关掉，不能靠不传。
+        let features: &[rustybuzz::Feature] = if kerning {
+            &[]
+        } else {
+            &[rustybuzz::Feature::new(
+                rustybuzz::ttf_parser::Tag::from_bytes(b"kern"),
+                0,
+                ..,
+            )]
+        };
+        let out = rustybuzz::shape(&face, features, buf);
 
         // rustybuzz 的位置量以字体设计单位计；先换到点，再换到 twips。
         let upem = face.units_per_em() as f32;
@@ -143,7 +155,7 @@ impl TextShaper for RustybuzzShaper {
         // 先直接试，再退到默认 face。真正的按族选字体应走 docx-layout 的 fontenv。
         let face = self.by_name.get(&font.family).copied().or(self.default_face);
         match face {
-            Some(i) => self.shape_with_face(i, text, font.size_half_points),
+            Some(i) => self.shape_with_face(i, text, font.size_half_points, font.kerning),
             None => Vec::new(),
         }
     }

@@ -4,8 +4,10 @@
 //! 用法与限定见 `tools/measure/README.md`；契约见 [`rsword_layout_core::oracle`]。
 //!
 //! ```text
-//! --font <path>      装这个字体文件，可重复。不给就只有桩度量，没有字形级记录
-//! --require <family> 要求该族必须装上，可重复
+//! --font <path>          装这个字体文件，可重复。不给就只有桩度量，没有字形级记录
+//! --require <family>     要求该族必须装上，可重复
+//! --metrics simple|real  度量来源。默认 real（读字体）；simple 是近似桩
+//! --vertical-grid mac|none  纵向量化，默认 none。**含回测规则，先读 VerticalGrid 的限定**
 //! ```
 //!
 //! # 为什么 `--require` 不是可有可无的讲究
@@ -21,8 +23,8 @@ use std::path::PathBuf;
 use rsword::bind::native::SessionTable;
 use rsword_layout_core::font::FontRegistry;
 use rsword_layout_core::{
-    Engine, LayoutRecord, PageSetup, SimpleMetrics, TextShaper, TraceMeta, paint_document,
-    paras_from_document, to_trace_json,
+    Engine, LayoutRecord, PageSetup, RealMetrics, SimpleMetrics, TextShaper, TraceMeta,
+    VerticalGrid, paint_document, paras_from_document, to_trace_json,
 };
 
 #[derive(Default)]
@@ -31,6 +33,8 @@ struct Args {
     output: Option<String>,
     fonts: Vec<PathBuf>,
     require: Vec<String>,
+    metrics: Option<String>,
+    grid: Option<String>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -41,6 +45,8 @@ fn parse_args() -> Result<Args, String> {
         match arg.as_str() {
             "--font" => args.fonts.push(PathBuf::from(value("--font")?)),
             "--require" => args.require.push(value("--require")?),
+            "--metrics" => args.metrics = Some(value("--metrics")?),
+            "--vertical-grid" => args.grid = Some(value("--vertical-grid")?),
             other if other.starts_with("--") => return Err(format!("未知选项 {other}")),
             other if args.input.is_none() => args.input = Some(other.to_string()),
             other if args.output.is_none() => args.output = Some(other.to_string()),
@@ -65,10 +71,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if paras.is_empty() {
         return Err("没有可排版的段落".into());
     }
-
-    let metrics = SimpleMetrics;
-    let engine = Engine::new(&metrics, PageSetup::a4());
-    let pages = engine.layout(&paras);
 
     // 装字体。没有整形器时 `paint_document` 不产字形序列，
     // 轨迹里就只有行、没有字形——那种轨迹过不了比较器的字形层，所以要说清楚。
@@ -109,15 +111,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
+    let grid = match args.grid.as_deref() {
+        Some("mac") => VerticalGrid::MacWordThreeHundredthsInch,
+        Some("none") | None => VerticalGrid::None,
+        Some(other) => return Err(format!("--vertical-grid 只接受 mac / none，收到 {other}").into()),
+    };
+    let use_stub = args.metrics.as_deref() == Some("simple") || registry.is_empty();
+
+    // 度量的**性质**要随数走：差值的来源常常就在这一栏里。
+    let metrics_note = if use_stub {
+        "SimpleMetrics (近似桩：按字符类别给固定宽度，不读字体文件)".to_string()
+    } else {
+        format!(
+            "RealMetrics (读字体 + rustybuzz 整形；纵向栅格 {})",
+            match grid {
+                VerticalGrid::None => "无",
+                VerticalGrid::MacWordThreeHundredthsInch => "Mac Word 1/300 英寸（含回测规则）",
+            }
+        )
+    };
+
+    // `Engine<M: FontMetrics>` 是泛型（度量在断行热路径上，不该走动态分发），
+    // 所以这里分两支实例化，而不是传 trait object。
+    let pages = if use_stub {
+        Engine::new(&SimpleMetrics, PageSetup::a4()).layout(&paras)
+    } else {
+        let real = RealMetrics::new(&registry).with_vertical_grid(grid);
+        Engine::new(&real, PageSetup::a4()).layout(&paras)
+    };
+
     let shaper: Option<&dyn TextShaper> =
         if registry.is_empty() { None } else { Some(&registry) };
     let record = LayoutRecord::from_paint(&paint_document(&pages, shaper, &families));
 
     let meta = TraceMeta {
         engine: format!("rsword-layout-core {}", env!("CARGO_PKG_VERSION")),
-        // 度量的**性质**要随数走：`SimpleMetrics` 是近似桩，按字符类别给固定宽度，
-        // 不读字体文件。拿它与 Word 比，差值主要来自这里，不是来自断行。
-        metrics: "SimpleMetrics (近似桩：按字符类别给固定宽度，不读字体文件)".into(),
+        metrics: metrics_note,
         glyph_origin_method: if registry.is_empty() {
             "none: no shaper registered, glyph sequences are empty".into()
         } else {

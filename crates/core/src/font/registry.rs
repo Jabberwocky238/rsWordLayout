@@ -117,6 +117,17 @@ impl FontRegistry {
         self.families().contains(&want)
     }
 
+    /// 按 face 标识取字体字节与 TTC 序号。
+    ///
+    /// 纵向量（`hhea` / `OS/2`）要直接解析字体表，而整形器只给推进量，
+    /// 所以这里把字节露出来。返回 `None` 表示该 face 没注册。
+    pub fn face_data(&self, face: &str) -> Option<(&[u8], u32)> {
+        let env = self.env.as_ref()?;
+        env.faces()
+            .find(|f| f.id().sha256() == face)
+            .and_then(|f| env.data(f.id()).map(|b| (b, f.id().index())))
+    }
+
     /// 全部 face 标识，顺序与 `ShapedRun::face_index` 一致。
     pub fn face_ids(&self) -> Vec<String> {
         self.shaper.face_ids()
@@ -143,7 +154,7 @@ impl FontRegistry {
             let face = self.select_face_for(font, ch);
             if face != run_face && !run.is_empty() {
                 if let Some(i) = run_face.as_ref().and_then(|f| self.index_of.get(f)) {
-                    out.extend(self.shaper.shape_with_face(*i, &run, font.size_half_points));
+                    out.extend(self.shaper.shape_with_face(*i, &run, font.size_half_points, font.kerning));
                 }
                 run.clear();
             }
@@ -153,7 +164,7 @@ impl FontRegistry {
         if let Some(i) = run_face.as_ref().and_then(|f| self.index_of.get(f))
             && !run.is_empty()
         {
-            out.extend(self.shaper.shape_with_face(*i, &run, font.size_half_points));
+            out.extend(self.shaper.shape_with_face(*i, &run, font.size_half_points, font.kerning));
         }
         out
     }

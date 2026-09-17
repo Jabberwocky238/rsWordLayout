@@ -68,6 +68,7 @@ fn slot_selection_differs_from_single_family() {
         italic: false,
         letter_spacing: 0,
         scale_pct: 100,
+        kerning: false,
     };
     assert_eq!(font.family_for('A'), "Times New Roman");
     assert_eq!(font.family_for('中'), "SimSun");
@@ -90,6 +91,7 @@ fn missing_slot_falls_back_to_family() {
         italic: false,
         letter_spacing: 0,
         scale_pct: 100,
+        kerning: false,
     };
     assert_eq!(font.family_for('中'), "Calibri", "eastAsia 未指定时退到 family");
 }

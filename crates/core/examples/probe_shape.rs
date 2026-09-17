@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("\n[{face}] {text:?} —— 该字体没装上，跳过");
             continue;
         };
-        let glyphs = sh.shape_with_face(index, text, 32); // 16pt
+        let glyphs = sh.shape_with_face(index, text, 32, false); // 16pt，不做字距调整（Word 默认如此）
         if glyphs.is_empty() {
             println!("\n[{face}] {text:?} —— 无输出（face 未注册或字体不可解析）");
             continue;

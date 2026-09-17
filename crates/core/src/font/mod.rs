@@ -27,6 +27,7 @@ pub use spec::{
 };
 
 mod simple;
+mod linebreak;
 pub use simple::SimpleMetrics;
 
 #[cfg(feature = "shape")]
@@ -46,3 +47,8 @@ pub use raster::{
 mod registry;
 #[cfg(feature = "fontenv")]
 pub use registry::FontRegistry;
+
+#[cfg(feature = "fontenv")]
+mod real;
+#[cfg(feature = "fontenv")]
+pub use real::{RealMetrics, VerticalGrid};

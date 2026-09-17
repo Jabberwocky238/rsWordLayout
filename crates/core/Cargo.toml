@@ -49,6 +49,11 @@ name = "slots"
 path = "tests/slots.rs"
 
 [[test]]
+name = "real_metrics"
+path = "tests/real_metrics.rs"
+required-features = ["fontenv"]
+
+[[test]]
 name = "vertical_align"
 path = "tests/vertical_align.rs"
 

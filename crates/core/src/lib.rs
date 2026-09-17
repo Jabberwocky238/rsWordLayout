@@ -62,3 +62,7 @@ pub use bridge::paras_from_document;
 // ---- rustybuzz 整形 ----
 #[cfg(feature = "shape")]
 pub use font::RustybuzzShaper;
+
+// ---- 真度量：读字体文件（feature `fontenv`）----
+#[cfg(feature = "fontenv")]
+pub use font::{RealMetrics, VerticalGrid};

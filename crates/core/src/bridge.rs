@@ -97,6 +97,10 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         .or_else(|| slots.h_ansi.clone())
         .unwrap_or_else(|| BODY_FAMILY.to_string());
 
+    // `w:kern` 是**启用字距调整的最小字号**（半点），不是开关。
+    // 不写或写 0 即不调整——这是 OOXML 的语义，也与实测的 Word 行为一致。
+    let kern_threshold = props.get("kern").and_then(Value::as_u64).unwrap_or(0) as u32;
+
     FontSpec {
         slots,
         family,
@@ -105,6 +109,7 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         italic,
         letter_spacing: 0,
         scale_pct: 100,
+        kerning: kern_threshold > 0 && size >= kern_threshold,
     }
 }
 

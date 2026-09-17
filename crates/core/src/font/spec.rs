@@ -34,6 +34,16 @@ pub struct FontSpec {
     pub letter_spacing: Twips,
     /// `w:w`：横向缩放百分比，100 为原始。
     pub scale_pct: u32,
+    /// 是否启用字距调整（GPOS `kern`）。
+    ///
+    /// **默认关**，这不是保守取值，是 OOXML 的语义：`w:kern` 给的是
+    /// 「字号大到多少才启用字距调整」，不写或写 0 就是**不调整**。
+    ///
+    /// 实测对得上：Liberation Serif 的 `1`+`1` 有一对 kern，rustybuzz 默认会用上，
+    /// 而 Word **没有**——`B11` 一行里两个 `1` 各 6.0000pt，该行从第二个字形起
+    /// 整体偏 0.45pt。rustybuzz 不传 feature 时默认**开**，所以必须显式关掉，
+    /// 不能靠不传。
+    pub kerning: bool,
 }
 
 /// `w:rFonts` 的四个字体槽。
@@ -188,6 +198,7 @@ impl FontSpec {
             italic: false,
             letter_spacing: 0,
             scale_pct: 100,
+            kerning: false,
         }
     }
 }
