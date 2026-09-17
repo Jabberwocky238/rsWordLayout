@@ -1,4 +1,4 @@
-use rsword_layout_core::font::{GlyphKey, HintingMode, RasterFormat, Rasterizer, SkrifaRasterizer};
+use rsword_layout_core::font::{GlyphKey, HintingMode, Rasterizer, SkrifaRasterizer};
 
 fn main() {
     let dir = std::path::Path::new("fixtures/fonts");
@@ -12,7 +12,7 @@ fn main() {
     for n in &names {
         let bytes = std::fs::read(dir.join(n)).unwrap();
         let mut r = SkrifaRasterizer::new();
-        r.set_hinting(HintingMode::Smooth).set_format(RasterFormat::Subpixel);
+        r.set_hinting(HintingMode::Smooth);
         r.add_face("f", bytes, 0);
         // 逐个试：CJK 回退字体可能不含拉丁字形，用 'A' 判会误报失败。
         let (ch, gid) = ['A', '中', 'あ', '가']

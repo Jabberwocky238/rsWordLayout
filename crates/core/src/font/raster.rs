@@ -82,11 +82,14 @@ impl GlyphKey {
 /// 覆盖率位图的像素格式。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RasterFormat {
-    /// 单通道 alpha，每像素 1 字节。
-    Alpha,
-    /// RGB 亚像素，每像素 3 字节。水平分辨率变三倍（ClearType 那种做法），
-    /// **只在 LCD 面板有效**；OLED 与旋转屏上会出彩边。
+    /// 单通道 alpha，每像素 1 字节。与各后端的 R8 字形纹理匹配。
     #[default]
+    Alpha,
+    /// RGB 亚像素，每像素 3 字节。水平分辨率变三倍（ClearType 那种做法）。
+    ///
+    /// **不是默认**：它要求图集与纹理都是三通道，而目前各后端的字形纹理是 R8。
+    /// 开了它而不同步改纹理格式，图集会把三字节当一字节读，字形整个错位。
+    /// 另外它只在 LCD 面板有效，OLED 与旋转屏上会出彩边。
     Subpixel,
 }
 
@@ -184,7 +187,10 @@ pub struct SkrifaRasterizer {
 }
 
 impl SkrifaRasterizer {
-    /// 默认三项全开：平滑提示、亚像素、伽马 1.8。
+    /// 默认：平滑提示 + 伽马 1.8 + **单通道**。
+    ///
+    /// 亚像素不默认开——它要求三通道纹理，见 [`RasterFormat::Subpixel`]。
+    /// 要用它必须同时把后端的字形纹理改成 RGB。
     pub fn new() -> SkrifaRasterizer {
         let mut r = SkrifaRasterizer::default();
         r.set_gamma(1.8);
