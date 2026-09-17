@@ -1,0 +1,19 @@
+{
+  "fontNameCount": 1614,
+  "method": "AppleScript: tell application \"Microsoft Word\" to return font names",
+  "note": null,
+  "requiredFamilies": {
+    "Luminari": true,
+    "Times New Roman": true
+  },
+  "result": "PASS",
+  "rule": "方法 §6.1：核 Word 进程自己能列出所需字体。不是文件在不在，不是别的进程看不看得见。",
+  "schema": "rsword-layout-font-preflight/1",
+  "wordProcesses": [
+    {
+      "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+      "pid": 34339,
+      "startedAt": "四  9月/17 12:02:06 2026  "
+    }
+  ]
+}

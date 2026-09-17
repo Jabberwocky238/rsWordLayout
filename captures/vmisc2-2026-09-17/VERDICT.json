@@ -1,0 +1,58 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-vmisc2.md",
+  "clueIndependence": "Q1 的半数进位方向取自 vmisc 的读数，按 §7.5 记为线索不独立",
+  "bundle": "/Users/user/Documents/rsword-captures/vmisc2",
+  "bundleState": "UNDECIDABLE",
+  "coverage": {
+    "wordPagesInSweep": 11,
+    "pdfPages": 11,
+    "sweepPositions": 89,
+    "linesFromSweep": 14
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "Q0": {
+      "prediction": "Q0 每条基线都在 0.24pt 栅格上",
+      "n": 8,
+      "ok": 8,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "Q1": {
+      "prediction": "Q1 抬升量 = quantize(val/2) 到 0.24pt 栅格",
+      "n": 5,
+      "ok": 5,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "Q2": {
+      "prediction": "Q2 同一行内各字号共用一条基线",
+      "n": 3,
+      "ok": 2,
+      "undecidable": 1,
+      "misses": [],
+      "notes": [
+        {
+          "tag": "h",
+          "reason": "不是恰好一行"
+        }
+      ],
+      "verdict": "UNDECIDABLE"
+    },
+    "Q3": {
+      "prediction": "Q3 分页符按位置画 0 或 1 个字形（计数模型对得上）",
+      "n": 1,
+      "ok": 1,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    }
+  }
+}
