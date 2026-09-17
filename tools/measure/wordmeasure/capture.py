@@ -184,8 +184,11 @@ def capture(
     doc_expr = "document %s" % literal(name)
     try:
         started = time.monotonic()
-        content = tell_word(_content_text_script(doc_expr))
-        paragraphs = _decode_rows(tell_word(_paragraphs_script(doc_expr)))
+        # 这两条与扫描同一个量级的超时：它们都**按段落数线性增长**，
+        # 而夹具的段落数是设计变量。762 段的段落区间枚举就超过了默认的 120 秒——
+        # 默认值是按「几十段的夹具」定的，夹具一长就不够用，且失败得莫名其妙。
+        content = tell_word(_content_text_script(doc_expr), timeout=1800.0)
+        paragraphs = _decode_rows(tell_word(_paragraphs_script(doc_expr), timeout=1800.0))
         timings["structureSeconds"] = time.monotonic() - started
 
         started = time.monotonic()
