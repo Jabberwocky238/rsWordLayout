@@ -1,0 +1,97 @@
+{
+  "sha256": "8b62770907ed5103031457716b54ade2738a8ceb08c58e9bf9350a05639502ae",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "section",
+      "hasSection": false,
+      "lineTwips": 320,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "b",
+      "kind": "section",
+      "hasSection": true,
+      "lineTwips": 320,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "c",
+      "kind": "at-least-first",
+      "rule": "atLeast",
+      "lineTwips": 360,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "d",
+      "kind": "at-least-first",
+      "rule": "exact",
+      "lineTwips": 360,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "e",
+      "kind": "at-least-first",
+      "rule": "atLeast",
+      "lineTwips": 440,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "f",
+      "kind": "at-least-first",
+      "rule": "exact",
+      "lineTwips": 440,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "g",
+      "kind": "at-least-first",
+      "rule": "atLeast",
+      "lineTwips": 560,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "h",
+      "kind": "at-least-first",
+      "rule": "exact",
+      "lineTwips": 560,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "i",
+      "kind": "scale",
+      "scalePercent": 100,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j",
+      "kind": "scale",
+      "scalePercent": 150,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "k",
+      "kind": "scale",
+      "scalePercent": 200,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "l",
+      "kind": "scale",
+      "scalePercent": 50,
+      "family": "Luminari",
+      "lines": 1
+    }
+  ]
+}
