@@ -1,0 +1,20 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-vmisc3.md",
+  "clueIndependence": "R1 / R2 的线索取自已见数据，按 §7.5 记为非独立检验",
+  "bundle": "/Users/user/Documents/rsword-captures/vmisc3",
+  "bundleState": "UNDECIDABLE",
+  "coverage": {
+    "wordPagesInSweep": 12,
+    "pdfPages": 12,
+    "sweepPositions": 112,
+    "linesFromSweep": 28
+  },
+  "falsifiers": [
+    {
+      "id": "F-B",
+      "detail": "字体核查 'SUBSTITUTION_SUSPECTED'，账外字体=[]"
+    }
+  ],
+  "verdict": "VOID"
+}

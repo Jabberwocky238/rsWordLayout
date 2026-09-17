@@ -80,6 +80,7 @@ def cmd_capture(args):
         slot=None if args.no_slot else Path(args.slot) if args.slot else capture_mod.DEFAULT_SLOT,
         font_files=[Path(f) for f in (args.font_file or [])],
         work_pdf=None if args.no_slot else capture_mod.DEFAULT_WORK_PDF,
+        optional_families=args.optional_font or [],
     )
     print("已采：%s" % args.bundle)
     if meta.get("slot"):
@@ -300,6 +301,9 @@ def build_parser():
     p.add_argument("--font", action="append")
     p.add_argument("--label")
     p.add_argument("--include-font-files", action="store_true", help="把逐个字体文件哈希也写进包（很大）")
+    p.add_argument("--optional-font", action="append",
+                   help="**允许**出现但不强制的字体族，可重复。用于 Word 的回退字体："
+                        "没有可见 run 的段落，其段落标记由默认字体画，用不用得到看夹具")
     p.add_argument("--font-file", action="append",
                    help="申请字体的文件路径，可重复。核查用它读字体**自己声明的**名字"
                         "（族名/全名/PostScript 名）——族名与 PostScript 名可以毫无字面关系")

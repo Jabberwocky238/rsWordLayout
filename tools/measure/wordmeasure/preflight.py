@@ -122,6 +122,7 @@ def font_substitution_check(
     required_families: list[str],
     pdf_font_names: list[str],
     font_files: list | None = None,
+    optional_families: list[str] | None = None,
 ) -> dict:
     """采后核字体名（§6.2）。
 
@@ -149,7 +150,7 @@ def font_substitution_check(
         return a in b or b in a
 
     findings = {}
-    for family in required_families:
+    for family in list(required_families) + list(optional_families or []):
         needle = norm(family)
         acceptable = {needle}
         # **按文件归并**：一个文件里的族名、全名、PostScript 名说的是同一个字体，
@@ -162,8 +163,8 @@ def font_substitution_check(
                 acceptable |= names
         findings[family] = any(any(related(a, n) for a in acceptable) for n in normalized)
 
-    # 反向：PDF 里出现了申请之外的名字吗？这一问才是「有没有被替换」。
-    known = {norm(f) for f in required_families}
+    # 反向：PDF 里出现了账面之外的名字吗？这一问才是「有没有被替换」。
+    known = {norm(f) for f in list(required_families) + list(optional_families or [])}
     for names in declared.values():
         known |= names
     unexpected = sorted(
@@ -180,7 +181,11 @@ def font_substitution_check(
         "pdfFontNames": sorted(set(pdf_font_names)),
         "fontFilesRead": sorted(declared),
         "requiredFamiliesSeenInPdf": findings,
+        "optionalFamilies": sorted(optional_families or []),
         "unexpectedNames": unexpected,
-        "result": "PASS" if all(findings.values()) and not unexpected
+        # **只有申请的（required）才必须出现**。可选的（optional）是「允许出现」，
+        # 用不到很正常——例如 Word 只在段落没有可见 run 时才拿默认字体画段落标记。
+        # 把两者混为一谈，会在夹具恰好没触发那种情形时误报替换（实测栽过一次）。
+        "result": "PASS" if all(findings[f] for f in required_families) and not unexpected
                   else "SUBSTITUTION_SUSPECTED",
     }

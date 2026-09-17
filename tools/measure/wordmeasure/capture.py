@@ -218,6 +218,7 @@ def capture(
     slot: Path | None = DEFAULT_SLOT,
     font_files: list[Path] | None = None,
     work_pdf: Path | None = DEFAULT_WORK_PDF,
+    optional_families: list[str] | None = None,
 ) -> dict:
     """跑一次完整采集，写出采集包。返回 META.json 的内容。
 
@@ -312,7 +313,8 @@ def capture(
 
     # §6.2 采后核字体名。几何自检发现不了字体替换，只有字体名能。
     substitution = preflight.font_substitution_check(
-        required_families, pdfglyphs.font_names(glyphs), font_files=font_files
+        required_families, pdfglyphs.font_names(glyphs), font_files=font_files,
+        optional_families=optional_families,
     )
 
     identity_after = fingerprint.docx_identity(docx)

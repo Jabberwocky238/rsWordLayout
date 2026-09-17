@@ -28,8 +28,8 @@ SIZE_HALF_POINTS = 26
 LINE_TWIPS = 320
 LABEL_CHARS = "abcdefghijklmnopqrstuvwxyz"
 
-AT_LEAST_LINES = [360, 440, 560]      # 与 vmisc 的 400/520/640 无一重合
-SCALES = [100, 150, 200, 50]          # `w:w` 百分比，100 是对照
+AT_LEAST_LINES = [340, 460, 580]      # 与 vmisc 的 400/520/640、第一版的 360/440/560 均不重合
+SCALES = [100, 120, 180, 66]          # `w:w` 百分比，100 是对照；与第一版的 150/200/50 不重合
 
 
 def build_body() -> tuple[str, list[dict]]:

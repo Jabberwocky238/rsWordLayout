@@ -1,5 +1,5 @@
 {
-  "sha256": "8b62770907ed5103031457716b54ade2738a8ceb08c58e9bf9350a05639502ae",
+  "sha256": "27d2c0304fffc5aa539c49b10f5e01fba529c9823f50ed9ec3d35fc0b74910e4",
   "probes": [
     {
       "tag": "a",
@@ -21,7 +21,7 @@
       "tag": "c",
       "kind": "at-least-first",
       "rule": "atLeast",
-      "lineTwips": 360,
+      "lineTwips": 340,
       "family": "Luminari",
       "lines": 3
     },
@@ -29,7 +29,7 @@
       "tag": "d",
       "kind": "at-least-first",
       "rule": "exact",
-      "lineTwips": 360,
+      "lineTwips": 340,
       "family": "Luminari",
       "lines": 3
     },
@@ -37,7 +37,7 @@
       "tag": "e",
       "kind": "at-least-first",
       "rule": "atLeast",
-      "lineTwips": 440,
+      "lineTwips": 460,
       "family": "Luminari",
       "lines": 3
     },
@@ -45,7 +45,7 @@
       "tag": "f",
       "kind": "at-least-first",
       "rule": "exact",
-      "lineTwips": 440,
+      "lineTwips": 460,
       "family": "Luminari",
       "lines": 3
     },
@@ -53,7 +53,7 @@
       "tag": "g",
       "kind": "at-least-first",
       "rule": "atLeast",
-      "lineTwips": 560,
+      "lineTwips": 580,
       "family": "Luminari",
       "lines": 3
     },
@@ -61,7 +61,7 @@
       "tag": "h",
       "kind": "at-least-first",
       "rule": "exact",
-      "lineTwips": 560,
+      "lineTwips": 580,
       "family": "Luminari",
       "lines": 3
     },
@@ -75,21 +75,21 @@
     {
       "tag": "j",
       "kind": "scale",
-      "scalePercent": 150,
+      "scalePercent": 120,
       "family": "Luminari",
       "lines": 1
     },
     {
       "tag": "k",
       "kind": "scale",
-      "scalePercent": 200,
+      "scalePercent": 180,
       "family": "Luminari",
       "lines": 1
     },
     {
       "tag": "l",
       "kind": "scale",
-      "scalePercent": 50,
+      "scalePercent": 66,
       "family": "Luminari",
       "lines": 1
     }
