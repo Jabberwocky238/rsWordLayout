@@ -871,6 +871,41 @@ pub struct Run {
     pub text: String,
     pub font: FontSpec,
     pub color: Color,
+    /// `text` 里每个 [`OBJECT_PLACEHOLDER`] 各是什么，按文档顺序，一一对应。
+    ///
+    /// 占位符本身**不区分种类**——分页符、软回车、行内图在 run 文本里都是同一个
+    /// U+FFFC。种类只在 rsword 的 `segments[].kind` 里，所以必须由桥接层带进来，
+    /// 否则排版分不出「这里要翻页」和「这里有张图」。
+    ///
+    /// 长度与 `text` 里的占位符个数对不上时，桥接层应当整体退回 [`PlaceholderKind::Object`]
+    /// ——那是保守方向：不会凭空造出分页。
+    pub placeholders: Vec<PlaceholderKind>,
+}
+
+/// run 文本里一个 [`OBJECT_PLACEHOLDER`] 代表什么。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PlaceholderKind {
+    /// `w:br w:type="page"`：断行并翻页。
+    PageBreak,
+    /// `w:br w:type="column"`：分栏符。**未测**——本版不实现分栏，
+    /// 按软回车同级处理（断行不翻页），留待实测。
+    ColumnBreak,
+    /// `w:br`、`w:br w:type="textWrapping"`：断行不翻页。
+    LineBreak,
+    /// 行内对象（图、OLE、pict）。**不是断开**：不断行也不翻页。
+    Object,
+}
+
+impl PlaceholderKind {
+    /// 是否要在此处收行。
+    fn breaks_line(self) -> bool {
+        !matches!(self, PlaceholderKind::Object)
+    }
+
+    /// 是否要在收行之后翻页。
+    fn breaks_page(self) -> bool {
+        matches!(self, PlaceholderKind::PageBreak)
+    }
 }
 
 /// 页面设置（来自 `rsword::resolve::section::SectionGeom`）。
@@ -920,6 +955,11 @@ struct PendingLine {
     /// 本行实际落在哪个横向区间。无环绕时就是整个正文宽度；
     /// 有环绕时可能是被图片劈开后的左段或右段。
     span: Span,
+    /// 本行之后要翻页（段内的 `w:br w:type="page"`）。
+    ///
+    /// 与 `Para::page_break_before` 不同：那条是段落属性（`w:pageBreakBefore`），
+    /// 这条是段**内**任意位置的手动分页符，所以必须挂在行上而不是段上。
+    page_break_after: bool,
 }
 
 pub struct Engine<'m, M: FontMetrics> {
@@ -1018,6 +1058,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 }
                 self.place_line(&mut page, &line, para, cursor);
                 cursor += line.height;
+
+                // 段内手动分页符：本行之后翻页。
+                //
+                // 与「放不下就翻页」不同，这一条**不看还剩多少空间**——源里写了分页就是分页。
+                // 实测夹具里有连续两个分页符的情形，那确实产生一张只有一条行记录的页。
+                if line.page_break_after {
+                    pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
+                    cursor = area.y;
+                }
             }
 
             cursor += para.space_after;
@@ -1115,6 +1164,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 is_last: true,
                 is_first: true,
                 span,
+                page_break_after: false,
             });
             return lines;
         }
@@ -1159,6 +1209,46 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     // 不是第一段 ⇒ 前面刚跨过一个占位符：源游标要走 1 个 UTF-16 单位，
                     // 但不产生片段、不占宽度。
                     consumed += 1;
+
+                    // 占位符是什么，决定要不要在此处收行／翻页。种类由桥接层带进来；
+                    // 拿不到就按 `Object` 处理——保守方向，不凭空造出分页。
+                    let kind = run
+                        .placeholders
+                        .get(part_index - 1)
+                        .copied()
+                        .unwrap_or(PlaceholderKind::Object);
+
+                    if kind.breaks_line() {
+                        // 收行。空行也要收：`'\u{FFFC}文字'` 这种分页符在段首的情形，
+                        // 前面确实是一条空行（Word 也给它一条独立的行记录）。
+                        let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
+                        let h = if cur.is_empty() && cur_w == 0 {
+                            // 空行高度由该 run 的字体定，不能取 0——否则后面的行会叠上来。
+                            let m = self.metrics.empty_line_metrics(&run.font);
+                            cur_ascent = m.ascent;
+                            self.line_height(para, m.ascent + m.descent, m.natural_height())
+                        } else {
+                            h
+                        };
+                        lines.push(PendingLine {
+                            height: h,
+                            baseline: cur_ascent,
+                            pieces: std::mem::take(&mut cur),
+                            width: cur_w,
+                            is_last: false,
+                            is_first: first_line,
+                            span,
+                            page_break_after: kind.breaks_page(),
+                        });
+                        cur_w = 0;
+                        cur_ascent = 0;
+                        cur_descent = 0;
+                        cur_natural = 0;
+                        first_line = false;
+                        cur_y += h;
+                        span = self.pick_span(para, area, cur_y, h.max(probe_h));
+                        line_avail = span.width().max(1);
+                    }
                 }
             let mut rest: &str = part;
             while !rest.is_empty() {
@@ -1242,6 +1332,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     is_last: false,
                     is_first: first_line,
                     span,
+                    page_break_after: false,
                 });
                 cur_w = 0;
                 cur_ascent = 0;
@@ -1267,6 +1358,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 is_last: true,
                 is_first: first_line,
                 span,
+                page_break_after: false,
             });
         } else if let Some(last) = lines.last_mut() {
             last.is_last = true;

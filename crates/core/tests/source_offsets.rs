@@ -19,6 +19,7 @@ fn para(text: &str) -> Para {
             text: text.to_string(),
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
+            placeholders: Vec::new(),
         }],
         ..Para::default()
     }

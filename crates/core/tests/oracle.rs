@@ -16,6 +16,7 @@ fn record() -> LayoutRecord {
             text: "Hello 世界".to_string(),
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
+            placeholders: Vec::new(),
         }],
         align: Align::Left,
         ..Para::default()
@@ -95,6 +96,7 @@ fn source_ranges_cover_the_line_in_reading_order() {
             text: "abcdef".to_string(),
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
+            placeholders: Vec::new(),
         }],
         ..Para::default()
     };

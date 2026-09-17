@@ -29,7 +29,10 @@ pub use layout::{
 pub use layout::{Span, WrapContext, WrapRegion, WrapSide};
 
 // ---- 布局引擎 ----
-pub use layout::{Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para, Run, TextFragment};
+pub use layout::{
+    Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para, PlaceholderKind, Run,
+    TextFragment,
+};
 
 // ---- 绘制指令：布局产物 → 画布 ----
 pub use layout::{

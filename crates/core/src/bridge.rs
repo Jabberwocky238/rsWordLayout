@@ -9,7 +9,7 @@
 use serde_json::Value;
 
 use crate::layout::Color;
-use crate::layout::{Align, LineRule, Para, Run};
+use crate::layout::{Align, LineRule, OBJECT_PLACEHOLDER, Para, PlaceholderKind, Run};
 use crate::layout::Twips;
 use crate::font::{FontHint, FontSlots, FontSpec};
 
@@ -85,6 +85,44 @@ fn read_slots(fonts: Option<&Value>) -> FontSlots {
     }
 }
 
+/// 一个 run 的 `text` 里每个 [`PlaceholderKind`]，按文档顺序。
+///
+/// 占位符本身**不区分种类**——分页符、软回车、行内图在 run 文本里都是同一个 U+FFFC。
+/// 种类只在 `segments[].kind` 里，所以必须在这里读出来带给排版层，
+/// 否则排版分不出「这里要翻页」和「这里有张图」。
+///
+/// **个数对不上就整体退回 `Object`**：那是保守方向——宁可少一次分页，
+/// 也不凭空造出一次。凭空多出来的页在比较器里只会报结构失败，查起来更费事。
+fn run_placeholders(run: &Value, text: &str) -> Vec<PlaceholderKind> {
+    let want = text.matches(OBJECT_PLACEHOLDER).count();
+    if want == 0 {
+        return Vec::new();
+    }
+    let Some(Value::Array(segments)) = run.get("segments") else {
+        return vec![PlaceholderKind::Object; want];
+    };
+
+    let mut out = Vec::new();
+    for segment in segments {
+        let Some(kind) = segment.get("kind") else { continue };
+        match kind.get("kind").and_then(Value::as_str) {
+            Some("br") => out.push(match kind.get("breakKind").and_then(Value::as_str) {
+                Some("page") => PlaceholderKind::PageBreak,
+                Some("column") => PlaceholderKind::ColumnBreak,
+                // 缺省即 textWrapping（软回车）。
+                _ => PlaceholderKind::LineBreak,
+            }),
+            // 行内对象：占位但不断开。
+            Some("drawing") | Some("object") | Some("pict") => out.push(PlaceholderKind::Object),
+            // 文本段不占位；其余未知种类保守当对象。
+            Some("text") => {}
+            _ => out.push(PlaceholderKind::Object),
+        }
+    }
+
+    if out.len() == want { out } else { vec![PlaceholderKind::Object; want] }
+}
+
 /// 递归收集一个块里的所有 run 文本。
 fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<Run>) {
     match inlines {
@@ -104,6 +142,7 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
                         text: t.to_string(),
                         font: run_font(&props, base_size, base_bold),
                         color: Color::BLACK,
+                        placeholders: run_placeholders(inlines, t),
                     });
                 }
             } else if kind == "field" {
@@ -270,6 +309,7 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
                 text: String::new(),
                 font: FontSpec::new(BODY_FAMILY, size),
                 color: Color::BLACK,
+                placeholders: Vec::new(),
             });
         }
 

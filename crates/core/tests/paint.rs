@@ -21,6 +21,7 @@ fn doc() -> Vec<rsword_layout_core::Page> {
             text: "Hello 世界".to_string(),
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
+            placeholders: Vec::new(),
         }],
         ..Para::default()
     };
