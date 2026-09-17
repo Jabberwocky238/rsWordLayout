@@ -1,0 +1,107 @@
+{
+  "sha256": "5087b3e6d04f659df83b065a4849546e1481222ca6bd3498d87eebd2b30f2b84",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "section",
+      "hasSection": false,
+      "pairIndex": 0,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "b",
+      "kind": "section",
+      "hasSection": true,
+      "pairIndex": 0,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "c",
+      "kind": "section",
+      "hasSection": false,
+      "pairIndex": 1,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "d",
+      "kind": "section",
+      "hasSection": true,
+      "pairIndex": 1,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "e",
+      "kind": "section",
+      "hasSection": false,
+      "pairIndex": 2,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "f",
+      "kind": "section",
+      "hasSection": true,
+      "pairIndex": 2,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "g",
+      "kind": "break-own-line",
+      "pairIndex": 0,
+      "family": "Luminari"
+    },
+    {
+      "tag": "h",
+      "kind": "break-before-mark",
+      "pairIndex": 0,
+      "family": "Luminari"
+    },
+    {
+      "tag": "i",
+      "kind": "break-mid",
+      "pairIndex": 0,
+      "family": "Luminari"
+    },
+    {
+      "tag": "j",
+      "kind": "break-own-line",
+      "pairIndex": 1,
+      "family": "Luminari"
+    },
+    {
+      "tag": "k",
+      "kind": "break-before-mark",
+      "pairIndex": 1,
+      "family": "Luminari"
+    },
+    {
+      "tag": "l",
+      "kind": "break-mid",
+      "pairIndex": 1,
+      "family": "Luminari"
+    },
+    {
+      "tag": "m",
+      "kind": "break-own-line",
+      "pairIndex": 2,
+      "family": "Luminari"
+    },
+    {
+      "tag": "n",
+      "kind": "break-before-mark",
+      "pairIndex": 2,
+      "family": "Luminari"
+    },
+    {
+      "tag": "o",
+      "kind": "break-mid",
+      "pairIndex": 2,
+      "family": "Luminari"
+    }
+  ]
+}
