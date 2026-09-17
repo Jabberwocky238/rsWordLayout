@@ -4,7 +4,7 @@
 不允许改动下面任何一条预测、候选清单、容差或证否条件（量具方法 §7.1）。
 
 夹具：`fixtures/cursor-unit.docx`，sha256
-`aadf13939a02fbf2bc756000ccc949b157928e045d04bf7ae2e43a355b05f875`
+`9cfd06fb59794515de9c74877e2903dada87848574aa65a049485e43689d1ac3`
 判据的可执行形式：`tools/measure/prereg_cursor.py`（与本文同一次提交）。
 
 ## 0 为什么要这一份
@@ -50,7 +50,7 @@ step(u) = 四舍五入(natural / u) × u
 
 **判为假**：任何一条基线的 y 不是 0.24pt 的整数倍。分母 = **762**。
 
-五个族（Chalkduster / Big Caslon / Andale Mono / Ayuthaya / Krungthep）与前两批
+五个族（Chalkduster / Big Caslon Medium / Andale Mono / Ayuthaya / Krungthep）与前两批
 没有一个重合，`upem` 分别是 905 / 1000 / 2048 / 2100 / 2560，所以这是第三次
 **独立**检验，不是同一批证据再数一遍。
 
@@ -112,7 +112,15 @@ u = 0.05
 
 - 平台 **Mac**，Word for Mac，文档以**兼容性模式**打开。§6.6：结论只能写
   「在 Mac Word 兼容性模式下观测到」，不得并入 Windows 口径的分母。
-- 需要的字体族：`Chalkduster` / `Big Caslon` / `Andale Mono` / `Ayuthaya` / `Krungthep`。
+- 需要的字体族：`Chalkduster` / `Big Caslon Medium` / `Andale Mono` / `Ayuthaya` / `Krungthep`。
+
+## 6.1 本文的修订
+
+采集**前**改过一次：族名从 `Big Caslon` 改成 **`Big Caslon Medium`**，夹具 sha256 随之更新。
+Word 进程列出来的名字是后者，前者它认不出——这是采前核查（§6.1）逮到的，
+不是事后发现的。若照原样采下去，那一组会被替换成别的字体，而**几何上完全看不出来**（§6.2）。
+
+改的只是**字体叫什么**。R0 / R1 / R2、候选清单、容差、证否条件**一个字都没动**。
 
 ## 7 结论
 

@@ -1,5 +1,5 @@
 {
-  "sha256": "aadf13939a02fbf2bc756000ccc949b157928e045d04bf7ae2e43a355b05f875",
+  "sha256": "9cfd06fb59794515de9c74877e2903dada87848574aa65a049485e43689d1ac3",
   "probes": [
     {
       "tag": "a",
@@ -19,14 +19,14 @@
       "tag": "c",
       "kind": "cursor",
       "sizeHalfPoints": 12,
-      "family": "Big Caslon",
+      "family": "Big Caslon Medium",
       "lines": 80
     },
     {
       "tag": "d",
       "kind": "cursor",
       "sizeHalfPoints": 15,
-      "family": "Big Caslon",
+      "family": "Big Caslon Medium",
       "lines": 75
     },
     {

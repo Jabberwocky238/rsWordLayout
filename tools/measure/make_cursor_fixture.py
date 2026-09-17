@@ -39,7 +39,8 @@ from prereg_probe import hhea, natural_pt
 FONT_DIR = "/System/Library/Fonts/Supplemental/"
 FONTS = {
     "Chalkduster": FONT_DIR + "Chalkduster.ttf",   # upem 905
-    "Big Caslon": FONT_DIR + "BigCaslon.ttf",      # upem 1000，lineGap 18
+    # Word 把它叫 **Big Caslon Medium**——文件名与族名对不上，采前核查逮到的。
+    "Big Caslon Medium": FONT_DIR + "BigCaslon.ttf",  # upem 1000，lineGap 18
     "Andale Mono": FONT_DIR + "Andale Mono.ttf",   # upem 2048
     "Ayuthaya": FONT_DIR + "Ayuthaya.ttf",         # upem 2100
     "Krungthep": FONT_DIR + "Krungthep.ttf",       # upem 2560
