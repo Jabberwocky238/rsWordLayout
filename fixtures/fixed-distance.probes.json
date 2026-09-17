@@ -1,0 +1,134 @@
+{
+  "sha256": "3fbb8a58e33951c6e699a3f543169f4368dbc809e7029594239d734751faa344",
+  "linesPerGroup": 10,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "fixed-distance",
+      "lineTwips": 150,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "b",
+      "kind": "fixed-distance",
+      "lineTwips": 166,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "c",
+      "kind": "fixed-distance",
+      "lineTwips": 178,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "d",
+      "kind": "fixed-distance",
+      "lineTwips": 194,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "e",
+      "kind": "fixed-distance",
+      "lineTwips": 202,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "f",
+      "kind": "fixed-distance",
+      "lineTwips": 220,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "g",
+      "kind": "fixed-distance",
+      "lineTwips": 230,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "h",
+      "kind": "fixed-distance",
+      "lineTwips": 316,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "i",
+      "kind": "fixed-distance",
+      "lineTwips": 328,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "j",
+      "kind": "fixed-distance",
+      "lineTwips": 340,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "k",
+      "kind": "fixed-distance",
+      "lineTwips": 356,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "l",
+      "kind": "fixed-distance",
+      "lineTwips": 388,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "m",
+      "kind": "fixed-distance",
+      "lineTwips": 404,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "n",
+      "kind": "fixed-distance",
+      "lineTwips": 422,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "o",
+      "kind": "fixed-distance",
+      "lineTwips": 436,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "p",
+      "kind": "fixed-distance",
+      "lineTwips": 460,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    }
+  ]
+}
