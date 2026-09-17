@@ -1,0 +1,242 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-exact-spacing.md",
+  "purpose": "把累加机制与 natural 分开：exact 行距不含字体度量",
+  "bundle": "/Users/user/Documents/rsword-captures/exact-spacing",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 18,
+    "pdfPages": 18,
+    "sweepPositions": 1440,
+    "linesFromSweep": 360
+  },
+  "lineDenominators": {
+    "lines": 360,
+    "ok": 360,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "X0": {
+      "prediction": "X0 每条基线都在 0.24pt 栅格上（非默认行距下）",
+      "n": 360,
+      "ok": 360,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "X1": {
+      "prediction": "X1 第 n 条基线 = quantize(b₀ + n × w:line/20)",
+      "n": 342,
+      "ok": 300,
+      "undecidable": 0,
+      "misses": [
+        {
+          "tag": "a",
+          "family": "Brush Script MT",
+          "lineTwips": 250,
+          "n": 6,
+          "实测": 157.19999999999993,
+          "预测": 156.96,
+          "差": 0.24
+        },
+        {
+          "tag": "a",
+          "family": "Brush Script MT",
+          "lineTwips": 250,
+          "n": 18,
+          "实测": 307.19999999999993,
+          "预测": 306.96,
+          "差": 0.24
+        },
+        {
+          "tag": "b",
+          "family": "Brush Script MT",
+          "lineTwips": 290,
+          "n": 6,
+          "实测": 170.63999999999987,
+          "预测": 170.4,
+          "差": 0.24
+        },
+        {
+          "tag": "b",
+          "family": "Brush Script MT",
+          "lineTwips": 290,
+          "n": 18,
+          "实测": 344.6399999999999,
+          "预测": 344.4,
+          "差": 0.24
+        },
+        {
+          "tag": "c",
+          "family": "Brush Script MT",
+          "lineTwips": 310,
+          "n": 1,
+          "实测": 99.83999999999992,
+          "预测": 100.08,
+          "差": -0.24
+        },
+        {
+          "tag": "c",
+          "family": "Brush Script MT",
+          "lineTwips": 310,
+          "n": 3,
+          "实测": 130.79999999999995,
+          "预测": 131.04,
+          "差": -0.24
+        },
+        {
+          "tag": "c",
+          "family": "Brush Script MT",
+          "lineTwips": 310,
+          "n": 8,
+          "实测": 208.31999999999994,
+          "预测": 208.56,
+          "差": -0.24
+        },
+        {
+          "tag": "c",
+          "family": "Brush Script MT",
+          "lineTwips": 310,
+          "n": 10,
+          "实测": 239.27999999999986,
+          "预测": 239.52,
+          "差": -0.24
+        },
+        {
+          "tag": "c",
+          "family": "Brush Script MT",
+          "lineTwips": 310,
+          "n": 13,
+          "实测": 285.8399999999999,
+          "预测": 286.08,
+          "差": -0.24
+        },
+        {
+          "tag": "c",
+          "family": "Brush Script MT",
+          "lineTwips": 310,
+          "n": 15,
+          "实测": 316.79999999999995,
+          "预测": 317.04,
+          "差": -0.24
+        },
+        {
+          "tag": "d",
+          "family": "Brush Script MT",
+          "lineTwips": 370,
+          "n": 6,
+          "实测": 197.9999999999999,
+          "预测": 197.76,
+          "差": 0.24
+        },
+        {
+          "tag": "d",
+          "family": "Brush Script MT",
+          "lineTwips": 370,
+          "n": 18,
+          "实测": 419.9999999999999,
+          "预测": 419.76,
+          "差": 0.24
+        },
+        {
+          "tag": "e",
+          "family": "Brush Script MT",
+          "lineTwips": 410,
+          "n": 6,
+          "实测": 211.43999999999994,
+          "预测": 211.2,
+          "差": 0.24
+        },
+        {
+          "tag": "e",
+          "family": "Brush Script MT",
+          "lineTwips": 410,
+          "n": 18,
+          "实测": 457.43999999999994,
+          "预测": 457.2,
+          "差": 0.24
+        },
+        {
+          "tag": "g",
+          "family": "Silom",
+          "lineTwips": 250,
+          "n": 6,
+          "实测": 157.19999999999993,
+          "预测": 156.96,
+          "差": 0.24
+        },
+        {
+          "tag": "g",
+          "family": "Silom",
+          "lineTwips": 250,
+          "n": 18,
+          "实测": 307.19999999999993,
+          "预测": 306.96,
+          "差": 0.24
+        },
+        {
+          "tag": "h",
+          "family": "Silom",
+          "lineTwips": 290,
+          "n": 6,
+          "实测": 170.63999999999987,
+          "预测": 170.4,
+          "差": 0.24
+        },
+        {
+          "tag": "h",
+          "family": "Silom",
+          "lineTwips": 290,
+          "n": 18,
+          "实测": 344.6399999999999,
+          "预测": 344.4,
+          "差": 0.24
+        },
+        {
+          "tag": "i",
+          "family": "Silom",
+          "lineTwips": 310,
+          "n": 1,
+          "实测": 99.83999999999992,
+          "预测": 100.08,
+          "差": -0.24
+        },
+        {
+          "tag": "i",
+          "family": "Silom",
+          "lineTwips": 310,
+          "n": 3,
+          "实测": 130.79999999999995,
+          "预测": 131.04,
+          "差": -0.24
+        }
+      ],
+      "notes": [],
+      "perGroup": {
+        "a Brush Script MT line=250": "17/19",
+        "b Brush Script MT line=290": "17/19",
+        "c Brush Script MT line=310": "13/19",
+        "d Brush Script MT line=370": "17/19",
+        "e Brush Script MT line=410": "17/19",
+        "f Brush Script MT line=470": "19/19",
+        "g Silom line=250": "17/19",
+        "h Silom line=290": "17/19",
+        "i Silom line=310": "13/19",
+        "j Silom line=370": "17/19",
+        "k Silom line=410": "17/19",
+        "l Silom line=470": "19/19",
+        "m Lao Sangam MN line=250": "17/19",
+        "n Lao Sangam MN line=290": "17/19",
+        "o Lao Sangam MN line=310": "13/19",
+        "p Lao Sangam MN line=370": "17/19",
+        "q Lao Sangam MN line=410": "17/19",
+        "r Lao Sangam MN line=470": "19/19"
+      },
+      "verdict": "FAIL"
+    }
+  }
+}
