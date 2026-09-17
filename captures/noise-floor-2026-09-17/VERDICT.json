@@ -1,0 +1,47 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-noise-floor.md",
+  "purpose": "判量具自己的噪声底，不判 Word",
+  "bundle": "/Users/user/Documents/rsword-captures/noise-floor",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 6,
+    "pdfPages": 6,
+    "sweepPositions": 678,
+    "linesFromSweep": 63
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "N1": {
+      "prediction": "N1 行间：同一文本各行的字形 x 逐位相同",
+      "n": 570,
+      "ok": 570,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "maxDev": 0.0,
+      "perFamily": {
+        "Luminari": 0.0,
+        "Trattatello": 0.0,
+        "AppleMyungjo": 0.0
+      },
+      "verdict": "OK"
+    },
+    "N2": {
+      "prediction": "N2 行内：同一字符组各遍的内部间隔相同",
+      "n": 33,
+      "ok": 33,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "maxDev": 0.0,
+      "perFamily": {
+        "Luminari": 0.0,
+        "Trattatello": 0.0,
+        "AppleMyungjo": 0.0
+      },
+      "verdict": "OK"
+    }
+  }
+}
