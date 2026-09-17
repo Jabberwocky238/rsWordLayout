@@ -11,3 +11,7 @@
 node_modules/
 /crates/webgl/web/dist/
 .vite/
+
+# 量具的钉版 venv 与 Python 缓存
+tools/measure/.venv/
+__pycache__/

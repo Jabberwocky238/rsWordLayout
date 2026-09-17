@@ -1,0 +1,107 @@
+"""采前核查（方法 §6.1 / §9.2）。**这道核查是唯一防线。**
+
+实测教训：16 个字体装于 11:28，Word 进程启动于两天前，结果 2618 条字形**全被替换**，
+而 `system_profiler` 与文件检查**都是通过的**。
+
+所以这里核的是**Word 进程自己**能不能列出所需字体：
+
+- 不是核文件在不在（§6.1）；
+- 不是核别的进程看不看得见（§6.1）；
+- 也不是核字体文件集哈希——那查的是机器上有什么，不是 Word 实际用了什么（§6.2）。
+
+核查通过还有一个前提：进程启动时刻要**晚于**字体安装时刻。装完字体必须重启 Word。
+本模块把进程启动时刻原样记进结果，让下游能自己判断。
+"""
+
+from __future__ import annotations
+
+from . import fingerprint
+from .applescript import literal, tell_word
+
+
+def word_font_names(timeout: float = 60.0) -> list[str]:
+    """问 Word 进程自己要字体族名。
+
+    用 `return font names`——与 mac 侧既有批次同一条读法（那次返回 Liberation 0 / Carlito 0，
+    正是靠这条读数发现字体没进 Word）。
+    """
+    body = "set AppleScript's text item delimiters to linefeed\nreturn (font names) as text"
+    out = tell_word(body, timeout=timeout)
+    names = [line.strip() for line in out.splitlines()]
+    return [n for n in names if n]
+
+
+def preflight(required_families: list[str], timeout: float = 60.0) -> dict:
+    """核查 Word 进程能列出 `required_families` 里的每一个族。
+
+    返回三态之一的 `result`：
+
+    - `PASS`  —— 全部在列；
+    - `FAIL`  —— 有族不在列，**不要采集**，先装字体再重启 Word；
+    - `UNDECIDABLE` —— Word 没在跑，或读不到字体名。没读到不等于没有。
+    """
+    processes = fingerprint.word_processes()
+    record = {
+        "schema": "rsword-layout-font-preflight/1",
+        "rule": "方法 §6.1：核 Word 进程自己能列出所需字体。不是文件在不在，不是别的进程看不看得见。",
+        "method": "AppleScript: tell application \"Microsoft Word\" to return font names",
+        "requiredFamilies": {family: None for family in required_families},
+        "wordProcesses": processes,
+        "fontNameCount": None,
+        "result": "UNDECIDABLE",
+        "note": None,
+    }
+    if not processes:
+        record["note"] = "Word 未运行；字体名读数不存在。启动 Word 后重跑。"
+        return record
+    try:
+        names = word_font_names(timeout=timeout)
+    except Exception as error:  # 读不到就是判不了，不是通过，也不能记成不通过。
+        record["note"] = "字体名读取失败：%r" % (error,)
+        return record
+
+    present = set(names)
+    record["fontNameCount"] = len(names)
+    record["requiredFamilies"] = {family: (family in present) for family in required_families}
+    missing = [f for f, ok in record["requiredFamilies"].items() if not ok]
+    record["result"] = "PASS" if not missing else "FAIL"
+    if missing:
+        record["note"] = (
+            "Word 进程列不出：%s。装字体后**必须重启 Word**——"
+            "文件在不在与此无关（§6.1）。" % ", ".join(missing)
+        )
+    return record
+
+
+def assert_pass(record: dict) -> None:
+    if record["result"] != "PASS":
+        raise RuntimeError(
+            "FONT_PREFLIGHT_%s: %s" % (record["result"], record.get("note") or "")
+        )
+
+
+def font_substitution_check(required_families: list[str], pdf_font_names: list[str]) -> dict:
+    """采后核字体名（§6.2）。
+
+    Liberation Serif 是 Times New Roman 的**度量兼容**克隆（Sans↔Arial、Carlito↔Calibri、
+    Caladea↔Cambria）。替换后 `glyphOrigin` 与 `advanceVector` **一字不差**，
+    2618 条记录 max|Δ| = 0.000000pt。**任何几何自检都发现不了字体被换过，只有字体名能。**
+
+    所以采完必须回头看 PDF 里的子集名，确认用的是申请的族。
+    """
+    # PDF 子集名形如 `ABCDEF+LiberationSerif`；去前缀与空格后做包含判断。
+    normalized = []
+    for name in pdf_font_names:
+        base = name.split("+", 1)[-1]
+        normalized.append(base.replace("-", "").replace(" ", "").lower())
+    findings = {}
+    for family in required_families:
+        needle = family.replace("-", "").replace(" ", "").lower()
+        findings[family] = any(needle in n for n in normalized)
+    return {
+        "schema": "rsword-layout-font-substitution/1",
+        "basis": "方法 §6.2：几何自检查不出字体替换，只有字体名能。",
+        "pdfFontNames": sorted(set(pdf_font_names)),
+        "requiredFamiliesSeenInPdf": findings,
+        "result": "PASS" if all(findings.values()) else "SUBSTITUTION_SUSPECTED",
+    }
