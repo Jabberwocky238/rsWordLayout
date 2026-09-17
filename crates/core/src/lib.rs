@@ -12,6 +12,7 @@ pub mod measure;
 pub mod paint;
 pub mod simple_metrics;
 pub mod svg;
+pub mod trace;
 
 #[cfg(feature = "shape")]
 pub mod shape;

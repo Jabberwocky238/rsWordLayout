@@ -18,6 +18,7 @@ fn doc() -> rsword_layout_core::fragment::LaidOutDocument {
             text: "Hello 世界".to_string(),
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
+            break_after: None,
         }],
         ..Para::default()
     };

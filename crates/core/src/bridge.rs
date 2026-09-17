@@ -9,7 +9,7 @@
 use serde_json::Value;
 
 use crate::canvas::Color;
-use crate::engine::{Align, LineRule, Para, Run};
+use crate::engine::{Align, BreakKind, LineRule, Para, Run};
 use crate::geom::Twips;
 use crate::measure::FontSpec;
 
@@ -57,6 +57,70 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
     }
 }
 
+/// 把一个 run 按 `segments` 拆开。
+///
+/// **必须按 segment 走，不能直接拿 `run.text`。** rsword 为 `w:br` 也给一个 segment，
+/// 并在 `run.text` 里放一个 U+FFFC（`￼`）占位符。整串拿来排版会把这个占位符
+/// **当成一个真字形画出去**——它在 Word 的 PDF 里根本不存在，
+/// 于是每个分页符都凭空多出一个字形，行宽与后续所有字形的原点跟着偏。
+fn split_run(run: &Value, font: FontSpec, out: &mut Vec<Run>) {
+    let text = run.get("text").and_then(Value::as_str).unwrap_or("");
+    let segments = match run.get("segments") {
+        Some(Value::Array(items)) => items,
+        // 没有 segments 的 run：整串当文本，与旧行为一致。
+        _ => {
+            if !text.is_empty() {
+                out.push(Run { text: text.to_string(), font, color: Color::BLACK, break_after: None });
+            }
+            return;
+        }
+    };
+
+    for segment in segments {
+        let kind = segment.get("kind").and_then(|k| k.get("kind")).and_then(Value::as_str);
+        let range = segment.get("text").and_then(Value::as_array);
+        let slice = match range {
+            Some(r) if r.len() == 2 => {
+                let start = r[0].as_u64().unwrap_or(0) as usize;
+                let end = r[1].as_u64().unwrap_or(0) as usize;
+                text.get(start..end).unwrap_or("")
+            }
+            _ => "",
+        };
+
+        match kind {
+            Some("br") => {
+                // `breakKind` 缺省即 textWrapping（软回车）。
+                let break_kind = match segment
+                    .get("kind")
+                    .and_then(|k| k.get("breakKind"))
+                    .and_then(Value::as_str)
+                {
+                    Some("page") | Some("column") => BreakKind::Page,
+                    _ => BreakKind::Line,
+                };
+                // 占位符不进文本：它不对应任何字形。
+                out.push(Run {
+                    text: String::new(),
+                    font: font.clone(),
+                    color: Color::BLACK,
+                    break_after: Some(break_kind),
+                });
+            }
+            _ => {
+                if !slice.is_empty() {
+                    out.push(Run {
+                        text: slice.to_string(),
+                        font: font.clone(),
+                        color: Color::BLACK,
+                        break_after: None,
+                    });
+                }
+            }
+        }
+    }
+}
+
 /// 递归收集一个块里的所有 run 文本。
 fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<Run>) {
     match inlines {
@@ -68,16 +132,8 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
         Value::Object(_) => {
             let kind = inlines.get("kind").and_then(Value::as_str).unwrap_or("");
             if kind == "run" {
-                if let Some(t) = inlines.get("text").and_then(Value::as_str)
-                    && !t.is_empty()
-                {
-                    let props = inlines.get("props").cloned().unwrap_or(Value::Null);
-                    out.push(Run {
-                        text: t.to_string(),
-                        font: run_font(&props, base_size, base_bold),
-                        color: Color::BLACK,
-                    });
-                }
+                let props = inlines.get("props").cloned().unwrap_or(Value::Null);
+                split_run(inlines, run_font(&props, base_size, base_bold), out);
             } else if kind == "field" {
                 if let Some(r) = inlines.get("result") {
                     collect_runs(r, base_size, base_bold, out);
@@ -133,6 +189,34 @@ fn read_spacing(props: &Value, def_before: Twips, def_after: Twips)
     (rule, line, num("before").unwrap_or(def_before), num("after").unwrap_or(def_after))
 }
 
+/// 哪些块下标是「另起一页」的分节起点。
+///
+/// `nextPage` / `evenPage` / `oddPage` 都要求新页；`continuous` 不要求；
+/// `nextColumn` 是换栏不是换页，本版不实现分栏，所以**不当成换页**——
+/// 当成换页会凭空多出页来，而多出来的页在比较器里只会报成结构失败，查起来更费事。
+fn section_page_starts(doc: &Value) -> Vec<usize> {
+    let mut out = Vec::new();
+    let Some(Value::Array(sections)) = doc.get("sections") else {
+        return out;
+    };
+    for section in sections {
+        let kind = section
+            .get("props")
+            .and_then(|p| p.get("kind"))
+            .and_then(Value::as_str)
+            .unwrap_or("nextPage");
+        if !matches!(kind, "nextPage" | "evenPage" | "oddPage") {
+            continue;
+        }
+        if let Some(Value::Array(range)) = section.get("blockRange")
+            && let Some(start) = range.first().and_then(Value::as_u64)
+        {
+            out.push(start as usize);
+        }
+    }
+    out
+}
+
 /// 把 `document()` 的 JSON 转成段落序列。
 ///
 /// 只处理 `main` 里 `kind == "text"` 的块；表格与绘图块被跳过（会在返回的第二项里计数，
@@ -146,12 +230,20 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
         _ => return (paras, skipped),
     };
 
-    for block in main {
+    // 分节起始的块下标：该节的 `kind` 要求另起一页时记下来。
+    //
+    // 口径：`w:sectPr/w:type` 说的是**这一节自己怎么开始**，不是「上一节之后怎么断」。
+    // 这是拿实测对过的——一份 5 节的夹具里，`nextPage` 的三节各自起新页、
+    // `continuous` 的两节紧接上一节，五节的页归属逐条相符。
+    let section_page_starts = section_page_starts(doc);
+
+    for (block_index, block) in main.iter().enumerate() {
         let kind = block.get("kind").and_then(Value::as_str).unwrap_or("");
         if kind != "text" {
             skipped += 1;
             continue;
         }
+        let starts_section_page = section_page_starts.contains(&block_index);
 
         let style_id = block.get("styleId").and_then(Value::as_str);
         let level = block
@@ -171,6 +263,7 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
                 text: String::new(),
                 font: FontSpec::new(BODY_FAMILY, size),
                 color: Color::BLACK,
+                break_after: None,
             });
         }
 
@@ -191,7 +284,8 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             line_value,
             keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),
             keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
-            page_break_before: props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
+            page_break_before: starts_section_page
+                || props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
             source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
         });
     }

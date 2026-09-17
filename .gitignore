@@ -11,3 +11,7 @@
 node_modules/
 /crates/webgl/web/dist/
 .vite/
+
+# 量具的钉版 venv
+tools/measure/.venv/
+__pycache__/

@@ -11,6 +11,10 @@ publish = false
 name = "render"
 path = "bin/render.rs"
 
+[[bin]]
+name = "layout-trace"
+path = "bin/layout-trace.rs"
+
 [[example]]
 name = "dump"
 path = "examples/dump.rs"

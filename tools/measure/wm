@@ -1,0 +1,4 @@
+#!/bin/sh
+# 量具入口。用本目录下钉死版本的 venv，免得 pdfminer 版本一变读数就跟着变。
+here=$(cd "$(dirname "$0")" && pwd)
+exec "$here/.venv/bin/python" -m wordmeasure.cli "$@"
