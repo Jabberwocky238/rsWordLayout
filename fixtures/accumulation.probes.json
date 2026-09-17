@@ -1,0 +1,90 @@
+{
+  "sha256": "b81d4338200bd4464a87b30f940e5e3a04cdc9f58b8292e36b172615dc975463",
+  "linesPerGroup": 20,
+  "probes": [
+    {
+      "tag": "A17",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 17,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "A21",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 21,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "A26",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 26,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "A30",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 30,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "A34",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 34,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "A40",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 40,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "A44",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 44,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "B0",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 26,
+      "family": "Georgia",
+      "lines": 20
+    },
+    {
+      "tag": "B1",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 26,
+      "family": "Verdana",
+      "lines": 20
+    },
+    {
+      "tag": "B2",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 26,
+      "family": "Tahoma",
+      "lines": 20
+    },
+    {
+      "tag": "B3",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 26,
+      "family": "Comic Sans MS",
+      "lines": 20
+    },
+    {
+      "tag": "B4",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 26,
+      "family": "Trebuchet MS",
+      "lines": 20
+    }
+  ]
+}
