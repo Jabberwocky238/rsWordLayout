@@ -1,0 +1,131 @@
+{
+  "sha256": "78550ef10f3c6db982cdc3f8a617df49f04a42ff0418c73a7ec601511978f72a",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "page-start",
+      "sizeHalfPoints": 58,
+      "family": "Brush Script MT",
+      "lines": 21
+    },
+    {
+      "tag": "b",
+      "kind": "page-start",
+      "sizeHalfPoints": 66,
+      "family": "Brush Script MT",
+      "lines": 19
+    },
+    {
+      "tag": "c",
+      "kind": "page-start",
+      "sizeHalfPoints": 70,
+      "family": "Brush Script MT",
+      "lines": 18
+    },
+    {
+      "tag": "d",
+      "kind": "page-start",
+      "sizeHalfPoints": 58,
+      "family": "Khmer Sangam MN",
+      "lines": 14
+    },
+    {
+      "tag": "e",
+      "kind": "page-start",
+      "sizeHalfPoints": 66,
+      "family": "Khmer Sangam MN",
+      "lines": 12
+    },
+    {
+      "tag": "f",
+      "kind": "page-start",
+      "sizeHalfPoints": 70,
+      "family": "Khmer Sangam MN",
+      "lines": 12
+    },
+    {
+      "tag": "g",
+      "kind": "page-start",
+      "sizeHalfPoints": 58,
+      "family": "Kokonor",
+      "lines": 16
+    },
+    {
+      "tag": "h",
+      "kind": "page-start",
+      "sizeHalfPoints": 66,
+      "family": "Kokonor",
+      "lines": 15
+    },
+    {
+      "tag": "i",
+      "kind": "page-start",
+      "sizeHalfPoints": 70,
+      "family": "Kokonor",
+      "lines": 14
+    },
+    {
+      "tag": "j",
+      "kind": "page-start",
+      "sizeHalfPoints": 58,
+      "family": "Silom",
+      "lines": 21
+    },
+    {
+      "tag": "k",
+      "kind": "page-start",
+      "sizeHalfPoints": 66,
+      "family": "Silom",
+      "lines": 18
+    },
+    {
+      "tag": "l",
+      "kind": "page-start",
+      "sizeHalfPoints": 70,
+      "family": "Silom",
+      "lines": 17
+    },
+    {
+      "tag": "m",
+      "kind": "page-start",
+      "sizeHalfPoints": 58,
+      "family": "Gurmukhi MN",
+      "lines": 20
+    },
+    {
+      "tag": "n",
+      "kind": "page-start",
+      "sizeHalfPoints": 66,
+      "family": "Gurmukhi MN",
+      "lines": 18
+    },
+    {
+      "tag": "o",
+      "kind": "page-start",
+      "sizeHalfPoints": 70,
+      "family": "Gurmukhi MN",
+      "lines": 17
+    },
+    {
+      "tag": "p",
+      "kind": "page-start",
+      "sizeHalfPoints": 58,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "q",
+      "kind": "page-start",
+      "sizeHalfPoints": 66,
+      "family": "Lao Sangam MN",
+      "lines": 18
+    },
+    {
+      "tag": "r",
+      "kind": "page-start",
+      "sizeHalfPoints": 70,
+      "family": "Lao Sangam MN",
+      "lines": 17
+    }
+  ]
+}
