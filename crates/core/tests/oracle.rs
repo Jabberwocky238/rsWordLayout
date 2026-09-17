@@ -118,7 +118,9 @@ fn source_ranges_cover_the_line_in_reading_order() {
         assert!(w[1].0 >= w[0].1, "源区间不得回退：{:?} 之后是 {:?}", w[0], w[1]);
     }
     let total: u32 = frags.iter().map(|(a, b)| b - a).sum();
-    assert_eq!(total, 6, "应当覆盖全部 6 个字符");
+    // 6 个字母 **加段落标记那一个字符**：Word 为段落标记画一个空格（§4），
+    // 引擎也画，那个字形的源字符自然要落在区间里。
+    assert_eq!(total, 7, "应当覆盖 6 个字母加段落标记那一个字符");
 }
 
 #[test]

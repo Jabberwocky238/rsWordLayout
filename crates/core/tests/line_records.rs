@@ -49,6 +49,10 @@ fn several_runs_on_one_line_make_one_record() {
 #[test]
 fn merged_record_keeps_the_whole_source_range() {
     // 合并后行的源区间是各片段的并集——比较器按读序配对时要靠它。
+    //
+    // 终点是 **5 而不是 4**：源文本是 `"abcd\r"`，段落标记占第 4 个位置，
+    // 而 Word 为它画一个空格（§4），引擎也画。既然那个字形算这一行的，
+    // 它的源字符就得在区间里——这与 Word 侧那一行的文本区间是同一个口径。
     let para = Para {
         runs: vec![run("ab", "A"), run("cd", "B")],
         ..Para::default()
@@ -56,7 +60,11 @@ fn merged_record_keeps_the_whole_source_range() {
     let r = record(vec![para]);
     let line = &r.pages[0].lines[0];
     let source = line.source.expect("合并后应当仍有源区间");
-    assert_eq!((source.start, source.end), (0, 4), "源区间没有取并集");
+    assert_eq!(
+        (source.start, source.end),
+        (0, 5),
+        "源区间没有取并集，或没有覆盖到段落标记那一个字符"
+    );
 }
 
 #[test]
@@ -127,4 +135,79 @@ fn line_records_survive_a_wrapped_paragraph() {
     for pair in ranges.windows(2) {
         assert_eq!(pair[0].1, pair[1].0, "行与行之间的源区间不连续：{ranges:?}");
     }
+}
+
+/// 段落标记**自己也要画出一个字形**（一个空格），不能只在契约里声明。
+///
+/// 量具方法 §4 是从 Word 实测来的：段落标记画 1 个空格，软回车画 1 个，
+/// 分节符画 0 个。`LineTerminator::expected_glyphs` 就是那张表。
+///
+/// 引擎原来只报数不画：每行的字形数比 Word 少 1，比较器一上来就
+/// `GLYPH_COUNT_MISMATCH`，**结构对不上，几何一条都比不了**——
+/// 在 accumulation 夹具上是 pairs=0，修好之后是 pairs=1340。
+/// 所以这条挡的不是一个小偏差，是「整套比较能不能开工」。
+#[test]
+fn a_paragraph_mark_draws_its_own_space_glyph() {
+    use rsword_layout_core::{DrawCmd, Fragment};
+
+    let para = Para { runs: vec![run("ab", "A")], ..Para::default() };
+    let metrics = SimpleMetrics;
+    let engine = Engine::new(&metrics, PageSetup::a4());
+    let pages = engine.layout(&[para]);
+
+    let texts: Vec<String> = pages[0]
+        .fragments
+        .iter()
+        .filter_map(|f| match f {
+            Fragment::Text(t) => Some(t.text.clone()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        texts.concat(),
+        "ab ",
+        "段落标记没有画出那个空格：{texts:?}"
+    );
+
+    // 声明与实际画出的必须一致——两者分家正是原来的毛病。
+    let list = paint_document(&pages, None, &[]);
+    for page in &list.pages {
+        for cmd in &page.cmds {
+            if let DrawCmd::DrawGlyphs { text, terminator, .. } = cmd {
+                assert_eq!(
+                    text.chars().rev().take_while(|c| *c == ' ').count(),
+                    terminator.expected_glyphs(),
+                    "自报 {} 个终止符字形，实际画了 {:?}",
+                    terminator.expected_glyphs(),
+                    text
+                );
+            }
+        }
+    }
+}
+
+/// 分节符**一个字形也不画**——同一张表的另一行，方向相反。
+///
+/// 只测「画了」不测「不该画的不画」，等于只锁住一半：把 `expected_glyphs`
+/// 改成恒返回 1 也能全绿。
+#[test]
+fn a_section_break_draws_nothing_extra() {
+    use rsword_layout_core::{Fragment, LineTerminator};
+
+    let para = Para {
+        runs: vec![run("ab", "A")],
+        terminator: LineTerminator::SectionBreak,
+        ..Para::default()
+    };
+    let metrics = SimpleMetrics;
+    let pages = Engine::new(&metrics, PageSetup::a4()).layout(&[para]);
+    let texts: Vec<String> = pages[0]
+        .fragments
+        .iter()
+        .filter_map(|f| match f {
+            Fragment::Text(t) => Some(t.text.clone()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(texts.concat(), "ab", "分节符不该画字形：{texts:?}");
 }

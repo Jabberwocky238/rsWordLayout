@@ -45,13 +45,15 @@ fn ranges(record: &LayoutRecord) -> Vec<(u32, u32)> {
 #[test]
 fn offsets_do_not_restart_at_each_paragraph() {
     // 三段各 5 个字符。段内偏移会给出 (0,5) (0,5) (0,5)；
-    // 全篇偏移应当是 (0,5) (6,11) (12,17)——每段末尾隔一个终止符。
+    // 全篇偏移应当是 (0,6) (6,12) (12,18)——每段 5 个字符**加自己的终止符**。
+    // 区间因此首尾相接、无空洞地盖住整篇：终止符那一格不再是洞，
+    // 因为 Word 为它画了一个字形（§4），引擎也画。
     let r = record(&[para("aaaaa"), para("bbbbb"), para("ccccc")]);
     let got = ranges(&r);
 
     let restarts = got.iter().filter(|(start, _)| *start == 0).count();
     assert_eq!(restarts, 1, "`sourceStart` 回到 0 的次数应当只有 1 次，实得 {restarts}：{got:?}");
-    assert_eq!(got, vec![(0, 5), (6, 11), (12, 17)], "{got:?}");
+    assert_eq!(got, vec![(0, 6), (6, 12), (12, 18)], "{got:?}");
 }
 
 #[test]
@@ -60,7 +62,7 @@ fn each_paragraph_terminator_occupies_one_unit() {
     // 都占 1 个 UTF-16 单位）。少算它，后面每一段都会整体前移一格。
     let r = record(&[para("ab"), para("cd")]);
     let got = ranges(&r);
-    assert_eq!(got[0], (0, 2));
+    assert_eq!(got[0], (0, 3), "第一段应当含自己的终止符那一格");
     assert_eq!(got[1].0, 3, "第二段应当从 3 起（2 个字符 + 1 个终止符），实得 {}", got[1].0);
 }
 
@@ -70,9 +72,9 @@ fn offsets_are_utf16_units_not_bytes_or_chars() {
     // "中" 是 1 个 UTF-16 单位但 3 个字节；星号平面的字符是 2 个单位但 1 个 char。
     let r = record(&[para("中"), para("\u{1F600}")]);
     let got = ranges(&r);
-    assert_eq!(got[0], (0, 1), "一个汉字是 1 个 UTF-16 单位，不是 3 个字节");
-    // 第二段从 2 起（1 个单位 + 1 个终止符），且占 2 个单位（代理对）。
-    assert_eq!(got[1], (2, 4), "星号平面字符占 2 个 UTF-16 单位：{got:?}");
+    assert_eq!(got[0], (0, 2), "一个汉字是 1 个 UTF-16 单位，不是 3 个字节（再加终止符一格）");
+    // 第二段从 2 起（1 个单位 + 1 个终止符），占 2 个单位（代理对）再加终止符 = 到 5。
+    assert_eq!(got[1], (2, 5), "星号平面字符占 2 个 UTF-16 单位：{got:?}");
 }
 
 #[test]
@@ -94,13 +96,14 @@ fn ranges_stay_contiguous_across_a_wrapped_paragraph() {
     assert_eq!(first[0].0, 0);
     assert_eq!(
         first.last().unwrap().1,
-        para_units,
-        "本段止点应当等于它的 UTF-16 长度：{got:?}"
+        para_units + 1,
+        "本段止点应当等于它的 UTF-16 长度**加终止符那一格**：{got:?}"
     );
 
     // 下一段从「本段长度 + 1 个终止符」起。
     let tail = got.iter().find(|(s, _)| *s >= para_units).copied().unwrap();
-    assert_eq!(tail, (para_units + 1, para_units + 5), "{got:?}");
+    // "tail" 4 个字符**再加自己的终止符** = 5 格。
+    assert_eq!(tail, (para_units + 1, para_units + 6), "{got:?}");
 }
 
 #[test]
@@ -109,6 +112,6 @@ fn empty_paragraphs_still_advance_the_cursor() {
     let r = record(&[para("ab"), para(""), para("cd")]);
     let got = ranges(&r);
     let last = got.last().copied().unwrap();
-    // "ab"(2) + 终止符(1) + 空段(0) + 终止符(1) = 4
-    assert_eq!(last, (4, 6), "空段落没有推进全篇游标：{got:?}");
+    // "ab"(2) + 终止符(1) + 空段(0) + 终止符(1) = 4，末段 "cd" 2 个字符加终止符到 7。
+    assert_eq!(last, (4, 7), "空段落没有推进全篇游标：{got:?}");
 }

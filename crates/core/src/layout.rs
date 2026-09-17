@@ -995,6 +995,11 @@ struct PendingLine {
     /// 有片段时可以从片段推，但**空行没有片段**——而空行同样要有源位置，
     /// 否则它的行记录就只能给 `None`，下游会读成「判不了」。
     source_start: u32,
+    /// 本行**消费到**哪个下标（不含）。终止符字符就紧跟在这里。
+    ///
+    /// 不能拿「最后一个片段的终点 +1」代替：片段之间可能有**不产生片段**的源字符
+    /// （对象占位符就是），那时片段终点比行的真实终点小，终止符会被记到错的位置上。
+    source_end: u32,
 }
 
 pub struct Engine<'m, M: FontMetrics> {
@@ -1173,15 +1178,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             } else {
                 crate::oracle::LineTerminator::Wrapped
             };
+            let (text, source) =
+                with_terminator_glyphs(&p.text, p.source, line.source_end, terminator);
             page.fragments.push(Fragment::Text(TextFragment {
                 x,
                 // 抬升是**向上**的，而页内 y 向下增长，所以要减。
                 baseline_y: baseline_y - p.rise,
-                text: p.text.clone(),
+                text,
                 font: p.font.clone(),
                 color: p.color,
                 source_node: para.source_node,
-                source: Some(p.source),
+                source: Some(source),
                 terminator,
                 rise: p.rise,
                 line: line_index,
@@ -1194,10 +1201,21 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 而 Word 是给空行一条行记录的（实测：独占一行的分页符、空段落都有）。
         // 那种缺失在比较器里表现为「引擎少排了行」，查起来像分页错，其实是这里漏了。
         if line.pieces.is_empty() {
+            let terminator = if line.is_last {
+                para.terminator
+            } else {
+                crate::oracle::LineTerminator::Wrapped
+            };
+            let (text, source) = with_terminator_glyphs(
+                "",
+                (line.source_start, line.source_end),
+                line.source_end,
+                terminator,
+            );
             page.fragments.push(Fragment::Text(TextFragment {
                 x: base_x + offset,
                 baseline_y,
-                text: String::new(),
+                text,
                 font: para
                     .runs
                     .first()
@@ -1205,8 +1223,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     .unwrap_or_else(|| FontSpec::new("Times New Roman", 24)),
                 color: para.runs.first().map(|r| r.color).unwrap_or(Color::BLACK),
                 source_node: para.source_node,
-                source: Some((line.source_start, line.source_start)),
-                terminator: if line.is_last { para.terminator } else { crate::oracle::LineTerminator::Wrapped },
+                source: Some(source),
+                terminator,
                 rise: 0,
                 line: line_index,
             }));
@@ -1260,6 +1278,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 span,
                 page_break_after: false,
                 source_start: source_base,
+                source_end: source_base,
             });
             return lines;
         }
@@ -1340,6 +1359,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             span,
                             page_break_after: kind.breaks_page(),
                             source_start: line_start,
+                            source_end: consumed,
                         });
                         line_start = consumed;
                         cur_w = 0;
@@ -1445,6 +1465,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     span,
                     page_break_after: false,
                     source_start: line_start,
+                    source_end: consumed,
                 });
                 line_start = consumed;
                 cur_w = 0;
@@ -1475,6 +1496,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 span,
                 page_break_after: false,
                 source_start: line_start,
+                source_end: consumed,
             });
         } else if let Some(last) = lines.last_mut() {
             last.is_last = true;
@@ -1656,6 +1678,38 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
     out
 }
 
+/// 终止符自己也要画出来——把它的字符接到片段末尾，并把源区间覆盖到它。
+///
+/// Word **为段落标记画一个空格**（量具方法 §4，`LineTerminator::expected_glyphs`
+/// 就是那张表）。引擎原来只在契约里报「应画 1 个」，实际一个也没画：
+/// 每行的字形数比 Word 少 1，比较器一上来就 `GLYPH_COUNT_MISMATCH`，
+/// **结构对不上，几何一条都比不了**。
+///
+/// 接在末尾而不是参与断行，是因为它本来就不参与：行宽、对齐用的都是
+/// `line.width`，那是断行时算好的，这里是落位之后再补。Word 也是这样——
+/// 行尾那个空格不撑开行，也不影响居中与右对齐。
+fn with_terminator_glyphs(
+    text: &str,
+    source: (u32, u32),
+    line_source_end: u32,
+    terminator: crate::oracle::LineTerminator,
+) -> (String, (u32, u32)) {
+    let extra = terminator.expected_glyphs();
+    if extra == 0 {
+        return (text.to_string(), source);
+    }
+    let mut out = String::with_capacity(text.len() + extra);
+    out.push_str(text);
+    for _ in 0..extra {
+        out.push(' ');
+    }
+    // 终止符字符紧跟**整行**消费到的位置，不是紧跟本片段——两者在行里有
+    // 不产生片段的字符（对象占位符）时并不相等。区间取到行末，
+    // 顺带把那些被跳过的字符也盖住：行记录本来就取并集，覆盖全行才是对的。
+    let end = line_source_end.max(source.1) + extra as u32;
+    (out, (source.0, end))
+}
+
 /// 把整形结果摊成绝对坐标的字形。
 fn position_glyphs(
     shaper: &dyn TextShaper,
@@ -1670,7 +1724,11 @@ fn position_glyphs(
     // 但字形数与字符数不等时（连字、组合符号）无法逐一对应——
     // 那种情况下整段记同一个区间，让比较器能看出是聚合而非精确归属。
     let utf16_len: u32 = t.text.encode_utf16().count() as u32;
-    let exact = runs.len() as u32 == utf16_len;
+    // 精确归属要**两边都对得上**：字形数 == 字符数，且源区间长度 == 字符数。
+    // 后一条不能省：行里有不产生片段的源字符（对象占位符）时，区间会比文本长，
+    // 这时 `base + i` 指到的就是别的字符，配对会悄悄错位而几何上看不出来。
+    let span_len = t.source.map(|(a, b)| b - a).unwrap_or(0);
+    let exact = runs.len() as u32 == utf16_len && span_len == utf16_len;
     let base = t.source.map(|(s, _)| s).unwrap_or(0);
 
     runs.into_iter()

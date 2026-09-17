@@ -66,7 +66,10 @@ fn placeholder_never_reaches_the_backend() {
         !drawn.contains(OBJECT_PLACEHOLDER),
         "占位符被交给了后端：{drawn:?}"
     );
-    assert_eq!(drawn, "前后");
+    // 末尾那个空格是**段落标记**的字形（§4：Word 为它画一个空格），不是占位符。
+    // 本条盯的是占位符不得出现，那一条在上面；这里连同终止符一起核，
+    // 免得哪天终止符字形没了也照样绿。
+    assert_eq!(drawn, "前后 ");
 }
 
 #[test]
@@ -113,8 +116,9 @@ fn placeholder_still_occupies_one_source_unit() {
     // 而那种错在几何上看不出来，只会让配对悄悄错位。
     // 两个片段在同一行，行记录取并集（见 tests/line_records.rs），
     // 所以这里看整行：4 个字符的文本却跨 5 个源位——多出的那一位就是占位符。
+    // 5 个源位（a b ￼ c d）**再加段落标记那一位** = 6。
     let got = ranges(&paint(&[para("ab\u{FFFC}cd")]));
-    assert_eq!(got, vec![(0, 5)], "占位符没有占掉一个源位：{got:?}");
+    assert_eq!(got, vec![(0, 6)], "占位符没有占掉一个源位：{got:?}");
 }
 
 #[test]
@@ -123,17 +127,22 @@ fn placeholder_at_run_start_and_end_is_handled() {
     // 以及夹在文字中间（`'分页符之前￼分页符之后'`）。
     let lone = ranges(&paint(&[para("\u{FFFC}"), para("xy")]));
     // 独占一段：不产生任何片段，但仍占 1 个源位，下一段从 2 起。
-    assert_eq!(lone.last().copied(), Some((2, 4)), "{lone:?}");
+    // 第二段是 "xy" + 段落标记 = 3 个源位，所以 (2, 5)。
+    assert_eq!(lone.last().copied(), Some((2, 5)), "{lone:?}");
 
     let trailing = ranges(&paint(&[para("ab\u{FFFC}"), para("xy")]));
-    assert_eq!(trailing.first().copied(), Some((0, 2)), "{trailing:?}");
-    // "ab"(2) + 占位符(1) + 终止符(1) = 4
-    assert_eq!(trailing.last().copied(), Some((4, 6)), "{trailing:?}");
+    // 第一段 "ab￼" + 段落标记 = 4 个源位。**这一条是关键**：占位符不产生片段，
+    // 所以片段只到 2，而段落标记在第 3 位——拿「片段终点 +1」去放终止符就会
+    // 落在占位符那一位上，区间成 (0, 3)，错得在几何上完全看不出来。
+    assert_eq!(trailing.first().copied(), Some((0, 4)), "{trailing:?}");
+    // "ab"(2) + 占位符(1) + 终止符(1) = 4，所以第二段从 4 起，含自己的终止符到 7。
+    assert_eq!(trailing.last().copied(), Some((4, 7)), "{trailing:?}");
 }
 
 #[test]
 fn consecutive_placeholders_each_take_one_unit() {
     // 2 个字符的文本跨 4 个源位 ⇒ 两个占位符各占 1 位。
+    // 4 个源位（a ￼ ￼ b）**再加段落标记那一位** = 5。
     let got = ranges(&paint(&[para("a\u{FFFC}\u{FFFC}b")]));
-    assert_eq!(got, vec![(0, 4)], "两个占位符应当各占 1 位：{got:?}");
+    assert_eq!(got, vec![(0, 5)], "两个占位符应当各占 1 位：{got:?}");
 }
