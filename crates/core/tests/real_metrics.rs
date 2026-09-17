@@ -174,3 +174,44 @@ fn missing_font_yields_no_metrics_rather_than_invented_ones() {
     assert_eq!(got.advance, 0);
     assert_eq!(got.natural_height(), 0, "没字体却给出了行高");
 }
+
+/// 开栅格**不改变步长**——量化只发生在落位那一次。
+///
+/// 这条是量出来的。cursor-unit 那一批（`docs/PREREG-2026-09-17-cursor-unit.md`
+/// 的 R2）把游标步长分别取整到 1/600、1/1200、twip、半 twip、1/7200 英寸，
+/// 得分随单位变粗**单调下降**，不取整的 654/752 最高，最粗的 1/600 英寸只有 26/752。
+///
+/// 这里原来把步长量化到 **0.24pt**，比那张表最粗的一档还粗。改掉之后，
+/// 引擎在 accumulation 采集上与 Word 逐位相等的基线从 41/240 升到 113/240。
+#[test]
+fn the_grid_does_not_quantise_the_step() {
+    let reg = serif();
+    let plain = RealMetrics::new(&reg);
+    let gridded = RealMetrics::new(&reg).with_vertical_grid(VerticalGrid::MacWordThreeHundredthsInch);
+
+    for size in [16u32, 20, 24, 26, 36, 48] {
+        let font = FontSpec::new("Liberation Serif", size);
+        assert_eq!(
+            plain.natural_height_fine("x", &font),
+            gridded.natural_height_fine("x", &font),
+            "{size} 半点：开栅格把步长也量化了——量化该只在落位时做一次"
+        );
+    }
+}
+
+/// 自证上面那条有鉴别力：这些字号的自然行高**本来就不在栅格上**。
+///
+/// 若它们恰好都落在栅格上，量化与否无从区分，上面那条会白白全绿。
+#[test]
+fn those_sizes_really_are_off_grid() {
+    let reg = serif();
+    let m = RealMetrics::new(&reg);
+    // 0.24pt = 4.8 twips = 24 个 1/7200 英寸。
+    let off = [16u32, 20, 24, 26, 36, 48]
+        .iter()
+        .filter(|&&size| {
+            m.natural_height_fine("x", &FontSpec::new("Liberation Serif", size)) % 24 != 0
+        })
+        .count();
+    assert!(off > 0, "这批字号的自然行高全在栅格上，区分不出步长有没有被量化");
+}

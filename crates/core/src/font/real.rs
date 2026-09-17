@@ -149,13 +149,27 @@ impl<'r> RealMetrics<'r> {
         found.then_some((ascent, descent, line_gap))
     }
 
-    /// 自然行高，单位 twips，**未取整**（量化过，但不落到整 twips）。
+    /// 自然行高，单位 twips，**既不取整也不量化**。
+    ///
+    /// 它是游标每行推进的步长。**步长不量化，只有落位量化**——
+    /// 这条是量出来的，不是想出来的。cursor-unit 那一批（`docs/PREREG-2026-09-17-
+    /// cursor-unit.md` 的 R2）把步长分别取整到 1/600、1/1200、twip、半 twip、
+    /// 1/7200 英寸去比，得分随单位变粗**单调下降**：
+    ///
+    /// | 步长取整到 | 逐位相等 |
+    /// | --- | ---: |
+    /// | 不取整 | **654 / 752** |
+    /// | 1/7200 英寸 | 450 / 752 |
+    /// | 半 twip | 264 / 752 |
+    /// | twip | 192 / 752 |
+    /// | 1/1200 英寸 | 99 / 752 |
+    /// | 1/600 英寸 | 26 / 752 |
+    ///
+    /// 这里原来把步长量化到 **0.24pt**，比上表最粗的那一档还粗。
+    /// 量化该做的地方是 [`FontMetrics::quantize_baseline_fine`]——落位时做一次。
     fn natural_raw(&self, text: &str, font: &FontSpec) -> f64 {
         let Some((a, d, g)) = self.vertical_raw(text, font) else { return 0.0 };
-        match self.grid.step() {
-            None => a + d + g,
-            Some(step) => ((a + d + g) / step).round() * step,
-        }
+        a + d + g
     }
 
     /// 本次请求用到的各 face 取最大，再按栅格量化。
