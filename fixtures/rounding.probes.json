@@ -1,0 +1,134 @@
+{
+  "sha256": "bddfa0b24101e017743540d04e22d45a26c2db7c36fbede40264e7651abbfc19",
+  "linesPerGroup": 20,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "rounding",
+      "lineTwips": 242,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "b",
+      "kind": "rounding",
+      "lineTwips": 246,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "c",
+      "kind": "rounding",
+      "lineTwips": 250,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "d",
+      "kind": "rounding",
+      "lineTwips": 254,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "e",
+      "kind": "rounding",
+      "lineTwips": 258,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "f",
+      "kind": "rounding",
+      "lineTwips": 300,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "g",
+      "kind": "rounding",
+      "lineTwips": 310,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "h",
+      "kind": "rounding",
+      "lineTwips": 324,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "i",
+      "kind": "rounding",
+      "lineTwips": 242,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "j",
+      "kind": "rounding",
+      "lineTwips": 246,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "k",
+      "kind": "rounding",
+      "lineTwips": 250,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "l",
+      "kind": "rounding",
+      "lineTwips": 254,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "m",
+      "kind": "rounding",
+      "lineTwips": 258,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "n",
+      "kind": "rounding",
+      "lineTwips": 300,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "o",
+      "kind": "rounding",
+      "lineTwips": 310,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "p",
+      "kind": "rounding",
+      "lineTwips": 324,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    }
+  ]
+}
