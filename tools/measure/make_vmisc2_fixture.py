@@ -27,13 +27,22 @@ from wordmeasure.fontcover import assert_can_draw
 
 FONT_DIR = "/System/Library/Fonts/Supplemental/"
 FONTS = {"Luminari": FONT_DIR + "Luminari.ttf"}
+# 只含分页符的段落没有可见 run，Word 用**默认字体**画它的段落标记。
+# 这不是字体替换，是 Word 的行为——所以把它列进申请，理由见预注册 §5。
+DEFAULT_FALLBACK = {"Times New Roman": FONT_DIR + "Times New Roman.ttf"}
 SIZE_HALF_POINTS = 26
 LINE_TWIPS = 320
 LABEL_CHARS = "abcdefghijklmnopqrstuvwxyz"
 
-# `w:position` 半点。24/48 是整格（12pt=50 格、24pt=100 格），
-# 6/18/30 不是（3pt=12.5、9pt=37.5、15pt=62.5 格）。
-POSITIONS = [6, 18, 24, 30, 48]
+# `w:position` 半点。**与第一次采集的取值全换**（那次作废于 F-B）。
+# 8/16/40 是整格（4pt=16.67？不，见下），非整格的用 10/14/26。
+# 逐个核过：pt = val/2，格 = pt/0.24。
+#   10 → 5.0pt   → 20.833 格  **非整格**
+#   14 → 7.0pt   → 29.167 格  **非整格**
+#   24 → 12.0pt  → 50 格      整格
+#   26 → 13.0pt  → 54.167 格  **非整格**
+#   48 → 24.0pt  → 100 格     整格
+POSITIONS = [10, 14, 24, 26, 48]
 # 同一行里混用的字号，半点。
 MIXED_SIZES = [(20, 40), (26, 52), (16, 60)]
 
@@ -74,7 +83,13 @@ def build_body() -> tuple[str, list[dict]]:
                        "family": family, "lines": 1})
 
     # C 组：分页符三种位置（量具方法 §4 的三分）。
-    # 1) 独占一段：整段只有一个分页符。
+    #
+    # 1) 独占一段：整段**只有**一个分页符。这一组必须保持「只有分页符」——
+    #    在它前面加可见文字就变成了第 2 组「紧跟段落标记」，三分就塌成两分。
+    #
+    #    代价是：这种段落没有任何可见 run，Word 会拿**默认字体**画它的段落标记
+    #    （第一次采集实测是 Times New Roman），`w:pPr/w:rPr` 管不住。
+    #    所以 `Times New Roman` 被**正当地列入申请字体**，理由写在预注册 §5。
     tag = tags[i]; i += 1
     parts.append(para(page_break_run(), SIZE_HALF_POINTS, family, line=LINE_TWIPS,
                       line_rule="exact"))
