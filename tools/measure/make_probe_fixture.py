@@ -52,16 +52,21 @@ def rpr(size: int, family: str, extra: str = "") -> str:
     return f"<w:rPr>{fonts}<w:sz w:val=\"{size}\"/><w:szCs w:val=\"{size}\"/>{extra}</w:rPr>"
 
 
-def para(runs: str, size: int, family: str, sect: str = "", page_break: bool = False) -> str:
+def para(runs: str, size: int, family: str, sect: str = "", page_break: bool = False,
+         line: int = 240, line_rule: str = "auto") -> str:
     """一个段落。间距钉死为 0，行距 auto 单倍——否则行距里会混进段落间距。
 
     `page_break` 走 **`w:pageBreakBefore`（段落属性）**，不是 `w:br`：它不产生任何
     字符，所以 §4 的「分页符位置三分」在这里根本不用判——计数模型一个分支都不碰。
+
+    `line` / `line_rule` 是 `w:spacing` 的行距设置，默认单倍（`auto` + 240）。
+    `exact` 下行距是**固定值**（`line` twips），与字体度量无关——
+    那正是把「字体度量」从行距里摘出去的办法。
     """
     ppr = (
         "<w:pPr>"
         f"{'<w:pageBreakBefore/>' if page_break else ''}"
-        '<w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/>'
+        f'<w:spacing w:before="0" w:after="0" w:line="{line}" w:lineRule="{line_rule}"/>'
         '<w:jc w:val="left"/><w:widowControl w:val="0"/>'
         f"{rpr(size, family)}"
         f"{sect}"

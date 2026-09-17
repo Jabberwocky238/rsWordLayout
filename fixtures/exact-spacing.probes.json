@@ -1,0 +1,150 @@
+{
+  "sha256": "95ea1ad3ea28342783f995ea116b0eebec10112919076e3a0bb0d3437eb2642a",
+  "linesPerGroup": 20,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "exact-spacing",
+      "lineTwips": 250,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "b",
+      "kind": "exact-spacing",
+      "lineTwips": 290,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "c",
+      "kind": "exact-spacing",
+      "lineTwips": 310,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "d",
+      "kind": "exact-spacing",
+      "lineTwips": 370,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "e",
+      "kind": "exact-spacing",
+      "lineTwips": 410,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "f",
+      "kind": "exact-spacing",
+      "lineTwips": 470,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "g",
+      "kind": "exact-spacing",
+      "lineTwips": 250,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "h",
+      "kind": "exact-spacing",
+      "lineTwips": 290,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "i",
+      "kind": "exact-spacing",
+      "lineTwips": 310,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "j",
+      "kind": "exact-spacing",
+      "lineTwips": 370,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "k",
+      "kind": "exact-spacing",
+      "lineTwips": 410,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "l",
+      "kind": "exact-spacing",
+      "lineTwips": 470,
+      "sizeHalfPoints": 24,
+      "family": "Silom",
+      "lines": 20
+    },
+    {
+      "tag": "m",
+      "kind": "exact-spacing",
+      "lineTwips": 250,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "n",
+      "kind": "exact-spacing",
+      "lineTwips": 290,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "o",
+      "kind": "exact-spacing",
+      "lineTwips": 310,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "p",
+      "kind": "exact-spacing",
+      "lineTwips": 370,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "q",
+      "kind": "exact-spacing",
+      "lineTwips": 410,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    },
+    {
+      "tag": "r",
+      "kind": "exact-spacing",
+      "lineTwips": 470,
+      "sizeHalfPoints": 24,
+      "family": "Lao Sangam MN",
+      "lines": 20
+    }
+  ]
+}
