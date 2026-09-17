@@ -1,0 +1,134 @@
+{
+  "sha256": "84deea75e148f1b6865d276cc9daed39629026d4faf46a7a658c91a44e85c789",
+  "linesPerGroup": 10,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "size-free",
+      "lineTwips": 218,
+      "sizeHalfPoints": 16,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "b",
+      "kind": "size-free",
+      "lineTwips": 226,
+      "sizeHalfPoints": 16,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "c",
+      "kind": "size-free",
+      "lineTwips": 248,
+      "sizeHalfPoints": 16,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "d",
+      "kind": "size-free",
+      "lineTwips": 284,
+      "sizeHalfPoints": 16,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "e",
+      "kind": "size-free",
+      "lineTwips": 218,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "f",
+      "kind": "size-free",
+      "lineTwips": 226,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "g",
+      "kind": "size-free",
+      "lineTwips": 248,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "h",
+      "kind": "size-free",
+      "lineTwips": 284,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "i",
+      "kind": "size-free",
+      "lineTwips": 218,
+      "sizeHalfPoints": 40,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "j",
+      "kind": "size-free",
+      "lineTwips": 226,
+      "sizeHalfPoints": 40,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "k",
+      "kind": "size-free",
+      "lineTwips": 248,
+      "sizeHalfPoints": 40,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "l",
+      "kind": "size-free",
+      "lineTwips": 284,
+      "sizeHalfPoints": 40,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "m",
+      "kind": "size-free",
+      "lineTwips": 218,
+      "sizeHalfPoints": 60,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "n",
+      "kind": "size-free",
+      "lineTwips": 226,
+      "sizeHalfPoints": 60,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "o",
+      "kind": "size-free",
+      "lineTwips": 248,
+      "sizeHalfPoints": 60,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "p",
+      "kind": "size-free",
+      "lineTwips": 284,
+      "sizeHalfPoints": 60,
+      "family": "Luminari",
+      "lines": 10
+    }
+  ]
+}
