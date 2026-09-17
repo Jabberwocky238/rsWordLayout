@@ -1,0 +1,97 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-fixed-distance.md",
+  "clueIndependence": "形式的线索取自 a-form 的失败走向（已见数据），按 §7.5 记为非独立检验",
+  "bundle": "/Users/user/Documents/rsword-captures/fixed-distance",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 16,
+    "pdfPages": 16,
+    "sweepPositions": 480,
+    "linesFromSweep": 160
+  },
+  "lineDenominators": {
+    "lines": 160,
+    "ok": 160,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "D0": {
+      "prediction": "D0 每条基线都在 0.24pt 栅格上",
+      "n": 160,
+      "ok": 160,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "D1": {
+      "prediction": "D1 存在常数 d 使 c(n) = ⌊300 + (n+1) × L − d⌋",
+      "n": 160,
+      "ok": 14,
+      "undecidable": 0,
+      "misses": [
+        {
+          "tag": "b",
+          "lineTwips": 166,
+          "n": 1,
+          "reason": "d 的区间在这一条上变空",
+          "已满足条数": 11,
+          "此前交集": "[-5.750000, -5.583333)",
+          "本条要求": "[-7.166667, -6.166667)"
+        },
+        {
+          "tag": "b",
+          "lineTwips": 166,
+          "n": 2,
+          "reason": "d 的区间在这一条上变空",
+          "已满足条数": 11,
+          "此前交集": "[-5.750000, -5.583333)",
+          "本条要求": "[-6.750000, -5.750000)"
+        },
+        {
+          "tag": "b",
+          "lineTwips": 166,
+          "n": 3,
+          "reason": "d 的区间在这一条上变空",
+          "已满足条数": 11,
+          "此前交集": "[-5.750000, -5.583333)",
+          "本条要求": "[-7.333333, -6.333333)"
+        },
+        {
+          "tag": "b",
+          "lineTwips": 166,
+          "n": 4,
+          "reason": "d 的区间在这一条上变空",
+          "已满足条数": 11,
+          "此前交集": "[-5.750000, -5.583333)",
+          "本条要求": "[-6.916667, -5.916667)"
+        },
+        {
+          "tag": "b",
+          "lineTwips": 166,
+          "n": 6,
+          "reason": "d 的区间在这一条上变空",
+          "已满足条数": 12,
+          "此前交集": "[-5.750000, -5.583333)",
+          "本条要求": "[-7.083333, -6.083333)"
+        },
+        {
+          "tag": "b",
+          "lineTwips": 166,
+          "n": 8,
+          "reason": "d 的区间在这一条上变空",
+          "已满足条数": 13,
+          "此前交集": "[-5.750000, -5.666667)",
+          "本条要求": "[-7.250000, -6.250000)"
+        }
+      ],
+      "notes": [],
+      "dInterval": null,
+      "verdict": "FAIL"
+    }
+  }
+}
