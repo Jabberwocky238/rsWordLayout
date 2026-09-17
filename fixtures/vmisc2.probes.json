@@ -1,0 +1,84 @@
+{
+  "sha256": "1b0be91fb5b7821a5da30334bb756488a253cf7c2a7bcf98eb19c6d52cfb2816",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "rise-quantised",
+      "positionHalfPoints": 6,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "b",
+      "kind": "rise-quantised",
+      "positionHalfPoints": 18,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "c",
+      "kind": "rise-quantised",
+      "positionHalfPoints": 24,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "d",
+      "kind": "rise-quantised",
+      "positionHalfPoints": 30,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "e",
+      "kind": "rise-quantised",
+      "positionHalfPoints": 48,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "f",
+      "kind": "mixed-size",
+      "small": 20,
+      "big": 40,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "g",
+      "kind": "mixed-size",
+      "small": 26,
+      "big": 52,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "h",
+      "kind": "mixed-size",
+      "small": 16,
+      "big": 60,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "i",
+      "kind": "break-own-line",
+      "family": "Luminari"
+    },
+    {
+      "tag": "j",
+      "kind": "break-before-mark",
+      "family": "Luminari"
+    },
+    {
+      "tag": "k",
+      "kind": "break-mid",
+      "family": "Luminari"
+    }
+  ]
+}
