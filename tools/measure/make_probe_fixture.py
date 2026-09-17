@@ -174,10 +174,17 @@ def build_body() -> tuple[str, list[dict]]:
         probes.append({"tag": tag, "kind": "section-boundary", "sectionKind": kind,
                        "sizeHalfPoints": 24, "family": "Liberation Serif"})
 
+    # F 收尾组：让文末的 body 级 sectPr 不紧挨着 E 组。同时也是一个正常的行距探针。
+    triple("F0", 24, "Liberation Serif", label="size-sweep")
+
     # 文末必须有一个 body 级 sectPr，否则 Word 认不出页面设置。
-    body = "".join(parts) + sect_pr("nextPage").replace("<w:sectPr>", "<w:sectPr>").replace(
-        "</w:sectPr>", "</w:sectPr>"
-    )
+    #
+    # 它是 **continuous**，不是 nextPage——这一条是判据能不能成立的关键。
+    # OOXML 里 `w:sectPr` 的 `w:type` 说的是**它所定义的那一节怎么开始**，
+    # 不是它所结束的那一节怎么结束。所以 E1b 与 E1c 之间那一步，归**文末**
+    # 这个 sectPr 管；写成 nextPage，E1 组就被劈到两页上，P5 的读数直接作废。
+    # （引擎侧实测确认：E0 不翻页、E1 翻页——引擎是对的，错的是原来的夹具。）
+    body = "".join(parts) + sect_pr("continuous")
     return f"<w:body>{body}</w:body>", probes
 
 

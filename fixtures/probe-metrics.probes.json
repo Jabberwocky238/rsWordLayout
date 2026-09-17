@@ -1,5 +1,5 @@
 {
-  "sha256": "3ca4f2ce5328db05315429019c143f71db6a927e618768088684930c367d922b",
+  "sha256": "faffc29559e479386869eb492d8296c52bf3f26ce7fb3ff95d05cbfe9844bc90",
   "probes": [
     {
       "tag": "A16",
@@ -180,6 +180,12 @@
       "tag": "E1",
       "kind": "section-boundary",
       "sectionKind": "continuous",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "F0",
+      "kind": "size-sweep",
       "sizeHalfPoints": 24,
       "family": "Liberation Serif"
     }
