@@ -1,0 +1,138 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-shift-floor.md",
+  "bundle": "/Users/user/Documents/rsword-captures/shift-floor",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 16,
+    "pdfPages": 16,
+    "sweepPositions": 1280,
+    "linesFromSweep": 320
+  },
+  "lineDenominators": {
+    "lines": 320,
+    "ok": 320,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "U0": {
+      "prediction": "U0 每条基线都在 0.24pt 栅格上",
+      "n": 320,
+      "ok": 320,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "U1": {
+      "prediction": "U1 存在实数 A 使 c(n) = ⌊A + n × step⌋",
+      "n": 16,
+      "ok": 16,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "intervals": {
+        "a Brush Script MT line=228": {
+          "lo": "338",
+          "hi": "677/2",
+          "loMod1": 0.0,
+          "hiMod1": 0.5
+        },
+        "b Brush Script MT line=232": {
+          "lo": "1018/3",
+          "hi": "1019/3",
+          "loMod1": 0.3333333333333333,
+          "hiMod1": 0.6666666666666666
+        },
+        "c Brush Script MT line=236": {
+          "lo": "679/2",
+          "hi": "1019/3",
+          "loMod1": 0.5,
+          "hiMod1": 0.6666666666666666
+        },
+        "d Brush Script MT line=262": {
+          "lo": "4129/12",
+          "hi": "2065/6",
+          "loMod1": 0.08333333333333333,
+          "hiMod1": 0.16666666666666666
+        },
+        "e Brush Script MT line=268": {
+          "lo": "2071/6",
+          "hi": "1036/3",
+          "loMod1": 0.16666666666666666,
+          "hiMod1": 0.3333333333333333
+        },
+        "f Brush Script MT line=282": {
+          "lo": "1389/4",
+          "hi": "695/2",
+          "loMod1": 0.25,
+          "hiMod1": 0.5
+        },
+        "g Brush Script MT line=286": {
+          "lo": "4177/12",
+          "hi": "2089/6",
+          "loMod1": 0.08333333333333333,
+          "hiMod1": 0.16666666666666666
+        },
+        "h Brush Script MT line=294": {
+          "lo": "1397/4",
+          "hi": "699/2",
+          "loMod1": 0.25,
+          "hiMod1": 0.5
+        },
+        "i AppleMyungjo line=228": {
+          "lo": "338",
+          "hi": "677/2",
+          "loMod1": 0.0,
+          "hiMod1": 0.5
+        },
+        "j AppleMyungjo line=232": {
+          "lo": "1018/3",
+          "hi": "1019/3",
+          "loMod1": 0.3333333333333333,
+          "hiMod1": 0.6666666666666666
+        },
+        "k AppleMyungjo line=236": {
+          "lo": "679/2",
+          "hi": "1019/3",
+          "loMod1": 0.5,
+          "hiMod1": 0.6666666666666666
+        },
+        "l AppleMyungjo line=262": {
+          "lo": "4129/12",
+          "hi": "2065/6",
+          "loMod1": 0.08333333333333333,
+          "hiMod1": 0.16666666666666666
+        },
+        "m AppleMyungjo line=268": {
+          "lo": "2071/6",
+          "hi": "1036/3",
+          "loMod1": 0.16666666666666666,
+          "hiMod1": 0.3333333333333333
+        },
+        "n AppleMyungjo line=282": {
+          "lo": "1389/4",
+          "hi": "695/2",
+          "loMod1": 0.25,
+          "hiMod1": 0.5
+        },
+        "o AppleMyungjo line=286": {
+          "lo": "4177/12",
+          "hi": "2089/6",
+          "loMod1": 0.08333333333333333,
+          "hiMod1": 0.16666666666666666
+        },
+        "p AppleMyungjo line=294": {
+          "lo": "1397/4",
+          "hi": "699/2",
+          "loMod1": 0.25,
+          "hiMod1": 0.5
+        }
+      },
+      "verdict": "OK"
+    }
+  }
+}
