@@ -7,6 +7,24 @@
 | `crates/core/src/anchor.rs`（`6cec4d4`，仓库主） | `rsword::model::drawing::drawing_display` |
 | `crates/core/bin/layout-trace.rs`、`examples/probe_oracle.rs` | `rsword::bind::native::SessionTable` |
 
+## 更正：有能用的分支，是我查漏了
+
+**`origin/m8-native-json` 两样都有，而且能编译**——`layout-trace` 出得来，
+`--features fontenv` 的 17 套测试全绿。本地 `docs/codex-test-handoff` 也两样都有，
+但它自己的 `bind/native/error.rs` 有个 match 不全，编不过。
+
+下面这段是更正之前写的，留着是因为它记录了我**只试了两个分支就下结论**的过程：
+我试过 `main` 与 `origin/main`，两个恰好各缺一半，于是断言「没有版本能同时编译」。
+**没穷举分支就写下断言，这是错的**，代价是 H2 被误判为「缺工具链、判不了」。
+
+用这个建 worktree：
+
+```sh
+git -C ../rsWordParser worktree add --detach /tmp/rsword-m8 origin/m8-native-json
+```
+
+---
+
 而我这边能拿到的两个 rsWordParser 版本**各缺一半**：
 
 | rsword 版本 | `model::drawing` | `bind::native` |
