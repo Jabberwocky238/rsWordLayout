@@ -1,0 +1,48 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-page-start.md",
+  "clueIndependence": "线索独立于已见读数（判据文 §0）",
+  "bundle": "/Users/user/Documents/rsword-captures/page-start",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 36,
+    "pdfPages": 36,
+    "sweepPositions": 1288,
+    "linesFromSweep": 322
+  },
+  "lineDenominators": {
+    "lines": 322,
+    "ok": 322,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "P0": {
+      "prediction": "P0 每条基线都在 0.24pt 栅格上",
+      "n": 322,
+      "ok": 322,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "P1": {
+      "prediction": "P1 起页方式不影响首行基线（两者之差 = 0.0000pt）",
+      "n": 18,
+      "ok": 18,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    }
+  },
+  "control": {
+    "form": "对照（不作预测）：T1 在两类首行上的命中",
+    "forcedOk": 8,
+    "forcedN": 18,
+    "flowOk": 8,
+    "flowN": 18
+  }
+}
