@@ -17,9 +17,8 @@
 - **§1 Word 侧结论**——量的是 Word，与引擎怎么写无关，**不随重构失效**；
 - **§2 引擎侧缺口**——逐条标了在**当前 `main`** 上是否还成立。没标「已覆盖」的，就是还没做。
 
-要在当前 `main` 上复现这些数，缺一件东西：`oracle::LayoutRecord` 目前只是进程内的结构，
-**没有 JSON 出口**，喂不进量具的比较器。补一个 `rsword-layout-trace/1` 形状的序列化即可
-（契约见 `tools/measure/README.md` 的「引擎侧契约」）。
+出口已经补上了（`oracle_json` + `layout-trace`），所以现在可以在 `main` 上直接复量。
+在 `main` 上对 `MR1-BREAKS` 跑一次的结果记在 §2 开头。
 
 ## 1 Word 侧结论
 
@@ -73,6 +72,21 @@ Liberation Serif 12pt 实测：`B` = 8.0040pt、`P` = 6.6720pt、`[` = 2.6374pt�
 
 ## 2 引擎侧缺口
 
+### 在当前 `main` 上实测（2026-09-17）
+
+```
+wm compare <MR1 采集包> <layout-trace 出的轨迹>
+→ state=FAIL  pairs=0  失败=PAGE_COUNT_MISMATCH
+  Word 11 页 / 引擎 1 页
+```
+
+**第一层就对不上，所以没有几何读数。** `bridge.rs` 已经能从
+`segments[].kind.{kind,breakKind}` 读出手动分页符，但布局没有据此翻页：
+`Para::page_break_before` 只对应 `w:pageBreakBefore`，run 里的 `w:br w:type="page"`
+还没有接到分页动作上。同一夹具 Word 排 11 页、引擎排 1 页、行 20 对 29。
+
+（下表是在一条平行分支上量的，那条分支把分页接上了，所以能量到几何层。）
+
 平行分支上逐步收敛的结果（纯文本页 p0–p9，226 个字形，单位点）：
 
 | 引擎配置 | Δx max | Δx 中位 | Δy max | Δy 中位 | max\|Δ\| |
@@ -84,9 +98,10 @@ Liberation Serif 12pt 实测：`B` = 8.0040pt、`P` = 6.6720pt、`[` = 2.6374pt�
 
 噪声底是 0.0000pt（§5），所以这些**全是信号**，一个都不是「量得不准」。
 
-### G-1 `w:br w:type="page"` —— **当前 main 已覆盖**
+### G-1 `w:br w:type="page"` —— **读到了，但没接上分页**
 
-`bridge.rs` 已按 `segments[].kind.{kind,breakKind}` 取分页符。
+`bridge.rs` 已按 `segments[].kind.{kind,breakKind}` 取分页符，`oracle` 侧也有
+`PageBreakPosition` 的三分；但布局主干没有据此翻页（见上面的实测）。
 连带那个坑也要记着：rsword 在 `run.text` 里为 `w:br` 放一个 U+FFFC（`￼`）占位符，
 整串拿去排版会**把它当成一个真字形画出去**，而它在 Word 的 PDF 里根本不存在。
 
@@ -152,8 +167,7 @@ rustybuzz **不传 feature 时默认开**，所以必须显式关掉，不能靠
 
 ## 3 下一步的顺序
 
-1. **给 `oracle::LayoutRecord` 加 JSON 出口**（`rsword-layout-trace/1`）。
-   没有它，量具与引擎接不上，下面几条都无法复量。
+1. **把 `w:br w:type="page"` 接到分页动作上**（G-1）。第一层对不上，下面几条都量不到。
 2. **`vertAlign` / `w:position`**（G-7）——最大的一项，且能顺带补上 A2 的检验实例。
 3. **真度量 + 关字距调整**（G-4、G-6）——一次收掉横向的主体。
 4. **纵向栅格**（G-5），带着 W-2 的回测身份。

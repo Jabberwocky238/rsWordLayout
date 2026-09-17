@@ -11,6 +11,7 @@ mod bridge;
 mod layout;
 pub mod font;
 mod oracle;
+mod oracle_json;
 
 // ---- 几何：坐标一律 twips，没有像素 ----
 pub use layout::{
@@ -38,6 +39,7 @@ pub use oracle::{
     CompareState, GlyphRecord, LayoutRecord, LineRecord, LineTerminator, MismatchLevel,
     PageBreakPosition, PageRecord, SourceRange,
 };
+pub use oracle_json::{TraceMeta, to_trace_json};
 
 // ---- 度量契约 ----
 pub use font::{

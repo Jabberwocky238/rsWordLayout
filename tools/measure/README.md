@@ -35,18 +35,23 @@ cd tools/measure
 ./wm compare bundle/ trace.json         # §9.6 引擎 vs Word
 ```
 
-### 引擎侧还差一个出口
+### 引擎侧轨迹
 
-`compare` 要吃一份 `rsword-layout-trace/1` 的 JSON（契约见下）。
-引擎里的 `crates/core/src/oracle.rs` 已经有「页 → 行 → 字形」三层记录了，但它目前
-**只是进程内的结构，没有序列化出口**，所以还接不上量具。
+```sh
+cargo run --features fontenv --bin layout-trace -- \
+    --require "Liberation Serif" \
+    --font fixtures/fonts/LiberationSerif-Regular.ttf \
+    case.docx trace.json
+```
 
-补法：给 `oracle::LayoutRecord` 加一个按下面契约输出的序列化，再加一个小 bin 把它写出来。
-那之后整条链就通了。
+`--font` **不给就没有字形级记录**：没有整形器时 `paint_document` 不产字形序列，
+轨迹里只有行，过不了比较器的字形层。
 
-采集那一侧要落一条纪律：**申请了哪些字体族，就必须当场核过**。
-度量兼容克隆的字体替换**在几何上完全不可见，只有字体名能发现**（§6.2）——
-不核就跑，跑出来的是废数据，而且废得看不出来。
+`--require` 不是可有可无的讲究：度量兼容克隆的字体替换**在几何上完全不可见，
+只有字体名能发现**（§6.2）。核不过就退出——不核就跑，跑出来的是废数据，
+而且废得看不出来。注意它核的是**实际装进来的族名**（`FontRegistry::families`），
+不能拿 `select_face` 代替：那带 fallback，族没装也会返回一个能盖住码位的 face，
+于是核查永远通过。
 
 ## 这台机器上的能力边界
 
@@ -125,13 +130,17 @@ F4 在开发中真的触发过一次：计数模型说判不了的行，被 §3.
 
 ## 引擎侧契约
 
-`rsword-layout-trace/1`，由 [`crates/core/src/trace.rs`](../../crates/core/src/trace.rs) 出具。
+`rsword-layout-trace/1`。形状由 [`crates/core/src/oracle.rs`](../../crates/core/src/oracle.rs) 定，
+序列化由 [`crates/core/src/oracle_json.rs`](../../crates/core/src/oracle_json.rs) 做——
+分开是有意的：契约的形状归 `oracle`，输出格式归 `oracle_json`，改一边不必动另一边。
+
 每页、每行、每字形给：原点与推进、所属源字符区间、行终止符类型（§9.7）。
 
 两个口径必须和 Word 侧对齐，对不齐就没法比：
 
 - **坐标**：点，页内，**页顶向下**，原点在页左上角；
-- **偏移空间**：与 Word `Range` 相同——各段文本依次拼接，**每段末尾算一个段落标记**。
+- **偏移空间**：**UTF-16 单位**，与 rsword 的坐标流及 Word 的 `Range.Start/End` 一致，
+  每个段落标记占 1 个单位。
 
 字形原点由度量实现给，用的是哪一种**随数一起走**（输出的 `glyphOriginMethod` 字段）：
 桩度量按前缀推进量算（对前缀可加的度量准确），真度量直接用 shaper 的输出——

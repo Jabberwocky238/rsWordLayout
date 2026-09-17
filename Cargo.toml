@@ -17,12 +17,12 @@ rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
-rsword = { path = "/home/zq/coding/rsWordParser/crates/rsword" }
+rsword = { path = "../rsWordParser/crates/rsword" }
 # 字体环境与布局契约来自 docx-layout（MIT OR Apache-2.0）：
 # 它的 fontenv 用 skrifa 读 OpenType，提供按码位的覆盖查询与环境指纹，
 # 正是全 Unicode 字体 fallback 需要的东西，不必在本仓库重造。
-docx-layout = { path = "/home/zq/coding/docx-layout/crates/docx-layout" }
-docx-layout-contract = { path = "/home/zq/coding/docx-layout/crates/docx-layout-contract" }
+docx-layout = { path = "../docx-layout/crates/docx-layout" }
+docx-layout-contract = { path = "../docx-layout/crates/docx-layout-contract" }
 rsword-layout-core = { path = "crates/core" }
 rsword-layout-gpu = { path = "crates/gpu" }
 rsword-layout-svg = { path = "crates/svg" }

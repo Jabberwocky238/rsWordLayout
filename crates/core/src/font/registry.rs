@@ -92,6 +92,31 @@ impl FontRegistry {
         sel.face.map(|f| f.id().sha256().to_string())
     }
 
+    /// 实际装进来的族名，排序去重。
+    ///
+    /// 用途只有一个，但很要紧：**核字体有没有被替换**。量具方法 §6.2 实测，
+    /// 度量兼容克隆（Liberation Serif ↔ Times New Roman 等）替换后几何一字不差，
+    /// 2618 条记录 max |Δ| = 0.000000pt——**任何几何自检都发现不了，只有字体名能**。
+    ///
+    /// 注意不能拿 [`FontRegistry::select_face`] 代替：它带 fallback，
+    /// 族根本没装也会返回一个能盖住该码位的 face，于是核查永远通过。
+    pub fn families(&self) -> Vec<String> {
+        let Some(env) = self.env.as_ref() else { return Vec::new() };
+        let mut out: Vec<String> = env
+            .faces()
+            .flat_map(|f| f.families().iter().cloned())
+            .collect();
+        out.sort();
+        out.dedup();
+        out
+    }
+
+    /// 某个族是否真的装进来了（按 fontenv 的族名归一化比较）。
+    pub fn covers_family(&self, family: &str) -> bool {
+        let want = docx_layout::fontenv::normalize_family(family);
+        self.families().contains(&want)
+    }
+
     /// 全部 face 标识，顺序与 `ShapedRun::face_index` 一致。
     pub fn face_ids(&self) -> Vec<String> {
         self.shaper.face_ids()

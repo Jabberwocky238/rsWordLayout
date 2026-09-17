@@ -7,6 +7,13 @@ license.workspace = true
 publish = false
 
 # examples/ 与 tests/ 不在 src/ 下，Cargo 不会自动发现。
+# bin/ 不在 src/ 下，Cargo 不会自动发现。
+[[bin]]
+name = "layout-trace"
+path = "bin/layout-trace.rs"
+# 要按码位选字体并整形，才有字形级记录可比对。
+required-features = ["fontenv"]
+
 [[example]]
 name = "dump"
 path = "examples/dump.rs"
@@ -40,6 +47,10 @@ path = "tests/repr_c.rs"
 [[test]]
 name = "slots"
 path = "tests/slots.rs"
+
+[[test]]
+name = "trace_json"
+path = "tests/trace_json.rs"
 
 [[test]]
 name = "oracle"
