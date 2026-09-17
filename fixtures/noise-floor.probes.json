@@ -1,0 +1,56 @@
+{
+  "sha256": "b4e2c2c563ea52cf1087a4a2176667c78f8feee0a22ae739b35e04bc40377657",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "between-lines",
+      "family": "Luminari",
+      "sizeHalfPoints": 26,
+      "lines": 20,
+      "text": "mnopqrst"
+    },
+    {
+      "tag": "b",
+      "kind": "between-lines",
+      "family": "Trattatello",
+      "sizeHalfPoints": 26,
+      "lines": 20,
+      "text": "mnopqrst"
+    },
+    {
+      "tag": "c",
+      "kind": "between-lines",
+      "family": "AppleMyungjo",
+      "sizeHalfPoints": 26,
+      "lines": 20,
+      "text": "mnopqrst"
+    },
+    {
+      "tag": "d",
+      "kind": "within-line",
+      "family": "Luminari",
+      "sizeHalfPoints": 26,
+      "lines": 1,
+      "unit": "xy",
+      "repeats": 12
+    },
+    {
+      "tag": "e",
+      "kind": "within-line",
+      "family": "Trattatello",
+      "sizeHalfPoints": 26,
+      "lines": 1,
+      "unit": "xy",
+      "repeats": 12
+    },
+    {
+      "tag": "f",
+      "kind": "within-line",
+      "family": "AppleMyungjo",
+      "sizeHalfPoints": 26,
+      "lines": 1,
+      "unit": "xy",
+      "repeats": 12
+    }
+  ]
+}
