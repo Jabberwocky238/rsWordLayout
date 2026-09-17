@@ -1,0 +1,151 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-hbox.md",
+  "bundle": "/Users/user/Documents/rsword-captures/hbox",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 10,
+    "pdfPages": 10,
+    "sweepPositions": 638,
+    "linesFromSweep": 16
+  },
+  "lineDenominators": {
+    "lines": 16,
+    "ok": 16,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "K0": {
+      "prediction": "K0 每条基线都在 0.24pt 栅格上",
+      "n": 16,
+      "ok": 16,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "K1": {
+      "prediction": "K1 右对齐：行尾右缘 = 523.3pt",
+      "n": 4,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [
+        {
+          "tag": "r0",
+          "实测右缘": 523.263696,
+          "预测": 523.3,
+          "差": -0.0363
+        },
+        {
+          "tag": "r1",
+          "实测右缘": 523.2611999999999,
+          "预测": 523.3,
+          "差": -0.0388
+        },
+        {
+          "tag": "r2",
+          "实测右缘": 523.251552,
+          "预测": 523.3,
+          "差": -0.0484
+        },
+        {
+          "tag": "r3",
+          "实测右缘": 523.249824,
+          "预测": 523.3,
+          "差": -0.0502
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    },
+    "K2": {
+      "prediction": "K2 两端对齐：非末行右缘 = 523.3pt",
+      "n": 0,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [
+        {
+          "tag": "t0",
+          "reason": "该组没有换行，没有非末行可判",
+          "行数": 1
+        },
+        {
+          "tag": "t1",
+          "reason": "该组没有换行，没有非末行可判",
+          "行数": 1
+        }
+      ],
+      "verdict": "OK"
+    },
+    "K3": {
+      "prediction": "K3 字距：Δ(sp,i) − Δ(0,i) = sp/2 pt",
+      "n": 36,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [
+        {
+          "spacing": 20,
+          "i": 0,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        },
+        {
+          "spacing": 20,
+          "i": 1,
+          "实测差": 0.508,
+          "预测": 10.0,
+          "偏离": -9.492
+        },
+        {
+          "spacing": 20,
+          "i": 2,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        },
+        {
+          "spacing": 20,
+          "i": 3,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        },
+        {
+          "spacing": 20,
+          "i": 4,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        },
+        {
+          "spacing": 20,
+          "i": 5,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        },
+        {
+          "spacing": 20,
+          "i": 6,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        },
+        {
+          "spacing": 20,
+          "i": 7,
+          "实测差": 1.0005,
+          "预测": 10.0,
+          "偏离": -8.9995
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    }
+  }
+}
