@@ -125,7 +125,14 @@ def open_document(path: Path, timeout: float = 180.0) -> str:
     return tell_word(body, timeout=timeout).strip()
 
 
-def export_pdf(doc_expr: str, out_pdf: Path, timeout: float = 300.0) -> None:
+def export_pdf(doc_expr: str, out_pdf: Path, timeout: float = 1800.0) -> None:
+    """导出 PDF。
+
+    超时给得很长，理由与 `open_document` 同一条（§6.6）：Mac Word 的沙箱按
+    **文件夹**授权，采集包目录第一次用会弹授权框，而那个框要人点。
+    300 秒不够一个人走到电脑前——超时把采集打断，框也跟着没了，
+    下一次还得从头再来一遍。宁可等。
+    """
     body = (
         "save as %s file name %s file format format PDF "
         "add to recent files false lock comments false "
