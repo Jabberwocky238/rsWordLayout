@@ -154,6 +154,14 @@ def close_document(doc_expr: str, timeout: float = 120.0) -> None:
 # 「取件槽」：一个**固定身份**的文件，每次采集把夹具的字节**原地**写进去，让 Word 开它。
 DEFAULT_SLOT = Path.home() / "Documents" / "rsword-captures" / "_word-slot.docx"
 
+# 导出 PDF 的**固定**落点。与取件槽同一条理由，只是方向相反：
+# 槽是「Word 要读的路径」，这是「Word 要写的路径」。两者都必须固定。
+#
+# 实测：Word 的**目录**授权不可靠地覆盖新建的子目录——前五批采集包目录都没弹框，
+# 第六批换了个新目录就弹了（多半有容量淘汰）。每份采集包一个新目录，
+# 就等于每次都可能要人点一次。所以先导到这一个固定文件，采完再搬进采集包。
+DEFAULT_WORK_PDF = DEFAULT_SLOT.parent / "_word-export.pdf"
+
 
 def fill_slot(docx: Path, slot: Path) -> dict:
     """把 `docx` 的字节原地写进 `slot`，返回身份记录。
@@ -209,6 +217,7 @@ def capture(
     include_font_files: bool = False,
     slot: Path | None = DEFAULT_SLOT,
     font_files: list[Path] | None = None,
+    work_pdf: Path | None = DEFAULT_WORK_PDF,
 ) -> dict:
     """跑一次完整采集，写出采集包。返回 META.json 的内容。
 
@@ -232,7 +241,11 @@ def capture(
     env = fingerprint.capture_environment(include_font_files=include_font_files)
 
     shutil.copy2(docx, bundle / "case.docx")
-    pdf_path = bundle / "case.pdf"
+    # Word 写的是那个**固定**落点，不是采集包里的新目录——见 `DEFAULT_WORK_PDF`。
+    pdf_path = Path(work_pdf) if work_pdf else bundle / "case.pdf"
+    pdf_path.parent.mkdir(parents=True, exist_ok=True)
+    if work_pdf and pdf_path.exists():
+        pdf_path.unlink()
 
     # 让 Word 开固定身份的槽，而不是夹具本身——否则每做一份新夹具就要人点一次授权。
     # 顺带还有个好处：Word 碰不到夹具本身，连改坏的可能都没有。
@@ -286,6 +299,11 @@ def capture(
     (bundle / "sweep.json").write_text(
         json.dumps(sweep, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     )
+
+    if work_pdf:
+        # 采完立刻搬进采集包：固定落点只是过道，读数得跟采集包待在一起。
+        shutil.move(str(pdf_path), str(bundle / "case.pdf"))
+        pdf_path = bundle / "case.pdf"
 
     glyphs = pdfglyphs.read_pdf(pdf_path)
     (bundle / "glyphs.json").write_text(

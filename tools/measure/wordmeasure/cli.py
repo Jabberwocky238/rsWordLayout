@@ -79,6 +79,7 @@ def cmd_capture(args):
         include_font_files=args.include_font_files,
         slot=None if args.no_slot else Path(args.slot) if args.slot else capture_mod.DEFAULT_SLOT,
         font_files=[Path(f) for f in (args.font_file or [])],
+        work_pdf=None if args.no_slot else capture_mod.DEFAULT_WORK_PDF,
     )
     print("已采：%s" % args.bundle)
     if meta.get("slot"):
