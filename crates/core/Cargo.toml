@@ -16,6 +16,10 @@ name = "probe_fontenv"
 path = "examples/probe_fontenv.rs"
 
 [[example]]
+name = "probe_anchor"
+path = "examples/probe_anchor.rs"
+
+[[example]]
 name = "probe_shape"
 path = "examples/probe_shape.rs"
 required-features = ["shape"]

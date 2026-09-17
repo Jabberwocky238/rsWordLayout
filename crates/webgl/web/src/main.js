@@ -84,20 +84,31 @@ function setPage(n) {
 function draw() {
   if (!session || !renderer) return
   const total = session.page_count
-  const dpi = Number(els.dpi.value) * zoom
-  const size = session.page_size(page, dpi)
-  if (size.length !== 2) return
-  const [w, h] = size
+  // 基准 DPI 决定「1× 时一页占多少 CSS 像素」；devicePixelRatio 与 zoom 再叠上去，
+  // 两者都只提高位图分辨率，不改变版面。
+  const baseDpi = Number(els.dpi.value)
+  const dpr = window.devicePixelRatio || 1
+  const renderDpi = baseDpi * dpr * zoom
 
-  // 关键：缩放不是 CSS 拉伸，而是提高 DPI 后**重新栅格化**。
-  // 这正是 Word / WPS（DirectWrite / FreeType）的做法：每个缩放级别重来一遍，
-  // 所以放大不糊。CSS 拉伸只会把位图插值放大。
+  // CSS 显示尺寸按 (baseDpi × zoom) 算——放大时显示区域确实变大；
+  // 位图尺寸再乘 dpr，HiDPI 下才不发虚。
+  const cssSize = session.page_size(page, baseDpi * zoom)
+  const bmpSize = session.page_size(page, renderDpi)
+  if (cssSize.length !== 2 || bmpSize.length !== 2) return
+  const [cssW, cssH] = cssSize
+  const [w, h] = bmpSize
+
+  // 之前这里写成 style.width = w / zoom，等于把多渲染的分辨率又缩回去——
+  // 渲染了 zoom² 倍像素却丢掉大部分，屏幕上看到的还是原尺寸，所以「放大反而模糊」。
+  // 现在位图与显示尺寸同步放大，且每一级 zoom 都按新 DPI 重新栅格化字形
+  // （Word / WPS 走 DirectWrite / FreeType 也是这个思路）。
   els.canvas.width = Math.round(w)
   els.canvas.height = Math.round(h)
-  els.canvas.style.width = Math.round(w / zoom) + 'px'
+  els.canvas.style.width = Math.round(cssW) + 'px'
+  els.canvas.style.height = Math.round(cssH) + 'px'
 
   renderer.clear(1, 1, 1)
-  session.render_page(renderer, fonts, page, dpi)
+  session.render_page(renderer, fonts, page, renderDpi)
 
   els.pageinfo.textContent = `${page + 1} / ${total}`
   els.prev.disabled = page === 0
@@ -105,7 +116,8 @@ function draw() {
 
   const frags = session.fragment_count(page)
   log(
-    `第 ${page + 1}/${total} 页 · ${Math.round(w)}×${Math.round(h)}px · 缩放 ${zoom.toFixed(2)}× · DPI ${Math.round(dpi)}`,
+    `第 ${page + 1}/${total} 页 · 位图 ${Math.round(w)}×${Math.round(h)} · ` +
+      `显示 ${Math.round(cssW)}×${Math.round(cssH)} · 缩放 ${zoom.toFixed(2)}× · DPI ${Math.round(renderDpi)}`,
     `\n片段 ${frags} · 字形缓存 ${fonts.glyph_count} 个 · ${fontNote}`,
   )
 }
@@ -169,11 +181,25 @@ document.addEventListener('keydown', (e) => {
 })
 
 function setZoom(z) {
-  // 上限 16×：再高单页位图会超出常见的 canvas 尺寸限制。
-  zoom = Math.max(0.25, Math.min(16, z))
+  // 上限来自字形图集：zoom 很大时单个字形的栅格化尺寸会超出图集边长，
+  // 那时 GlyphAtlas 会拒绝放入（宁可不画也不画错）。SVG 那条路没有这个限制。
+  zoom = Math.max(0.1, Math.min(64, z))
   els.zoomLabel.textContent = zoom.toFixed(2) + '×'
   draw()
 }
+
+// Ctrl/⌘ + 滚轮缩放。passive: false 才能 preventDefault——
+// 否则浏览器会把它当页面缩放，画布分辨率不变，看起来就是「放大变模糊」。
+els.stage.addEventListener(
+  'wheel',
+  (e) => {
+    if (!e.ctrlKey && !e.metaKey) return
+    e.preventDefault()
+    // deltaY 的量级随设备差异很大，只取方向。
+    setZoom(e.deltaY < 0 ? zoom * 1.25 : zoom / 1.25)
+  },
+  { passive: false },
+)
 
 els.zoomIn.addEventListener('click', () => setZoom(zoom * 1.5))
 els.zoomOut.addEventListener('click', () => setZoom(zoom / 1.5))

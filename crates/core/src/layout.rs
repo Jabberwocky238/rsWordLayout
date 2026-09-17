@@ -38,6 +38,16 @@ pub fn half_points_to_twips(half_points: u32) -> Twips {
     ((i64::from(half_points) * i64::from(TWIPS_PER_POINT)) / 2) as Twips
 }
 
+/// 每英寸 EMU 数（English Metric Units，OOXML 里绘图尺寸的单位）。
+pub const EMU_PER_INCH: i64 = 914_400;
+
+/// EMU 转 twips。1 英寸 = 914400 EMU = 1440 twips，故除以 635。
+///
+/// rsword 的 `Extent` 与 `Dist` 都以 EMU 计，接环绕时必须换算。
+pub fn emu_to_twips(emu: i64) -> Twips {
+    (emu / (EMU_PER_INCH / i64::from(TWIPS_PER_INCH))) as Twips
+}
+
 /// 点转 twips。
 pub fn points_to_twips(points: f64) -> Twips {
     (points * f64::from(TWIPS_PER_POINT)).round() as Twips

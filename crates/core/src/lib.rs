@@ -6,6 +6,7 @@
 //! 模块一律私有，对外只经 `pub use` 暴露具体项——这样内部怎么分文件与调用方无关，
 //! 重新组织文件不会破坏下游。
 
+mod anchor;
 mod bridge;
 mod layout;
 mod measure;
@@ -17,7 +18,7 @@ mod shape;
 // ---- 几何：坐标一律 twips，没有像素 ----
 pub use layout::{
     Margins, Point, Rect, Size, TWIPS_PER_INCH, TWIPS_PER_POINT, Transform, Twips,
-    half_points_to_twips, points_to_twips,
+    emu_to_twips, half_points_to_twips, points_to_twips, EMU_PER_INCH,
 };
 
 // ---- 矢量画布：路径是唯一原语 ----
@@ -39,6 +40,7 @@ pub use layout::{FaceId, PaintList, PaintPage, ShapedRun, TextShaper, paint_docu
 pub use measure::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
 
 // ---- rsword 桥接 ----
+pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
 
 // ---- 近似度量桩，**不可用于真实排版** ----
