@@ -1,0 +1,59 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-probe-metrics.md",
+  "bundle": "/Users/user/Documents/rsword-captures/probe-metrics",
+  "bundleState": "UNDECIDABLE",
+  "coverage": {
+    "wordPagesInSweep": 28,
+    "pdfPages": 28,
+    "sweepPositions": 497,
+    "linesFromSweep": 86
+  },
+  "lineDenominators": {
+    "lines": 78,
+    "ok": 78,
+    "fail": 0,
+    "undecidable": 2
+  },
+  "falsifiers": [
+    {
+      "id": "F-E",
+      "detail": "探针 A16 两个行距不等：[9.12, 9.36]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 A22 两个行距不等：[12.48, 12.72]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 A24 两个行距不等：[13.68, 13.92]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 A32 两个行距不等：[18.24, 18.48]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 B0 两个行距不等：[13.68, 13.92]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 B1 两个行距不等：[13.68, 13.92]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 B2 两个行距不等：[13.44, 13.68]"
+    },
+    {
+      "id": "F-E",
+      "detail": "探针 F0 两个行距不等：[13.68, 13.92]"
+    }
+  ],
+  "verdict": "VOID",
+  "predictions": {},
+  "G9": {
+    "exploratory": true,
+    "rows": [],
+    "note": "整批作废，不采"
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "capturedAtUtc": "2026-09-17T11:59:16Z",
+  "environment": {
+    "fontEpoch": {
+      "extensions": [
+        ".dfont",
+        ".otc",
+        ".otf",
+        ".ttc",
+        ".ttf"
+      ],
+      "fileCount": 678,
+      "filesSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+      "formula": "sha256 of '\\n'.join(path + '\\t' + sha256) over files sorted by path",
+      "roots": [
+        "~/Library/Fonts",
+        "/Library/Fonts",
+        "/System/Library/Fonts",
+        "/System/Library/Fonts/Supplemental",
+        "/Network/Library/Fonts"
+      ],
+      "schema": "mac-font-environment/1"
+    },
+    "platform": "mac",
+    "schema": "rsword-layout-capture-env/1",
+    "tools": {
+      "pdfminer.six": "20231228",
+      "python": "3.13.11"
+    },
+    "word": {
+      "build": "16.112.26083020",
+      "infoPlistSha256": "5fc365652b4f467ffd3f29e7cbb41a40a64ae01062a7e53e697a775d73639c29",
+      "path": "/Applications/Microsoft Word.app",
+      "version": "16.112.3"
+    },
+    "wordProcesses": [
+      {
+        "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+        "pid": 34339,
+        "startedAt": "四  9月/17 12:02:06 2026  "
+      }
+    ]
+  },
+  "exportVector": {
+    "addToRecentFiles": false,
+    "channel": "mac AppleScript `save as`",
+    "embedTruetypeFonts": false,
+    "fileFormat": "format PDF (WdSaveFormat 0x02310011)",
+    "lockComments": false,
+    "note": "Mac Word 无 XPS 导出（§6.6）。ExportAsFixedFormat 的完整参数向量在 Mac 桥上不可达，这里记的是实际传出的每一位。",
+    "readOnlyRecommended": false
+  },
+  "fixture": {
+    "after": {
+      "bytes": 2037,
+      "documentXmlSha256": "bd1c3ad293bc1900eea5fd80b474eec9330702d9b927921d513d9e74dce98e42",
+      "parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/document.xml"
+      ],
+      "path": "/Users/user/code/rsWordLayout/fixtures/probe-metrics.docx",
+      "sha256": "faffc29559e479386869eb492d8296c52bf3f26ce7fb3ff95d05cbfe9844bc90"
+    },
+    "before": {
+      "bytes": 2037,
+      "documentXmlSha256": "bd1c3ad293bc1900eea5fd80b474eec9330702d9b927921d513d9e74dce98e42",
+      "parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/document.xml"
+      ],
+      "path": "/Users/user/code/rsWordLayout/fixtures/probe-metrics.docx",
+      "sha256": "faffc29559e479386869eb492d8296c52bf3f26ce7fb3ff95d05cbfe9844bc90"
+    },
+    "unchanged": true
+  },
+  "fontSubstitution": {
+    "basis": "方法 §6.2：几何自检查不出字体替换，只有字体名能。",
+    "pdfFontNames": [
+      "AAAAAB+LiberationSerif",
+      "AAAAAC+LiberationSerif",
+      "AAAAAD+LiberationSerif",
+      "AAAAAE+LiberationSerif",
+      "AAAAAF+LiberationSerif",
+      "AAAAAG+LiberationSerif",
+      "AAAAAH+LiberationSerif",
+      "AAAAAI+LiberationSerif",
+      "AAAAAJ+LiberationSerif",
+      "AAAAAK+LiberationSans",
+      "AAAAAL+LiberationMono",
+      "AAAAAN+Carlito-Regular",
+      "AAAAAO+LiberationSerif",
+      "AAAAAP+LiberationSerif"
+    ],
+    "requiredFamiliesSeenInPdf": {
+      "Carlito": true,
+      "Liberation Mono": true,
+      "Liberation Sans": true,
+      "Liberation Serif": true
+    },
+    "result": "PASS",
+    "schema": "rsword-layout-font-substitution/1"
+  },
+  "glyphCounts": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    12,
+    12,
+    12,
+    12,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    17,
+    17,
+    17,
+    17,
+    17,
+    17,
+    15,
+    15,
+    12
+  ],
+  "glyphTotal": 495,
+  "label": "probe-metrics",
+  "pageCount": 28,
+  "pdfSha256": "87e8649c0ee0e1296cb17637cad6968d30a51f7e87dca7ffea5c0e68646a661c",
+  "preflight": {
+    "fontNameCount": 1614,
+    "method": "AppleScript: tell application \"Microsoft Word\" to return font names",
+    "note": null,
+    "requiredFamilies": {
+      "Carlito": true,
+      "Liberation Mono": true,
+      "Liberation Sans": true,
+      "Liberation Serif": true
+    },
+    "result": "PASS",
+    "rule": "方法 §6.1：核 Word 进程自己能列出所需字体。不是文件在不在，不是别的进程看不看得见。",
+    "schema": "rsword-layout-font-preflight/1",
+    "wordProcesses": [
+      {
+        "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+        "pid": 34339,
+        "startedAt": "四  9月/17 12:02:06 2026  "
+      }
+    ]
+  },
+  "schema": "rsword-layout-capture/1",
+  "timings": {
+    "exportSeconds": 64.53901875019073,
+    "structureSeconds": 3.6738261671271175,
+    "sweepSeconds": 15.465178582817316
+  },
+  "wordDocumentName": "probe-metrics.docx"
+}
