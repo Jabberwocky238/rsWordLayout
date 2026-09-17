@@ -18,8 +18,8 @@
 
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 
-use rsword_layout_core::fragment::LaidOutDocument;
-use rsword_layout_core::paint::paint_page;
+use rsword_layout_core::Page;
+use rsword_layout_core::paint_page;
 use rsword_layout_gpu::{Frame, Viewport, build_page};
 
 /// 错误码。0 为成功，负值为失败。
@@ -67,7 +67,7 @@ pub unsafe extern "C" fn rsl_string_free(s: *mut c_char) {
 
 /// 一次布局会话。对 C 侧是不透明指针。
 pub struct RslSession {
-    doc: LaidOutDocument,
+    doc: Vec<Page>,
     dpi: f32,
 }
 
@@ -99,9 +99,9 @@ pub unsafe extern "C" fn rsl_session_new(
 
 fn build_session(docx: &[u8], dpi: f32) -> Result<RslSession, String> {
     use rsword::bind::native::SessionTable;
-    use rsword_layout_core::bridge::paras_from_document;
-    use rsword_layout_core::engine::{Engine, PageSetup};
-    use rsword_layout_core::simple_metrics::SimpleMetrics;
+    use rsword_layout_core::paras_from_document;
+    use rsword_layout_core::{Engine, PageSetup};
+    use rsword_layout_core::SimpleMetrics;
 
     let mut sessions = SessionTable::default();
     let id = sessions.open(docx, None).map_err(|e| format!("解析失败：{e}"))?;
@@ -143,7 +143,7 @@ pub unsafe extern "C" fn rsl_session_free(s: *mut RslSession) {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsl_page_count(s: *const RslSession) -> usize {
     match unsafe { s.as_ref() } {
-        Some(s) => s.doc.page_count(),
+        Some(s) => s.doc.len(),
         None => 0,
     }
 }
@@ -167,7 +167,7 @@ pub unsafe extern "C" fn rsl_page_size(
         set_error("输出指针为空");
         return RSL_ERR_NULL;
     }
-    let Some(p) = s.doc.pages.get(index) else {
+    let Some(p) = s.doc.get(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
@@ -186,7 +186,7 @@ pub unsafe extern "C" fn rsl_page_size(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsl_fragment_count(s: *const RslSession, index: usize) -> usize {
     match unsafe { s.as_ref() } {
-        Some(s) => s.doc.pages.get(index).map_or(0, |p| p.fragments.len()),
+        Some(s) => s.doc.get(index).map_or(0, |p| p.fragments.len()),
         None => 0,
     }
 }
@@ -211,7 +211,7 @@ pub unsafe extern "C" fn rsl_frame_sizes(
         set_error("输出指针为空");
         return RSL_ERR_NULL;
     }
-    let Some(page) = s.doc.pages.get(index) else {
+    let Some(page) = s.doc.get(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
@@ -258,7 +258,7 @@ pub unsafe extern "C" fn rsl_frame_copy(
         set_error("session 为空指针");
         return RSL_ERR_NULL;
     };
-    let Some(page) = s.doc.pages.get(index) else {
+    let Some(page) = s.doc.get(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
@@ -339,7 +339,7 @@ pub unsafe extern "C" fn rsl_page_ortho(
         set_error("输出指针为空");
         return RSL_ERR_NULL;
     }
-    let Some(p) = s.doc.pages.get(index) else {
+    let Some(p) = s.doc.get(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };

@@ -8,9 +8,9 @@
 
 use serde_json::Value;
 
-use crate::canvas::Color;
-use crate::engine::{Align, LineRule, Para, Run};
-use crate::geom::Twips;
+use crate::layout::Color;
+use crate::layout::{Align, LineRule, Para, Run};
+use crate::layout::Twips;
 use crate::measure::FontSpec;
 
 /// 文档默认正文字体与字号（对应 fixture 的 `docDefaults`）。

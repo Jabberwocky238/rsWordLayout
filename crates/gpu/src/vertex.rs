@@ -3,7 +3,7 @@
 //! 只有一种顶点，文字和矩形共用：矩形把 UV 设成一个约定的「纯色」纹素，
 //! 着色器因此不需要分支，一次 draw call 就能混画文字与色块。
 
-use rsword_layout_core::geom::{TWIPS_PER_INCH, Twips};
+use rsword_layout_core::{TWIPS_PER_INCH, Twips};
 
 /// twips → 像素。twips 是 1/1440 英寸，所以 px = twips / 1440 * dpi。
 pub fn px_from_twips(v: Twips, dpi: f32) -> f32 {
@@ -35,7 +35,7 @@ pub struct Vertex {
 pub const SOLID_UV: (f32, f32) = (0.0, 0.0);
 
 impl Vertex {
-    pub fn new(x: f32, y: f32, u: f32, v: f32, color: rsword_layout_core::canvas::Color, alpha: f32) -> Vertex {
+    pub fn new(x: f32, y: f32, u: f32, v: f32, color: rsword_layout_core::Color, alpha: f32) -> Vertex {
         Vertex {
             x,
             y,

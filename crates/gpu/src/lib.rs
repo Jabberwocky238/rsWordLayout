@@ -1,6 +1,6 @@
 //! GPU 光栅化后端的公共层。
 //!
-//! core 的产物 [`rsword_layout_core::paint::PaintList`] 是**矢量**的：坐标是 twips，
+//! core 的产物 [`rsword_layout_core::PaintList`] 是**矢量**的：坐标是 twips，
 //! 字形是字体内的编号，与分辨率无关。本 crate 负责把它变成像素——顶点、图集、纹理，
 //! 这些都是设备空间的概念，不该出现在 core 里。
 //!
@@ -36,7 +36,7 @@ pub use vertex::{Vertex, px_from_twips};
 #[cfg(feature = "raster")]
 pub use raster::SkrifaRasterizer;
 
-use rsword_layout_core::geom::{Rect, Twips};
+use rsword_layout_core::{Rect, Twips};
 
 /// 一个字形在图集中的位置与它相对基线的摆放。
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -114,28 +114,71 @@ pub fn to_px(v: Twips, dpi: f32) -> f32 {
 /// 与旧的 `core::gpu::build_page` 的关键差别：输入是矢量的 [`PaintPage`]，
 /// DPI 由 `viewport` 带入，core 侧不再有任何分辨率概念。
 pub fn build_page(
-    page: &rsword_layout_core::paint::PaintPage,
+    page: &rsword_layout_core::PaintPage,
     vp: &Viewport,
     glyphs: Option<&dyn GlyphSource>,
 ) -> Frame {
-    use rsword_layout_core::paint::PaintCmd;
+    use rsword_layout_core::{DrawCmd, PaintOp};
 
     let mut b = FrameBuilder::new(vp.dpi);
     for cmd in &page.cmds {
         match cmd {
-            PaintCmd::Rect { rect, color } => b.push_rect(*rect, *color),
-            PaintCmd::Image { id, rect } => b.push_image(id, *rect),
-            PaintCmd::Glyphs { glyphs: gs, color, font, .. } => {
-                b.push_glyphs(gs, *color, font, glyphs);
+            DrawCmd::DrawPath { path, op } => {
+                // 路径的通用光栅化（曲线细分 + 扫描线填充）尚未实现；
+                // 目前只处理矩形这一特例，其余跳过而不是画错。
+                if let Some(rect) = path_as_rect(path) {
+                    let color = match op {
+                        PaintOp::Fill { paint, .. } => paint.color,
+                        PaintOp::Stroke { paint, .. } => paint.color,
+                        PaintOp::FillThenStroke { fill, .. } => fill.color,
+                    };
+                    b.push_rect(rect, color);
+                }
             }
+            DrawCmd::DrawImage { id, rect } => b.push_image(id, *rect),
+            DrawCmd::DrawGlyphs { glyphs: gs, paint, font, .. } => {
+                b.push_glyphs(gs, paint.color, font, glyphs);
+            }
+            // 图形状态与裁剪需要矩阵栈与模板缓冲，尚未实现。
+            DrawCmd::Save | DrawCmd::Restore | DrawCmd::Transform(_) | DrawCmd::Clip { .. } => {}
         }
     }
     b.finish()
 }
 
+/// 认出「一个矩形」这个特例。
+///
+/// 通用路径光栅化未实现，而底纹/边框/下划线都是矩形，先把它们认出来。
+/// 形状是 `MoveTo` + 三条 `LineTo` + `Close`，四角轴对齐。
+fn path_as_rect(p: &rsword_layout_core::Path) -> Option<rsword_layout_core::Rect> {
+    use rsword_layout_core::PathSeg;
+    use rsword_layout_core::Rect;
+
+    let mut pts: Vec<(i32, i32)> = Vec::new();
+    for seg in &p.segs {
+        match *seg {
+            PathSeg::MoveTo { x, y } | PathSeg::LineTo { x, y } => pts.push((x, y)),
+            PathSeg::Close => {}
+            PathSeg::CurveTo { .. } => return None,
+        }
+    }
+    if pts.len() != 4 {
+        return None;
+    }
+    let xs: Vec<i32> = pts.iter().map(|p| p.0).collect();
+    let ys: Vec<i32> = pts.iter().map(|p| p.1).collect();
+    let (x0, x1) = (*xs.iter().min()?, *xs.iter().max()?);
+    let (y0, y1) = (*ys.iter().min()?, *ys.iter().max()?);
+    // 轴对齐检查：每个点的坐标都必须落在两个极值上。
+    if !xs.iter().all(|&x| x == x0 || x == x1) || !ys.iter().all(|&y| y == y0 || y == y1) {
+        return None;
+    }
+    Some(Rect::new(x0, y0, x1 - x0, y1 - y0))
+}
+
 /// 整篇文档逐页转换。
 pub fn build_document(
-    list: &rsword_layout_core::paint::PaintList,
+    list: &rsword_layout_core::PaintList,
     dpi: f32,
     glyphs: Option<&dyn GlyphSource>,
 ) -> Vec<(Frame, Viewport)> {

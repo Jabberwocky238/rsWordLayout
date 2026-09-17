@@ -12,7 +12,7 @@
 //! - 空格：0.25 em
 //! - ascent 0.8 em、descent 0.2 em、line gap 0.15 em
 
-use crate::geom::{Twips, half_points_to_twips};
+use crate::layout::{Twips, half_points_to_twips};
 use crate::measure::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
 
 pub struct SimpleMetrics;

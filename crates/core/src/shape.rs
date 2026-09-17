@@ -20,9 +20,9 @@ use std::collections::HashMap;
 
 use rustybuzz::{Face, UnicodeBuffer};
 
-use crate::geom::{Twips, points_to_twips};
+use crate::layout::{Twips, points_to_twips};
 use crate::measure::FontSpec;
-use crate::paint::{ShapedRun, TextShaper};
+use crate::layout::{ShapedRun, TextShaper};
 
 /// rustybuzz 整形器。
 ///

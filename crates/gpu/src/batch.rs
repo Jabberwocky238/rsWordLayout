@@ -3,13 +3,11 @@
 //! 一帧 = 一个顶点缓冲 + 一个索引缓冲 + 若干批次。批次只在**需要换纹理或换管线**时才切分，
 //! 所以纯文字页通常只有一个批次。
 
-use rsword_layout_core::canvas::Color;
-use rsword_layout_core::geom::Rect;
-use rsword_layout_core::measure::FontSpec;
-use rsword_layout_core::paint::PositionedGlyph;
+use rsword_layout_core::{Color, PositionedGlyph};
+use rsword_layout_core::Rect;
+use rsword_layout_core::FontSpec;
 
 use crate::atlas::GlyphKey;
-
 use crate::vertex::{SOLID_UV, Vertex};
 use crate::{GlyphSource, rect_px};
 

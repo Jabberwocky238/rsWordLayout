@@ -15,22 +15,22 @@
 //! 构建见仓库 `scripts/prepare-webgl.sh`。
 
 use rsword::bind::native::SessionTable;
-use rsword_layout_core::bridge::paras_from_document;
-use rsword_layout_core::engine::{Engine, PageSetup};
-use rsword_layout_core::fragment::LaidOutDocument;
-use rsword_layout_core::paint::{PaintList, PaintPage, TextShaper, paint_document, paint_page};
-use rsword_layout_core::simple_metrics::SimpleMetrics;
+use rsword_layout_core::paras_from_document;
+use rsword_layout_core::{Engine, PageSetup};
+use rsword_layout_core::Page;
+use rsword_layout_core::{PaintList, PaintPage, TextShaper, paint_document, paint_page};
+use rsword_layout_core::SimpleMetrics;
 
 /// 一次会话：持有排好版的文档，可反复取页。
 pub struct LayoutSession {
-    doc: LaidOutDocument,
+    doc: Vec<Page>,
     dpi: f32,
 }
 
 impl LayoutSession {
     /// 页数。
     pub fn page_count(&self) -> usize {
-        self.doc.page_count()
+        self.doc.len()
     }
 
     /// 某页的宽高，**单位 twips**，返回 `[w, h]`。越界返回空数组。
@@ -38,7 +38,7 @@ impl LayoutSession {
     /// 不返回像素：换算要知道目标 DPI，那是后端的事。调用方拿 twips
     /// 自己按 `twips / 1440 * dpi` 换，或交给 `rsword_layout_gpu::Viewport`。
     pub fn page_size_twips(&self, index: usize) -> Vec<i32> {
-        match self.doc.pages.get(index) {
+        match self.doc.get(index) {
             Some(p) => vec![p.size.width, p.size.height],
             None => Vec::new(),
         }
@@ -46,7 +46,7 @@ impl LayoutSession {
 
     /// 某页的片段数，用于自查布局是否产出了内容。
     pub fn fragment_count(&self, index: usize) -> usize {
-        self.doc.pages.get(index).map_or(0, |p| p.fragments.len())
+        self.doc.get(index).map_or(0, |p| p.fragments.len())
     }
 }
 
@@ -89,7 +89,7 @@ impl LayoutSession {
         shaper: Option<&dyn TextShaper>,
         faces: &[String],
     ) -> Option<PaintPage> {
-        let page = self.doc.pages.get(index)?;
+        let page = self.doc.get(index)?;
         Some(paint_page(page, shaper, faces))
     }
 
@@ -102,7 +102,7 @@ impl LayoutSession {
         self.dpi
     }
 
-    pub fn document(&self) -> &LaidOutDocument {
+    pub fn pages(&self) -> &[Page] {
         &self.doc
     }
 }

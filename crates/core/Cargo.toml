@@ -6,11 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 publish = false
 
-# bin/ 与 examples/ 不在 src/ 下，Cargo 不会自动发现。
-[[bin]]
-name = "render"
-path = "bin/render.rs"
-
+# examples/ 与 tests/ 不在 src/ 下，Cargo 不会自动发现。
 [[example]]
 name = "dump"
 path = "examples/dump.rs"

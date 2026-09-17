@@ -3,6 +3,7 @@ resolver = "3"
 members = [
   "crates/core",
   "crates/gpu",
+  "crates/svg",
   "crates/wasm",
   "crates/cffi",
   "crates/vulkan",
@@ -24,6 +25,7 @@ docx-layout = { path = "/home/zq/coding/docx-layout/crates/docx-layout" }
 docx-layout-contract = { path = "/home/zq/coding/docx-layout/crates/docx-layout-contract" }
 rsword-layout-core = { path = "crates/core" }
 rsword-layout-gpu = { path = "crates/gpu" }
+rsword-layout-svg = { path = "crates/svg" }
 rsword-layout-wasm = { path = "crates/wasm" }
 rsword-layout-cffi = { path = "crates/cffi" }
 serde_json = "1"

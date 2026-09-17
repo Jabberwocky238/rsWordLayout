@@ -349,6 +349,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rsword-layout-svg"
+version = "0.1.0"
+dependencies = [
+ "rsword",
+ "rsword-layout-core",
+ "serde_json",
+]
+
+[[package]]
 name = "rsword-layout-vulkan"
 version = "0.1.0"
 dependencies = [

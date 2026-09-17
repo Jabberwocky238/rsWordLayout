@@ -10,7 +10,7 @@
 //! shaping（连字、kerning、复杂文种重排）属于实现者的职责：它是由字体 GSUB/GPOS 表
 //! 决定的确定性查表，不是布局要解的约束。实现者通常直接转调 HarfBuzz。
 
-use crate::geom::Twips;
+use crate::layout::Twips;
 
 /// 一次度量请求的字体条件。
 ///

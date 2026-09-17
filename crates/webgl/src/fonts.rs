@@ -12,9 +12,9 @@
 //! 字体不编进 wasm，由 JS 运行时 fetch 后交进来（见 `web/public/fonts/README.md`）。
 
 use docx_layout::fontenv::{FontEnvironment, FontEnvironmentBuilder};
-use rsword_layout_core::measure::FontSpec;
-use rsword_layout_core::paint::{ShapedRun, TextShaper};
-use rsword_layout_core::shape::RustybuzzShaper;
+use rsword_layout_core::FontSpec;
+use rsword_layout_core::{ShapedRun, TextShaper};
+use rsword_layout_core::RustybuzzShaper;
 use rsword_layout_gpu::atlas::GlyphKey;
 use rsword_layout_gpu::raster::SkrifaRasterizer;
 use rsword_layout_gpu::{GlyphQuad, GlyphSource};
