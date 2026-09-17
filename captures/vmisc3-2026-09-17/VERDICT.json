@@ -1,0 +1,132 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-vmisc3.md",
+  "clueIndependence": "R1 / R2 的线索取自已见数据，按 §7.5 记为非独立检验",
+  "bundle": "/Users/user/Documents/rsword-captures/vmisc3",
+  "bundleState": "UNDECIDABLE",
+  "coverage": {
+    "wordPagesInSweep": 12,
+    "pdfPages": 12,
+    "sweepPositions": 112,
+    "linesFromSweep": 28
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "R0": {
+      "prediction": "R0 每条基线都在 0.24pt 栅格上",
+      "n": 25,
+      "ok": 25,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "R1": {
+      "prediction": "R1 分节边界那一步比常规多 0.24pt",
+      "n": 1,
+      "ok": 0,
+      "undecidable": 1,
+      "misses": [],
+      "notes": [
+        {
+          "tag": "b",
+          "hasSection": true,
+          "reason": "该组行数不足（可能整页归行判不了）",
+          "行数": 0
+        }
+      ],
+      "verdict": "UNDECIDABLE"
+    },
+    "R2": {
+      "prediction": "R2 exact 首行 − atLeast 首行 = 3 格",
+      "n": 3,
+      "ok": 1,
+      "undecidable": 0,
+      "misses": [
+        {
+          "lineTwips": 460,
+          "atLeast 格": 377,
+          "exact 格": 377,
+          "实测差": 0,
+          "预测": 3
+        },
+        {
+          "lineTwips": 580,
+          "atLeast 格": 402,
+          "exact 格": 397,
+          "实测差": -5,
+          "预测": 3
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    },
+    "R3": {
+      "prediction": "R3 Δ(sc,i) = Δ(100,i) × sc/100",
+      "n": 27,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [
+        {
+          "scale": 66,
+          "i": 0,
+          "实测": 2.3531,
+          "预测": 2.342,
+          "偏离": 0.011146
+        },
+        {
+          "scale": 66,
+          "i": 1,
+          "实测": 7.9684,
+          "预测": 7.9702,
+          "偏离": -0.001814
+        },
+        {
+          "scale": 66,
+          "i": 2,
+          "实测": 5.3557,
+          "预测": 5.3614,
+          "偏离": -0.005702
+        },
+        {
+          "scale": 66,
+          "i": 3,
+          "实测": 4.9244,
+          "预测": 4.9337,
+          "偏离": -0.009331
+        },
+        {
+          "scale": 66,
+          "i": 4,
+          "实测": 5.1235,
+          "预测": 5.1219,
+          "偏离": 0.001555
+        },
+        {
+          "scale": 66,
+          "i": 5,
+          "实测": 5.1069,
+          "预测": 5.1133,
+          "偏离": -0.00648
+        },
+        {
+          "scale": 66,
+          "i": 6,
+          "实测": 3.7051,
+          "预测": 3.7448,
+          "偏离": -0.039658
+        },
+        {
+          "scale": 66,
+          "i": 7,
+          "实测": 3.9954,
+          "预测": 4.0014,
+          "偏离": -0.005962
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    }
+  }
+}

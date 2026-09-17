@@ -1,0 +1,6010 @@
+{
+  "originFrame": "page-top-down, relative to cropBox top-left",
+  "pages": [
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            79.150032,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.150032,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.150032,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.150032,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            86.29979999999999,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            86.29979999999999,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            86.29979999999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              359.5825,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            86.29979999999999,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            72.0,
+            741.12
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            100.79999999999995
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            741.12
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              421
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            100.79999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            79.150032,
+            741.12
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.150032,
+            100.79999999999995
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.150032,
+            741.12
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              421
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.150032,
+            100.79999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            86.871816,
+            741.12
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            86.871816,
+            100.79999999999995
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            86.871816,
+            741.12
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              361.9659,
+              421
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            86.871816,
+            100.79999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            72.0,
+            725.0400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            116.87999999999988
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            725.0400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              354
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            116.87999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            79.150032,
+            725.0400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.150032,
+            116.87999999999988
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.150032,
+            725.0400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              354
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.150032,
+            116.87999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            84.960696,
+            725.0400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            84.960696,
+            116.87999999999988
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            84.960696,
+            725.0400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              354.0029,
+              354
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            84.960696,
+            116.87999999999988
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 0,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": -0.0182,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            79.462368,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.462368,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.462368,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": -0.0182,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.462368,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            86.611824,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            86.611824,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            86.611824,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              360.8826,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            86.611824,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            72.0,
+            741.12
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            100.79999999999995
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            741.12
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              421
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            100.79999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            79.721568,
+            741.12
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.721568,
+            100.79999999999995
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.721568,
+            741.12
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              421
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.721568,
+            100.79999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            72.0,
+            725.0400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            116.87999999999988
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            725.0400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              354
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            116.87999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            79.721568,
+            725.0400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.721568,
+            116.87999999999988
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.721568,
+            725.0400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              354
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.721568,
+            116.87999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.532712,
+            725.0400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.532712,
+            116.87999999999988
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.532712,
+            725.0400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              356.3863,
+              354
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.532712,
+            116.87999999999988
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 1,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": -0.0137,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            77.615568,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            77.615568,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            77.615568,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": -0.0137,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            77.615568,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            84.76562399999999,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            84.76562399999999,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            84.76562399999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              353.1901,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            84.76562399999999,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            72.0,
+            739.6800000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            102.2399999999999
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            739.6800000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              415
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            102.2399999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            77.811264,
+            739.6800000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            77.811264,
+            102.2399999999999
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            77.811264,
+            739.6800000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              415
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            77.811264,
+            102.2399999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.532712,
+            739.6800000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.532712,
+            102.2399999999999
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.532712,
+            739.6800000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              356.3863,
+              415
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.532712,
+            102.2399999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            72.0,
+            722.1600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            119.75999999999988
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            722.1600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              342
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            119.75999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            77.811264,
+            722.1600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            77.811264,
+            119.75999999999988
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            77.811264,
+            722.1600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              342
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            77.811264,
+            119.75999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            83.621568,
+            722.1600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            83.621568,
+            119.75999999999988
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            83.621568,
+            722.1600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              348.4232,
+              342
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            83.621568,
+            119.75999999999988
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 2,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.592,
+          "advanceVector": [
+            7.672319999999999,
+            0.0
+          ],
+          "cid": 100,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.24
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            85.67999999999995
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.24
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "d",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              484
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            85.67999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            79.695648,
+            756.24
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.695648,
+            85.67999999999995
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.695648,
+            756.24
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              484
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.695648,
+            85.67999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            86.845704,
+            756.24
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            86.845704,
+            85.67999999999995
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            86.845704,
+            756.24
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              361.8571,
+              484
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            86.845704,
+            85.67999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.592,
+          "advanceVector": [
+            7.672319999999999,
+            0.0
+          ],
+          "cid": 100,
+          "deviceGlyphOrigin": [
+            72.0,
+            739.2
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            102.71999999999991
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            739.2
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "d",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              413
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            102.71999999999991
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            79.695648,
+            739.2
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.695648,
+            102.71999999999991
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.695648,
+            739.2
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              413
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.695648,
+            102.71999999999991
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            87.41772,
+            739.2
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            87.41772,
+            102.71999999999991
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            87.41772,
+            739.2
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              364.2405,
+              413
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            87.41772,
+            102.71999999999991
+          ]
+        },
+        {
+          "advanceTextSpace": 0.592,
+          "advanceVector": [
+            7.672319999999999,
+            0.0
+          ],
+          "cid": 100,
+          "deviceGlyphOrigin": [
+            72.0,
+            722.1600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            119.75999999999988
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            722.1600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "d",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              342
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            119.75999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            79.695648,
+            722.1600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.695648,
+            119.75999999999988
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.695648,
+            722.1600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0018,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              342
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.695648,
+            119.75999999999988
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.50659999999999,
+            722.1600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.50659999999999,
+            119.75999999999988
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.50659999999999,
+            722.1600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              356.2775,
+              342
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.50659999999999,
+            119.75999999999988
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 3,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.464,
+          "advanceVector": [
+            6.013440000000003,
+            0.0
+          ],
+          "cid": 101,
+          "deviceGlyphOrigin": [
+            72.0,
+            751.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            90.4799999999999
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            751.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "e",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              464
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            90.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            78.031584,
+            751.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            78.031584,
+            90.4799999999999
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            78.031584,
+            751.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              464
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            78.031584,
+            90.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.18188,
+            751.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.18188,
+            90.4799999999999
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.18188,
+            751.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              354.9245,
+              464
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.18188,
+            90.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.464,
+          "advanceVector": [
+            6.013440000000003,
+            0.0
+          ],
+          "cid": 101,
+          "deviceGlyphOrigin": [
+            72.0,
+            728.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            113.51999999999987
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            728.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "e",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              368
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            113.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            78.031584,
+            728.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            78.031584,
+            113.51999999999987
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            78.031584,
+            728.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0014,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              368
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            78.031584,
+            113.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.75392,
+            728.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.75392,
+            113.51999999999987
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.75392,
+            728.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              357.308,
+              368
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.75392,
+            113.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.464,
+          "advanceVector": [
+            6.013440000000003,
+            0.0
+          ],
+          "cid": 101,
+          "deviceGlyphOrigin": [
+            72.0,
+            705.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            136.55999999999995
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            705.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "e",
+          "textState": {
+            "charSpace": -0.0066,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              272
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            136.55999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            77.927904,
+            705.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            77.927904,
+            136.55999999999995
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            77.927904,
+            705.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": -0.0066,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              272
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            77.927904,
+            136.55999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            83.73876,
+            705.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            83.73876,
+            136.55999999999995
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            83.73876,
+            705.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              348.9115,
+              272
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            83.73876,
+            136.55999999999995
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 4,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.333,
+          "advanceVector": [
+            4.31568,
+            0.0
+          ],
+          "cid": 102,
+          "deviceGlyphOrigin": [
+            72.0,
+            751.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            90.4799999999999
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            751.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "f",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              464
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            90.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            76.32864000000001,
+            751.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            76.32864000000001,
+            90.4799999999999
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            76.32864000000001,
+            751.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              464
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            76.32864000000001,
+            90.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            83.47876799999999,
+            751.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            83.47876799999999,
+            90.4799999999999
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            83.47876799999999,
+            751.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              347.8282,
+              464
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            83.47876799999999,
+            90.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.333,
+          "advanceVector": [
+            4.31568,
+            0.0
+          ],
+          "cid": 102,
+          "deviceGlyphOrigin": [
+            72.0,
+            728.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            113.51999999999987
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            728.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "f",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              368
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            113.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            76.32864000000001,
+            728.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            76.32864000000001,
+            113.51999999999987
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            76.32864000000001,
+            728.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              368
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            76.32864000000001,
+            113.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            84.050784,
+            728.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            84.050784,
+            113.51999999999987
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            84.050784,
+            728.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              350.2116,
+              368
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            84.050784,
+            113.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.333,
+          "advanceVector": [
+            4.31568,
+            0.0
+          ],
+          "cid": 102,
+          "deviceGlyphOrigin": [
+            72.0,
+            705.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            136.55999999999995
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            705.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "f",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              272
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            136.55999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            76.32864000000001,
+            705.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            76.32864000000001,
+            136.55999999999995
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            76.32864000000001,
+            705.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              272
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            76.32864000000001,
+            136.55999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            82.13963999999999,
+            705.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            82.13963999999999,
+            136.55999999999995
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            82.13963999999999,
+            705.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              342.2485,
+              272
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            82.13963999999999,
+            136.55999999999995
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 5,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.5630000000000001,
+          "advanceVector": [
+            7.2964800000000025,
+            0.0
+          ],
+          "cid": 103,
+          "deviceGlyphOrigin": [
+            72.0,
+            745.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            96.4799999999999
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            745.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "g",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              439
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            96.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            79.318512,
+            745.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.318512,
+            96.4799999999999
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.318512,
+            745.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              439
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.318512,
+            96.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            86.46875999999999,
+            745.44
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            86.46875999999999,
+            96.4799999999999
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            86.46875999999999,
+            745.44
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              360.2865,
+              439
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            86.46875999999999,
+            96.4799999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.5630000000000001,
+          "advanceVector": [
+            7.2964800000000025,
+            0.0
+          ],
+          "cid": 103,
+          "deviceGlyphOrigin": [
+            72.0,
+            716.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            125.51999999999987
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            716.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "g",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              318
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            125.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            79.318512,
+            716.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.318512,
+            125.51999999999987
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.318512,
+            716.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              318
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.318512,
+            125.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            87.040776,
+            716.4000000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            87.040776,
+            125.51999999999987
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            87.040776,
+            716.4000000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              362.6699,
+              318
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            87.040776,
+            125.51999999999987
+          ]
+        },
+        {
+          "advanceTextSpace": 0.5630000000000001,
+          "advanceVector": [
+            7.2964800000000025,
+            0.0
+          ],
+          "cid": 103,
+          "deviceGlyphOrigin": [
+            72.0,
+            687.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            154.55999999999995
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            687.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "g",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              197
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            154.55999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            79.318512,
+            687.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.318512,
+            154.55999999999995
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.318512,
+            687.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0017,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              197
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.318512,
+            154.55999999999995
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.12963199999999,
+            687.36
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.12963199999999,
+            154.55999999999995
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.12963199999999,
+            687.36
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              354.7068,
+              197
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.12963199999999,
+            154.55999999999995
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 6,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.622,
+          "advanceVector": [
+            8.061120000000003,
+            0.0
+          ],
+          "cid": 104,
+          "deviceGlyphOrigin": [
+            72.0,
+            746.6400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            95.27999999999986
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            746.6400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "h",
+          "textState": {
+            "charSpace": -0.0262,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              444
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            95.27999999999986
+          ]
+        },
+        {
+          "advanceTextSpace": 0.55,
+          "advanceVector": [
+            7.128,
+            0.0
+          ],
+          "cid": 97,
+          "deviceGlyphOrigin": [
+            79.721568,
+            746.6400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            79.721568,
+            95.27999999999986
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            79.721568,
+            746.6400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "a",
+          "textState": {
+            "charSpace": -0.0262,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              444
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            79.721568,
+            95.27999999999986
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            86.871816,
+            746.6400000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            86.871816,
+            95.27999999999986
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            86.871816,
+            746.6400000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              361.9659,
+              444
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            86.871816,
+            95.27999999999986
+          ]
+        },
+        {
+          "advanceTextSpace": 0.622,
+          "advanceVector": [
+            8.061120000000003,
+            0.0
+          ],
+          "cid": 104,
+          "deviceGlyphOrigin": [
+            72.0,
+            717.6
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            124.31999999999994
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            717.6
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "h",
+          "textState": {
+            "charSpace": 0.0019,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              323
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            124.31999999999994
+          ]
+        },
+        {
+          "advanceTextSpace": 0.594,
+          "advanceVector": [
+            7.698239999999998,
+            0.0
+          ],
+          "cid": 98,
+          "deviceGlyphOrigin": [
+            80.085744,
+            717.6
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            80.085744,
+            124.31999999999994
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            80.085744,
+            717.6
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "b",
+          "textState": {
+            "charSpace": 0.0019,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              323
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            80.085744,
+            124.31999999999994
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            87.807864,
+            717.6
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            87.807864,
+            124.31999999999994
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            87.807864,
+            717.6
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              365.8661,
+              323
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            87.807864,
+            124.31999999999994
+          ]
+        },
+        {
+          "advanceTextSpace": 0.622,
+          "advanceVector": [
+            8.061120000000003,
+            0.0
+          ],
+          "cid": 104,
+          "deviceGlyphOrigin": [
+            72.0,
+            688.5600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            153.3599999999999
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            688.5600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "h",
+          "textState": {
+            "charSpace": 0.0019,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              202
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            153.3599999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.447,
+          "advanceVector": [
+            5.793120000000002,
+            0.0
+          ],
+          "cid": 99,
+          "deviceGlyphOrigin": [
+            80.085744,
+            688.5600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            80.085744,
+            153.3599999999999
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            80.085744,
+            688.5600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "c",
+          "textState": {
+            "charSpace": 0.0019,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              202
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            80.085744,
+            153.3599999999999
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            85.89672,
+            688.5600000000001
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            85.89672,
+            153.3599999999999
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            85.89672,
+            688.5600000000001
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              357.903,
+              202
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            85.89672,
+            153.3599999999999
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 7,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.273,
+          "advanceVector": [
+            3.5380799999999937,
+            0.0
+          ],
+          "cid": 105,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "i",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.929,
+          "advanceVector": [
+            12.039839999999998,
+            0.0
+          ],
+          "cid": 109,
+          "deviceGlyphOrigin": [
+            75.54844800000001,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            75.54844800000001,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            75.54844800000001,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "m",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            75.54844800000001,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.625,
+          "advanceVector": [
+            8.099999999999994,
+            0.0
+          ],
+          "cid": 110,
+          "deviceGlyphOrigin": [
+            87.624576,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            87.624576,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            87.624576,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "n",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            87.624576,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.5750000000000001,
+          "advanceVector": [
+            7.451999999999998,
+            0.0
+          ],
+          "cid": 111,
+          "deviceGlyphOrigin": [
+            95.74790399999999,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            95.74790399999999,
+            84.95999999999992
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            95.74790399999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "o",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            95.74790399999999,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.597,
+          "advanceVector": [
+            7.737120000000004,
+            0.0
+          ],
+          "cid": 112,
+          "deviceGlyphOrigin": [
+            103.223232,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            103.223232,
+            84.95999999999992
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            103.223232,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "p",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            103.223232,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.596,
+          "advanceVector": [
+            7.724159999999998,
+            0.0
+          ],
+          "cid": 113,
+          "deviceGlyphOrigin": [
+            110.98367999999999,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            110.98367999999999,
+            84.95999999999992
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            110.98367999999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "q",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            110.98367999999999,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.445,
+          "advanceVector": [
+            5.7672000000000025,
+            0.0
+          ],
+          "cid": 114,
+          "deviceGlyphOrigin": [
+            118.731168,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            118.731168,
+            84.95999999999992
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            118.731168,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "r",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            118.731168,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.466,
+          "advanceVector": [
+            6.039359999999988,
+            0.0
+          ],
+          "cid": 115,
+          "deviceGlyphOrigin": [
+            124.405056,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            124.405056,
+            84.95999999999992
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            124.405056,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "s",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            124.405056,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.46900000000000003,
+          "advanceVector": [
+            6.078239999999994,
+            0.0
+          ],
+          "cid": 116,
+          "deviceGlyphOrigin": [
+            130.46774399999998,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            130.46774399999998,
+            84.95999999999992
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            130.46774399999998,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "t",
+          "textState": {
+            "charSpace": 0.0008,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            130.46774399999998,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.9419200000000103,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            136.57005600000002,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            136.57005600000002,
+            84.95999999999992
+          ],
+          "index": 9,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            136.57005600000002,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              569.0419,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            136.57005600000002,
+            84.95999999999992
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 8,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.251,
+          "advanceVector": [
+            3.903552000000005,
+            0.0
+          ],
+          "cid": 106,
+          "deviceGlyphOrigin": [
+            71.99999999999999,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            71.99999999999999,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            71.99999999999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "j",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            71.99999999999999,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.929,
+          "advanceVector": [
+            14.447807999999995,
+            0.0
+          ],
+          "cid": 109,
+          "deviceGlyphOrigin": [
+            75.91288319999998,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            75.91288319999998,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            75.91288319999998,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "m",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            75.91288319999998,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.625,
+          "advanceVector": [
+            9.719999999999999,
+            0.0
+          ],
+          "cid": 110,
+          "deviceGlyphOrigin": [
+            90.40112639999998,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            90.40112639999998,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            90.40112639999998,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "n",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            90.40112639999998,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.5750000000000001,
+          "advanceVector": [
+            8.942400000000006,
+            0.0
+          ],
+          "cid": 111,
+          "deviceGlyphOrigin": [
+            100.14600959999999,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            100.14600959999999,
+            84.95999999999992
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            100.14600959999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "o",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            100.14600959999999,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.597,
+          "advanceVector": [
+            9.284543999999997,
+            0.0
+          ],
+          "cid": 112,
+          "deviceGlyphOrigin": [
+            109.11329279999998,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            109.11329279999998,
+            84.95999999999992
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            109.11329279999998,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "p",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            109.11329279999998,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.596,
+          "advanceVector": [
+            9.268991999999997,
+            0.0
+          ],
+          "cid": 113,
+          "deviceGlyphOrigin": [
+            118.42271999999997,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            118.42271999999997,
+            84.95999999999992
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            118.42271999999997,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "q",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            118.42271999999997,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.445,
+          "advanceVector": [
+            6.920639999999992,
+            0.0
+          ],
+          "cid": 114,
+          "deviceGlyphOrigin": [
+            127.71659519999997,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            127.71659519999997,
+            84.95999999999992
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            127.71659519999997,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "r",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            127.71659519999997,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.466,
+          "advanceVector": [
+            7.247231999999997,
+            0.0
+          ],
+          "cid": 115,
+          "deviceGlyphOrigin": [
+            134.5532544,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            134.5532544,
+            84.95999999999992
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            134.5532544,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "s",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            134.5532544,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.46900000000000003,
+          "advanceVector": [
+            7.29388800000001,
+            0.0
+          ],
+          "cid": 116,
+          "deviceGlyphOrigin": [
+            141.8253696,
+            756.96
+          ],
+          "effectiveSizePt": 15.552,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            141.8253696,
+            84.95999999999992
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            15.552,
+            0.0,
+            0.0,
+            12.959999999999999,
+            141.8253696,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "t",
+          "textState": {
+            "charSpace": 0.0006,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            141.8253696,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.9419200000000103,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            149.141112,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            149.141112,
+            84.95999999999992
+          ],
+          "index": 9,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            149.141112,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              621.4213,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            149.141112,
+            84.95999999999992
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 9,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.515,
+          "advanceVector": [
+            12.013919999999999,
+            0.0
+          ],
+          "cid": 107,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "k",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.929,
+          "advanceVector": [
+            21.671712,
+            0.0
+          ],
+          "cid": 109,
+          "deviceGlyphOrigin": [
+            84.037248,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            84.037248,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            84.037248,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "m",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            84.037248,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.625,
+          "advanceVector": [
+            14.579999999999998,
+            0.0
+          ],
+          "cid": 110,
+          "deviceGlyphOrigin": [
+            105.755616,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            105.755616,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            105.755616,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "n",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            105.755616,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.5750000000000001,
+          "advanceVector": [
+            13.413600000000002,
+            0.0
+          ],
+          "cid": 111,
+          "deviceGlyphOrigin": [
+            120.35894400000001,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            120.35894400000001,
+            84.95999999999992
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            120.35894400000001,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "o",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            120.35894400000001,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.597,
+          "advanceVector": [
+            13.926816000000002,
+            0.0
+          ],
+          "cid": 112,
+          "deviceGlyphOrigin": [
+            133.795872,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            133.795872,
+            84.95999999999992
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            133.795872,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "p",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            133.795872,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.596,
+          "advanceVector": [
+            13.90348800000001,
+            0.0
+          ],
+          "cid": 113,
+          "deviceGlyphOrigin": [
+            147.769344,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            147.769344,
+            84.95999999999992
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            147.769344,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "q",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            147.769344,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.445,
+          "advanceVector": [
+            10.380959999999988,
+            0.0
+          ],
+          "cid": 114,
+          "deviceGlyphOrigin": [
+            161.69616,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            161.69616,
+            84.95999999999992
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            161.69616,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "r",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            161.69616,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.466,
+          "advanceVector": [
+            10.870847999999995,
+            0.0
+          ],
+          "cid": 115,
+          "deviceGlyphOrigin": [
+            171.983808,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            171.983808,
+            84.95999999999992
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            171.983808,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "s",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            171.983808,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.46900000000000003,
+          "advanceVector": [
+            10.940832,
+            0.0
+          ],
+          "cid": 116,
+          "deviceGlyphOrigin": [
+            182.87798400000003,
+            756.96
+          ],
+          "effectiveSizePt": 23.328,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            182.87798400000003,
+            84.95999999999992
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            23.328,
+            0.0,
+            0.0,
+            12.959999999999999,
+            182.87798400000003,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "t",
+          "textState": {
+            "charSpace": 0.001,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            182.87798400000003,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.9419200000000103,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            193.86084,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            193.86084,
+            84.95999999999992
+          ],
+          "index": 9,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            193.86084,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              807.7535,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            193.86084,
+            84.95999999999992
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 10,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    },
+    {
+      "cropBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "glyphs": [
+        {
+          "advanceTextSpace": 0.275,
+          "advanceVector": [
+            2.280959999999993,
+            0.0
+          ],
+          "cid": 108,
+          "deviceGlyphOrigin": [
+            72.0,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            72.0,
+            84.95999999999992
+          ],
+          "index": 0,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            72.0,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "l",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            72.0,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.929,
+          "advanceVector": [
+            7.705497600000001,
+            0.0
+          ],
+          "cid": 109,
+          "deviceGlyphOrigin": [
+            74.35312128,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            74.35312128,
+            84.95999999999992
+          ],
+          "index": 1,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            74.35312128,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "m",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            74.35312128,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.625,
+          "advanceVector": [
+            5.1839999999999975,
+            0.0
+          ],
+          "cid": 110,
+          "deviceGlyphOrigin": [
+            82.32155136,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            82.32155136,
+            84.95999999999992
+          ],
+          "index": 2,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            82.32155136,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "n",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            82.32155136,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.5750000000000001,
+          "advanceVector": [
+            4.769279999999995,
+            0.0
+          ],
+          "cid": 111,
+          "deviceGlyphOrigin": [
+            87.67724544,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            87.67724544,
+            84.95999999999992
+          ],
+          "index": 3,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            87.67724544,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "o",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            87.67724544,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.597,
+          "advanceVector": [
+            4.951756799999998,
+            0.0
+          ],
+          "cid": 112,
+          "deviceGlyphOrigin": [
+            92.60163072,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            92.60163072,
+            84.95999999999992
+          ],
+          "index": 4,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            92.60163072,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "p",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            92.60163072,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.596,
+          "advanceVector": [
+            4.943462400000001,
+            0.0
+          ],
+          "cid": 113,
+          "deviceGlyphOrigin": [
+            97.7250816,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            97.7250816,
+            84.95999999999992
+          ],
+          "index": 5,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            97.7250816,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "q",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            97.7250816,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.445,
+          "advanceVector": [
+            3.6910079999999965,
+            0.0
+          ],
+          "cid": 114,
+          "deviceGlyphOrigin": [
+            102.83194368,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            102.83194368,
+            84.95999999999992
+          ],
+          "index": 6,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            102.83194368,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "r",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            102.83194368,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.466,
+          "advanceVector": [
+            3.865190400000003,
+            0.0
+          ],
+          "cid": 115,
+          "deviceGlyphOrigin": [
+            106.53705216,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            106.53705216,
+            84.95999999999992
+          ],
+          "index": 7,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            106.53705216,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "s",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            106.53705216,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.46900000000000003,
+          "advanceVector": [
+            3.890073599999994,
+            0.0
+          ],
+          "cid": 116,
+          "deviceGlyphOrigin": [
+            110.53246464,
+            756.96
+          ],
+          "effectiveSizePt": 8.2944,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            110.53246464,
+            84.95999999999992
+          ],
+          "index": 8,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            8.2944,
+            0.0,
+            0.0,
+            12.959999999999999,
+            110.53246464,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": "t",
+          "textState": {
+            "charSpace": 0.0087,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              300,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            110.53246464,
+            84.95999999999992
+          ]
+        },
+        {
+          "advanceTextSpace": 0.227,
+          "advanceVector": [
+            2.941919999999996,
+            0.0
+          ],
+          "cid": 32,
+          "deviceGlyphOrigin": [
+            114.54784799999999,
+            756.96
+          ],
+          "effectiveSizePt": 12.959999999999999,
+          "fontName": "AAAAAB+Luminari-Regular",
+          "fontSize": 1,
+          "geometryStatus": "RAW_HORIZONTAL",
+          "glyphOrigin": [
+            114.54784799999999,
+            84.95999999999992
+          ],
+          "index": 9,
+          "lineBaseline": null,
+          "lineMeasurementStatus": "UNMEASURABLE",
+          "matrix": [
+            12.959999999999999,
+            0.0,
+            0.0,
+            12.959999999999999,
+            114.54784799999999,
+            756.96
+          ],
+          "rise": 0,
+          "scaling": 1.0,
+          "text": " ",
+          "textState": {
+            "charSpace": 0,
+            "textMatrix": [
+              54,
+              0,
+              0,
+              54,
+              477.2827,
+              487
+            ],
+            "wordSpace": 0
+          },
+          "textStatus": "mapped",
+          "unraisedOrigin": [
+            114.54784799999999,
+            84.95999999999992
+          ]
+        }
+      ],
+      "height": 841.92,
+      "index": 11,
+      "mediaBox": [
+        0,
+        0,
+        595.2,
+        841.92
+      ],
+      "pageMatrix": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rotation": 0,
+      "width": 595.2
+    }
+  ],
+  "schema": "rsword-layout-pdf-glyphs/1",
+  "sourceSha256": "c561f0c25b453750772bfd86b5d8dc211b9e60e17bcb9127360fb83fd66adb6a",
+  "status": "UNCALIBRATED",
+  "tool": {
+    "name": "wordmeasure.pdfglyphs",
+    "pdfminer.six": "20231228"
+  },
+  "unit": "pt"
+}
