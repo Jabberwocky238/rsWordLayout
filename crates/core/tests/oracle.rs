@@ -17,6 +17,7 @@ fn record() -> LayoutRecord {
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
             placeholders: Vec::new(),
+        rise: 0,
         }],
         align: Align::Left,
         ..Para::default()
@@ -97,6 +98,7 @@ fn source_ranges_cover_the_line_in_reading_order() {
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
             placeholders: Vec::new(),
+        rise: 0,
         }],
         ..Para::default()
     };

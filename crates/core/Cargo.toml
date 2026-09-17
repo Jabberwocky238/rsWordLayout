@@ -49,6 +49,10 @@ name = "slots"
 path = "tests/slots.rs"
 
 [[test]]
+name = "vertical_align"
+path = "tests/vertical_align.rs"
+
+[[test]]
 name = "line_records"
 path = "tests/line_records.rs"
 

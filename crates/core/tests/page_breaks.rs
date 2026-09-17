@@ -20,6 +20,7 @@ fn run(text: &str, placeholders: &[PlaceholderKind]) -> Run {
         font: FontSpec::new("Test", 24),
         color: Color::BLACK,
         placeholders: placeholders.to_vec(),
+        rise: 0,
     }
 }
 

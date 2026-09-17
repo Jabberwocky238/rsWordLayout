@@ -757,6 +757,9 @@ pub struct TextFragment {
     /// 比较器按读序配对，需要它把字形对回源字符。`None` 表示引擎未能确定，
     /// 比较器据此报「判不了」而不是猜一个区间。
     pub source: Option<(u32, u32)>,
+    /// 基线抬升，twips，正值向上。`baseline_y` 已经减去过它；
+    /// 单独留着是为了让下游能分辨「这行基线在这里」与「这段被抬高了」。
+    pub rise: Twips,
     /// 本片段属于本页第几行，从 0 计。
     ///
     /// **一行可能有多个片段**（换字体、上标、分页符都会把行切开），而绘制指令是
@@ -890,6 +893,15 @@ pub struct Run {
     /// 长度与 `text` 里的占位符个数对不上时，桥接层应当整体退回 [`PlaceholderKind::Object`]
     /// ——那是保守方向：不会凭空造出分页。
     pub placeholders: Vec<PlaceholderKind>,
+    /// 基线抬升，twips，**正值向上**。
+    ///
+    /// 两个来源：`w:vertAlign`（上下标，同时缩小字号——那部分反映在
+    /// [`FontSpec::size_half_points`] 里）与 `w:position`（只抬升，不改字号）。
+    ///
+    /// 挂在 run 上而不是 `FontSpec` 上，是因为它**不影响度量**：
+    /// 抬升不改变推进量，只改变落笔的 y。放进 FontSpec 会让度量缓存按它分桶，
+    /// 白白多出一倍的键。
+    pub rise: Twips,
 }
 
 /// run 文本里一个 [`OBJECT_PLACEHOLDER`] 代表什么。
@@ -946,6 +958,8 @@ struct LinePiece {
     text: String,
     font: FontSpec,
     color: Color,
+    /// 基线抬升，twips，正值向上。见 [`Run::rise`]。
+    rise: Twips,
     /// 源字符区间，UTF-16 单位、相对所在段落。
     ///
     /// 断行是唯一知道「切在第几个字符」的地方，所以必须在这里记下；
@@ -1148,13 +1162,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             };
             page.fragments.push(Fragment::Text(TextFragment {
                 x,
-                baseline_y,
+                // 抬升是**向上**的，而页内 y 向下增长，所以要减。
+                baseline_y: baseline_y - p.rise,
                 text: p.text.clone(),
                 font: p.font.clone(),
                 color: p.color,
                 source_node: para.source_node,
                 source: Some(p.source),
                 terminator,
+                rise: p.rise,
                 line: line_index,
             }));
         }
@@ -1178,6 +1194,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 source_node: para.source_node,
                 source: Some((line.source_start, line.source_start)),
                 terminator: if line.is_last { para.terminator } else { crate::oracle::LineTerminator::Wrapped },
+                rise: 0,
                 line: line_index,
             }));
         }
@@ -1327,6 +1344,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         text: rest.to_string(),
                         font: run.font.clone(),
                         color: run.color,
+                        rise: run.rise,
                         source: (consumed, consumed + n),
                     });
                     consumed += n;
@@ -1347,6 +1365,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             text: piece.to_string(),
                             font: run.font.clone(),
                             color: run.color,
+                            rise: run.rise,
                             source: (consumed, consumed + n),
                         });
                         consumed += n;
@@ -1374,6 +1393,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 text: rest[..n].to_string(),
                                 font: run.font.clone(),
                                 color: run.color,
+                                rise: run.rise,
                                 source: (consumed, consumed + u16n),
                             });
                             consumed += u16n;

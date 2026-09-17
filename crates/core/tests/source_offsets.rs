@@ -20,6 +20,7 @@ fn para(text: &str) -> Para {
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
             placeholders: Vec::new(),
+        rise: 0,
         }],
         ..Para::default()
     }

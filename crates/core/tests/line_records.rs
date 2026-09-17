@@ -21,6 +21,7 @@ fn run(text: &str, family: &str) -> Run {
         font: FontSpec::new(family, 24),
         color: Color::BLACK,
         placeholders: Vec::new(),
+        rise: 0,
     }
 }
 
@@ -96,6 +97,7 @@ fn a_lone_page_break_gets_its_own_line_record() {
             font: FontSpec::new("A", 24),
             color: Color::BLACK,
             placeholders: vec![PlaceholderKind::PageBreak],
+        rise: 0,
         }],
         ..Para::default()
     };
