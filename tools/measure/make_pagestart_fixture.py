@@ -28,17 +28,24 @@ from pathlib import Path
 
 from make_probe_fixture import W, R, para, run, sect_pr
 from prereg_probe import hhea, natural_pt
+from wordmeasure.fontcover import assert_can_draw
 
 FONT_DIR = "/System/Library/Fonts/Supplemental/"
 # 族名是 Word 自己列出来的那个；与前五批无一重合。
 FONTS = {
     "Brush Script MT": FONT_DIR + "Brush Script.ttf",     # upem 2048
     "Khmer Sangam MN": FONT_DIR + "Khmer Sangam MN.ttf",  # upem 2048, **gap 380**
-    "Kokonor": FONT_DIR + "Kokonor.ttf",                  # upem **2600**, gap 42
     "Silom": FONT_DIR + "Silom.ttf",                      # upem 1000
-    "Gurmukhi MN": FONT_DIR + "Gurmukhi.ttf",             # upem 2048
     "Lao Sangam MN": FONT_DIR + "Lao Sangam MN.ttf",      # upem 2048
+    # 下面两个替掉了 Kokonor 与 Gurmukhi MN：那两个**没有拉丁字形**，
+    # 标签被 Word 用 Cambria 代画，整批读数作废（见
+    # `captures/page-start-2026-09-17-void/`）。现在由 `assert_can_draw` 守着。
+    "AppleMyungjo": FONT_DIR + "AppleMyungjo.ttf",        # upem **1025**（罕见）
+    "Arial Unicode MS": FONT_DIR + "Arial Unicode.ttf",   # upem 2048
 }
+
+# 标签只用这些字符；字体画不出就别放进夹具。
+LABEL_CHARS = "abcdefghijklmnopqr0123456789"
 SIZES_HALF_POINTS = [58, 66, 70]        # 29 / 33 / 35 pt，前五批都没用过
 CONTENT_HEIGHT_PT = 841.89 - 144.0
 TAIL_LINES = 3                          # 第 2 页至少要有这么多行
@@ -54,6 +61,8 @@ def lines_needed(family: str, size_pt: float) -> int:
 
 
 def build_body() -> tuple[str, list[dict]]:
+    # 守门：画不出标签就直接报错，别等采完才发现整批作废。
+    assert_can_draw(FONTS, LABEL_CHARS)
     parts: list[str] = []
     probes: list[dict] = []
     tags = "abcdefghijklmnopqr"

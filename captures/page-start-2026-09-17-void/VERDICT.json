@@ -1,0 +1,26 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-page-start.md",
+  "clueIndependence": "线索独立于已见读数（判据文 §0）",
+  "bundle": "/Users/user/Documents/rsword-captures/page-start",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 33,
+    "pdfPages": 33,
+    "sweepPositions": 1228,
+    "linesFromSweep": 307
+  },
+  "lineDenominators": {
+    "lines": 307,
+    "ok": 307,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [
+    {
+      "id": "F-B",
+      "detail": "字体核查 'SUBSTITUTION_SUSPECTED'，账外字体=['AAAAAI+Cambria', 'AAAAAL+Cambria', 'AAAAAO+Cambria']"
+    }
+  ],
+  "verdict": "VOID"
+}

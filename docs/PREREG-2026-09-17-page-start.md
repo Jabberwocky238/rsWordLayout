@@ -3,7 +3,8 @@
 **本文在采集之前写死并提交。** 采集后只允许追加「结论」一节（量具方法 §7.1）。
 
 夹具：`fixtures/page-start.docx`，sha256
-`78550ef10f3c6db982cdc3f8a617df49f04a42ff0418c73a7ec601511978f72a`
+`e9c933739fd462eb8b440438fe93a1323d6220f6c1e8c5caf8b36a4c2905dcb1`
+（第一版 `78550ef1…` 采集后作废，见 §7.1）
 判据的可执行形式：`tools/measure/prereg_pagestart.py`（与本文同一次提交）。
 
 ## 0 为什么要这一份
@@ -47,9 +48,9 @@
 
 **判为假**：任何一条基线不是 0.24pt 的整数倍。分母 = 采集到的全部基线。
 
-六个族（Brush Script MT / Khmer Sangam MN / Kokonor / Silom / Gurmukhi MN /
-Lao Sangam MN）与前五批无一重合，`upem` 含 **2600**（Kokonor），
-`lineGap` 含 **380**（Khmer Sangam MN）。这是第**六**次独立检验。
+六个族（Brush Script MT / Khmer Sangam MN / Silom / Lao Sangam MN /
+AppleMyungjo / Arial Unicode MS）与前五批无一重合，`upem` 含 **1025**
+（AppleMyungjo），`lineGap` 含 **380**（Khmer Sangam MN）。这是第**六**次独立检验。
 
 ### P1 — 起页方式不影响首行基线（**本批的点预测**）
 
@@ -92,7 +93,27 @@ Lao Sangam MN）与前五批无一重合，`upem` 含 **2600**（Kokonor），
 
 - **Mac**，Word for Mac，**兼容性模式**。
 - 字体族用 Word 自己列出来的名字：`Brush Script MT` / `Khmer Sangam MN` /
-  `Kokonor` / `Silom` / `Gurmukhi MN` / `Lao Sangam MN`。
+  `Silom` / `Lao Sangam MN` / `AppleMyungjo` / `Arial Unicode MS`。
+
+## 7.1 夹具的修订（**第一次采集之后**）
+
+第一次采集判 **VOID**，触发 F-B：PDF 里出现 **Cambria**，一个没申请的字体。
+
+**这次是真的字体替换。** Kokonor 与 Gurmukhi MN 没有拉丁字形（读 `cmap`：
+Kokonor 缺全部数字与字母，Gurmukhi MN 缺全部字母），标签被 Word 用 Cambria
+代画。那几组根本不是用申请的字体排的。
+
+作废是**对的**，不是误报。随后两处改动：
+
+1. 夹具换掉那两个族（改用 `AppleMyungjo` upem 1025、`Arial Unicode MS`），
+   sha256 随之更新；
+2. 把这道关**前移到生成夹具时**：`wordmeasure/fontcover.py` 的 `assert_can_draw`
+   读 `cmap` 核对标签字符，画不出就直接报错。画不出标签是生成时就能查的事，
+   不该等采完才发现整批作废。
+
+**P0 / P1、容差、分母、排除项、其余证否条件一个字未动。** 作废时判据脚本在算
+P0/P1 之前就短路，`VERDICT.json` 的 `predictions` 是空的——关于本批预测的数字，
+一个都没产生过。可核：`captures/page-start-2026-09-17-void/`。
 
 ## 8 结论
 
