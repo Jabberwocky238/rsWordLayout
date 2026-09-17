@@ -77,13 +77,22 @@ fn half_points_to_twips_signed(half_points: i64) -> Twips {
     (half_points * 10) as Twips
 }
 
-/// 从一个 run 的 `props` 读出影响度量的字段，叠在段落基准之上。
-fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
-    let size = props
+/// run 自己的 `w:sz`，没有就落回段落基准。
+///
+/// 单独拎出来，是因为**字号与抬升必须来自同一个数**。它们曾经不是：字号走
+/// 这一条、抬升走段落基准，于是 run 上的 `w:sz` 一旦与段落不同，
+/// 上下标就缩得对、挪得不对——10pt / 12pt / 18pt 三个字号抬升全是 4.05pt。
+fn run_size(props: &Value, base_size: u32) -> u32 {
+    props
         .get("size")
         .and_then(Value::as_u64)
         .map(|v| v as u32)
-        .unwrap_or(base_size);
+        .unwrap_or(base_size)
+}
+
+/// 从一个 run 的 `props` 读出影响度量的字段，叠在段落基准之上。
+fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
+    let size = run_size(props, base_size);
     // 上下标要缩小字号——这一步必须在这里做，因为字号影响度量，
     // 而抬升不影响（抬升挂在 `Run::rise` 上）。
     let (size, _) = vertical_run_shape(props, size);
@@ -226,7 +235,8 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
                         font: run_font(&props, base_size, base_bold),
                         color: Color::BLACK,
                         placeholders: run_placeholders(inlines, t),
-                        rise: vertical_run_shape(&props, base_size).1,
+                        // 与 `run_font` 取同一个字号——见 `run_size` 的说明。
+                        rise: vertical_run_shape(&props, run_size(&props, base_size)).1,
                     });
                 }
             } else if kind == "field" {

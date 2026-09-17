@@ -137,3 +137,63 @@ fn rise_does_not_change_the_advance() {
     };
     assert_eq!(xs(&flat), xs(&lifted), "抬升不该影响横向位置");
 }
+
+/// run 自己的 `w:sz` 与段落基准不同时，**字号与抬升必须来自同一个数**。
+///
+/// 这条是量具量出来的。`tools/measure/prereg_probe.py` 对 10 / 12 / 18pt 三个
+/// 字号读引擎轨迹，字号缩放对（20 / 24 / 36 半点 → 13 / 16 / 24），抬升却
+/// **恒定 4.05pt**——三个字号一模一样。
+///
+/// 原因是 `bridge.rs` 里两处取了不同的数：`run_font` 用 run 自己的 `w:sz`，
+/// 而 `Run::rise` 用段落基准。段落基准恰好是 12pt，所以 12pt 那一档看着是对的，
+/// 上下都错。**本文件原有的用例全都让 run 与段落同号**，所以一条也照不出来——
+/// 检验实例必须在被判的那一层上与设计实例不同（量具方法 §7.2）。
+#[test]
+fn rise_scales_with_the_runs_own_size_not_the_paragraph_base() {
+    // 段落基准是 24 半点（12pt）：前一个 run 不带 size，走默认。
+    for (half_points, want_sup, want_sub) in [(20u32, 68i32, -16i32), (24, 81, -19), (36, 122, -28)]
+    {
+        let sup = runs(&paint_with_props(
+            "x",
+            json!({"size": half_points, "vertAlign": "superscript"}),
+        ));
+        let sub = runs(&paint_with_props(
+            "x",
+            json!({"size": half_points, "vertAlign": "subscript"}),
+        ));
+        // [0] 是基准 run（12pt，无抬升），[1] 是带 vertAlign 的那个。
+        let base_y = sup[0].0;
+        assert_eq!(
+            base_y - sup[1].0,
+            want_sup,
+            "{half_points} 半点的上标抬升不对——抬升没跟着 run 自己的字号走"
+        );
+        assert_eq!(
+            base_y - sub[1].0,
+            want_sub,
+            "{half_points} 半点的下标下沉不对——下沉没跟着 run 自己的字号走"
+        );
+    }
+}
+
+/// 自证上面那条有鉴别力：三个字号的抬升必须**两两不等**。
+///
+/// 若哪天常数改成与字号无关，上面那条会因为期望值也被一起改而继续通过；
+/// 这一条盯的是「它到底有没有随字号变」，不依赖具体数值。
+#[test]
+fn the_three_sizes_give_three_different_rises() {
+    let rises: Vec<i32> = [20u32, 24, 36]
+        .iter()
+        .map(|&hp| {
+            let r = runs(&paint_with_props(
+                "x",
+                json!({"size": hp, "vertAlign": "superscript"}),
+            ));
+            r[0].0 - r[1].0
+        })
+        .collect();
+    assert!(
+        rises[0] != rises[1] && rises[1] != rises[2] && rises[0] != rises[2],
+        "三个字号给出同一个抬升 {rises:?}——这组输入照不出「抬升不随字号变」"
+    );
+}
