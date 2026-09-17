@@ -49,6 +49,10 @@ name = "slots"
 path = "tests/slots.rs"
 
 [[test]]
+name = "placeholder"
+path = "tests/placeholder.rs"
+
+[[test]]
 name = "source_offsets"
 path = "tests/source_offsets.rs"
 

@@ -1143,7 +1143,24 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut line_avail = (span.width() - if first_line { para.indent_first_line } else { 0 }).max(1);
 
         for run in &para.runs {
-            let mut rest: &str = &run.text;
+            // rsword 为每个 `w:br` 在 run 文本里放一个 U+FFFC（对象替换符）。
+            // 它是**控制字符，不是文字**：占 1 个源字符位（Word 的 `Range` 数它），
+            // 但既不成字形也不占宽度——Word 导出的 PDF 里一个都没有。
+            //
+            // 不切掉的后果是实测过的：它会被整形器当普通字符画出来，
+            // 12pt 字号下 advance 12.0pt，其后整行字形集体右移；
+            // 一份 11 页夹具上 8 次共凭空占掉 96pt。
+            //
+            // 在这里切而不是在绘制层滤，是因为**断行也不能算它的宽度**：
+            // 只在绘制层滤，行宽照样是错的，而那种错在轨迹里看不出来。
+            // 占位符可能夹在文字中间（实测 `'分页符之前￼分页符之后'`），所以按它切段。
+            for (part_index, part) in run.text.split(OBJECT_PLACEHOLDER).enumerate() {
+                if part_index > 0 {
+                    // 不是第一段 ⇒ 前面刚跨过一个占位符：源游标要走 1 个 UTF-16 单位，
+                    // 但不产生片段、不占宽度。
+                    consumed += 1;
+                }
+            let mut rest: &str = part;
             while !rest.is_empty() {
                 let remain = (line_avail - cur_w).max(0);
                 let m_all = self.metrics.measure(rest, &run.font);
@@ -1236,6 +1253,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 span = self.pick_span(para, area, cur_y, h.max(probe_h));
                 line_avail = span.width().max(1);
             }
+            }
         }
 
         // 末行。
@@ -1290,6 +1308,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
 /// 字体标识，与 `docx_layout::fontenv` 的 `FaceId::sha256()` 对齐。
 pub type FaceId = String;
+
+/// 对象替换符 U+FFFC。
+///
+/// rsword 用它在 run 文本里为 `w:br` 与行内对象占位。**它是控制字符，不是文字**：
+/// 占 1 个源字符位（Word 的 `Range` 数它），但不成字形、不占宽度——
+/// 量具方法 §4 对行内对象的实测也是「`Range.Text` 里 1 个占位字符，PDF 里 0 个字形」。
+pub const OBJECT_PLACEHOLDER: char = '\u{FFFC}';
 
 /// 文字整形：把一段文字变成字形序列。
 ///

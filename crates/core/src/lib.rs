@@ -32,7 +32,10 @@ pub use layout::{Span, WrapContext, WrapRegion, WrapSide};
 pub use layout::{Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para, Run, TextFragment};
 
 // ---- 绘制指令：布局产物 → 画布 ----
-pub use layout::{FaceId, PaintList, PaintPage, ShapedRun, TextShaper, paint_document, paint_page};
+pub use layout::{
+    FaceId, OBJECT_PLACEHOLDER, PaintList, PaintPage, ShapedRun, TextShaper, paint_document,
+    paint_page,
+};
 
 // ---- 比较器输入契约：与真实 Word 逐字形比对 ----
 pub use oracle::{
