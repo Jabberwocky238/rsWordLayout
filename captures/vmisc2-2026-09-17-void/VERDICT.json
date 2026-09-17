@@ -1,0 +1,20 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-vmisc2.md",
+  "clueIndependence": "Q1 的半数进位方向取自 vmisc 的读数，按 §7.5 记为线索不独立",
+  "bundle": "/Users/user/Documents/rsword-captures/vmisc2",
+  "bundleState": "UNDECIDABLE",
+  "coverage": {
+    "wordPagesInSweep": 11,
+    "pdfPages": 11,
+    "sweepPositions": 89,
+    "linesFromSweep": 14
+  },
+  "falsifiers": [
+    {
+      "id": "F-B",
+      "detail": "字体核查 'SUBSTITUTION_SUSPECTED'，账外字体=['AAAAAI+TimesNewRomanPSMT']"
+    }
+  ],
+  "verdict": "VOID"
+}
