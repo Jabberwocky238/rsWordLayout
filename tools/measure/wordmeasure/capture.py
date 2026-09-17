@@ -25,7 +25,7 @@ import shutil
 import time
 from pathlib import Path
 
-from . import fingerprint, pdfglyphs, preflight
+from . import docxtext, fingerprint, pdfglyphs, preflight
 from .applescript import literal, tell_word
 
 # §2.2：导出参数向量逐位显式。Mac 没有 XPS，只有 save as + format PDF（§6.6）。
@@ -283,8 +283,26 @@ def capture(
     end_of_content = int(head.strip())
     sweep_rows = _decode_rows(body)
 
+    # 从 `document.xml` 推出逐字符的构造标注，**并用采集侧的独立读数核过**（§6.4）。
+    #
+    # 没有它，`counting` 只能按字符猜，而 `\x0c` 在 `Range.Text` 里
+    # **分节符与手动分页符同形**——猜不出来就只能报判不了，整页归行跟着废掉。
+    # vmisc2 的分页符三页、vmisc3 的分节页，全是这么丢的。
+    #
+    # 核不过就**不写**：拿一份对不上的推导去算计数，只会得到看着像对的错答案。
+    derived = docxtext.content_text(docx)
+    marks_check = docxtext.verify(
+        derived, end_of_content=end_of_content,
+        paragraphs=[{"index": i, "start": s0, "end": e0}
+                    for i, (s0, e0) in enumerate(paragraphs)],
+    )
+    marks = ({str(k): v for k, v in derived["marks"].items()}
+             if marks_check["state"] == "OK" else None)
+
     sweep = {
         "schema": "rsword-layout-line-sweep/1",
+        "marks": marks,
+        "marksCheck": marks_check,
         "platform": "mac",
         "source": "AppleScript get range information; "
                   "information type = first character line number / active end page number",
