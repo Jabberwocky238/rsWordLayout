@@ -27,6 +27,13 @@ pub struct FontSpec {
     pub letter_spacing: Twips,
     /// `w:w`：横向缩放百分比，100 为原始。
     pub scale_pct: u32,
+    /// 是否启用字距调整（GPOS `kern`）。
+    ///
+    /// **默认关**，这不是保守取值，是 OOXML 的语义：`w:kern` 给的是「字号大到多少才启用
+    /// 字距调整」，不写或写 0 就是**不调整**。实测对得上——一份 Liberation Serif 的夹具里
+    /// `B11` 的两个 `1` 之间有一对 kern，rustybuzz 默认会用上，而 Word **没有用**，
+    /// 于是该行从第二个字形起整体偏了 0.45pt。
+    pub kerning: bool,
 }
 
 impl FontSpec {
@@ -39,6 +46,7 @@ impl FontSpec {
             italic: false,
             letter_spacing: 0,
             scale_pct: 100,
+            kerning: false,
         }
     }
 }
@@ -77,6 +85,23 @@ pub struct BreakOpportunity {
     pub hyphen: bool,
 }
 
+/// 一个已定位的字形：它覆盖哪些源字符、落在串内什么位置。
+///
+/// 存在的理由是**一字符一字形不成立**：连字把多个字符并成一个字形，
+/// kerning 又让相邻字形的间距取决于两边是谁。所以位置不能由调用方拿前缀宽度自己拼，
+/// 必须由度量实现给——它才知道 shaper 干了什么。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(C)]
+pub struct GlyphPosition {
+    /// 覆盖的源字符区间，**字节偏移**，相对本次请求的 `text`。
+    pub start: usize,
+    pub end: usize,
+    /// 相对串首的 x 偏移。
+    pub x: Twips,
+    /// 本字形的推进量。
+    pub advance: Twips,
+}
+
 /// 度量提供者。
 ///
 /// 实现者需保证**同一输入给出同一输出**：布局会对同一段文字反复试宽（断行二分），
@@ -110,5 +135,32 @@ pub trait FontMetrics {
     /// 空行高度：没有任何文字时，行高取决于段落标记的字体。
     fn empty_line_metrics(&self, font: &FontSpec) -> TextMetrics {
         self.measure("", font)
+    }
+
+    /// 逐字形的位置与推进量。
+    ///
+    /// 默认实现按**前缀推进量**算，一字符一字形：第 i 个字符的 x = `measure(text[..i]).advance`。
+    /// 这对「前缀可加」的度量是准确的（[`crate::simple_metrics::SimpleMetrics`] 属于此类）。
+    ///
+    /// **做 shaping 的实现必须覆盖它。** kerning 跨字符边界——单独量 `"A"` 没有 kern，
+    /// 量 `"AB"` 时 A 的推进量会被 GPOS 调整，于是前缀和不再等于逐字形推进；
+    /// 连字更直接：`f` + `i` 并成一个字形，字符数与字形数就对不上了。
+    fn glyph_positions(&self, text: &str, font: &FontSpec) -> Vec<GlyphPosition> {
+        let mut out = Vec::new();
+        let mut prev_x = 0;
+        let mut prev_start: Option<usize> = None;
+        for (i, _) in text.char_indices() {
+            let x = self.measure(&text[..i], font).advance;
+            if let Some(start) = prev_start {
+                out.push(GlyphPosition { start, end: i, x: prev_x, advance: x - prev_x });
+            }
+            prev_start = Some(i);
+            prev_x = x;
+        }
+        if let Some(start) = prev_start {
+            let total = self.measure(text, font).advance;
+            out.push(GlyphPosition { start, end: text.len(), x: prev_x, advance: total - prev_x });
+        }
+        out
     }
 }

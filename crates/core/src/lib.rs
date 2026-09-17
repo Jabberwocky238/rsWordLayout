@@ -8,11 +8,19 @@ pub mod canvas;
 pub mod engine;
 pub mod fragment;
 pub mod geom;
+pub mod linebreak;
 pub mod measure;
 pub mod paint;
 pub mod simple_metrics;
 pub mod svg;
 pub mod trace;
+
+#[cfg(feature = "shape")]
+pub mod font_metrics;
+
+// 从磁盘装字体要 std 的文件系统，wasm 目标上没有。
+#[cfg(all(feature = "shape", not(target_arch = "wasm32")))]
+pub mod fontload;
 
 #[cfg(feature = "shape")]
 pub mod shape;

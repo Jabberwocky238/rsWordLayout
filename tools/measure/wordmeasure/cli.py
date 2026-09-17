@@ -210,6 +210,7 @@ def cmd_compare(args):
                 },
                 "scopeExclusion": exclusion,
                 "comparison": result.to_dict(),
+                "decomposition": compare_mod.decompose(result),
                 "falsifierHits": hits,
             },
             args.output,
@@ -232,6 +233,17 @@ def cmd_compare(args):
                 "  p%d L%d #%d %r  Δ=(%+.3f, %+.3f)  d=%.3fpt"
                 % (diff.page, diff.line, diff.index, diff.text, diff.dx, diff.dy, diff.distance)
             )
+    breakdown = compare_mod.decompose(result)
+    if "lineStart" in breakdown:
+        start, everything = breakdown["lineStart"], breakdown["all"]
+        print("  分解：每行首字形（n=%d） Δx maxAbs=%+.4f 中位=%+.4f | Δy maxAbs=%+.4f 中位=%+.4f"
+              % (start["dx"]["n"], start["dx"]["maxAbs"], start["dx"]["median"],
+                 start["dy"]["maxAbs"], start["dy"]["median"]))
+        print("        全部字形（n=%d）  Δx maxAbs=%+.4f 中位=%+.4f | Δy maxAbs=%+.4f 中位=%+.4f"
+              % (everything["dx"]["n"], everything["dx"]["maxAbs"], everything["dx"]["median"],
+                 everything["dy"]["maxAbs"], everything["dy"]["median"]))
+        worst_page = max(breakdown["perPageMaxAbs"].items(), key=lambda kv: kv[1])
+        print("        最差的页：p%s max|Δ|=%.4fpt" % worst_page)
     for hit in hits:
         print("  **证否条件命中** %s" % hit["falsifier"])
     return 0 if result.state == OK else (2 if result.state == UNDECIDABLE else 1)

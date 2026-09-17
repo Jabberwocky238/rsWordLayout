@@ -35,11 +35,17 @@ cd tools/measure
 ./wm compare bundle/ trace.json         # §9.6 引擎 vs Word
 ```
 
-引擎侧轨迹由仓库根目录的 `layout-trace` 出：
+引擎侧轨迹由仓库根目录的 `layout-trace` 出（要 feature `shape`）：
 
 ```sh
-cargo run --bin layout-trace -- case.docx trace.json
+cargo run --features shape --bin layout-trace -- \
+    --require "Liberation Serif" --vertical-grid mac case.docx trace.json
 ```
+
+`--require` 不是可选的讲究：**度量兼容克隆的字体替换在几何上完全不可见，只有字体名能发现**
+（§6.2）。不核就跑，跑出来的是废数据，而且废得看不出来。
+`--metrics simple` 退回近似桩，`--vertical-grid mac` 打开 Mac Word 的纵向栅格
+（含两条**回测**规则，先读 `font_metrics::VerticalGrid` 的限定）。
 
 ## 这台机器上的能力边界
 
@@ -96,6 +102,9 @@ cargo run --bin layout-trace -- case.docx trace.json
 - **分母**：N ／ 成立 ／ 判不了，逐条列出。「未核」与「核过无发现」分两栏（§7.4）。
 - **前提**：`pairing.PREMISES` 随每次结果输出，包括「PDF 内容流顺序等于源字符顺序」
   这条本量具**未独立验证**的前提。
+- **分解**：`compare` 会按「每行第一个字形」把差值拆开——它前面没有推进量可累积，
+  所以 Δx 只反映行起点（边距、缩进、对齐），Δy 只反映基线。一个 `maxAbs` 说不出该改哪里，
+  这个拆法说得出：实测中它当场排除了「查缩进」整条路。
 - **范围排除**：`--exclude-rule` 改的是**验收定义的范围**，不是判据。
   被排除的字形逐条点名给分母。**不要拿它当容差用**——噪声底是 0，放宽容差就是给错找地方藏。
 
@@ -123,9 +132,9 @@ F4 在开发中真的触发过一次：计数模型说判不了的行，被 §3.
 - **坐标**：点，页内，**页顶向下**，原点在页左上角；
 - **偏移空间**：与 Word `Range` 相同——各段文本依次拼接，**每段末尾算一个段落标记**。
 
-已声明的近似：字形原点按**前缀推进量**算。对前缀可加的度量准确（`SimpleMetrics` 属此类），
-接入真 shaper 后不再准确（连字与 kerning），届时应改由 shaper 直接给每个字形的位置。
-这条记在输出的 `glyphOriginMethod` 字段里。
+字形原点由度量实现给，用的是哪一种**随数一起走**（输出的 `glyphOriginMethod` 字段）：
+桩度量按前缀推进量算（对前缀可加的度量准确），真度量直接用 shaper 的输出——
+连字与 kerning 会让前缀和**不等于**逐字形推进，所以这两者不能混着读。
 
 ## 跑测试
 

@@ -2,17 +2,23 @@
 //!
 //! 判据是字形数与字符数**不相等**的那些情形——连字、组合符号、阿拉伯语形态。
 
-use rsword_layout_core::gpu::shape::RustybuzzShaper;
+use rsword_layout_core::shape::RustybuzzShaper;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 先试仓库自带的（任何平台都在），再试常见的系统路径。
     let candidates = [
-        ("dejavu", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        ("dejavu", concat!(env!("CARGO_MANIFEST_DIR"), "/../webgl/web/public/fonts/DejaVuSans.ttf")),
+        ("droid", concat!(env!("CARGO_MANIFEST_DIR"), "/../webgl/web/public/fonts/DroidSansFallbackFull.ttf")),
+        ("dejavu-sys", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
         ("wqy", "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc"),
     ];
     let mut sh = RustybuzzShaper::new();
+    // `shape_with_face` 收的是 face **下标**，不是名字，所以注册时把下标记下来。
+    let mut faces: Vec<(&str, usize)> = Vec::new();
     for (name, path) in candidates {
         if let Ok(bytes) = std::fs::read(path) {
-            sh.add_face(name, bytes, 0);
+            let index = sh.add_face(name, bytes, 0);
+            faces.push((name, index));
             println!("已载入 {name}");
         }
     }
@@ -27,11 +33,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("dejavu", "Hello", "普通西文"),
         ("dejavu", "e\u{0301}", "组合符号：e + 锐音符，应附着"),
         ("dejavu", "مرحبا", "阿拉伯语：RTL + 字母形态变化"),
-        ("wqy", "中文排版", "CJK：等宽方块字"),
+        ("droid", "中文排版", "CJK：等宽方块字"),
     ];
 
     for (face, text, note) in samples {
-        let glyphs = sh.shape_with_face(face, text, 32); // 16pt
+        let Some(&(_, index)) = faces.iter().find(|(name, _)| name == face) else {
+            println!("\n[{face}] {text:?} —— 该字体没装上，跳过");
+            continue;
+        };
+        let glyphs = sh.shape_with_face(index, text, 32); // 16pt
         if glyphs.is_empty() {
             println!("\n[{face}] {text:?} —— 无输出（face 未注册或字体不可解析）");
             continue;
@@ -44,7 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for g in &glyphs {
             println!(
                 "    gid={:<6} adv={:>6.2}  off=({:.2}, {:.2})",
-                g.key.glyph_id, g.x_advance, g.x_offset, g.y_offset
+                g.glyph_id, g.x_advance, g.x_offset, g.y_offset
             );
         }
     }

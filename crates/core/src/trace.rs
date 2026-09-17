@@ -19,13 +19,12 @@
 //! 各段文本依次拼接，**每段末尾算一个段落标记**。Word 的 `Range.Start/End` 就是这么数的，
 //! 对不齐的话行区间就没法比。
 //!
-//! ## 一个已声明的近似
+//! ## 字形位置由度量实现给，不在这里拼
 //!
-//! 字形原点按**前缀推进量**算：第 i 个字符的原点 = 片段起点 + `measure(text[..i]).advance`。
-//! 这对「前缀可加」的度量是准确的（[`crate::simple_metrics::SimpleMetrics`] 属于此类）。
-//! 接入真正的 shaper 后**它不再准确**：连字与 kerning 会让前缀和不等于逐字形推进，
-//! 那时应改由 shaper 直接给出每个字形的位置（`ShapedRun::x_offset` / `x_advance`）。
-//! 这条近似记在输出的 `glyphOriginMethod` 字段里，让下游没法只抄数不抄限定。
+//! 原点来自 [`crate::measure::FontMetrics::glyph_positions`]。桩度量的默认实现按前缀推进量算，
+//! 做 shaping 的实现（[`crate::font_metrics::FontEnvMetrics`]）直接给 shaper 的输出——
+//! 因为连字与 kerning 会让前缀和**不等于**逐字形推进。用的是哪一种，
+//! 记在输出的 `glyphOriginMethod` 字段里，让下游没法只抄数不抄限定。
 
 use crate::measure::{FontMetrics, FontSpec};
 
@@ -117,10 +116,8 @@ impl DocumentTrace {
             "  \"offsetSpace\": \"Word Range offsets: paragraphs concatenated, \
              one paragraph mark counted per paragraph\",\n",
         );
-        out.push_str(
-            "  \"glyphOriginMethod\": \"prefix advance: origin(i) = piece_x + measure(text[..i]).advance; \
-             exact for prefix-additive metrics, an approximation once a shaper does ligatures/kerning\",\n",
-        );
+        // 用的是哪种定位法必须随数一起走，否则下游分不清「前缀和的近似」与「shaper 的实测」。
+        push_str_field(&mut out, "glyphOriginMethod", &meta.glyph_origin_method, 2);
         push_str_field(&mut out, "engine", &meta.engine, 2);
         push_str_field(&mut out, "metrics", &meta.metrics, 2);
         push_str_field(&mut out, "source", &meta.source, 2);
@@ -174,9 +171,20 @@ impl DocumentTrace {
 pub struct TraceMeta {
     pub engine: String,
     pub metrics: String,
+    /// 字形原点是怎么定出来的。见 [`crate::measure::FontMetrics::glyph_positions`]：
+    /// 桩度量是前缀推进量的近似，做 shaping 的实现是 shaper 的直接输出。
+    pub glyph_origin_method: String,
     pub source: String,
     pub source_sha256: String,
 }
+
+/// 前缀推进量定位法的说明串（桩度量用）。
+pub const ORIGIN_PREFIX_ADVANCE: &str =
+    "prefix advance: origin(i) = piece_x + measure(text[..i]).advance;      exact for prefix-additive metrics, an approximation once a shaper does ligatures/kerning";
+
+/// shaper 直接给位置的说明串（真度量用）。
+pub const ORIGIN_SHAPED: &str =
+    "shaped: positions come from the shaper's own output (rustybuzz), so ligatures and      cross-boundary kerning are accounted for; one glyph may cover several source characters";
 
 fn num(v: f64) -> String {
     if v == v.trunc() && v.abs() < 1e15 {
@@ -209,10 +217,11 @@ fn push_str_field(out: &mut String, key: &str, value: &str, indent: usize) {
     out.push_str(&format!("\"{}\": {},\n", key, json_string(value)));
 }
 
-/// 把一段文字按**前缀推进量**展开成逐字形的原点。
+/// 把一段文字展开成逐字形的原点。
 ///
 /// `start_x` 是片段左端，`baseline_y` 是基线；`source_base` 是该片段首字符在
-/// Word 偏移空间里的下标。返回的推进量是相邻原点之差，最后一个字符用总宽补齐。
+/// Word 偏移空间里的下标。位置与推进量由度量实现给（见模块文档），这里只做坐标平移
+/// 与源字符下标的换算。
 pub(crate) fn expand_glyphs<M: FontMetrics>(
     metrics: &M,
     text: &str,
@@ -221,23 +230,36 @@ pub(crate) fn expand_glyphs<M: FontMetrics>(
     baseline_y: f64,
     source_base: usize,
 ) -> Vec<GlyphTrace> {
-    let mut out = Vec::new();
-    let mut offsets: Vec<(usize, char, f64)> = Vec::new();
-    for (byte_i, c) in text.char_indices() {
-        let advance = pt(metrics.measure(&text[..byte_i], font).advance);
-        offsets.push((byte_i, c, start_x + advance));
-    }
-    let total = start_x + pt(metrics.measure(text, font).advance);
-    for (i, &(_, c, x)) in offsets.iter().enumerate() {
-        let next = offsets.get(i + 1).map(|&(_, _, nx)| nx).unwrap_or(total);
-        out.push(GlyphTrace {
-            x,
+    // 字节偏移 → 字符下标。Word 的偏移空间按字符数，不按字节。
+    let char_index: Vec<usize> = {
+        let mut map = vec![0usize; text.len() + 1];
+        for (n, (byte_i, _)) in text.char_indices().enumerate() {
+            map[byte_i] = n;
+        }
+        map[text.len()] = text.chars().count();
+        // 多字节字符内部的位置补成它所属字符的下标。
+        let mut last = 0;
+        for slot in map.iter_mut() {
+            if *slot == 0 {
+                *slot = last;
+            } else {
+                last = *slot;
+            }
+        }
+        map
+    };
+
+    metrics
+        .glyph_positions(text, font)
+        .into_iter()
+        .map(|g| GlyphTrace {
+            x: start_x + pt(g.x),
             y: baseline_y,
-            dx: next - x,
+            dx: pt(g.advance),
             dy: 0.0,
-            text: c.to_string(),
-            source_char: source_base + i,
-        });
-    }
-    out
+            // 一个字形可能覆盖多个源字符（连字），文本取它覆盖的整段。
+            text: text.get(g.start..g.end).unwrap_or("").to_string(),
+            source_char: source_base + char_index.get(g.start).copied().unwrap_or(0),
+        })
+        .collect()
 }

@@ -330,6 +330,7 @@ dependencies = [
  "rsword",
  "rustybuzz",
  "serde_json",
+ "skrifa",
 ]
 
 [[package]]

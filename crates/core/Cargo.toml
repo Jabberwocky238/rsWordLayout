@@ -14,6 +14,8 @@ path = "bin/render.rs"
 [[bin]]
 name = "layout-trace"
 path = "bin/layout-trace.rs"
+# 真度量要读字体文件并整形，所以这个 bin 只在 shape 下构建。
+required-features = ["shape"]
 
 [[example]]
 name = "dump"
@@ -36,12 +38,17 @@ path = "tests/repr_c.rs"
 name = "paint"
 path = "tests/paint.rs"
 
+[[test]]
+name = "font_metrics"
+path = "tests/font_metrics.rs"
+required-features = ["shape"]
+
 
 [features]
 default = []
 # rustybuzz 整形。产物是 glyph id 与 twips 推进量，与分辨率无关，故留在 core；
 # 栅格化需要知道目标 DPI，归 rsword-layout-gpu。
-shape = ["dep:rustybuzz"]
+shape = ["dep:rustybuzz", "dep:skrifa"]
 
 [dependencies]
 rsword = { workspace = true }
@@ -49,6 +56,8 @@ serde_json = { workspace = true }
 docx-layout = { workspace = true }
 docx-layout-contract = { workspace = true }
 rustybuzz = { workspace = true, optional = true }
+# 真度量要读 hhea/OS-2 的纵向量；skrifa 只解析表，不做光栅化。
+skrifa = { workspace = true, optional = true }
 
 [lints]
 workspace = true

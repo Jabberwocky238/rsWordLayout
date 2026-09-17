@@ -60,6 +60,8 @@ class Comparison:
     worst: list[GlyphDiff] = field(default_factory=list)
     failures: list[dict] = field(default_factory=list)
     tolerance_pt: float = NOISE_FLOOR_PT
+    # 全部配上的差值，供 `decompose()` 拆分。不进 to_dict()——那是逐字形的量，太大。
+    _diffs: list[GlyphDiff] = field(default_factory=list, repr=False)
 
     def to_dict(self) -> dict:
         # dict 顺序即输出顺序：state 第一，maxAbs 在它后面（§6.5）。
@@ -176,6 +178,55 @@ def exclude_glyphs(model: dict, rules: set[str]) -> tuple[dict, dict]:
     return {**model, "pages": pages}, record
 
 
+def decompose(result: "Comparison") -> dict:
+    """把差值拆开，好知道**该去改哪里**。
+
+    一个 `maxAbs` 说不出问题在哪：横向误差可能来自左边距错位，也可能来自推进量逐字累积，
+    两者要改的地方完全不同。拆法是看**每行第一个字形**——它前面没有任何推进量可累积，
+    所以它的 Δx 只反映行起点（边距、缩进、对齐），Δy 只反映基线。
+
+    实测这条拆法当场结了一个问题：桩度量下每行首字形 Δx = 0.0000pt（18/18 行逐位相同），
+    于是「查缩进」这一整条路直接排除，剩下的全是推进量的事。
+
+    结构没全程对上时返回空——那时的数只覆盖侥幸配上的部分，拆了也是错的（§6.5）。
+    """
+    if not result.structurally_sound or not result._diffs:
+        return {
+            "state": result.state,
+            "note": "结构未全程对上，不做分解——数只覆盖侥幸配上的部分（§6.5）",
+        }
+
+    def stats(values: list[float]) -> dict:
+        if not values:
+            return {"n": 0}
+        ordered = sorted(values)
+        mid = len(ordered) // 2
+        median = ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
+        return {
+            "n": len(values),
+            "min": min(values),
+            "max": max(values),
+            "maxAbs": max(values, key=abs),
+            "median": median,
+        }
+
+    first = [d for d in result._diffs if d.index == 0]
+    per_page: dict[int, float] = {}
+    for d in result._diffs:
+        per_page[d.page] = max(per_page.get(d.page, 0.0), d.distance)
+
+    return {
+        "state": result.state,
+        "lineStart": {
+            "what": "每行第一个字形：前面没有推进量可累积，所以 Δx 只反映行起点，Δy 只反映基线",
+            "dx": stats([d.dx for d in first]),
+            "dy": stats([d.dy for d in first]),
+        },
+        "all": {"dx": stats([d.dx for d in result._diffs]), "dy": stats([d.dy for d in result._diffs])},
+        "perPageMaxAbs": {str(k): v for k, v in sorted(per_page.items())},
+    }
+
+
 def compare(reference: dict, candidate: dict, *, tolerance_pt: float = NOISE_FLOOR_PT,
             worst_n: int = 10) -> Comparison:
     """比较两份「页 → 行 → 字形」结构。
@@ -280,6 +331,7 @@ def compare(reference: dict, candidate: dict, *, tolerance_pt: float = NOISE_FLO
                 )
 
     result.pairs = len(diffs)
+    result._diffs = diffs
 
     if undecidable and result.state == OK:
         # 判不了是独立出口，不能折叠进 FAIL，也不能当成通过（§7.3）。
