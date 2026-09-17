@@ -1,0 +1,185 @@
+{
+  "sha256": "c7cd816b48331dbea4b60be8f56ff57cae60701a6e8515447ee3d403067d1730",
+  "probes": [
+    {
+      "tag": "i0",
+      "kind": "indent",
+      "indLeft": 0,
+      "indFirst": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i1",
+      "kind": "indent",
+      "indLeft": 360,
+      "indFirst": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i2",
+      "kind": "indent",
+      "indLeft": 720,
+      "indFirst": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i3",
+      "kind": "indent",
+      "indLeft": 1080,
+      "indFirst": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i4",
+      "kind": "indent",
+      "indLeft": 0,
+      "indFirst": 360,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i5",
+      "kind": "indent",
+      "indLeft": 360,
+      "indFirst": 720,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i6",
+      "kind": "indent",
+      "indLeft": 720,
+      "indFirst": -360,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "i7",
+      "kind": "indent",
+      "indLeft": 1440,
+      "indFirst": -720,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 2
+    },
+    {
+      "tag": "j0l",
+      "kind": "align",
+      "align": "left",
+      "textIndex": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j0c",
+      "kind": "align",
+      "align": "center",
+      "textIndex": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j0r",
+      "kind": "align",
+      "align": "right",
+      "textIndex": 0,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j1l",
+      "kind": "align",
+      "align": "left",
+      "textIndex": 1,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j1c",
+      "kind": "align",
+      "align": "center",
+      "textIndex": 1,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j1r",
+      "kind": "align",
+      "align": "right",
+      "textIndex": 1,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j2l",
+      "kind": "align",
+      "align": "left",
+      "textIndex": 2,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j2c",
+      "kind": "align",
+      "align": "center",
+      "textIndex": 2,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j2r",
+      "kind": "align",
+      "align": "right",
+      "textIndex": 2,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j3l",
+      "kind": "align",
+      "align": "left",
+      "textIndex": 3,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j3c",
+      "kind": "align",
+      "align": "center",
+      "textIndex": 3,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j3r",
+      "kind": "align",
+      "align": "right",
+      "textIndex": 3,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    }
+  ]
+}
