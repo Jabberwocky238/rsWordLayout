@@ -21,7 +21,7 @@ use std::collections::BTreeMap;
 use skrifa::{FontRef, MetadataProvider};
 
 use super::registry::FontRegistry;
-use super::spec::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
+use super::spec::{BreakOpportunity, FINE_PER_TWIP, FontMetrics, FontSpec, TextMetrics};
 use crate::layout::{Twips, half_points_to_twips};
 
 /// 纵向量化栅格。
@@ -125,12 +125,10 @@ impl<'r> RealMetrics<'r> {
         computed
     }
 
-    /// 本次请求用到的各 face 取最大，再按栅格量化。
-    fn vertical_for(&self, text: &str, font: &FontSpec) -> TextMetrics {
+    /// 本次请求用到的各 face 的纵向量取最大，单位 twips，**未取整**。
+    fn vertical_raw(&self, text: &str, font: &FontSpec) -> Option<(f64, f64, f64)> {
         let em = f64::from(half_points_to_twips(font.size_half_points));
-        let mut ascent = 0.0f64;
-        let mut descent = 0.0f64;
-        let mut line_gap = 0.0f64;
+        let (mut ascent, mut descent, mut line_gap) = (0.0f64, 0.0f64, 0.0f64);
         let mut found = false;
 
         // 空串也要给纵向量：空段落的行高由段落标记的字体决定。
@@ -148,11 +146,24 @@ impl<'r> RealMetrics<'r> {
             descent = descent.max(v.descent / v.upem * em);
             line_gap = line_gap.max(v.line_gap / v.upem * em);
         }
+        found.then_some((ascent, descent, line_gap))
+    }
 
-        if !found {
+    /// 自然行高，单位 twips，**未取整**（量化过，但不落到整 twips）。
+    fn natural_raw(&self, text: &str, font: &FontSpec) -> f64 {
+        let Some((a, d, g)) = self.vertical_raw(text, font) else { return 0.0 };
+        match self.grid.step() {
+            None => a + d + g,
+            Some(step) => ((a + d + g) / step).round() * step,
+        }
+    }
+
+    /// 本次请求用到的各 face 取最大，再按栅格量化。
+    fn vertical_for(&self, text: &str, font: &FontSpec) -> TextMetrics {
+        let Some((ascent, descent, line_gap)) = self.vertical_raw(text, font) else {
             // 一个 face 都没有：给零，让上层看到「没度量」而不是一个编出来的高度。
             return TextMetrics::default();
-        }
+        };
 
         let round = |v: f64| v.round() as Twips;
         match self.grid.step() {
@@ -167,7 +178,6 @@ impl<'r> RealMetrics<'r> {
                 // 行高只取整**一次**，descent 单独取整，差额全部归 ascent。
                 // 分别取整再相加会让和偏出栅格一整个 twip：
                 // round(278.4 − 52.8) + round(52.8) = 279，而 round(278.4) = 278。
-                // 行高要逐行累加下去，偏一个 twip 就会随页面往下漂。
                 let natural = round(quantize(ascent + descent + line_gap));
                 let descent_q = round(quantize(descent));
                 // line_gap 折进 ascent，好让布局主干现有的
@@ -206,5 +216,11 @@ impl FontMetrics for RealMetrics<'_> {
         // 断点与字体无关，与桩共用同一套——否则换度量之后的差值里会混进
         // 断行策略的变化，分不出是哪一边错。
         super::linebreak::break_opportunities(text)
+    }
+
+    fn natural_height_fine(&self, text: &str, font: &FontSpec) -> i64 {
+        // **不整形**：行高只取决于字体的纵向量，所以这条比 `measure` 便宜得多——
+        // 布局主干会为每个片段调用它。
+        (self.natural_raw(text, font) * FINE_PER_TWIP as f64).round() as i64
     }
 }

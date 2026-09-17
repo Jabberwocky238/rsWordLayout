@@ -23,7 +23,8 @@
 mod spec;
 
 pub use spec::{
-    BreakOpportunity, FontHint, FontMetrics, FontSlots, FontSpec, SlotKind, TextMetrics,
+    BreakOpportunity, FINE_PER_TWIP, FontHint, FontMetrics, FontSlots, FontSpec, SlotKind,
+    TextMetrics,
 };
 
 mod simple;

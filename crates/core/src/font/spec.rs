@@ -203,6 +203,13 @@ impl FontSpec {
     }
 }
 
+/// 1 twip 等于多少个「精细单位」。
+///
+/// 精细单位是 **1/7200 英寸**：它是 twips（1/1440 英寸）与 Word 纵向栅格
+/// （1/300 英寸）的公倍数——两者只在这里通约。取它做行高累加的内部单位，
+/// 就不会因为栅格点落不到整 twips 上而逐行漂移。
+pub const FINE_PER_TWIP: i64 = 5;
+
 /// 一段同字体文字的度量结果。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 #[repr(C)]
@@ -266,6 +273,20 @@ pub trait FontMetrics {
 
     /// 文字的可断行位置，按偏移升序。
     fn break_opportunities(&self, text: &str) -> Vec<BreakOpportunity>;
+
+    /// 自然行高的**精确值**，单位 1/7200 英寸（= twips × [`FINE_PER_TWIP`]）。
+    ///
+    /// 存在的理由是**行高会沿页累加**：做纵向量化的实现里，栅格上的精确行高
+    /// 常常落不到整 twips 上（Mac Word 的 1/300 英寸栅格在 12pt 下是 273.6 twips，
+    /// 取整成 274，每行多 0.4 twip）。游标按取整值累加，一页 40 行就攒到 0.8pt。
+    ///
+    /// 默认实现由 `measure` 的 twips 值换算，**不提供额外精度**——
+    /// 对不做量化的实现（如 [`crate::SimpleMetrics`]）这就是精确值。
+    /// **做量化的实现应当覆盖它**，并且不要在里面做整形：行高只取决于字体的纵向量，
+    /// 覆盖版应当比 `measure` 便宜。
+    fn natural_height_fine(&self, text: &str, font: &FontSpec) -> i64 {
+        i64::from(self.measure(text, font).natural_height()) * FINE_PER_TWIP
+    }
 
     /// 空行高度：没有任何文字时，行高取决于段落标记的字体。
     fn empty_line_metrics(&self, font: &FontSpec) -> TextMetrics {

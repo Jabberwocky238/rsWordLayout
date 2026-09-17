@@ -49,6 +49,10 @@ name = "slots"
 path = "tests/slots.rs"
 
 [[test]]
+name = "line_height_drift"
+path = "tests/line_height_drift.rs"
+
+[[test]]
 name = "advance_accumulation"
 path = "tests/advance_accumulation.rs"
 required-features = ["fontenv"]

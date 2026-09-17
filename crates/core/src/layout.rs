@@ -17,7 +17,7 @@
 //! 这条线照 dvipdfmx 的 `pdfdev.h` 划：那里坐标在 user space，
 //! device space 的换算系数在设备初始化时设一次。
 
-use crate::font::{FontMetrics, FontSpec};
+use crate::font::{FINE_PER_TWIP, FontMetrics, FontSpec};
 
 
 // ==========================================================================
@@ -984,6 +984,12 @@ struct PendingLine {
     /// 与 `Para::page_break_before` 不同：那条是段落属性（`w:pageBreakBefore`），
     /// 这条是段**内**任意位置的手动分页符，所以必须挂在行上而不是段上。
     page_break_after: bool,
+    /// 本行高度的**精确值**，单位 1/7200 英寸。
+    ///
+    /// `height` 是它落到整 twips 的结果；游标按 `height` 累加会逐行漂移
+    /// （栅格上的 273.6 twips 落成 274，每行多 0.4 twip，一页 40 行攒 0.8pt）。
+    /// 所以纵向游标走这一个，`height` 只用于「放不放得下」这类整 twips 的判断。
+    height_fine: i64,
     /// 本行起点在全篇 UTF-16 偏移空间里的下标。
     ///
     /// 有片段时可以从片段推，但**空行没有片段**——而空行同样要有源位置，
@@ -1027,7 +1033,11 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let area = self.setup.content_area();
         let mut pages: Vec<Page> = Vec::new();
         let mut page = Page::new(self.setup.size, area);
-        let mut cursor = area.y;
+        // 纵向游标走**精细单位**（1/7200 英寸），只在落位与判断时换回 twips。
+        // 按整 twips 累加会逐行漂移：栅格上的 273.6 twips 落成 274，每行多 0.4 twip。
+        let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
+        let coarse = |f: i64| ((f as f64) / FINE_PER_TWIP as f64).round() as Twips;
+        let mut cursor_fine: i64 = fine(area.y);
 
         // 本页内的行号。一行可能出多个片段，下游要靠它把它们合回一行；
         // 翻页时归零。
@@ -1049,24 +1059,24 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             // +1 是段落终止符本身。
             source_cursor = para_base + para_units + 1;
 
-            let lines = self.break_paragraph(para, area, cursor, para_base);
+            let lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
             let block_height: Twips = lines.iter().map(|l| l.height).sum();
 
             if para.page_break_before && !page.fragments.is_empty() {
                 pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
-                cursor = area.y;
+                cursor_fine = fine(area.y);
                 line_index = 0;
             }
 
-            cursor += para.space_before;
+            cursor_fine += fine(para.space_before);
 
             // keepLines：整段放不下就先翻页（除非本页是空的，那样翻了也没用）。
             if para.keep_lines
-                && cursor + block_height > area.bottom()
+                && coarse(cursor_fine) + block_height > area.bottom()
                 && !page.fragments.is_empty()
             {
                 pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
-                cursor = area.y;
+                cursor_fine = fine(area.y);
                 line_index = 0;
             }
 
@@ -1074,7 +1084,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let next_first_line = if para.keep_next {
                 paras.get(idx + 1).and_then(|n| {
                     // 只取高度，源区间用不上；给下一段的正确基点，免得读代码时费解。
-                    self.break_paragraph(n, area, cursor, source_cursor).first().map(|l| l.height)
+                    self.break_paragraph(n, area, coarse(cursor_fine), source_cursor)
+                        .first()
+                        .map(|l| l.height)
                 }).unwrap_or(0)
             } else {
                 0
@@ -1087,14 +1099,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 if para.keep_next && li + 1 == total_lines {
                     needed += next_first_line;
                 }
-                if cursor + needed > area.bottom() && !page.fragments.is_empty() {
+                if coarse(cursor_fine) + needed > area.bottom() && !page.fragments.is_empty() {
                     pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
-                    cursor = area.y;
+                    cursor_fine = fine(area.y);
                     line_index = 0;
                 }
-                self.place_line(&mut page, &line, para, cursor, line_index);
+                self.place_line(&mut page, &line, para, coarse(cursor_fine), line_index);
                 line_index += 1;
-                cursor += line.height;
+                // **精确累加**：用 height_fine 而不是取整后的 height。
+                cursor_fine += line.height_fine;
 
                 // 段内手动分页符：本行之后翻页。
                 //
@@ -1102,12 +1115,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 // 实测夹具里有连续两个分页符的情形，那确实产生一张只有一条行记录的页。
                 if line.page_break_after {
                     pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
-                    cursor = area.y;
+                    cursor_fine = fine(area.y);
                     line_index = 0;
                 }
             }
 
-            cursor += para.space_after;
+            cursor_fine += fine(para.space_after);
         }
 
         pages.push(page);
@@ -1234,6 +1247,11 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 .unwrap_or_else(|| Span::new(area.x, area.right()));
             lines.push(PendingLine {
                 height: h,
+                height_fine: self.line_height_fine(
+                    para,
+                    m.ascent + m.descent,
+                    self.metrics.natural_height_fine("", &font),
+                ),
                 baseline: m.ascent,
                 pieces: Vec::new(),
                 width: 0,
@@ -1255,6 +1273,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut cur_ascent: Twips = 0;
         let mut cur_descent: Twips = 0;
         let mut cur_natural: Twips = 0;
+        // 与 `cur_natural` 并行的精确值，单位 1/7200 英寸。
+        let mut cur_natural_fine: i64 = 0;
         let mut first_line = true;
         // 行高未知时用来试探区间的估值：取正文字号的自然行高。
         let probe_h = self
@@ -1311,6 +1331,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         };
                         lines.push(PendingLine {
                             height: h,
+                            height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
                             baseline: cur_ascent,
                             pieces: std::mem::take(&mut cur),
                             width: cur_w,
@@ -1325,6 +1346,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_ascent = 0;
                         cur_descent = 0;
                         cur_natural = 0;
+                        cur_natural_fine = 0;
                         first_line = false;
                         cur_y += h;
                         span = self.pick_span(para, area, cur_y, h.max(probe_h));
@@ -1352,6 +1374,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     cur_ascent = cur_ascent.max(m_all.ascent);
                     cur_descent = cur_descent.max(m_all.descent);
                     cur_natural = cur_natural.max(m_all.natural_height());
+                    cur_natural_fine =
+                        cur_natural_fine.max(self.metrics.natural_height_fine(rest, &run.font));
                     break;
                 }
 
@@ -1401,6 +1425,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             cur_ascent = cur_ascent.max(m.ascent);
                             cur_descent = cur_descent.max(m.descent);
                             cur_natural = cur_natural.max(m.natural_height());
+                            cur_natural_fine = cur_natural_fine
+                                .max(self.metrics.natural_height_fine(&rest[..n], &run.font));
                             rest = &rest[n..];
                         }
                     }
@@ -1410,6 +1436,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
                 lines.push(PendingLine {
                     height: h,
+                    height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
                     baseline: cur_ascent,
                     pieces: std::mem::take(&mut cur),
                     width: cur_w,
@@ -1424,6 +1451,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 cur_ascent = 0;
                 cur_descent = 0;
                 cur_natural = 0;
+                cur_natural_fine = 0;
                 first_line = false;
                 // 换行：y 推进一行高，可用区间随之可能变化。
                 cur_y += h;
@@ -1438,6 +1466,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
             lines.push(PendingLine {
                 height: h,
+                height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
                 baseline: cur_ascent,
                 pieces: cur,
                 width: cur_w,
@@ -1463,6 +1492,31 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             .max_by_key(|s| s.width())
             .filter(|s| !s.is_empty())
             .unwrap_or(full)
+    }
+
+    /// 按 `w:spacing` 规则算行高的**精确值**，单位 1/7200 英寸。
+    ///
+    /// 与 [`Engine::line_height`] 同一套规则，只是全程不落到整 twips——
+    /// 纵向游标靠它避免逐行漂移。
+    fn line_height_fine(&self, para: &Para, content: Twips, natural_fine: i64) -> i64 {
+        let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
+        let height = match para.line_rule {
+            LineRule::Exact => fine(para.line_value.max(1)),
+            LineRule::AtLeast => natural_fine.max(fine(para.line_value)),
+            LineRule::Auto => {
+                let mult = if para.line_value <= 0 { 240 } else { para.line_value };
+                natural_fine * i64::from(mult) / 240
+            }
+        };
+
+        // 内容下限（行至少要装得下文字）**在整 twips 的粒度上比较**。
+        //
+        // `content` 是 ascent + descent，两者都已经取整过：栅格上 273.6 会落成
+        // 221 + 53 = 274，比精确值大 0.4 twip。拿它直接 `max` 精确值，
+        // 就把刚刚避开的舍入误差又灌了回来——**每行灌一次，沿页累加**。
+        // 这条是测试抓出来的：合成输入第 2 行就漂了 0.8 twip。
+        let rounded = ((height as f64) / FINE_PER_TWIP as f64).round() as Twips;
+        if rounded < content { fine(content) } else { height }
     }
 
     /// 按 `w:spacing` 规则算行高。
