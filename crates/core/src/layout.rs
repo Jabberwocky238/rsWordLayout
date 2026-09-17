@@ -960,8 +960,23 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut page = Page::new(self.setup.size, area);
         let mut cursor = area.y;
 
+        // 全篇 UTF-16 偏移游标。与 Word 的 `Range.Start/End` 同一套数法：
+        // 各段文本依次拼接，**每段末尾算一个终止符**（`\r`，带 `w:sectPr` 的段是 `\x0c`，
+        // 都占 1 个 UTF-16 单位）。段内的软回车与分页符已经以 U+FFFC 占位符
+        // 落在 run 文本里，所以逐 run 数就够，不必另加。
+        let mut source_cursor: u32 = 0;
+
         for (idx, para) in paras.iter().enumerate() {
-            let lines = self.break_paragraph(para, area, cursor);
+            let para_base = source_cursor;
+            let para_units: u32 = para
+                .runs
+                .iter()
+                .map(|r| r.text.encode_utf16().count() as u32)
+                .sum();
+            // +1 是段落终止符本身。
+            source_cursor = para_base + para_units + 1;
+
+            let lines = self.break_paragraph(para, area, cursor, para_base);
             let block_height: Twips = lines.iter().map(|l| l.height).sum();
 
             if para.page_break_before && !page.fragments.is_empty() {
@@ -983,7 +998,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             // keepNext：本段是最后一段时无意义；否则要保证下一段至少第一行同页。
             let next_first_line = if para.keep_next {
                 paras.get(idx + 1).and_then(|n| {
-                    self.break_paragraph(n, area, cursor).first().map(|l| l.height)
+                    // 只取高度，源区间用不上；给下一段的正确基点，免得读代码时费解。
+                    self.break_paragraph(n, area, cursor, source_cursor).first().map(|l| l.height)
                 }).unwrap_or(0)
             } else {
                 0
@@ -1060,11 +1076,21 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     }
 
     /// 段落断行。
-    /// 段落断行。
     ///
     /// `y` 是本段起始的纵向位置——**有环绕时每行可用区间取决于它**，所以不能像
     /// 改造前那样只传一个标量宽度。无环绕时退化为整段用同一个满宽区间。
-    fn break_paragraph(&self, para: &Para, area: Rect, y: Twips) -> Vec<PendingLine> {
+    ///
+    /// `source_base` 是本段首字符在**全篇** UTF-16 偏移空间里的下标。
+    /// 片段的源区间要落在这个空间里，不是段内偏移——Word 的 `Range.Start/End`
+    /// 是全篇连续的，段内偏移与它长得几乎一样（都是小整数、都单调）却对不上，
+    /// 而按读序配对的校验全靠这个区间。
+    fn break_paragraph(
+        &self,
+        para: &Para,
+        area: Rect,
+        y: Twips,
+        source_base: u32,
+    ) -> Vec<PendingLine> {
         let mut lines: Vec<PendingLine> = Vec::new();
 
         // 空段落：高度由段落标记字体决定。
@@ -1094,8 +1120,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         }
 
         let mut cur: Vec<LinePiece> = Vec::new();
-        // 段落内已消费的 UTF-16 字符数，作为各片段源区间的起点。
-        let mut consumed: u32 = 0;
+        // 全篇 UTF-16 偏移游标，作为各片段源区间的起点。从本段基点起算，不从 0。
+        let mut consumed: u32 = source_base;
         let mut cur_w: Twips = 0;
         let mut cur_ascent: Twips = 0;
         let mut cur_descent: Twips = 0;
@@ -1157,7 +1183,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_ascent = cur_ascent.max(m.ascent);
                         cur_descent = cur_descent.max(m.descent);
                         cur_natural = cur_natural.max(m.natural_height());
-                        rest = rest[cut..].trim_start_matches(' ');
+                        // 换行处吃掉的空格在源侧**仍然占位**。不记进游标的话，
+                        // 本段后续所有片段的源区间会整体前移，而这种错在几何上
+                        // 看不出来，只会让配对悄悄错位。
+                        let after = rest[cut..].trim_start_matches(' ');
+                        consumed += (rest[cut..].encode_utf16().count()
+                            - after.encode_utf16().count()) as u32;
+                        rest = after;
                     }
                     _ => {
                         // 一个断点都塞不下：若本行已有内容就换行重试，否则硬塞一个字符避免死循环。
