@@ -7,7 +7,7 @@ use rsword_layout_core::{Color, PositionedGlyph};
 use rsword_layout_core::Rect;
 use rsword_layout_core::FontSpec;
 
-use crate::atlas::GlyphKey;
+use rsword_layout_core::font::GlyphKey;
 use crate::vertex::{SOLID_UV, Vertex};
 use crate::{GlyphSource, rect_px};
 

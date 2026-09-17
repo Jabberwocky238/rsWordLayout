@@ -8,22 +8,16 @@ publish = false
 
 [features]
 default = []
-# skrifa 读轮廓 + zeno 光栅化。栅格化必须知道目标分辨率，所以它属于本 crate 而非 core。
-raster = ["dep:skrifa", "dep:zeno"]
-
-[[example]]
-name = "probe_raster"
-path = "examples/probe_raster.rs"
-required-features = ["raster"]
+# 栅格化实现已移入 core 的 `font` 模块；这里只是转发，
+# 让依赖 gpu 的调用方不必单独声明 core 的特性。
+raster = ["rsword-layout-core/raster"]
 
 [[test]]
 name = "atlas"
 path = "tests/atlas.rs"
 
 [dependencies]
-rsword-layout-core = { workspace = true }
-skrifa = { workspace = true, optional = true }
-zeno = { workspace = true, optional = true }
+rsword-layout-core = { workspace = true, features = ["raster"] }
 
 [lints]
 workspace = true

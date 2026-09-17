@@ -362,7 +362,8 @@ mod js_api {
     use wasm_bindgen::prelude::*;
 
     use crate::browser::WebGlRenderer;
-    use crate::fonts::{FontRegistry, RegistrySource};
+    use crate::fonts::RegistrySource;
+    use rsword_layout_core::font::FontRegistry;
 
     /// 字形图集边长。2048² 的单通道图集是 4MB 纹素，能放约四千个 32px 字形——
     /// 一页文档通常几百个不同字形，足够，满了会按货架淘汰最久未用的。

@@ -9,12 +9,8 @@
 mod anchor;
 mod bridge;
 mod layout;
-mod measure;
+pub mod font;
 mod oracle;
-mod simple_metrics;
-
-#[cfg(feature = "shape")]
-mod shape;
 
 // ---- 几何：坐标一律 twips，没有像素 ----
 pub use layout::{
@@ -44,15 +40,17 @@ pub use oracle::{
 };
 
 // ---- 度量契约 ----
-pub use measure::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
+pub use font::{
+    BreakOpportunity, FontHint, FontMetrics, FontSlots, FontSpec, SimpleMetrics, SlotKind,
+    TextMetrics,
+};
 
 // ---- rsword 桥接 ----
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
 
 // ---- 近似度量桩，**不可用于真实排版** ----
-pub use simple_metrics::SimpleMetrics;
 
 // ---- rustybuzz 整形 ----
 #[cfg(feature = "shape")]
-pub use shape::RustybuzzShaper;
+pub use font::RustybuzzShaper;

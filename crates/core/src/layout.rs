@@ -17,7 +17,7 @@
 //! 这条线照 dvipdfmx 的 `pdfdev.h` 划：那里坐标在 user space，
 //! device space 的换算系数在设备初始化时设一次。
 
-use crate::measure::{FontMetrics, FontSpec};
+use crate::font::{FontMetrics, FontSpec};
 
 
 // ==========================================================================
@@ -507,7 +507,7 @@ pub enum DrawCmd {
         origin_x: Twips,
         origin_y: Twips,
         text: String,
-        font: crate::measure::FontSpec,
+        font: crate::font::FontSpec,
         paint: Paint,
         /// 本行以什么结束。比较器按计数约定核对字形数，故须随指令带下来。
         terminator: crate::oracle::LineTerminator,

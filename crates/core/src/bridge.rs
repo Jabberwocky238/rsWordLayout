@@ -11,7 +11,7 @@ use serde_json::Value;
 use crate::layout::Color;
 use crate::layout::{Align, LineRule, Para, Run};
 use crate::layout::Twips;
-use crate::measure::FontSpec;
+use crate::font::{FontHint, FontSlots, FontSpec};
 
 /// 文档默认正文字体与字号（对应 fixture 的 `docDefaults`）。
 const BODY_FAMILY: &str = "Times New Roman, SimSun, serif";
@@ -40,20 +40,48 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         .unwrap_or(base_size);
     let bold = props.get("bold").map(as_bool).unwrap_or(base_bold);
     let italic = props.get("italic").map(as_bool).unwrap_or(false);
-    let family = props
-        .get("fonts")
-        .and_then(|f| f.get("ascii"))
-        .and_then(Value::as_str)
-        .unwrap_or(BODY_FAMILY)
-        .to_string();
+    let slots = read_slots(props.get("fonts"));
+    // `family` 保留为 ascii 槽的值，供只认单一字体的调用方使用。
+    let family = slots
+        .ascii
+        .clone()
+        .or_else(|| slots.h_ansi.clone())
+        .unwrap_or_else(|| BODY_FAMILY.to_string());
 
     FontSpec {
+        slots,
         family,
         size_half_points: size,
         bold,
         italic,
         letter_spacing: 0,
         scale_pct: 100,
+    }
+}
+
+/// 读 `w:rFonts` 的四个槽与 `w:hint`。
+///
+/// **这是 Word 选字体的真实规则**：同一 run 里每个字符按所属区查对应的槽，
+/// 而不是整个 run 用一个字体再靠 fallback 补。JSON 里的键名与 OOXML 一致。
+///
+/// 主题字体（`asciiTheme` 等，值形如 `minorHAnsi`）需要查 theme part 解析，
+/// 尚未实现——此时该槽留空，由继承或 `family` 兜底，而不是把 `minorHAnsi`
+/// 当成字体名去找。
+fn read_slots(fonts: Option<&Value>) -> FontSlots {
+    let Some(f) = fonts else {
+        return FontSlots::default();
+    };
+    let get = |k: &str| f.get(k).and_then(Value::as_str).map(str::to_owned);
+    FontSlots {
+        ascii: get("ascii"),
+        h_ansi: get("hAnsi"),
+        east_asia: get("eastAsia"),
+        cs: get("cs"),
+        hint: match f.get("hint").and_then(Value::as_str) {
+            Some("eastAsia") => FontHint::EastAsia,
+            Some("cs") => FontHint::Cs,
+            _ => FontHint::Default,
+        },
     }
 }
 

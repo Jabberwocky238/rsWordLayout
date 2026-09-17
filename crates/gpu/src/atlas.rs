@@ -26,73 +26,9 @@
 
 use std::collections::HashMap;
 
+use rsword_layout_core::font::{GlyphKey, RasterGlyph, Rasterizer};
+
 use crate::GlyphQuad;
-
-/// 一个字形的度量与位图尺寸，不含像素数据。
-///
-/// 纯 POD，可跨 C ABI 传递——覆盖率数据另行以指针+长度给出，
-/// 因为 `Vec` 的布局没有保证，带上它就无法 `repr(C)`。
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-#[repr(C)]
-pub struct GlyphMetrics {
-    /// 位图宽高（像素）。可以是 0×0，表示空白字形（如空格），仍应缓存以免反复栅格化。
-    pub width: u32,
-    pub height: u32,
-    /// 相对笔位的偏移：`left` 向右为正，`top` 是基线到位图顶边的距离（向上为正）。
-    pub left: f32,
-    pub top: f32,
-    /// 排版推进量，像素。
-    pub advance: f32,
-}
-
-/// 一个字形的栅格化结果：度量 + 单通道覆盖率位图。
-pub struct RasterGlyph {
-    pub metrics: GlyphMetrics,
-    /// `width * height` 个覆盖率字节，行优先。空白字形为空。
-    pub coverage: Vec<u8>,
-}
-
-impl RasterGlyph {
-    pub fn width(&self) -> u32 {
-        self.metrics.width
-    }
-
-    pub fn height(&self) -> u32 {
-        self.metrics.height
-    }
-}
-
-/// 字形标识：**shaping 的产物，不是字符**。
-///
-/// 全 Unicode 下「一字符一字形」不成立：`fi` 连字是两字符一字形，阿拉伯字母的
-/// 词首/词中/词尾/独立四种形态共用一个码位，印度系文字还会重排。所以图集必须按
-/// 字体内的字形编号索引，由 shaper（HarfBuzz / skrifa）给出。
-///
-/// `face` 区分不同字体文件——同一 glyph id 在不同字体里是完全不同的形状。
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GlyphKey {
-    /// 字体标识，通常是 face 的内容哈希。
-    pub face: String,
-    /// 字体内的字形编号。
-    pub glyph_id: u32,
-    /// 字号，半点。同一字形不同字号要分别栅格化。
-    pub size_half_points: u32,
-}
-
-impl GlyphKey {
-    pub fn new(face: impl Into<String>, glyph_id: u32, size_half_points: u32) -> GlyphKey {
-        GlyphKey { face: face.into(), glyph_id, size_half_points }
-    }
-}
-
-/// 字形栅格化器，由调用方实现。
-///
-/// 同一 key 必须给出同一结果——图集会缓存，结果不稳定会导致画面抖动。
-pub trait Rasterizer {
-    /// 栅格化一个字形。返回 `None` 表示该字体画不出这个字形，
-    /// 调用方应当先做 fallback（见 docx-layout 的 `fontenv::select`）再交给图集。
-    fn rasterize(&mut self, key: &GlyphKey) -> Option<RasterGlyph>;
-}
 
 /// 图集里一个已放置的字形。
 #[derive(Debug, Clone, Copy)]

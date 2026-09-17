@@ -27,6 +27,7 @@ impl Rasterizer for Stub {
                     advance: self.size as f32 / 2.0,
                 },
                 coverage: Vec::new(),
+                format: rsword_layout_core::font::RasterFormat::Alpha,
             });
         }
         let n = (self.size * self.size) as usize;
@@ -39,6 +40,7 @@ impl Rasterizer for Stub {
                 advance: self.size as f32,
             },
             coverage: vec![255; n],
+            format: rsword_layout_core::font::RasterFormat::Alpha,
         })
     }
 }

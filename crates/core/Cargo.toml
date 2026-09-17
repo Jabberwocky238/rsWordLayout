@@ -16,6 +16,11 @@ name = "probe_fontenv"
 path = "examples/probe_fontenv.rs"
 
 [[example]]
+name = "probe_fonts"
+path = "examples/probe_fonts.rs"
+required-features = ["raster"]
+
+[[example]]
 name = "probe_oracle"
 path = "examples/probe_oracle.rs"
 
@@ -33,6 +38,10 @@ name = "repr_c"
 path = "tests/repr_c.rs"
 
 [[test]]
+name = "slots"
+path = "tests/slots.rs"
+
+[[test]]
 name = "oracle"
 path = "tests/oracle.rs"
 
@@ -43,15 +52,24 @@ path = "tests/paint.rs"
 
 [features]
 default = []
-# rustybuzz 整形。产物是 glyph id 与 twips 推进量，与分辨率无关，故留在 core；
-# 栅格化需要知道目标 DPI，归 rsword-layout-gpu。
+# 三者都在 `font` 模块下，按需 gated——只做矢量输出的调用方（SVG / PDF 后端）
+# 不需要任何字体库。
+#
+# rustybuzz 整形：产物是 glyph id 与 twips 推进量，与分辨率无关。
 shape = ["dep:rustybuzz"]
+# skrifa 读轮廓 + zeno 栅格化。栅格化要知道目标 DPI，但它是**无状态纯函数**
+# （同一 key 同一结果），故留在 core；有状态的图集缓存才归 rsword-layout-gpu。
+raster = ["dep:skrifa", "dep:zeno"]
+# 按码位选字体与 fallback，来自 docx-layout 的 fontenv。
+fontenv = ["shape", "raster"]
 
 [dependencies]
 rsword = { workspace = true }
 serde_json = { workspace = true }
 docx-layout = { workspace = true }
 docx-layout-contract = { workspace = true }
+skrifa = { workspace = true, optional = true }
+zeno = { workspace = true, optional = true }
 rustybuzz = { workspace = true, optional = true }
 
 [lints]

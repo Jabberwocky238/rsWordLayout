@@ -20,9 +20,8 @@ rsword-layout-gpu = { workspace = true }
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 rsword-layout-wasm = { workspace = true }
 # 浏览器里要真的画出字：core 管整形（与分辨率无关），gpu 管栅格化。
-rsword-layout-core = { workspace = true, features = ["shape"] }
+rsword-layout-core = { workspace = true, features = ["fontenv"] }
 rsword-layout-gpu = { workspace = true, features = ["raster"] }
-docx-layout = { workspace = true }
 wasm-bindgen = "0.2"
 js-sys = "0.3"
 

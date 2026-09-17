@@ -24,17 +24,15 @@ pub mod atlas;
 pub mod batch;
 pub mod vertex;
 
-#[cfg(feature = "raster")]
-pub mod raster;
-
-pub use atlas::{
-    AtlasSource, DirtyRect, GlyphAtlas, GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer,
-};
+pub use atlas::{AtlasSource, DirtyRect, GlyphAtlas};
+// 字形类型与栅格化契约在 core 的 `font` 模块；这里再导出一次，
+// 让依赖 gpu 的调用方不必同时引两个 crate。
+pub use rsword_layout_core::font::{GlyphKey, GlyphMetrics, RasterGlyph, Rasterizer};
 pub use batch::{Batch, BatchKind, Frame, FrameBuilder};
 pub use vertex::{Vertex, px_from_twips};
 
 #[cfg(feature = "raster")]
-pub use raster::SkrifaRasterizer;
+pub use rsword_layout_core::font::SkrifaRasterizer;
 
 use rsword_layout_core::{Rect, Twips};
 
