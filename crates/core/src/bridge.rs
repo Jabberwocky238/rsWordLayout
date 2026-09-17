@@ -265,6 +265,48 @@ fn pick_terminator(
     }
 }
 
+/// 哪些块下标是「另起一页」的分节起点。
+///
+/// 口径是**实测对过的**，不是照规范推的：`w:sectPr/w:type` 说的是
+/// **这一节自己怎么开始**，不是「上一节之后怎么断」。
+/// MR1 夹具 5 个节的页归属逐条相符（5/5）：
+///
+/// | 节 | `blockRange` | `kind` | Word 的页归属 |
+/// | --- | --- | --- | --- |
+/// | s0 | `[0,9)` | `nextPage` | 起于文档开头，不额外起页 |
+/// | s1 | `[9,10)` | `continuous` | 紧接上一节 |
+/// | s2 | `[10,11)` | `nextPage` | **起新页** |
+/// | s3 | `[11,12)` | `continuous` | 紧接上一节 |
+/// | s4 | `[12,16)` | `nextPage` | **起新页** |
+///
+/// **`evenPage` / `oddPage` 只当成「起新页」**：它们还要求落在偶／奇页上，
+/// 必要时补一张空页——那一层**未实现也未测**，这里不猜。
+///
+/// `nextColumn` 是换栏不是换页，本版不实现分栏，故**不当成换页**——
+/// 当成换页会凭空多出页来，而凭空多出的页在比较器里只会报结构失败。
+fn section_page_starts(doc: &Value) -> std::collections::BTreeSet<usize> {
+    let mut out = std::collections::BTreeSet::new();
+    let Some(Value::Array(sections)) = doc.get("sections") else {
+        return out;
+    };
+    for section in sections {
+        let kind = section
+            .get("props")
+            .and_then(|p| p.get("kind"))
+            .and_then(Value::as_str)
+            .unwrap_or("nextPage");
+        if !matches!(kind, "nextPage" | "evenPage" | "oddPage") {
+            continue;
+        }
+        if let Some(Value::Array(range)) = section.get("blockRange")
+            && let Some(start) = range.first().and_then(Value::as_u64)
+        {
+            out.insert(start as usize);
+        }
+    }
+    out
+}
+
 /// 把 `document()` 的 JSON 转成段落序列。
 ///
 /// 只处理 `main` 里 `kind == "text"` 的块；表格与绘图块被跳过（会在返回的第二项里计数，
@@ -278,12 +320,17 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
         _ => return (paras, skipped),
     };
 
-    for block in main {
+    // 分节起点按**块下标**给出，而非文本块会被跳过，所以要按原下标查，
+    // 不能用段落序号。
+    let section_starts = section_page_starts(doc);
+
+    for (block_index, block) in main.iter().enumerate() {
         let kind = block.get("kind").and_then(Value::as_str).unwrap_or("");
         if kind != "text" {
             skipped += 1;
             continue;
         }
+        let starts_section_page = section_starts.contains(&block_index);
 
         let style_id = block.get("styleId").and_then(Value::as_str);
         let level = block
@@ -333,7 +380,10 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             line_value,
             keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),
             keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
-            page_break_before: props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
+            // 两个来源：段落属性 `w:pageBreakBefore`，以及本段是「另起一页」的分节起点。
+            // 引擎侧对首页为空的情形已有保护，所以文档开头的那个节不会多出一张空页。
+            page_break_before: starts_section_page
+                || props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
             source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
             terminator,
         });
