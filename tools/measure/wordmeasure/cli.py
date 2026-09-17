@@ -77,8 +77,11 @@ def cmd_capture(args):
         required_families=args.font or DEFAULT_FAMILIES,
         label=args.label,
         include_font_files=args.include_font_files,
+        slot=None if args.no_slot else Path(args.slot) if args.slot else capture_mod.DEFAULT_SLOT,
     )
     print("已采：%s" % args.bundle)
+    if meta.get("slot"):
+        print("  取件槽：%s" % meta["slot"]["note"])
     print("  页 %d · 字形 %d · 逐页 %s" % (meta["pageCount"], meta["glyphTotal"], meta["glyphCounts"]))
     print("  字体替换核查：%s" % meta["fontSubstitution"]["result"])
     if not meta["fixture"]["unchanged"]:
@@ -295,6 +298,10 @@ def build_parser():
     p.add_argument("--font", action="append")
     p.add_argument("--label")
     p.add_argument("--include-font-files", action="store_true", help="把逐个字体文件哈希也写进包（很大）")
+    p.add_argument("--slot", help="取件槽路径。Word 开的是它，不是夹具本身——"
+                                  "沙箱授权绑文件身份，固定一个槽就只用授权一次")
+    p.add_argument("--no-slot", action="store_true", help="不用槽，直接让 Word 开夹具"
+                                                          "（每换一份夹具就要人点一次授权）")
     p.set_defaults(func=cmd_capture)
 
     p = sub.add_parser("adopt", help="把既有 mac 采集折成采集包（不驱动 Word）")

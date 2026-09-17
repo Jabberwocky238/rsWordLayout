@@ -110,12 +110,17 @@ def _decode_rows(text: str) -> list[tuple[int, ...]]:
     return rows
 
 
-def open_document(path: Path, timeout: float = 180.0) -> str:
+def open_document(path: Path, timeout: float = 1800.0) -> str:
     """打开夹具，返回 Word 里的文档名。
 
     **不改文档**：只读，采完 `saving no` 关掉。
-    Mac Word 的文件授权绑文件身份不绑路径（§6.6），同一路径换一份文件会重新弹授权框——
-    所以这一步可能需要人工点一次授权，超时按未完成处理。
+    这一步**可能要人点一次授权框**，所以超时按「人的尺度」给（1800 秒），
+    与 `export_pdf` 同一条理由：180 秒不够一个人走到电脑前，而超时会把采集打断，
+    框也跟着消失，下次还得从头再来。
+
+    授权绑的是**路径**，不是文件内容——实测：把已授权路径上的文件内容整个换掉，
+    Word 再开它不弹框，且读到的是新内容。（**不是**绑 inode：把已授权文件硬链接到
+    新路径，新路径照样弹框。）`fill_slot` 就是靠这条规律做的，见那里的说明。
     """
     path = Path(path).resolve(strict=True)
     body = (
@@ -146,6 +151,55 @@ def close_document(doc_expr: str, timeout: float = 120.0) -> None:
     tell_word("close %s saving no" % doc_expr, timeout=timeout)
 
 
+# 「取件槽」：一个**固定身份**的文件，每次采集把夹具的字节**原地**写进去，让 Word 开它。
+DEFAULT_SLOT = Path.home() / "Documents" / "rsword-captures" / "_word-slot.docx"
+
+
+def fill_slot(docx: Path, slot: Path) -> dict:
+    """把 `docx` 的字节原地写进 `slot`，返回身份记录。
+
+    # 为什么要这么绕
+
+    Mac Word 的沙箱授权绑**文件身份**，不绑路径，也**不随目录授权传递**——
+    实测：把一个新文件放进已授权的目录里，开它照样弹框。所以每做一份新夹具，
+    就得有人去点一次「授予文件访问权限」。
+
+    但同一份实测也表明：**把已授权文件的内容整个换掉，授权仍然有效**
+    （inode 不变，Word 开它不弹框，读到的是新内容）。
+
+    于是：留一个固定的槽文件，**只授权它一次**，以后每次采集把夹具的字节
+    `r+b` + `truncate` 原地灌进去——inode 不变，授权就一直在。
+    只有**第一次**创建这个槽需要人点一下。
+
+    # 为什么要核对哈希
+
+    槽是「Word 实际读到的那份」。它若与夹具不一致，量出来的就是**另一份文档**的排版，
+    而几何上完全看不出来——这正是 §6.3 要挡的那类错。所以灌完必须逐字节核对，
+    不一致就拒绝采集，而不是继续跑。
+    """
+    slot = Path(slot)
+    slot.parent.mkdir(parents=True, exist_ok=True)
+    data = Path(docx).read_bytes()
+    created = not slot.exists()
+    if created:
+        slot.write_bytes(data)
+    else:
+        # **原地**改写：不能用 shutil.copy2 之外的「先删后建」，那会换 inode，授权就没了。
+        with open(slot, "r+b") as handle:
+            handle.truncate(0)
+            handle.write(data)
+    written = slot.read_bytes()
+    if written != data:
+        raise ValueError("SLOT_MISMATCH: 槽里的字节与夹具不一致，拒绝采集：%s" % slot)
+    return {
+        "path": str(slot),
+        "sha256": fingerprint.sha256_bytes(written),
+        "created": created,
+        "note": ("槽是新建的，Word 会为它弹一次授权框；此后同一个槽不再弹。"
+                 if created else "复用已授权的槽，不弹授权框。"),
+    }
+
+
 def capture(
     docx: Path,
     bundle: Path,
@@ -153,6 +207,7 @@ def capture(
     required_families: list[str],
     label: str | None = None,
     include_font_files: bool = False,
+    slot: Path | None = DEFAULT_SLOT,
 ) -> dict:
     """跑一次完整采集，写出采集包。返回 META.json 的内容。
 
@@ -178,9 +233,14 @@ def capture(
     shutil.copy2(docx, bundle / "case.docx")
     pdf_path = bundle / "case.pdf"
 
+    # 让 Word 开固定身份的槽，而不是夹具本身——否则每做一份新夹具就要人点一次授权。
+    # 顺带还有个好处：Word 碰不到夹具本身，连改坏的可能都没有。
+    slot_identity = fill_slot(docx, slot) if slot else None
+    to_open = Path(slot_identity["path"]) if slot_identity else docx
+
     timings = {}
     doc_expr = "theDoc"
-    name = open_document(docx)
+    name = open_document(to_open)
     doc_expr = "document %s" % literal(name)
     try:
         started = time.monotonic()
@@ -250,6 +310,9 @@ def capture(
             # 采前采后夹具字节必须相同；不同就说明采集过程中动了夹具，读数作废。
             "unchanged": identity_before["sha256"] == identity_after["sha256"],
         },
+        # 槽的哈希与夹具的哈希必须一致（`fill_slot` 已逐字节核过）。记在这里，
+        # 是为了让「Word 到底读的是哪份字节」在采集包里可核，而不是靠相信。
+        "slot": slot_identity,
         "pdfSha256": glyphs["sourceSha256"],
         "pageCount": len(glyphs["pages"]),
         "glyphCounts": pdfglyphs.glyph_counts(glyphs),
