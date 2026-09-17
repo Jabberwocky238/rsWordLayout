@@ -1,0 +1,134 @@
+{
+  "sha256": "04d2bc8d5779b08fa126bf8e88330f3aed91e1bcb4f21f19f03ea6df016012eb",
+  "linesPerGroup": 20,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "shift-floor",
+      "lineTwips": 228,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "b",
+      "kind": "shift-floor",
+      "lineTwips": 232,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "c",
+      "kind": "shift-floor",
+      "lineTwips": 236,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "d",
+      "kind": "shift-floor",
+      "lineTwips": 262,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "e",
+      "kind": "shift-floor",
+      "lineTwips": 268,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "f",
+      "kind": "shift-floor",
+      "lineTwips": 282,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "g",
+      "kind": "shift-floor",
+      "lineTwips": 286,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "h",
+      "kind": "shift-floor",
+      "lineTwips": 294,
+      "sizeHalfPoints": 24,
+      "family": "Brush Script MT",
+      "lines": 20
+    },
+    {
+      "tag": "i",
+      "kind": "shift-floor",
+      "lineTwips": 228,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "j",
+      "kind": "shift-floor",
+      "lineTwips": 232,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "k",
+      "kind": "shift-floor",
+      "lineTwips": 236,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "l",
+      "kind": "shift-floor",
+      "lineTwips": 262,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "m",
+      "kind": "shift-floor",
+      "lineTwips": 268,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "n",
+      "kind": "shift-floor",
+      "lineTwips": 282,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "o",
+      "kind": "shift-floor",
+      "lineTwips": 286,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    },
+    {
+      "tag": "p",
+      "kind": "shift-floor",
+      "lineTwips": 294,
+      "sizeHalfPoints": 24,
+      "family": "AppleMyungjo",
+      "lines": 20
+    }
+  ]
+}
