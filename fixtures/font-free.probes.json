@@ -1,0 +1,198 @@
+{
+  "sha256": "ce3c82dfeb124065b122aed566640cad1b871647f15cee8fcabd0f94049e0d30",
+  "linesPerGroup": 10,
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "font-free",
+      "lineTwips": 222,
+      "sizeHalfPoints": 26,
+      "family": "Zapfino",
+      "lines": 10
+    },
+    {
+      "tag": "b",
+      "kind": "font-free",
+      "lineTwips": 244,
+      "sizeHalfPoints": 26,
+      "family": "Zapfino",
+      "lines": 10
+    },
+    {
+      "tag": "c",
+      "kind": "font-free",
+      "lineTwips": 256,
+      "sizeHalfPoints": 26,
+      "family": "Zapfino",
+      "lines": 10
+    },
+    {
+      "tag": "d",
+      "kind": "font-free",
+      "lineTwips": 292,
+      "sizeHalfPoints": 26,
+      "family": "Zapfino",
+      "lines": 10
+    },
+    {
+      "tag": "e",
+      "kind": "font-free",
+      "lineTwips": 222,
+      "sizeHalfPoints": 26,
+      "family": "Trattatello",
+      "lines": 10
+    },
+    {
+      "tag": "f",
+      "kind": "font-free",
+      "lineTwips": 244,
+      "sizeHalfPoints": 26,
+      "family": "Trattatello",
+      "lines": 10
+    },
+    {
+      "tag": "g",
+      "kind": "font-free",
+      "lineTwips": 256,
+      "sizeHalfPoints": 26,
+      "family": "Trattatello",
+      "lines": 10
+    },
+    {
+      "tag": "h",
+      "kind": "font-free",
+      "lineTwips": 292,
+      "sizeHalfPoints": 26,
+      "family": "Trattatello",
+      "lines": 10
+    },
+    {
+      "tag": "i",
+      "kind": "font-free",
+      "lineTwips": 222,
+      "sizeHalfPoints": 26,
+      "family": "Khmer Sangam MN",
+      "lines": 10
+    },
+    {
+      "tag": "j",
+      "kind": "font-free",
+      "lineTwips": 244,
+      "sizeHalfPoints": 26,
+      "family": "Khmer Sangam MN",
+      "lines": 10
+    },
+    {
+      "tag": "k",
+      "kind": "font-free",
+      "lineTwips": 256,
+      "sizeHalfPoints": 26,
+      "family": "Khmer Sangam MN",
+      "lines": 10
+    },
+    {
+      "tag": "l",
+      "kind": "font-free",
+      "lineTwips": 292,
+      "sizeHalfPoints": 26,
+      "family": "Khmer Sangam MN",
+      "lines": 10
+    },
+    {
+      "tag": "m",
+      "kind": "font-free",
+      "lineTwips": 222,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "n",
+      "kind": "font-free",
+      "lineTwips": 244,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "o",
+      "kind": "font-free",
+      "lineTwips": 256,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "p",
+      "kind": "font-free",
+      "lineTwips": 292,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 10
+    },
+    {
+      "tag": "q",
+      "kind": "font-free",
+      "lineTwips": 222,
+      "sizeHalfPoints": 26,
+      "family": "AppleMyungjo",
+      "lines": 10
+    },
+    {
+      "tag": "r",
+      "kind": "font-free",
+      "lineTwips": 244,
+      "sizeHalfPoints": 26,
+      "family": "AppleMyungjo",
+      "lines": 10
+    },
+    {
+      "tag": "s",
+      "kind": "font-free",
+      "lineTwips": 256,
+      "sizeHalfPoints": 26,
+      "family": "AppleMyungjo",
+      "lines": 10
+    },
+    {
+      "tag": "t",
+      "kind": "font-free",
+      "lineTwips": 292,
+      "sizeHalfPoints": 26,
+      "family": "AppleMyungjo",
+      "lines": 10
+    },
+    {
+      "tag": "u",
+      "kind": "font-free",
+      "lineTwips": 222,
+      "sizeHalfPoints": 26,
+      "family": "Herculanum",
+      "lines": 10
+    },
+    {
+      "tag": "v",
+      "kind": "font-free",
+      "lineTwips": 244,
+      "sizeHalfPoints": 26,
+      "family": "Herculanum",
+      "lines": 10
+    },
+    {
+      "tag": "w",
+      "kind": "font-free",
+      "lineTwips": 256,
+      "sizeHalfPoints": 26,
+      "family": "Herculanum",
+      "lines": 10
+    },
+    {
+      "tag": "x",
+      "kind": "font-free",
+      "lineTwips": 292,
+      "sizeHalfPoints": 26,
+      "family": "Herculanum",
+      "lines": 10
+    }
+  ]
+}
