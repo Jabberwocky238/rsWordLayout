@@ -15,6 +15,8 @@
 
 from __future__ import annotations
 
+import struct
+
 from . import fingerprint
 from .applescript import literal, tell_word
 
@@ -80,7 +82,47 @@ def assert_pass(record: dict) -> None:
         )
 
 
-def font_substitution_check(required_families: list[str], pdf_font_names: list[str]) -> dict:
+def names_declared_by_font(path) -> set[str]:
+    """字体文件**自己**声明的名字：族名(1)、全名(4)、PostScript 名(6)。
+
+    为什么非读不可：族名与 PostScript 名可以毫无字面关系。
+    `Bodoni 72 Smallcaps Book` 的 PostScript 名是 `BodoniSvtyTwoSCITCTT-Book`
+    （Svty Two = Seventy Two = 72），而 PDF 的子集名用的是后者。
+    只按族名做字符串包含，就会把**没被替换**的字体判成替换——实测栽过一次。
+    """
+    from pathlib import Path as _Path
+
+    data = _Path(path).read_bytes()
+    count = struct.unpack(">H", data[4:6])[0]
+    tables = {}
+    for i in range(count):
+        at = 12 + 16 * i
+        tables[data[at : at + 4].decode("latin1")] = struct.unpack(
+            ">II", data[at + 8 : at + 16]
+        )[0]
+    if "name" not in tables:
+        return set()
+    base = tables["name"]
+    n_records, storage = struct.unpack(">HH", data[base + 2 : base + 6])
+    out: set[str] = set()
+    for i in range(n_records):
+        rec = base + 6 + 12 * i
+        pid, _eid, _lid, nid, length, offset = struct.unpack(">HHHHHH", data[rec : rec + 12])
+        if nid not in (1, 4, 6):
+            continue
+        raw = data[base + storage + offset : base + storage + offset + length]
+        try:
+            out.add(raw.decode("utf-16-be") if pid == 3 else raw.decode("latin1"))
+        except UnicodeDecodeError:
+            continue
+    return out
+
+
+def font_substitution_check(
+    required_families: list[str],
+    pdf_font_names: list[str],
+    font_files: list | None = None,
+) -> dict:
     """采后核字体名（§6.2）。
 
     Liberation Serif 是 Times New Roman 的**度量兼容**克隆（Sans↔Arial、Carlito↔Calibri、
@@ -89,19 +131,56 @@ def font_substitution_check(required_families: list[str], pdf_font_names: list[s
 
     所以采完必须回头看 PDF 里的子集名，确认用的是申请的族。
     """
+    def norm(s: str) -> str:
+        return s.replace("-", "").replace(" ", "").lower()
+
     # PDF 子集名形如 `ABCDEF+LiberationSerif`；去前缀与空格后做包含判断。
-    normalized = []
-    for name in pdf_font_names:
-        base = name.split("+", 1)[-1]
-        normalized.append(base.replace("-", "").replace(" ", "").lower())
+    normalized = [norm(name.split("+", 1)[-1]) for name in pdf_font_names]
+
+    # 申请的每个族「可以叫什么」：族名本身，**加上字体文件自己声明的名字**。
+    # 不读文件就只能拿族名去猜，而族名与 PostScript 名可以毫无字面关系。
+    declared: dict[str, set[str]] = {}
+    for path in font_files or []:
+        try:
+            declared[str(path)] = {norm(n) for n in names_declared_by_font(path)}
+        except (OSError, struct.error, KeyError):
+            declared[str(path)] = set()
+    def related(a: str, b: str) -> bool:
+        return a in b or b in a
+
     findings = {}
     for family in required_families:
-        needle = family.replace("-", "").replace(" ", "").lower()
-        findings[family] = any(needle in n for n in normalized)
+        needle = norm(family)
+        acceptable = {needle}
+        # **按文件归并**：一个文件里的族名、全名、PostScript 名说的是同一个字体，
+        # 所以只要其中任何一个与申请的族名对得上，这个文件的**全部**名字都算数。
+        # 逐个名字去跟族名比是不行的——PostScript 名与族名可以毫无字面关系
+        # （`Bodoni 72 Smallcaps` ↔ `BodoniSvtyTwoSCITCTT-Book`），那样反而把
+        # 真正出现在 PDF 里的那个名字排除掉。
+        for names in declared.values():
+            if any(related(needle, d) for d in names):
+                acceptable |= names
+        findings[family] = any(any(related(a, n) for a in acceptable) for n in normalized)
+
+    # 反向：PDF 里出现了申请之外的名字吗？这一问才是「有没有被替换」。
+    known = {norm(f) for f in required_families}
+    for names in declared.values():
+        known |= names
+    unexpected = sorted(
+        name
+        for name in set(pdf_font_names)
+        if not any(related(k, norm(name.split("+", 1)[-1])) for k in known)
+    )
+
     return {
-        "schema": "rsword-layout-font-substitution/1",
-        "basis": "方法 §6.2：几何自检查不出字体替换，只有字体名能。",
+        "schema": "rsword-layout-font-substitution/2",
+        "basis": "方法 §6.2：几何自检查不出字体替换，只有字体名能。"
+                 "可接受的名字取自**字体文件自己声明的** name 表（族名/全名/PostScript 名），"
+                 "不靠族名字符串去猜。",
         "pdfFontNames": sorted(set(pdf_font_names)),
+        "fontFilesRead": sorted(declared),
         "requiredFamiliesSeenInPdf": findings,
-        "result": "PASS" if all(findings.values()) else "SUBSTITUTION_SUSPECTED",
+        "unexpectedNames": unexpected,
+        "result": "PASS" if all(findings.values()) and not unexpected
+                  else "SUBSTITUTION_SUSPECTED",
     }

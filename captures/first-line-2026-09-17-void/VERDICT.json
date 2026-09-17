@@ -1,0 +1,25 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-first-line.md",
+  "bundle": "/Users/user/Documents/rsword-captures/first-line",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 24,
+    "pdfPages": 24,
+    "sweepPositions": 216,
+    "linesFromSweep": 72
+  },
+  "lineDenominators": {
+    "lines": 72,
+    "ok": 72,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [
+    {
+      "id": "F-B",
+      "detail": "字体核查 'SUBSTITUTION_SUSPECTED'，额外字体=['AAAAAV+BodoniSvtyTwoSCITCTT-Book', 'AAAAAW+BodoniSvtyTwoSCITCTT-Book', 'AAAAAX+BodoniSvtyTwoSCITCTT-Book', 'AAAAAY+BodoniSvtyTwoSCITCTT-Book']"
+    }
+  ],
+  "verdict": "VOID"
+}

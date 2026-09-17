@@ -78,6 +78,7 @@ def cmd_capture(args):
         label=args.label,
         include_font_files=args.include_font_files,
         slot=None if args.no_slot else Path(args.slot) if args.slot else capture_mod.DEFAULT_SLOT,
+        font_files=[Path(f) for f in (args.font_file or [])],
     )
     print("已采：%s" % args.bundle)
     if meta.get("slot"):
@@ -298,6 +299,9 @@ def build_parser():
     p.add_argument("--font", action="append")
     p.add_argument("--label")
     p.add_argument("--include-font-files", action="store_true", help="把逐个字体文件哈希也写进包（很大）")
+    p.add_argument("--font-file", action="append",
+                   help="申请字体的文件路径，可重复。核查用它读字体**自己声明的**名字"
+                        "（族名/全名/PostScript 名）——族名与 PostScript 名可以毫无字面关系")
     p.add_argument("--slot", help="取件槽路径。Word 开的是它，不是夹具本身——"
                                   "沙箱授权绑文件身份，固定一个槽就只用授权一次")
     p.add_argument("--no-slot", action="store_true", help="不用槽，直接让 Word 开夹具"
