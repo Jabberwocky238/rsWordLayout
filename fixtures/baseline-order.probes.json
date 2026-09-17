@@ -1,0 +1,173 @@
+{
+  "sha256": "9acad2f4905fb14e06fa5c23bbe5b4271cb4c234f173045e15f6230885123c98",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "first-line",
+      "sizeHalfPoints": 46,
+      "family": "Skia",
+      "lines": 3
+    },
+    {
+      "tag": "b",
+      "kind": "first-line",
+      "sizeHalfPoints": 50,
+      "family": "Skia",
+      "lines": 3
+    },
+    {
+      "tag": "c",
+      "kind": "first-line",
+      "sizeHalfPoints": 52,
+      "family": "Skia",
+      "lines": 3
+    },
+    {
+      "tag": "d",
+      "kind": "first-line",
+      "sizeHalfPoints": 54,
+      "family": "Skia",
+      "lines": 3
+    },
+    {
+      "tag": "e",
+      "kind": "first-line",
+      "sizeHalfPoints": 46,
+      "family": "Sathu",
+      "lines": 3
+    },
+    {
+      "tag": "f",
+      "kind": "first-line",
+      "sizeHalfPoints": 50,
+      "family": "Sathu",
+      "lines": 3
+    },
+    {
+      "tag": "g",
+      "kind": "first-line",
+      "sizeHalfPoints": 52,
+      "family": "Sathu",
+      "lines": 3
+    },
+    {
+      "tag": "h",
+      "kind": "first-line",
+      "sizeHalfPoints": 54,
+      "family": "Sathu",
+      "lines": 3
+    },
+    {
+      "tag": "i",
+      "kind": "first-line",
+      "sizeHalfPoints": 46,
+      "family": "Plantagenet Cherokee",
+      "lines": 3
+    },
+    {
+      "tag": "j",
+      "kind": "first-line",
+      "sizeHalfPoints": 50,
+      "family": "Plantagenet Cherokee",
+      "lines": 3
+    },
+    {
+      "tag": "k",
+      "kind": "first-line",
+      "sizeHalfPoints": 52,
+      "family": "Plantagenet Cherokee",
+      "lines": 3
+    },
+    {
+      "tag": "l",
+      "kind": "first-line",
+      "sizeHalfPoints": 54,
+      "family": "Plantagenet Cherokee",
+      "lines": 3
+    },
+    {
+      "tag": "m",
+      "kind": "first-line",
+      "sizeHalfPoints": 46,
+      "family": "STIX Two Text",
+      "lines": 3
+    },
+    {
+      "tag": "n",
+      "kind": "first-line",
+      "sizeHalfPoints": 50,
+      "family": "STIX Two Text",
+      "lines": 3
+    },
+    {
+      "tag": "o",
+      "kind": "first-line",
+      "sizeHalfPoints": 52,
+      "family": "STIX Two Text",
+      "lines": 3
+    },
+    {
+      "tag": "p",
+      "kind": "first-line",
+      "sizeHalfPoints": 54,
+      "family": "STIX Two Text",
+      "lines": 3
+    },
+    {
+      "tag": "q",
+      "kind": "first-line",
+      "sizeHalfPoints": 46,
+      "family": "Trattatello",
+      "lines": 3
+    },
+    {
+      "tag": "r",
+      "kind": "first-line",
+      "sizeHalfPoints": 50,
+      "family": "Trattatello",
+      "lines": 3
+    },
+    {
+      "tag": "s",
+      "kind": "first-line",
+      "sizeHalfPoints": 52,
+      "family": "Trattatello",
+      "lines": 3
+    },
+    {
+      "tag": "t",
+      "kind": "first-line",
+      "sizeHalfPoints": 54,
+      "family": "Trattatello",
+      "lines": 3
+    },
+    {
+      "tag": "u",
+      "kind": "first-line",
+      "sizeHalfPoints": 46,
+      "family": "Zapfino",
+      "lines": 3
+    },
+    {
+      "tag": "v",
+      "kind": "first-line",
+      "sizeHalfPoints": 50,
+      "family": "Zapfino",
+      "lines": 3
+    },
+    {
+      "tag": "w",
+      "kind": "first-line",
+      "sizeHalfPoints": 52,
+      "family": "Zapfino",
+      "lines": 3
+    },
+    {
+      "tag": "x",
+      "kind": "first-line",
+      "sizeHalfPoints": 54,
+      "family": "Zapfino",
+      "lines": 3
+    }
+  ]
+}
