@@ -1,0 +1,187 @@
+{
+  "sha256": "3ca4f2ce5328db05315429019c143f71db6a927e618768088684930c367d922b",
+  "probes": [
+    {
+      "tag": "A16",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 16,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A18",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 18,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A20",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 20,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A22",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 22,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A24",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A28",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 28,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A32",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 32,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A36",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 36,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "A48",
+      "kind": "size-sweep",
+      "sizeHalfPoints": 48,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "B0",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "B1",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Sans"
+    },
+    {
+      "tag": "B2",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Mono"
+    },
+    {
+      "tag": "B3",
+      "kind": "family-sweep",
+      "sizeHalfPoints": 24,
+      "family": "Carlito"
+    },
+    {
+      "tag": "C0sup",
+      "kind": "superscript",
+      "sizeHalfPoints": 20,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "x"
+    },
+    {
+      "tag": "C0sub",
+      "kind": "subscript",
+      "sizeHalfPoints": 20,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "x"
+    },
+    {
+      "tag": "C1sup",
+      "kind": "superscript",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "x"
+    },
+    {
+      "tag": "C1sub",
+      "kind": "subscript",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "x"
+    },
+    {
+      "tag": "C2sup",
+      "kind": "superscript",
+      "sizeHalfPoints": 36,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "x"
+    },
+    {
+      "tag": "C2sub",
+      "kind": "subscript",
+      "sizeHalfPoints": 36,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "x"
+    },
+    {
+      "tag": "D02",
+      "kind": "position",
+      "riseHalfPoints": 2,
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "b"
+    },
+    {
+      "tag": "D03",
+      "kind": "position",
+      "riseHalfPoints": 3,
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "b"
+    },
+    {
+      "tag": "D04",
+      "kind": "position",
+      "riseHalfPoints": 4,
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "b"
+    },
+    {
+      "tag": "D06",
+      "kind": "position",
+      "riseHalfPoints": 6,
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "b"
+    },
+    {
+      "tag": "D08",
+      "kind": "position",
+      "riseHalfPoints": 8,
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "b"
+    },
+    {
+      "tag": "D12",
+      "kind": "position",
+      "riseHalfPoints": 12,
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif",
+      "markedLineSuffix": "b"
+    },
+    {
+      "tag": "E0",
+      "kind": "section-boundary",
+      "sectionKind": "continuous",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif"
+    },
+    {
+      "tag": "E1",
+      "kind": "section-boundary",
+      "sectionKind": "continuous",
+      "sizeHalfPoints": 24,
+      "family": "Liberation Serif"
+    }
+  ]
+}
