@@ -1,0 +1,193 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-baseline-order.md",
+  "clueIndependence": "线索部分取自已见数据（判据文 §1），按 §7.5 记为非独立检验",
+  "bundle": "/Users/user/Documents/rsword-captures/baseline-order",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 24,
+    "pdfPages": 24,
+    "sweepPositions": 216,
+    "linesFromSweep": 72
+  },
+  "lineDenominators": {
+    "lines": 72,
+    "ok": 72,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "U0": {
+      "prediction": "U0 每条基线都在 0.24pt 栅格上",
+      "n": 72,
+      "ok": 72,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "U1": {
+      "prediction": "U1 b₀ = quantize(72 + usWinAscent/upem × 字号)",
+      "n": 24,
+      "ok": 8,
+      "undecidable": 0,
+      "misses": [
+        {
+          "tag": "a",
+          "family": "Skia",
+          "sizePt": 23.0,
+          "实测": 89.99999999999989,
+          "预测": 93.36,
+          "差": -3.36,
+          "两表同解": false
+        },
+        {
+          "tag": "b",
+          "family": "Skia",
+          "sizePt": 25.0,
+          "实测": 91.43999999999994,
+          "预测": 95.04,
+          "差": -3.6,
+          "两表同解": false
+        },
+        {
+          "tag": "c",
+          "family": "Skia",
+          "sizePt": 26.0,
+          "实测": 92.15999999999997,
+          "预测": 96.0,
+          "差": -3.84,
+          "两表同解": false
+        },
+        {
+          "tag": "d",
+          "family": "Skia",
+          "sizePt": 27.0,
+          "实测": 93.11999999999989,
+          "预测": 96.96,
+          "差": -3.84,
+          "两表同解": false
+        },
+        {
+          "tag": "h",
+          "family": "Sathu",
+          "sizePt": 27.0,
+          "实测": 96.2399999999999,
+          "预测": 96.48,
+          "差": -0.24,
+          "两表同解": true
+        },
+        {
+          "tag": "i",
+          "family": "Plantagenet Cherokee",
+          "sizePt": 23.0,
+          "实测": 89.75999999999988,
+          "预测": 93.12,
+          "差": -3.36,
+          "两表同解": false
+        },
+        {
+          "tag": "j",
+          "family": "Plantagenet Cherokee",
+          "sizePt": 25.0,
+          "实测": 91.19999999999993,
+          "预测": 94.8,
+          "差": -3.6,
+          "两表同解": false
+        },
+        {
+          "tag": "k",
+          "family": "Plantagenet Cherokee",
+          "sizePt": 26.0,
+          "实测": 91.91999999999996,
+          "预测": 95.76,
+          "差": -3.84,
+          "两表同解": false
+        },
+        {
+          "tag": "l",
+          "family": "Plantagenet Cherokee",
+          "sizePt": 27.0,
+          "实测": 92.87999999999988,
+          "预测": 96.72,
+          "差": -3.84,
+          "两表同解": false
+        },
+        {
+          "tag": "m",
+          "family": "STIX Two Text",
+          "sizePt": 23.0,
+          "实测": 95.27999999999986,
+          "预测": 96.0,
+          "差": -0.72,
+          "两表同解": false
+        },
+        {
+          "tag": "n",
+          "family": "STIX Two Text",
+          "sizePt": 25.0,
+          "实测": 97.19999999999993,
+          "预测": 98.16,
+          "差": -0.96,
+          "两表同解": false
+        },
+        {
+          "tag": "o",
+          "family": "STIX Two Text",
+          "sizePt": 26.0,
+          "实测": 98.15999999999997,
+          "预测": 99.12,
+          "差": -0.96,
+          "两表同解": false
+        },
+        {
+          "tag": "p",
+          "family": "STIX Two Text",
+          "sizePt": 27.0,
+          "实测": 99.3599999999999,
+          "预测": 100.32,
+          "差": -0.96,
+          "两表同解": false
+        },
+        {
+          "tag": "q",
+          "family": "Trattatello",
+          "sizePt": 23.0,
+          "实测": 98.63999999999987,
+          "预测": 98.4,
+          "差": 0.24,
+          "两表同解": true
+        },
+        {
+          "tag": "s",
+          "family": "Trattatello",
+          "sizePt": 26.0,
+          "实测": 101.75999999999988,
+          "预测": 102.0,
+          "差": -0.24,
+          "两表同解": true
+        },
+        {
+          "tag": "t",
+          "family": "Trattatello",
+          "sizePt": 27.0,
+          "实测": 103.19999999999993,
+          "预测": 102.96,
+          "差": 0.24,
+          "两表同解": true
+        }
+      ],
+      "notes": [],
+      "verdict": "FAIL"
+    }
+  },
+  "control": {
+    "form": "对照（不作预测）：quantize(72 + (hhea.ascender + lineGap)/upem × 字号)",
+    "n": 24,
+    "ok": 16,
+    "separating": 12,
+    "separatingOk": 0
+  }
+}

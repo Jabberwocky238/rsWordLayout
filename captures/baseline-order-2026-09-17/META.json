@@ -1,0 +1,190 @@
+{
+  "capturedAtUtc": "2026-09-17T13:30:07Z",
+  "environment": {
+    "fontEpoch": {
+      "extensions": [
+        ".dfont",
+        ".otc",
+        ".otf",
+        ".ttc",
+        ".ttf"
+      ],
+      "fileCount": 678,
+      "filesSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+      "formula": "sha256 of '\\n'.join(path + '\\t' + sha256) over files sorted by path",
+      "roots": [
+        "~/Library/Fonts",
+        "/Library/Fonts",
+        "/System/Library/Fonts",
+        "/System/Library/Fonts/Supplemental",
+        "/Network/Library/Fonts"
+      ],
+      "schema": "mac-font-environment/1"
+    },
+    "platform": "mac",
+    "schema": "rsword-layout-capture-env/1",
+    "tools": {
+      "pdfminer.six": "20231228",
+      "python": "3.13.11"
+    },
+    "word": {
+      "build": "16.112.26083020",
+      "infoPlistSha256": "5fc365652b4f467ffd3f29e7cbb41a40a64ae01062a7e53e697a775d73639c29",
+      "path": "/Applications/Microsoft Word.app",
+      "version": "16.112.3"
+    },
+    "wordProcesses": [
+      {
+        "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+        "pid": 34339,
+        "startedAt": "四  9月/17 12:02:06 2026  "
+      }
+    ]
+  },
+  "exportVector": {
+    "addToRecentFiles": false,
+    "channel": "mac AppleScript `save as`",
+    "embedTruetypeFonts": false,
+    "fileFormat": "format PDF (WdSaveFormat 0x02310011)",
+    "lockComments": false,
+    "note": "Mac Word 无 XPS 导出（§6.6）。ExportAsFixedFormat 的完整参数向量在 Mac 桥上不可达，这里记的是实际传出的每一位。",
+    "readOnlyRecommended": false
+  },
+  "fixture": {
+    "after": {
+      "bytes": 1866,
+      "documentXmlSha256": "19ce60bf030c383f62910897610e3672f751d4e85e7b1f9c914d1f84ca62dc23",
+      "parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/document.xml"
+      ],
+      "path": "/Users/user/code/rsWordLayout/fixtures/baseline-order.docx",
+      "sha256": "9acad2f4905fb14e06fa5c23bbe5b4271cb4c234f173045e15f6230885123c98"
+    },
+    "before": {
+      "bytes": 1866,
+      "documentXmlSha256": "19ce60bf030c383f62910897610e3672f751d4e85e7b1f9c914d1f84ca62dc23",
+      "parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/document.xml"
+      ],
+      "path": "/Users/user/code/rsWordLayout/fixtures/baseline-order.docx",
+      "sha256": "9acad2f4905fb14e06fa5c23bbe5b4271cb4c234f173045e15f6230885123c98"
+    },
+    "unchanged": true
+  },
+  "fontSubstitution": {
+    "basis": "方法 §6.2：几何自检查不出字体替换，只有字体名能。可接受的名字取自**字体文件自己声明的** name 表（族名/全名/PostScript 名），不靠族名字符串去猜。",
+    "fontFilesRead": [
+      "/System/Library/Fonts/Supplemental/PlantagenetCherokee.ttf",
+      "/System/Library/Fonts/Supplemental/STIXTwoText.ttf",
+      "/System/Library/Fonts/Supplemental/Sathu.ttf",
+      "/System/Library/Fonts/Supplemental/Skia.ttf",
+      "/System/Library/Fonts/Supplemental/Trattatello.ttf",
+      "/System/Library/Fonts/Supplemental/Zapfino.ttf"
+    ],
+    "pdfFontNames": [
+      "AAAAAB+Skia-Regular",
+      "AAAAAC+Skia-Regular",
+      "AAAAAD+Sathu",
+      "AAAAAE+Sathu",
+      "AAAAAF+Sathu",
+      "AAAAAG+Sathu",
+      "AAAAAH+PlantagenetCherokee",
+      "AAAAAI+PlantagenetCherokee",
+      "AAAAAJ+PlantagenetCherokee",
+      "AAAAAK+PlantagenetCherokee",
+      "AAAAAL+STIXTwoText",
+      "AAAAAM+STIXTwoText",
+      "AAAAAN+STIXTwoText",
+      "AAAAAO+STIXTwoText",
+      "AAAAAP+Trattatello",
+      "AAAAAQ+Trattatello",
+      "AAAAAR+Trattatello",
+      "AAAAAS+Trattatello",
+      "AAAAAT+Zapfino",
+      "AAAAAU+Zapfino",
+      "AAAAAV+Zapfino",
+      "AAAAAW+Zapfino"
+    ],
+    "requiredFamiliesSeenInPdf": {
+      "Plantagenet Cherokee": true,
+      "STIX Two Text": true,
+      "Sathu": true,
+      "Skia": true,
+      "Trattatello": true,
+      "Zapfino": true
+    },
+    "result": "PASS",
+    "schema": "rsword-layout-font-substitution/2",
+    "unexpectedNames": []
+  },
+  "glyphCounts": [
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9
+  ],
+  "glyphTotal": 216,
+  "label": "baseline-order",
+  "pageCount": 24,
+  "pdfSha256": "4d98bd7c3dd683462da68aacf15eb54c8b8a29294034b7977b234d3895d18250",
+  "preflight": {
+    "fontNameCount": 1614,
+    "method": "AppleScript: tell application \"Microsoft Word\" to return font names",
+    "note": null,
+    "requiredFamilies": {
+      "Plantagenet Cherokee": true,
+      "STIX Two Text": true,
+      "Sathu": true,
+      "Skia": true,
+      "Trattatello": true,
+      "Zapfino": true
+    },
+    "result": "PASS",
+    "rule": "方法 §6.1：核 Word 进程自己能列出所需字体。不是文件在不在，不是别的进程看不看得见。",
+    "schema": "rsword-layout-font-preflight/1",
+    "wordProcesses": [
+      {
+        "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+        "pid": 34339,
+        "startedAt": "四  9月/17 12:02:06 2026  "
+      }
+    ]
+  },
+  "schema": "rsword-layout-capture/1",
+  "slot": {
+    "created": false,
+    "note": "复用已授权的槽，不弹授权框。",
+    "path": "/Users/user/Documents/rsword-captures/_word-slot.docx",
+    "sha256": "9acad2f4905fb14e06fa5c23bbe5b4271cb4c234f173045e15f6230885123c98"
+  },
+  "timings": {
+    "exportSeconds": 52.43704033293761,
+    "structureSeconds": 2.2204658340197057,
+    "sweepSeconds": 6.831280166981742
+  },
+  "wordDocumentName": "_word-slot.docx"
+}
