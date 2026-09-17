@@ -109,13 +109,56 @@ def lines_with_tags(model: dict) -> list[dict]:
                 "text": (line.get("text") or "").strip("\r\x0b\x0c"),
                 "baseline": glyphs[0]["origin"][1],
                 "sizePt": glyphs[0].get("sizePt"),
+                # 源区间要带上：段落换行时，按文本前缀归行只找得到第一行，
+                # 只有源区间能把第二行起也归对（见 `lines_by_paragraph`）。
+                "sourceStart": line.get("sourceStart"),
+                "sourceEnd": line.get("sourceEnd"),
                 "glyphs": glyphs,
             })
     return out
 
 
 def find(lines: list[dict], prefix: str) -> list[dict]:
+    """按行文本的前缀找行。
+
+    **只找得到段落的第一行。** 段落一旦换行，第二行起的文本不以标签开头，
+    这个函数就漏掉它们——hbox 那一批的 K2 正是这么变成「判不了」的
+    （两段明明换了行，却被报成各一行）。
+
+    段落会换行的夹具请改用 [`lines_by_paragraph`]。
+    """
     return [l for l in lines if l["text"].startswith(prefix)]
+
+
+def lines_by_paragraph(model: dict, bundle: dict) -> dict[int, list[dict]]:
+    """行 → 所属段落，按**源字符区间**归属，不看文本前缀。
+
+    这才是段落换行时唯一可靠的归法：行记录带 `sourceStart`，
+    采集包的 `sweep.paragraphs` 带每段的 `[start, end)`，落在区间里就是那一段的行。
+    """
+    paragraphs = bundle["sweep"].get("paragraphs") or []
+    out: dict[int, list[dict]] = {}
+    for line in lines_with_tags(model):
+        start = line.get("sourceStart")
+        if start is None:
+            continue
+        for p in paragraphs:
+            if p["start"] <= start < p["end"]:
+                out.setdefault(p["index"], []).append(line)
+                break
+    return out
+
+
+def paragraph_lines_for_tag(model: dict, bundle: dict, tag: str) -> list[dict]:
+    """标签所在**段落**的全部行（含换行后的第二行起）。"""
+    text = bundle["sweep"]["contentText"]
+    by_para = lines_by_paragraph(model, bundle)
+    out: list[dict] = []
+    for idx, lines in sorted(by_para.items()):
+        p = bundle["sweep"]["paragraphs"][idx]
+        if text[p["start"]:p["end"]].startswith(tag):
+            out.extend(lines)
+    return out
 
 
 def settings_by_tag(probes: list[dict]) -> list[tuple[str, str, float, str]]:

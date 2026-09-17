@@ -18,7 +18,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from wordmeasure import FAIL, OK, UNDECIDABLE, capture, wordmodel  # noqa: E402
-from prereg_probe import EPS, GRID_PT, eq, lines_with_tags  # noqa: E402
+from prereg_probe import (EPS, GRID_PT, eq, lines_with_tags,  # noqa: E402
+                          paragraph_lines_for_tag)
 
 RIGHT_EDGE_PT = 72.0 + 9026 / 20.0          # 72 + 451.3 = 523.3pt
 
@@ -89,13 +90,14 @@ def check_k1(lines, probes):
     return out
 
 
-def check_k2(lines, probes):
+def check_k2(lines, probes, model=None, bundle=None):
     out = {"prediction": f"K2 两端对齐：非末行右缘 = {RIGHT_EDGE_PT}pt", "n": 0, "ok": 0,
            "undecidable": 0, "misses": [], "notes": []}
     for p in probes:
         if p["kind"] != "justify":
             continue
-        members = [l for l in lines if l["text"].startswith(p["tag"])]
+        # 段落会换行，必须按源区间归行——按前缀只找得到第一行。
+        members = paragraph_lines_for_tag(model, bundle, p["tag"])
         if len(members) < 2:
             out["notes"].append({"tag": p["tag"], "reason": "该组没有换行，没有非末行可判",
                                  "行数": len(members)})
@@ -180,7 +182,7 @@ def main():
     else:
         result["verdict"] = "EVALUATED"
         ks = {"K0": check_k0(lines), "K1": check_k1(lines, probes),
-              "K2": check_k2(lines, probes), "K3": check_k3(lines, probes)}
+              "K2": check_k2(lines, probes, model, bundle), "K3": check_k3(lines, probes)}
         result["predictions"] = {k: {**v, "verdict": verdict(v)} for k, v in ks.items()}
         print(f"采集包 state={result['bundleState']}  判定=EVALUATED")
         for key, p in ks.items():
