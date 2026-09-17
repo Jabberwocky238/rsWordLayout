@@ -1,0 +1,75 @@
+{
+  "sha256": "aadf13939a02fbf2bc756000ccc949b157928e045d04bf7ae2e43a355b05f875",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "cursor",
+      "sizeHalfPoints": 12,
+      "family": "Chalkduster",
+      "lines": 80
+    },
+    {
+      "tag": "b",
+      "kind": "cursor",
+      "sizeHalfPoints": 15,
+      "family": "Chalkduster",
+      "lines": 71
+    },
+    {
+      "tag": "c",
+      "kind": "cursor",
+      "sizeHalfPoints": 12,
+      "family": "Big Caslon",
+      "lines": 80
+    },
+    {
+      "tag": "d",
+      "kind": "cursor",
+      "sizeHalfPoints": 15,
+      "family": "Big Caslon",
+      "lines": 75
+    },
+    {
+      "tag": "e",
+      "kind": "cursor",
+      "sizeHalfPoints": 12,
+      "family": "Andale Mono",
+      "lines": 80
+    },
+    {
+      "tag": "f",
+      "kind": "cursor",
+      "sizeHalfPoints": 15,
+      "family": "Andale Mono",
+      "lines": 80
+    },
+    {
+      "tag": "g",
+      "kind": "cursor",
+      "sizeHalfPoints": 12,
+      "family": "Ayuthaya",
+      "lines": 80
+    },
+    {
+      "tag": "h",
+      "kind": "cursor",
+      "sizeHalfPoints": 15,
+      "family": "Ayuthaya",
+      "lines": 65
+    },
+    {
+      "tag": "i",
+      "kind": "cursor",
+      "sizeHalfPoints": 12,
+      "family": "Krungthep",
+      "lines": 80
+    },
+    {
+      "tag": "j",
+      "kind": "cursor",
+      "sizeHalfPoints": 15,
+      "family": "Krungthep",
+      "lines": 71
+    }
+  ]
+}
