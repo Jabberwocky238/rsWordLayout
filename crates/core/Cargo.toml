@@ -16,6 +16,10 @@ name = "probe_fontenv"
 path = "examples/probe_fontenv.rs"
 
 [[example]]
+name = "probe_oracle"
+path = "examples/probe_oracle.rs"
+
+[[example]]
 name = "probe_anchor"
 path = "examples/probe_anchor.rs"
 
@@ -27,6 +31,10 @@ required-features = ["shape"]
 [[test]]
 name = "repr_c"
 path = "tests/repr_c.rs"
+
+[[test]]
+name = "oracle"
+path = "tests/oracle.rs"
 
 [[test]]
 name = "paint"

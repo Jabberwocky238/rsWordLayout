@@ -133,6 +133,71 @@ fn read_spacing(props: &Value, def_before: Twips, def_after: Twips)
     (rule, line, num("before").unwrap_or(def_before), num("after").unwrap_or(def_after))
 }
 
+/// 本段最后一个 `w:br` 的类型（`textWrapping` / `page` / `column`）。
+///
+/// JSON 投影里的实际形状是 `inlines[].segments[].kind` 为一个**对象**：
+/// `{"kind": "br", "breakKind": "page"}`。两个字段都在那个对象里，
+/// 而不是 `kind` 为字符串、`breakKind` 在 segment 上——按后者去取会恒为 `None`。
+fn last_break(block: &Value) -> Option<String> {
+    let mut found = None;
+    // 按文档顺序遍历（不能用栈后进先出，否则取到的是第一个而非最后一个 br）。
+    let mut queue = std::collections::VecDeque::new();
+    queue.push_back(block.get("inlines")?);
+    while let Some(v) = queue.pop_front() {
+        match v {
+            Value::Array(items) => queue.extend(items.iter()),
+            Value::Object(_) => {
+                if let Some(k) = v.get("kind")
+                    && k.get("kind").and_then(Value::as_str) == Some("br")
+                    && let Some(b) = k.get("breakKind").and_then(Value::as_str)
+                {
+                    found = Some(b.to_string());
+                }
+                for key in ["segments", "inlines", "result"] {
+                    if let Some(inner) = v.get(key) {
+                        queue.push_back(inner);
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    found
+}
+
+/// 按计数约定定本段的终止符。
+///
+/// 优先级与各自画几个字形的依据见量具方法 §4：
+/// 段落标记画 1 个空格、软回车画 1 个、分节符画 0 个、
+/// 手动分页符按在行里的位置画 0 或 1 个。
+///
+/// **分栏符（`column`）未测**，按软回车同级处理并留待实测。
+fn pick_terminator(
+    has_sect_pr: bool,
+    brk: Option<String>,
+    runs: &[Run],
+) -> crate::oracle::LineTerminator {
+    use crate::oracle::{LineTerminator as T, PageBreakPosition as P};
+
+    // 段内 sectPr 优先：它画 0 个字形。
+    if has_sect_pr {
+        return T::SectionBreak;
+    }
+    match brk.as_deref() {
+        Some("page") => {
+            // 位置决定画几个：本层只能区分「段中有文字」与「独占」。
+            // 「紧跟段落标记」需要知道 br 是否是段落最后一个 segment，
+            // 而这里已经把 inline 摊平成 runs，判不出——故只在两种可判的
+            // 情形间选，不猜第三种。
+            let has_text = runs.iter().any(|r| !r.text.trim().is_empty());
+            T::PageBreak(if has_text { P::MidParagraph } else { P::OwnLine })
+        }
+        // 软回车与分栏符都画 1 个字形；分栏符未测，同级处理。
+        Some("textWrapping") | Some("column") => T::LineBreak,
+        _ => T::ParagraphMark,
+    }
+}
+
 /// 把 `document()` 的 JSON 转成段落序列。
 ///
 /// 只处理 `main` 里 `kind == "text"` 的块；表格与绘图块被跳过（会在返回的第二项里计数，
@@ -159,6 +224,12 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             .and_then(|t| t.get("level"))
             .and_then(Value::as_u64);
         let (size, bold, before, after, keep_next) = style_defaults(style_id, level);
+        let has_sect_pr = block
+            .get("facts")
+            .and_then(|f| f.get("hasSectPr"))
+            .and_then(Value::as_bool)
+            .unwrap_or(false);
+        let brk = last_break(block);
 
         let mut runs = Vec::new();
         if let Some(inlines) = block.get("inlines") {
@@ -179,6 +250,9 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
         let (line_rule, line_value, space_before, space_after) =
             read_spacing(&props, before, after);
 
+        // 必须在 runs 被 move 进 Para 之前算好。
+        let terminator = pick_terminator(has_sect_pr, brk, &runs);
+
         paras.push(Para {
             runs,
             align: read_align(&props),
@@ -193,6 +267,7 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
             page_break_before: props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
             source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
+            terminator,
         });
     }
 

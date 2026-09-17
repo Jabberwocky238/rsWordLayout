@@ -11,15 +11,14 @@ const els = {
   file: $('file'), drop: $('drop'), stage: $('stage'), canvas: $('cv'),
   prev: $('prev'), next: $('next'), pageinfo: $('pageinfo'),
   dpi: $('dpi'), log: $('log'),
-  zoomIn: $('zoomIn'), zoomOut: $('zoomOut'), zoomReset: $('zoomReset'),
-  zoomLabel: $('zoomLabel'),
 }
 
 let renderer = null
 let session = null
 let fonts = null
 let page = 0
-let zoom = 1
+// 缩放入口已移除；保留常量 1 使尺寸计算维持原样（版面 × 1）。
+const zoom = 1
 let lastFile = null   // 记住原始文件：改 DPI 要重排，不能只缩放画布
 let ready = false     // wasm 是否已初始化
 
@@ -84,28 +83,33 @@ function setPage(n) {
 function draw() {
   if (!session || !renderer) return
   const total = session.page_count
-  // 基准 DPI 决定「1× 时一页占多少 CSS 像素」；devicePixelRatio 与 zoom 再叠上去，
-  // 两者都只提高位图分辨率，不改变版面。
+
+  // DPI 与 zoom 是**正交**的两个量，混在一起就会「放大后字号和间距跟着变」：
+  //   DPI  —— 只决定分辨率（位图多少像素），不影响版面；
+  //   zoom —— 只做等比缩放，不参与任何布局或版面计算。
+  //
+  // 关键：传给 page_size 的 DPI **不含 zoom**。那个函数决定版面尺寸，
+  // 让 zoom 进去等于换了一套排版参数，而不是等比放大同一份排版。
   const baseDpi = Number(els.dpi.value)
   const dpr = window.devicePixelRatio || 1
+
+  // 版面尺寸：只看 baseDpi。任何 zoom 下都不变，字号与行距因此恒定。
+  const layout = session.page_size(page, baseDpi)
+  if (layout.length !== 2) return
+  const [layoutW, layoutH] = layout
+
+  // 位图分辨率：按 dpr × zoom 提高，所以放大后是**重新栅格化**而非位图插值。
+  // 这是 Word / WPS（DirectWrite / FreeType）的做法：每个缩放级别重来一遍。
   const renderDpi = baseDpi * dpr * zoom
+  const bmp = session.page_size(page, renderDpi)
+  if (bmp.length !== 2) return
+  const [w, h] = bmp
 
-  // CSS 显示尺寸按 (baseDpi × zoom) 算——放大时显示区域确实变大；
-  // 位图尺寸再乘 dpr，HiDPI 下才不发虚。
-  const cssSize = session.page_size(page, baseDpi * zoom)
-  const bmpSize = session.page_size(page, renderDpi)
-  if (cssSize.length !== 2 || bmpSize.length !== 2) return
-  const [cssW, cssH] = cssSize
-  const [w, h] = bmpSize
-
-  // 之前这里写成 style.width = w / zoom，等于把多渲染的分辨率又缩回去——
-  // 渲染了 zoom² 倍像素却丢掉大部分，屏幕上看到的还是原尺寸，所以「放大反而模糊」。
-  // 现在位图与显示尺寸同步放大，且每一级 zoom 都按新 DPI 重新栅格化字形
-  // （Word / WPS 走 DirectWrite / FreeType 也是这个思路）。
   els.canvas.width = Math.round(w)
   els.canvas.height = Math.round(h)
-  els.canvas.style.width = Math.round(cssW) + 'px'
-  els.canvas.style.height = Math.round(cssH) + 'px'
+  // CSS 尺寸 = 版面尺寸 × zoom：等比放大，与版面本身无关。
+  els.canvas.style.width = Math.round(layoutW * zoom) + 'px'
+  els.canvas.style.height = Math.round(layoutH * zoom) + 'px'
 
   renderer.clear(1, 1, 1)
   session.render_page(renderer, fonts, page, renderDpi)
@@ -115,9 +119,16 @@ function draw() {
   els.next.disabled = page === total - 1
 
   const frags = session.fragment_count(page)
+  // 比较器记录摘要：[行数, 带源区间行数, 段落标记数, 终止符应产出字形]
+  const [lines, withSrc, marks, termGlyphs] = session.oracle_summary(page)
+  // 自洽检查：源区间与是否栅格化无关，所以每行都该有；
+  // 终止符合计应等于段落标记数（各画 1 个空格）。
+  const srcOk = withSrc === lines
+  const termOk = termGlyphs === marks
   log(
-    `第 ${page + 1}/${total} 页 · 位图 ${Math.round(w)}×${Math.round(h)} · ` +
-      `显示 ${Math.round(cssW)}×${Math.round(cssH)} · 缩放 ${zoom.toFixed(2)}× · DPI ${Math.round(renderDpi)}`,
+    `第 ${page + 1}/${total} 页 · 版面 ${Math.round(layoutW)}×${Math.round(layoutH)}` +
+      `（不随缩放变）· 位图 ${Math.round(w)}×${Math.round(h)} · ` +
+      `缩放 ${zoom.toFixed(2)}× · 栅格 DPI ${Math.round(renderDpi)}`,
     `\n片段 ${frags} · 字形缓存 ${fonts.glyph_count} 个 · ${fontNote}`,
   )
 }
@@ -175,34 +186,6 @@ document.addEventListener('drop', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') setPage(page - 1)
   if (e.key === 'ArrowRight') setPage(page + 1)
-  if (e.key === '+' || e.key === '=') setZoom(zoom * 1.5)
-  if (e.key === '-') setZoom(zoom / 1.5)
-  if (e.key === '0') setZoom(1)
 })
-
-function setZoom(z) {
-  // 上限来自字形图集：zoom 很大时单个字形的栅格化尺寸会超出图集边长，
-  // 那时 GlyphAtlas 会拒绝放入（宁可不画也不画错）。SVG 那条路没有这个限制。
-  zoom = Math.max(0.1, Math.min(64, z))
-  els.zoomLabel.textContent = zoom.toFixed(2) + '×'
-  draw()
-}
-
-// Ctrl/⌘ + 滚轮缩放。passive: false 才能 preventDefault——
-// 否则浏览器会把它当页面缩放，画布分辨率不变，看起来就是「放大变模糊」。
-els.stage.addEventListener(
-  'wheel',
-  (e) => {
-    if (!e.ctrlKey && !e.metaKey) return
-    e.preventDefault()
-    // deltaY 的量级随设备差异很大，只取方向。
-    setZoom(e.deltaY < 0 ? zoom * 1.25 : zoom / 1.25)
-  },
-  { passive: false },
-)
-
-els.zoomIn.addEventListener('click', () => setZoom(zoom * 1.5))
-els.zoomOut.addEventListener('click', () => setZoom(zoom / 1.5))
-els.zoomReset.addEventListener('click', () => setZoom(1))
 
 boot()

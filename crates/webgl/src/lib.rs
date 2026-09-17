@@ -458,6 +458,11 @@ mod js_api {
             self.inner.fragment_count(index)
         }
 
+        /// 比较器记录摘要 `[行数, 带源区间行数, 段落标记数, 终止符应产出字形]`。
+        pub fn oracle_summary(&self, index: usize) -> Vec<u32> {
+            self.inner.oracle_summary(index)
+        }
+
         /// 把某页画到渲染器上。
         ///
         /// 分三步，顺序不能换：

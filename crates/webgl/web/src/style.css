@@ -64,12 +64,23 @@ select { padding: 4px 6px; }
 .big { font-size: 18px; margin: 0 0 6px; }
 .dim { opacity: .75; margin: 0; font-size: 13px; }
 
-.stage { text-align: center; }
+/* 放大后画布会超出容器，所以这一层负责滚动；居中留给内层。 */
+.stage {
+  overflow: auto;
+  max-width: 100%;
+}
+.stage-inner {
+  display: flex;
+  justify-content: center;
+  /* 画布比容器宽时，flex 居中会把左侧内容顶出可滚动区域，min-width 防住。 */
+  min-width: min-content;
+}
 canvas {
   background: #fff;
   box-shadow: 0 2px 14px rgba(0, 0, 0, .45);
-  max-width: 100%;
-  height: auto;
+  /* 不设 max-width 与 height:auto——宽高由 JS 按「版面 × zoom」显式给出，
+     CSS 的自适应会把缩放压回容器宽度，那样放大就完全不生效。 */
+  flex: none;
 }
 
 .log {

@@ -44,6 +44,31 @@ impl LayoutSession {
         }
     }
 
+    /// 比较器记录的摘要，供前端自查引擎是否真的产出了可比对的量。
+    ///
+    /// 返回 `[行数, 带源区间的行数, 段落标记数, 终止符应产出字形合计]`。
+    /// 按量具方法，这些数必须自洽：带源区间的行数应等于行数（源区间与是否
+    /// 栅格化无关），终止符合计应等于段落标记数（每个画 1 个空格）。
+    pub fn oracle_summary(&self, index: usize) -> Vec<u32> {
+        use rsword_layout_core::{LayoutRecord, LineTerminator, paint_document};
+        let Some(page) = self.doc.get(index) else {
+            return Vec::new();
+        };
+        let rec = LayoutRecord::from_paint(&paint_document(
+            std::slice::from_ref(page),
+            None,
+            &[],
+        ));
+        let lines = rec.pages.first().map(|p| &p.lines[..]).unwrap_or(&[]);
+        let with_source = lines.iter().filter(|l| l.source.is_some()).count();
+        let marks = lines
+            .iter()
+            .filter(|l| l.terminator == LineTerminator::ParagraphMark)
+            .count();
+        let expected: usize = lines.iter().map(|l| l.terminator.expected_glyphs()).sum();
+        vec![lines.len() as u32, with_source as u32, marks as u32, expected as u32]
+    }
+
     /// 某页的片段数，用于自查布局是否产出了内容。
     pub fn fragment_count(&self, index: usize) -> usize {
         self.doc.get(index).map_or(0, |p| p.fragments.len())

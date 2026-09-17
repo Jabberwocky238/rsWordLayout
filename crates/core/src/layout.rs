@@ -467,8 +467,17 @@ pub struct PositionedGlyph {
     /// 笔位，twips。
     pub x: Twips,
     pub y: Twips,
+    /// 推进量，twips。整形器给出，比较器用它核对相邻字形的错位。
+    pub advance_x: Twips,
+    pub advance_y: Twips,
     /// 字号，半点。
     pub size_half_points: u32,
+    /// 本字形对应源文本的哪一段（UTF-16 单位，与 rsword 的坐标流一致）。
+    ///
+    /// 配对**不能靠 Unicode 身份**（PDF 字形可能没有 ToUnicode 映射），只能按读序，
+    /// 所以引擎必须报出这个区间供校验。连字跨多个字符；自动编号标签在源文本里
+    /// 没有对应字符，此时为 `None`。
+    pub source: Option<(u32, u32)>,
 }
 
 /// 绘制指令。
@@ -500,6 +509,13 @@ pub enum DrawCmd {
         text: String,
         font: crate::measure::FontSpec,
         paint: Paint,
+        /// 本行以什么结束。比较器按计数约定核对字形数，故须随指令带下来。
+        terminator: crate::oracle::LineTerminator,
+        /// 本片段的源字符区间（UTF-16，相对所在段落）。
+        ///
+        /// 独立于 `glyphs` 存在：能直接排文字的后端不需要字形序列，
+        /// 此时 `glyphs` 为空，源区间不该跟着丢。
+        source: Option<(u32, u32)>,
     },
     /// 画图片。`id` 是媒体句柄，`rect` 是目标区域。
     ///
@@ -731,6 +747,13 @@ pub struct TextFragment {
     pub color: Color,
     /// 来源段落的 `rsword` 节点 id，供调试与反查。
     pub source_node: Option<u32>,
+    /// 本片段所在行的终止符。只有行末片段带真实值，行中片段是 `Wrapped`。
+    pub terminator: crate::oracle::LineTerminator,
+    /// 本片段覆盖的源字符区间（UTF-16 单位，相对所在段落）。
+    ///
+    /// 比较器按读序配对，需要它把字形对回源字符。`None` 表示引擎未能确定，
+    /// 比较器据此报「判不了」而不是猜一个区间。
+    pub source: Option<(u32, u32)>,
 }
 
 /// 一行。保留行信息而不直接摊平成 Fragment，是因为对齐、两端对齐的空白分配、
@@ -817,6 +840,9 @@ pub struct Para {
     /// `w:pageBreakBefore`。
     pub page_break_before: bool,
     pub source_node: Option<u32>,
+    /// 本段以什么结束。计数约定要区分：段落标记画 1 个空格，软回车画 1 个，
+    /// 分节符画 0 个，手动分页符视位置画 0 或 1 个。
+    pub terminator: crate::oracle::LineTerminator,
 }
 
 impl Default for Para {
@@ -835,6 +861,7 @@ impl Default for Para {
             keep_lines: false,
             page_break_before: false,
             source_node: None,
+            terminator: crate::oracle::LineTerminator::ParagraphMark,
         }
     }
 }
@@ -867,12 +894,25 @@ impl PageSetup {
     }
 }
 
+/// 行内一段同字体同色的文字。
+struct LinePiece {
+    /// 相对行首的 x，twips。
+    dx: Twips,
+    text: String,
+    font: FontSpec,
+    color: Color,
+    /// 源字符区间，UTF-16 单位、相对所在段落。
+    ///
+    /// 断行是唯一知道「切在第几个字符」的地方，所以必须在这里记下；
+    /// 事后从文字反推会在重复文本上出错。
+    source: (u32, u32),
+}
+
 /// 排好的一行，尚未定位到页面。
 struct PendingLine {
     height: Twips,
     baseline: Twips,
-    /// (相对行首的 x, 文字, 字体, 颜色)
-    pieces: Vec<(Twips, String, FontSpec, Color)>,
+    pieces: Vec<LinePiece>,
     width: Twips,
     is_last: bool,
     /// 首行要额外吃 `indent_first_line`（可负，即悬挂缩进）。
@@ -996,15 +1036,25 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         };
 
         let baseline_y = top + line.baseline;
-        for (i, (dx, text, font, color)) in line.pieces.iter().enumerate() {
-            let x = base_x + offset + dx + justify_gap * (i as Twips);
+        let last = line.pieces.len().saturating_sub(1);
+        for (i, p) in line.pieces.iter().enumerate() {
+            let x = base_x + offset + p.dx + justify_gap * (i as Twips);
+            // 只有段落最后一行的最后一个片段带真实终止符；其余是自动换行。
+            // 计数约定按行核对字形数，把终止符记到行中片段会让核对偏移。
+            let terminator = if line.is_last && i == last {
+                para.terminator
+            } else {
+                crate::oracle::LineTerminator::Wrapped
+            };
             page.fragments.push(Fragment::Text(TextFragment {
                 x,
                 baseline_y,
-                text: text.clone(),
-                font: font.clone(),
-                color: *color,
+                text: p.text.clone(),
+                font: p.font.clone(),
+                color: p.color,
                 source_node: para.source_node,
+                source: Some(p.source),
+                terminator,
             }));
         }
     }
@@ -1043,7 +1093,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             return lines;
         }
 
-        let mut cur: Vec<(Twips, String, FontSpec, Color)> = Vec::new();
+        let mut cur: Vec<LinePiece> = Vec::new();
+        // 段落内已消费的 UTF-16 字符数，作为各片段源区间的起点。
+        let mut consumed: u32 = 0;
         let mut cur_w: Twips = 0;
         let mut cur_ascent: Twips = 0;
         let mut cur_descent: Twips = 0;
@@ -1072,7 +1124,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
                 if m_all.advance <= remain {
                     // 整段剩余放得下。
-                    cur.push((cur_w, rest.to_string(), run.font.clone(), run.color));
+                    let n = rest.encode_utf16().count() as u32;
+                    cur.push(LinePiece {
+                        dx: cur_w,
+                        text: rest.to_string(),
+                        font: run.font.clone(),
+                        color: run.color,
+                        source: (consumed, consumed + n),
+                    });
+                    consumed += n;
                     cur_w += m_all.advance;
                     cur_ascent = cur_ascent.max(m_all.ascent);
                     cur_descent = cur_descent.max(m_all.descent);
@@ -1083,7 +1143,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 // 放不下：找能塞进去的最长前缀。
                 match self.metrics.fit(rest, &run.font, remain) {
                     Some((cut, m)) if cut > 0 => {
-                        cur.push((cur_w, rest[..cut].to_string(), run.font.clone(), run.color));
+                        let piece = &rest[..cut];
+                        let n = piece.encode_utf16().count() as u32;
+                        cur.push(LinePiece {
+                            dx: cur_w,
+                            text: piece.to_string(),
+                            font: run.font.clone(),
+                            color: run.color,
+                            source: (consumed, consumed + n),
+                        });
+                        consumed += n;
                         cur_w += m.advance;
                         cur_ascent = cur_ascent.max(m.ascent);
                         cur_descent = cur_descent.max(m.descent);
@@ -1096,7 +1165,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             let c = rest.chars().next().expect("rest 非空");
                             let n = c.len_utf8();
                             let m = self.metrics.measure(&rest[..n], &run.font);
-                            cur.push((cur_w, rest[..n].to_string(), run.font.clone(), run.color));
+                            let u16n = rest[..n].encode_utf16().count() as u32;
+                            cur.push(LinePiece {
+                                dx: cur_w,
+                                text: rest[..n].to_string(),
+                                font: run.font.clone(),
+                                color: run.color,
+                                source: (consumed, consumed + u16n),
+                            });
+                            consumed += u16n;
                             cur_w += m.advance;
                             cur_ascent = cur_ascent.max(m.ascent);
                             cur_descent = cur_descent.max(m.descent);
@@ -1279,6 +1356,8 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
                     text: t.text.clone(),
                     font: t.font.clone(),
                     paint: Paint::solid(t.color),
+                    terminator: t.terminator,
+                    source: t.source,
                 });
             }
         }
@@ -1293,17 +1372,39 @@ fn position_glyphs(
     faces: &[FaceId],
 ) -> Vec<PositionedGlyph> {
     let mut pen = t.x;
-    shaper
-        .shape(&t.text, &t.font)
-        .into_iter()
-        .filter_map(|g| {
+    let runs = shaper.shape(&t.text, &t.font);
+
+    // 源区间按**读序**分配：整形器不报字符归属，所以只能按「字形序号 → 字符序号」
+    // 对应。这与量具方法的配对前提一致（PDF 内容流顺序等于源字符顺序），
+    // 但字形数与字符数不等时（连字、组合符号）无法逐一对应——
+    // 那种情况下整段记同一个区间，让比较器能看出是聚合而非精确归属。
+    let utf16_len: u32 = t.text.encode_utf16().count() as u32;
+    let exact = runs.len() as u32 == utf16_len;
+    let base = t.source.map(|(s, _)| s).unwrap_or(0);
+
+    runs.into_iter()
+        .enumerate()
+        .filter_map(|(i, g)| {
             let face = faces.get(g.face_index)?.clone();
+            let source = t.source.map(|(_, end)| {
+                if exact {
+                    // 一字形一字符：精确归属。
+                    let at = base + i as u32;
+                    (at, at + 1)
+                } else {
+                    // 字形数 ≠ 字符数：给整段区间，不猜。
+                    (base, end)
+                }
+            });
             let out = PositionedGlyph {
                 face,
                 glyph_id: g.glyph_id,
                 x: pen + g.x_offset,
                 y: t.baseline_y - g.y_offset,
+                advance_x: g.x_advance,
+                advance_y: 0,
                 size_half_points: t.font.size_half_points,
+                source,
             };
             pen += g.x_advance;
             Some(out)

@@ -10,6 +10,7 @@ mod anchor;
 mod bridge;
 mod layout;
 mod measure;
+mod oracle;
 mod simple_metrics;
 
 #[cfg(feature = "shape")]
@@ -35,6 +36,12 @@ pub use layout::{Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para,
 
 // ---- 绘制指令：布局产物 → 画布 ----
 pub use layout::{FaceId, PaintList, PaintPage, ShapedRun, TextShaper, paint_document, paint_page};
+
+// ---- 比较器输入契约：与真实 Word 逐字形比对 ----
+pub use oracle::{
+    CompareState, GlyphRecord, LayoutRecord, LineRecord, LineTerminator, MismatchLevel,
+    PageBreakPosition, PageRecord, SourceRange,
+};
 
 // ---- 度量契约 ----
 pub use measure::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
