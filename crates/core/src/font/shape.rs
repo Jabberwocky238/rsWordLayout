@@ -142,6 +142,8 @@ impl RustybuzzShaper {
                 face_index,
                 glyph_id: info.glyph_id,
                 x_advance: next_twips - acc_twips,
+                // 精确值不参与上面的「取整位置之差」把戏：它本来就不丢精度。
+                x_advance_pt: exact(pos.x_advance) / f64::from(TWIPS_PER_POINT),
                 // 偏移是相对本字形的，不参与累计，各自取整即可。
                 x_offset: exact(pos.x_offset).round() as Twips,
                 y_offset: exact(pos.y_offset).round() as Twips,

@@ -214,6 +214,18 @@ impl<'r> RealMetrics<'r> {
         }
         (advance + glyphs as i64 * i64::from(font.letter_spacing)) as Twips
     }
+
+    /// `apply_spacing` 的精确版，单位点。
+    ///
+    /// 与整数版差在缩放那一步：整数版的 `advance * pct / 100` 是截断除法，
+    /// 这里是实数除法。要的就是这个差——横向的取整全部推迟到出数时做一次。
+    fn apply_spacing_pt(&self, advance: f64, glyphs: usize, font: &FontSpec) -> f64 {
+        let mut advance = advance;
+        if font.scale_pct != 100 && font.scale_pct > 0 {
+            advance = advance * f64::from(font.scale_pct) / 100.0;
+        }
+        advance + glyphs as f64 * f64::from(font.letter_spacing) / 20.0
+    }
 }
 
 impl FontMetrics for RealMetrics<'_> {
@@ -230,6 +242,12 @@ impl FontMetrics for RealMetrics<'_> {
         // 断点与字体无关，与桩共用同一套——否则换度量之后的差值里会混进
         // 断行策略的变化，分不出是哪一边错。
         super::linebreak::break_opportunities(text)
+    }
+
+    fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
+        let shaped = self.registry.shape_text(text, font);
+        let advance: f64 = shaped.iter().map(|g| g.x_advance_pt).sum();
+        self.apply_spacing_pt(advance, shaped.len(), font)
     }
 
     fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {

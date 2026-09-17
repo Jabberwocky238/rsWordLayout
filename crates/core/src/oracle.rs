@@ -96,9 +96,16 @@ impl SourceRange {
 /// 前者用于核对相邻字形的错位，后者是按读序配对的校验依据。
 #[derive(Debug, Clone, PartialEq)]
 pub struct GlyphRecord {
-    /// 字形原点（笔位），twips。这是与 Word PDF 直接对比的量。
+    /// 字形原点（笔位），twips。
     pub origin_x: Twips,
     pub origin_y: Twips,
+    /// 原点横向的**精确值**，单位点。
+    ///
+    /// 与 Word 逐位相比必须读这一个，理由与 `origin_y_fine` 同源、量级不同：
+    /// `origin_x` 取整到 twips（0.05pt），而 Word 的推进量一个都不落在整 twips 上
+    /// （实测 0/1340），残差沿**行**累加（实测一行攒到 0.04pt）。
+    /// 横向不设定点单位的理由见 [`crate::font::FontMetrics::advance_pt`]。
+    pub origin_x_pt: f64,
     /// 原点纵向的**精确值**，单位 1/7200 英寸。
     ///
     /// 与 Word 逐位相比必须读这一个：Word 的基线落在 0.24pt = **4.8 twips** 的栅格上，
@@ -106,6 +113,8 @@ pub struct GlyphRecord {
     pub origin_y_fine: i64,
     /// 推进向量，twips。
     pub advance_x: Twips,
+    /// 推进量的**精确值**，单位点。
+    pub advance_x_pt: f64,
     pub advance_y: Twips,
     pub face: String,
     pub glyph_id: u32,
@@ -269,8 +278,10 @@ impl GlyphRecord {
         GlyphRecord {
             origin_x: g.x,
             origin_y: g.y,
+            origin_x_pt: g.x_pt,
             origin_y_fine: g.y_fine,
             advance_x: g.advance_x,
+            advance_x_pt: g.advance_x_pt,
             advance_y: g.advance_y,
             face: g.face.clone(),
             glyph_id: g.glyph_id,

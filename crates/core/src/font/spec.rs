@@ -274,6 +274,27 @@ pub trait FontMetrics {
     /// 文字的可断行位置，按偏移升序。
     fn break_opportunities(&self, text: &str) -> Vec<BreakOpportunity>;
 
+    /// 整段文字的推进宽度的**精确值**，单位**点**。
+    ///
+    /// 横向为什么不学纵向走 1/7200 英寸的整数：**横向没有栅格**。
+    /// 纵向能用定点，是因为 Word 的基线落在 1/300 英寸上，而 1/7200 英寸是它与
+    /// twips 的公倍数——那是个能整除的目标。横向不是：实测 Word 导出的 PDF 里，
+    /// 字形推进量落在 **1/10000 em** 上（`accumulation` 那份采集里 761/1100 对
+    /// 相邻字形的间距是 1/10000 em 的整数倍），而 em 随字号变，没有哪个固定的
+    /// 绝对单位能整除它。既然无论取多细的定点都要留残差，就不取——
+    /// 把精确值一路留在 f64 里，只在最后出数时落一次。
+    ///
+    /// 存在的理由与 [`Self::natural_height_fine`] 同源：**行宽会沿行累加**。
+    /// `measure` 给的 `advance` 是整 twips（0.05pt），逐片段相加的残差会一路右移。
+    /// 实测引擎 1340/1340 个推进量落在整 twips 上、Word **0/1340**，
+    /// 行内累积到 0.04pt（`docs/MEASUREMENT-BACKLOG.md` 的 H2）。
+    ///
+    /// 默认实现由 `measure` 的 twips 值换算，**不提供额外精度**——
+    /// 对不做取整的实现（如 [`crate::SimpleMetrics`]）这就是精确值。
+    fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
+        f64::from(self.measure(text, font).advance) / 20.0
+    }
+
     /// 自然行高的**精确值**，单位 1/7200 英寸（= twips × [`FINE_PER_TWIP`]）。
     ///
     /// 存在的理由是**行高会沿页累加**：做纵向量化的实现里，栅格上的精确行高

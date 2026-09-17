@@ -467,10 +467,14 @@ pub struct PositionedGlyph {
     /// 笔位，twips。
     pub x: Twips,
     pub y: Twips,
+    /// 笔位横向的**精确值**，单位点。见 [`TextFragment::x_pt`]。
+    pub x_pt: f64,
     /// 笔位纵向的**精确值**，单位 1/7200 英寸。见 [`TextFragment::baseline_fine`]。
     pub y_fine: i64,
     /// 推进量，twips。整形器给出，比较器用它核对相邻字形的错位。
     pub advance_x: Twips,
+    /// 推进量的**精确值**，单位点。
+    pub advance_x_pt: f64,
     pub advance_y: Twips,
     /// 字号，半点。
     pub size_half_points: u32,
@@ -507,6 +511,8 @@ pub enum DrawCmd {
         glyphs: Vec<PositionedGlyph>,
         /// 段落起点（基线左端），twips。`glyphs` 为空时后端靠它定位。
         origin_x: Twips,
+        /// 段落起点 x 的**精确值**，单位点。见 [`TextFragment::x_pt`]。
+        origin_x_pt: f64,
         origin_y: Twips,
         /// 段落起点基线的**精确** y，单位 1/7200 英寸。见 [`TextFragment::baseline_fine`]。
         origin_y_fine: i64,
@@ -747,6 +753,12 @@ pub enum Fragment {
 #[derive(Debug, Clone)]
 pub struct TextFragment {
     pub x: Twips,
+    /// 片段起点 x 的**精确值**，单位点。
+    ///
+    /// `x` 是它落到整 twips 的结果。横向不设定点单位的理由见
+    /// [`crate::font::FontMetrics::advance_pt`]：Word 的推进量落在 1/10000 em 上，
+    /// 随字号变，没有固定的绝对单位能整除它。
+    pub x_pt: f64,
     /// 基线绝对 y（页内坐标），twips。**有残差**：栅格点落不到整 twips 上。
     pub baseline_y: Twips,
     /// 基线绝对 y 的**精确值**，单位 1/7200 英寸。
@@ -964,6 +976,8 @@ impl PageSetup {
 struct LinePiece {
     /// 相对行首的 x，twips。
     dx: Twips,
+    /// 相对行首的 x 的**精确值**，单位点。见 [`crate::font::FontMetrics::advance_pt`]。
+    dx_pt: f64,
     text: String,
     font: FontSpec,
     color: Color,
@@ -982,6 +996,9 @@ struct PendingLine {
     baseline: Twips,
     pieces: Vec<LinePiece>,
     width: Twips,
+    /// 行宽的**精确值**，单位点。对齐（居中 / 右对齐 / 两端对齐）算的是
+    /// 「可用宽减行宽」，走整 twips 的 `width` 会把残差搬到每个字形上。
+    width_pt: f64,
     is_last: bool,
     /// 首行要额外吃 `indent_first_line`（可负，即悬挂缩进）。
     is_first: bool,
@@ -1166,6 +1183,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             Align::Right => slack,
         };
 
+        // 横向落位的精确支路，单位点。可用宽本来就是整 twips（页宽与缩进都是），
+        // 只有行宽不是——所以只有它换精确值，其余照换算。
+        let pt = |t: Twips| f64::from(t) / 20.0;
+        let base_x_pt = pt(base_x);
+        let slack_pt = (pt(avail) - line.width_pt).max(0.0);
+        let offset_pt = match para.align {
+            Align::Left | Align::Justify => 0.0,
+            Align::Center => slack_pt / 2.0,
+            Align::Right => slack_pt,
+        };
+
         // 两端对齐：除最后一行外，把空隙按片段间隙均摊。
         let justify_gap = if para.align == Align::Justify
             && !line.is_last
@@ -1174,6 +1202,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             slack / (line.pieces.len() as Twips - 1)
         } else {
             0
+        };
+        let justify_gap_pt = if para.align == Align::Justify
+            && !line.is_last
+            && line.pieces.len() > 1
+        {
+            slack_pt / (line.pieces.len() - 1) as f64
+        } else {
+            0.0
         };
 
         // 基线落位：在 1/7200 英寸上加好再交给度量量化到它的栅格。
@@ -1187,6 +1223,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let last = line.pieces.len().saturating_sub(1);
         for (i, p) in line.pieces.iter().enumerate() {
             let x = base_x + offset + p.dx + justify_gap * (i as Twips);
+            let x_pt = base_x_pt + offset_pt + p.dx_pt + justify_gap_pt * (i as f64);
             // 只有段落最后一行的最后一个片段带真实终止符；其余是自动换行。
             // 计数约定按行核对字形数，把终止符记到行中片段会让核对偏移。
             let terminator = if line.is_last && i == last {
@@ -1198,6 +1235,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 with_terminator_glyphs(&p.text, p.source, line.source_end, terminator);
             page.fragments.push(Fragment::Text(TextFragment {
                 x,
+                x_pt,
                 // 抬升是**向上**的，而页内 y 向下增长，所以要减。
                 baseline_y: coarse(baseline_fine - fine(p.rise)),
                 baseline_fine: baseline_fine - fine(p.rise),
@@ -1231,6 +1269,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             );
             page.fragments.push(Fragment::Text(TextFragment {
                 x: base_x + offset,
+                x_pt: base_x_pt + offset_pt,
                 baseline_y,
                 baseline_fine,
                 text,
@@ -1291,6 +1330,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 baseline: m.ascent,
                 pieces: Vec::new(),
                 width: 0,
+                width_pt: 0.0,
                 is_last: true,
                 is_first: true,
                 span,
@@ -1307,6 +1347,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 当前行起点，供空行用（空行没有片段可推）。
         let mut line_start: u32 = source_base;
         let mut cur_w: Twips = 0;
+        // 与 `cur_w` 并行的精确值，单位点。断行判断仍走 `cur_w`（整 twips 够用），
+        // 只有**落位**读这一个——横向取整的残差同样沿行累加。
+        let mut cur_w_pt: f64 = 0.0;
         let mut cur_ascent: Twips = 0;
         let mut cur_descent: Twips = 0;
         let mut cur_natural: Twips = 0;
@@ -1372,6 +1415,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             baseline: cur_ascent,
                             pieces: std::mem::take(&mut cur),
                             width: cur_w,
+                            width_pt: cur_w_pt,
                             is_last: false,
                             is_first: first_line,
                             span,
@@ -1381,6 +1425,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         });
                         line_start = consumed;
                         cur_w = 0;
+                        cur_w_pt = 0.0;
                         cur_ascent = 0;
                         cur_descent = 0;
                         cur_natural = 0;
@@ -1401,6 +1446,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     let n = rest.encode_utf16().count() as u32;
                     cur.push(LinePiece {
                         dx: cur_w,
+                        dx_pt: cur_w_pt,
                         text: rest.to_string(),
                         font: run.font.clone(),
                         color: run.color,
@@ -1409,6 +1455,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     });
                     consumed += n;
                     cur_w += m_all.advance;
+                    cur_w_pt += self.metrics.advance_pt(rest, &run.font);
                     cur_ascent = cur_ascent.max(m_all.ascent);
                     cur_descent = cur_descent.max(m_all.descent);
                     cur_natural = cur_natural.max(m_all.natural_height());
@@ -1424,6 +1471,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         let n = piece.encode_utf16().count() as u32;
                         cur.push(LinePiece {
                             dx: cur_w,
+                            dx_pt: cur_w_pt,
                             text: piece.to_string(),
                             font: run.font.clone(),
                             color: run.color,
@@ -1432,6 +1480,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         });
                         consumed += n;
                         cur_w += m.advance;
+                        cur_w_pt += self.metrics.advance_pt(piece, &run.font);
                         cur_ascent = cur_ascent.max(m.ascent);
                         cur_descent = cur_descent.max(m.descent);
                         cur_natural = cur_natural.max(m.natural_height());
@@ -1452,6 +1501,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             let u16n = rest[..n].encode_utf16().count() as u32;
                             cur.push(LinePiece {
                                 dx: cur_w,
+                                dx_pt: cur_w_pt,
                                 text: rest[..n].to_string(),
                                 font: run.font.clone(),
                                 color: run.color,
@@ -1460,6 +1510,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             });
                             consumed += u16n;
                             cur_w += m.advance;
+                            cur_w_pt += self.metrics.advance_pt(&rest[..n], &run.font);
                             cur_ascent = cur_ascent.max(m.ascent);
                             cur_descent = cur_descent.max(m.descent);
                             cur_natural = cur_natural.max(m.natural_height());
@@ -1478,6 +1529,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     baseline: cur_ascent,
                     pieces: std::mem::take(&mut cur),
                     width: cur_w,
+                    width_pt: cur_w_pt,
                     is_last: false,
                     is_first: first_line,
                     span,
@@ -1487,6 +1539,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 });
                 line_start = consumed;
                 cur_w = 0;
+                cur_w_pt = 0.0;
                 cur_ascent = 0;
                 cur_descent = 0;
                 cur_natural = 0;
@@ -1509,6 +1562,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 baseline: cur_ascent,
                 pieces: cur,
                 width: cur_w,
+                width_pt: cur_w_pt,
                 is_last: true,
                 is_first: first_line,
                 span,
@@ -1621,6 +1675,11 @@ pub struct ShapedRun {
     pub glyph_id: u32,
     /// 推进量与偏移，twips。
     pub x_advance: Twips,
+    /// 推进量的**精确值**，单位点。见 [`crate::font::FontMetrics::advance_pt`]。
+    ///
+    /// `x_advance` 是它落到整 twips 的结果。整形器给的推进量本来就落不到
+    /// 整 twips 上（实测 Word 的 0/1340 个落在整 twips 上），取整的残差沿行累加。
+    pub x_advance_pt: f64,
     pub x_offset: Twips,
     pub y_offset: Twips,
 }
@@ -1695,6 +1754,7 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
                 out.cmds.push(DrawCmd::DrawGlyphs {
                     glyphs,
                     origin_x: t.x,
+                    origin_x_pt: t.x_pt,
                     origin_y: t.baseline_y,
                     origin_y_fine: t.baseline_fine,
                     text: t.text.clone(),
@@ -1749,6 +1809,9 @@ fn position_glyphs(
     faces: &[FaceId],
 ) -> Vec<PositionedGlyph> {
     let mut pen = t.x;
+    // 精确笔位与 `pen` 并行推进。整形器的分段（按码位换 face）会让每段各自从零
+    // 重新取整，走 twips 时那个断点也会漏进来；精确支路没有断点。
+    let mut pen_pt = t.x_pt;
     let runs = shaper.shape(&t.text, &t.font);
 
     // 源区间按**读序**分配：整形器不报字符归属，所以只能按「字形序号 → 字符序号」
@@ -1782,13 +1845,16 @@ fn position_glyphs(
                 glyph_id: g.glyph_id,
                 x: pen + g.x_offset,
                 y: t.baseline_y - g.y_offset,
+                x_pt: pen_pt + f64::from(g.x_offset) / 20.0,
                 y_fine: t.baseline_fine - i64::from(g.y_offset) * FINE_PER_TWIP,
                 advance_x: g.x_advance,
+                advance_x_pt: g.x_advance_pt,
                 advance_y: 0,
                 size_half_points: t.font.size_half_points,
                 source,
             };
             pen += g.x_advance;
+            pen_pt += g.x_advance_pt;
             Some(out)
         })
         .collect()

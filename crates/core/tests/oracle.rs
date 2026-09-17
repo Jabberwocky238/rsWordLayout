@@ -128,15 +128,17 @@ fn distance_is_euclidean() {
     let a = GlyphRecord {
         origin_x: 0,
         origin_y: 0,
+        origin_x_pt: 0.0,
         origin_y_fine: i64::from(0) * rsword_layout_core::font::FINE_PER_TWIP,
         advance_x: 0,
+        advance_x_pt: 0.0,
         advance_y: 0,
         face: "f".into(),
         glyph_id: 1,
         size_half_points: 24,
         source: None,
     };
-    let b = GlyphRecord { origin_x: 30, origin_y: 40, ..a.clone() };
+    let b = GlyphRecord { origin_x: 30, origin_y: 40, origin_x_pt: 1.5, ..a.clone() };
     assert_eq!(a.distance(&b), 50.0, "3-4-5 直角三角形");
 }
 

@@ -120,3 +120,48 @@ fn empty_and_single_glyph_are_unaffected() {
     let m = RealMetrics::new(&r);
     assert_eq!(one[0].x_advance, m.measure("A", &spec()).advance);
 }
+
+// ---- 精确支路（H2）----
+//
+// 上面四条守的是「整 twips 契约下怎么分配舍入」。但整 twips 本身就是地板：
+// 实测 Word 的 1340 个推进量**没有一个**落在整 twips 上，引擎 1340 个**全部**落在上面，
+// 于是行内残留 0.04pt（`docs/MEASUREMENT-BACKLOG.md` 的 H2）。
+// 所以另开一条不取整的支路，下面两条守它。
+
+#[test]
+fn exact_advance_matches_the_font_table() {
+    // 期望值同样直接来自字体表，不经被测实现（§7.2：设计案例不能兼作检验）。
+    let r = serif();
+    let m = RealMetrics::new(&r);
+    let text = "the quick brown fox jumps over the lazy dog";
+    let expect = exact_prefix(text, text.chars().count(), 24) / 20.0; // twips → 点
+    let got = m.advance_pt(text, &spec());
+    assert!(
+        (got - expect).abs() < 1e-9,
+        "精确推进量 {got:.9}pt 与字体表的 {expect:.9}pt 差 {:.2e}——中途取了整",
+        (got - expect).abs()
+    );
+}
+
+#[test]
+fn exact_advances_are_not_snapped_to_twips() {
+    // 若哪天精确支路被接回整数路径，这条会红：真实字体的推进量几乎不落在 0.05pt 上。
+    //
+    // 字号取 8.5pt 而不是 12pt 是有讲究的：Liberation Serif 的 upem 是 2048，
+    // 12pt 下 `units × 240 / 2048 = units × 15 / 128`，字宽只要是 128 的倍数就恰好落在
+    // 整 twips 上——这个字体里那样的字宽不少（实测 19 个字形里 12 个）。
+    // 8.5pt 下是 `units × 85 / 1024`，要 1024 的倍数才落上去，基本遇不到。
+    let r = serif();
+    let small = FontSpec::new("Liberation Serif", 17); // 8.5pt
+    let runs = r.shape_text("the quick brown fox", &small);
+    assert!(!runs.is_empty(), "非空文本应当产出字形");
+    let off_grid = runs
+        .iter()
+        .filter(|g| ((g.x_advance_pt * 20.0).fract()).abs() > 1e-9)
+        .count();
+    assert!(
+        off_grid * 2 > runs.len(),
+        "{off_grid}/{} 个精确推进量不在整 twips 上——多数落回了栅格，支路被取整了",
+        runs.len()
+    );
+}

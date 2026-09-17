@@ -23,8 +23,10 @@ fn glyph(x: i32, y: i32) -> GlyphRecord {
     GlyphRecord {
         origin_x: x,
         origin_y: y,
+        origin_x_pt: f64::from(x) / 20.0,
         origin_y_fine: i64::from(y) * rsword_layout_core::font::FINE_PER_TWIP,
         advance_x: 120,
+        advance_x_pt: 6.0,
         advance_y: 0,
         face: "face".into(),
         glyph_id: 7,
