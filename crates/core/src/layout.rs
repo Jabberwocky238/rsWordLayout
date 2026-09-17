@@ -1549,7 +1549,20 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             }
         };
 
-        // 内容下限（行至少要装得下文字）**在整 twips 的粒度上比较**。
+        // `exact` **不受内容下限约束**：行高就是 `w:line`，装不下就装不下。
+        //
+        // 这是量出来的。font-free 那一批（`docs/PREREG-2026-09-17-font-free.md`）
+        // 在 `exact` 行距下换六个度量差 2.4 倍的字体族，基线**逐格相同**，40/40——
+        // 其中 Zapfino 在 13pt 下 ascent 有 **24.4pt**，比那一批最大的行距 14.6pt
+        // 还高，Word 照样把基线放在同一格上。**字体一点都没参与。**
+        //
+        // 加了内容下限就做不到：那会让行高被 ascent + descent 撑开，
+        // 于是 Zapfino 那一组的行距变成 24.4pt 而不是 11.1pt。
+        if para.line_rule == LineRule::Exact {
+            return height;
+        }
+
+        // 其余规则才有内容下限（行至少要装得下文字），**在整 twips 的粒度上比较**。
         //
         // `content` 是 ascent + descent，两者都已经取整过：栅格上 273.6 会落成
         // 221 + 53 = 274，比精确值大 0.4 twip。拿它直接 `max` 精确值，

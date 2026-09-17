@@ -190,3 +190,75 @@ fn without_quantising_the_baselines_miss_the_grid() {
         .count();
     assert!(off > 0, "这组输入区分不出量化与不量化，本组测试没有鉴别力");
 }
+
+/// `exact` 行距**不看字体**：行高就是 `w:line`，字比行高也不撑开。
+///
+/// 这是量出来的，不是照规范推的。font-free 那一批
+/// （`docs/PREREG-2026-09-17-font-free.md`）在 `exact` 下换六个 `ascent/upem`
+/// 从 0.795 到 1.875 的族，40 个位置基线**逐格相同**——其中 Zapfino 在 13pt 下
+/// ascent 有 24.4pt，比那批最大的行距 14.6pt 还高，Word 照样放在同一格。
+///
+/// 引擎原来对每种行距规则都套一个「内容下限」，于是 `exact` 下行高会被
+/// ascent + descent 撑开，字大一点行距就不是 `w:line` 了。
+#[test]
+fn exact_spacing_ignores_a_font_taller_than_the_line() {
+    use rsword_layout_core::{Fragment, LineRule};
+
+    // 内容高 274 twips（GridMetrics），行距只给 100 twips——字比行高得多。
+    let paras: Vec<Para> = (0..6)
+        .map(|i| Para {
+            line_rule: LineRule::Exact,
+            line_value: 100,
+            ..para(&format!("L{i}"))
+        })
+        .collect();
+    let pages = Engine::new(&GridMetrics, PageSetup::a4()).layout(&paras);
+
+    let ys: Vec<Twips> = pages
+        .iter()
+        .flat_map(|p| p.fragments.iter())
+        .filter_map(|f| match f {
+            Fragment::Text(t) => Some(t.baseline_y),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 6, "6 段应当排出 6 行：{ys:?}");
+    for pair in ys.windows(2) {
+        assert_eq!(
+            pair[1] - pair[0],
+            100,
+            "exact 行距被内容撑开了：行距应当恒为 w:line = 100 twips，实得 {:?}",
+            ys
+        );
+    }
+}
+
+/// 自证上面那条有鉴别力：同样的输入换成 `atLeast`，行距**应当**被内容撑开。
+///
+/// 少了这条，把 `exact` 的分支写成「永远返回 w:line」也能全绿，
+/// 而那会把 `atLeast` 一起弄坏。
+#[test]
+fn at_least_spacing_still_grows_to_fit() {
+    use rsword_layout_core::{Fragment, LineRule};
+
+    let paras: Vec<Para> = (0..6)
+        .map(|i| Para {
+            line_rule: LineRule::AtLeast,
+            line_value: 100,
+            ..para(&format!("L{i}"))
+        })
+        .collect();
+    let pages = Engine::new(&GridMetrics, PageSetup::a4()).layout(&paras);
+    let ys: Vec<Twips> = pages
+        .iter()
+        .flat_map(|p| p.fragments.iter())
+        .filter_map(|f| match f {
+            Fragment::Text(t) => Some(t.baseline_y),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        ys.windows(2).all(|p| p[1] - p[0] > 100),
+        "atLeast 没有被内容撑开，这组输入区分不出两种规则：{ys:?}"
+    );
+}

@@ -1,0 +1,174 @@
+{
+  "capturedAtUtc": "2026-09-17T14:58:11Z",
+  "environment": {
+    "fontEpoch": {
+      "extensions": [
+        ".dfont",
+        ".otc",
+        ".otf",
+        ".ttc",
+        ".ttf"
+      ],
+      "fileCount": 678,
+      "filesSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+      "formula": "sha256 of '\\n'.join(path + '\\t' + sha256) over files sorted by path",
+      "roots": [
+        "~/Library/Fonts",
+        "/Library/Fonts",
+        "/System/Library/Fonts",
+        "/System/Library/Fonts/Supplemental",
+        "/Network/Library/Fonts"
+      ],
+      "schema": "mac-font-environment/1"
+    },
+    "platform": "mac",
+    "schema": "rsword-layout-capture-env/1",
+    "tools": {
+      "pdfminer.six": "20231228",
+      "python": "3.13.11"
+    },
+    "word": {
+      "build": "16.112.26083020",
+      "infoPlistSha256": "5fc365652b4f467ffd3f29e7cbb41a40a64ae01062a7e53e697a775d73639c29",
+      "path": "/Applications/Microsoft Word.app",
+      "version": "16.112.3"
+    },
+    "wordProcesses": [
+      {
+        "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+        "pid": 34339,
+        "startedAt": "四  9月/17 12:02:06 2026  "
+      }
+    ]
+  },
+  "exportVector": {
+    "addToRecentFiles": false,
+    "channel": "mac AppleScript `save as`",
+    "embedTruetypeFonts": false,
+    "fileFormat": "format PDF (WdSaveFormat 0x02310011)",
+    "lockComments": false,
+    "note": "Mac Word 无 XPS 导出（§6.6）。ExportAsFixedFormat 的完整参数向量在 Mac 桥上不可达，这里记的是实际传出的每一位。",
+    "readOnlyRecommended": false
+  },
+  "fixture": {
+    "after": {
+      "bytes": 3036,
+      "documentXmlSha256": "1dafbb741f965bcafb7e75a6d34389c4ff8735aba62f5f3507c9015546a442bc",
+      "parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/document.xml"
+      ],
+      "path": "/Users/user/code/rsWordLayout/fixtures/font-free.docx",
+      "sha256": "ce3c82dfeb124065b122aed566640cad1b871647f15cee8fcabd0f94049e0d30"
+    },
+    "before": {
+      "bytes": 3036,
+      "documentXmlSha256": "1dafbb741f965bcafb7e75a6d34389c4ff8735aba62f5f3507c9015546a442bc",
+      "parts": [
+        "[Content_Types].xml",
+        "_rels/.rels",
+        "word/document.xml"
+      ],
+      "path": "/Users/user/code/rsWordLayout/fixtures/font-free.docx",
+      "sha256": "ce3c82dfeb124065b122aed566640cad1b871647f15cee8fcabd0f94049e0d30"
+    },
+    "unchanged": true
+  },
+  "fontSubstitution": {
+    "basis": "方法 §6.2：几何自检查不出字体替换，只有字体名能。可接受的名字取自**字体文件自己声明的** name 表（族名/全名/PostScript 名），不靠族名字符串去猜。",
+    "fontFilesRead": [
+      "/System/Library/Fonts/Supplemental/AppleMyungjo.ttf",
+      "/System/Library/Fonts/Supplemental/Herculanum.ttf",
+      "/System/Library/Fonts/Supplemental/Khmer Sangam MN.ttf",
+      "/System/Library/Fonts/Supplemental/Luminari.ttf",
+      "/System/Library/Fonts/Supplemental/Trattatello.ttf",
+      "/System/Library/Fonts/Supplemental/Zapfino.ttf"
+    ],
+    "pdfFontNames": [
+      "AAAAAB+Zapfino",
+      "AAAAAC+Trattatello",
+      "AAAAAD+KhmerSangamMN",
+      "AAAAAE+Luminari-Regular",
+      "AAAAAG+AppleMyungjo",
+      "AAAAAH+Herculanum"
+    ],
+    "requiredFamiliesSeenInPdf": {
+      "AppleMyungjo": true,
+      "Herculanum": true,
+      "Khmer Sangam MN": true,
+      "Luminari": true,
+      "Trattatello": true,
+      "Zapfino": true
+    },
+    "result": "PASS",
+    "schema": "rsword-layout-font-substitution/2",
+    "unexpectedNames": []
+  },
+  "glyphCounts": [
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  "glyphTotal": 720,
+  "label": "font-free",
+  "pageCount": 24,
+  "pdfSha256": "a1bedfe1314dc2e651ecd6c8bc84835a35ac70bc32c66137b7565184d553c9a0",
+  "preflight": {
+    "fontNameCount": 1614,
+    "method": "AppleScript: tell application \"Microsoft Word\" to return font names",
+    "note": null,
+    "requiredFamilies": {
+      "AppleMyungjo": true,
+      "Herculanum": true,
+      "Khmer Sangam MN": true,
+      "Luminari": true,
+      "Trattatello": true,
+      "Zapfino": true
+    },
+    "result": "PASS",
+    "rule": "方法 §6.1：核 Word 进程自己能列出所需字体。不是文件在不在，不是别的进程看不看得见。",
+    "schema": "rsword-layout-font-preflight/1",
+    "wordProcesses": [
+      {
+        "executable": "/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+        "pid": 34339,
+        "startedAt": "四  9月/17 12:02:06 2026  "
+      }
+    ]
+  },
+  "schema": "rsword-layout-capture/1",
+  "slot": {
+    "created": false,
+    "note": "复用已授权的槽，不弹授权框。",
+    "path": "/Users/user/Documents/rsword-captures/_word-slot.docx",
+    "sha256": "ce3c82dfeb124065b122aed566640cad1b871647f15cee8fcabd0f94049e0d30"
+  },
+  "timings": {
+    "exportSeconds": 0.19657291704788804,
+    "structureSeconds": 8.810158625012264,
+    "sweepSeconds": 22.540280417073518
+  },
+  "wordDocumentName": "_word-slot.docx"
+}

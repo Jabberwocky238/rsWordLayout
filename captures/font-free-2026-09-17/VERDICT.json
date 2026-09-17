@@ -1,0 +1,74 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-font-free.md",
+  "bundle": "/Users/user/Documents/rsword-captures/font-free",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 24,
+    "pdfPages": 24,
+    "sweepPositions": 720,
+    "linesFromSweep": 240
+  },
+  "lineDenominators": {
+    "lines": 240,
+    "ok": 240,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "W0": {
+      "prediction": "W0 每条基线都在 0.24pt 栅格上",
+      "n": 240,
+      "ok": 240,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "W1": {
+      "prediction": "W1 exact 行距下基线位置与字体无关",
+      "n": 40,
+      "ok": 40,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "intervals": {
+        "222": {
+          "Zapfino": "[0.5000, 0.7500)",
+          "Trattatello": "[0.5000, 0.7500)",
+          "Khmer Sangam MN": "[0.5000, 0.7500)",
+          "Luminari": "[0.5000, 0.7500)",
+          "AppleMyungjo": "[0.5000, 0.7500)",
+          "Herculanum": "[0.5000, 0.7500)"
+        },
+        "244": {
+          "Zapfino": "[0.1667, 0.3333)",
+          "Trattatello": "[0.1667, 0.3333)",
+          "Khmer Sangam MN": "[0.1667, 0.3333)",
+          "Luminari": "[0.1667, 0.3333)",
+          "AppleMyungjo": "[0.1667, 0.3333)",
+          "Herculanum": "[0.1667, 0.3333)"
+        },
+        "256": {
+          "Zapfino": "[0.3333, 0.6667)",
+          "Trattatello": "[0.3333, 0.6667)",
+          "Khmer Sangam MN": "[0.3333, 0.6667)",
+          "Luminari": "[0.3333, 0.6667)",
+          "AppleMyungjo": "[0.3333, 0.6667)",
+          "Herculanum": "[0.3333, 0.6667)"
+        },
+        "292": {
+          "Zapfino": "[0.3333, 0.5000)",
+          "Trattatello": "[0.3333, 0.5000)",
+          "Khmer Sangam MN": "[0.3333, 0.5000)",
+          "Luminari": "[0.3333, 0.5000)",
+          "AppleMyungjo": "[0.3333, 0.5000)",
+          "Herculanum": "[0.3333, 0.5000)"
+        }
+      },
+      "verdict": "OK"
+    }
+  }
+}
