@@ -54,11 +54,15 @@ def rpr(size: int, family: str, extra: str = "") -> str:
 
 def para(runs: str, size: int, family: str, sect: str = "", page_break: bool = False,
          line: int = 240, line_rule: str = "auto", align: str = "left",
-         ind_left: int = 0, ind_right: int = 0, ind_first: int = 0) -> str:
+         ind_left: int = 0, ind_right: int = 0, ind_first: int = 0,
+         space_before: int = 0, space_after: int = 0) -> str:
     """一个段落。间距钉死为 0，行距 auto 单倍——否则行距里会混进段落间距。
 
     `page_break` 走 **`w:pageBreakBefore`（段落属性）**，不是 `w:br`：它不产生任何
     字符，所以 §4 的「分页符位置三分」在这里根本不用判——计数模型一个分支都不碰。
+
+    `space_before` / `space_after` 是段前段后间距（twips），默认 0——
+    默认值使旧夹具的字节一个不变。
 
     `align` / `ind_*` 是对齐与缩进（twips）。缩进只在非零时才写出 `w:ind`，
     好让**旧夹具的字节一个不变**——那些夹具的 sha256 已经写进各自的预注册了。
@@ -75,7 +79,8 @@ def para(runs: str, size: int, family: str, sect: str = "", page_break: bool = F
     ppr = (
         "<w:pPr>"
         f"{'<w:pageBreakBefore/>' if page_break else ''}"
-        f'<w:spacing w:before="0" w:after="0" w:line="{line}" w:lineRule="{line_rule}"/>'
+        f'<w:spacing w:before="{space_before}" w:after="{space_after}"'
+        f' w:line="{line}" w:lineRule="{line_rule}"/>'
         f'<w:jc w:val="{align}"/><w:widowControl w:val="0"/>'
         f"{ind}"
         f"{rpr(size, family)}"

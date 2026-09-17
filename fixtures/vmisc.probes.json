@@ -1,0 +1,140 @@
+{
+  "sha256": "2d0fff0c1d50fd3624d114488705220a203594674ca415b3d793ca81055c8bc1",
+  "probes": [
+    {
+      "tag": "a",
+      "kind": "space-after",
+      "spaceAfter": 0,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "b",
+      "kind": "space-after",
+      "spaceAfter": 120,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "c",
+      "kind": "space-after",
+      "spaceAfter": 240,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "d",
+      "kind": "space-after",
+      "spaceAfter": 480,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 3
+    },
+    {
+      "tag": "e",
+      "kind": "position",
+      "positionHalfPoints": 0,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "f",
+      "kind": "position",
+      "positionHalfPoints": 6,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "g",
+      "kind": "position",
+      "positionHalfPoints": 12,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "h",
+      "kind": "position",
+      "positionHalfPoints": -6,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "i",
+      "kind": "position",
+      "positionHalfPoints": -12,
+      "lineTwips": 320,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 1
+    },
+    {
+      "tag": "j",
+      "kind": "at-least",
+      "rule": "atLeast",
+      "lineTwips": 400,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 6
+    },
+    {
+      "tag": "k",
+      "kind": "at-least",
+      "rule": "exact",
+      "lineTwips": 400,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 6
+    },
+    {
+      "tag": "l",
+      "kind": "at-least",
+      "rule": "atLeast",
+      "lineTwips": 520,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 6
+    },
+    {
+      "tag": "m",
+      "kind": "at-least",
+      "rule": "exact",
+      "lineTwips": 520,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 6
+    },
+    {
+      "tag": "n",
+      "kind": "at-least",
+      "rule": "atLeast",
+      "lineTwips": 640,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 6
+    },
+    {
+      "tag": "o",
+      "kind": "at-least",
+      "rule": "exact",
+      "lineTwips": 640,
+      "sizeHalfPoints": 26,
+      "family": "Luminari",
+      "lines": 6
+    }
+  ]
+}
