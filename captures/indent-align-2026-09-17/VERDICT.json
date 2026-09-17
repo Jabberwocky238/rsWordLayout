@@ -1,0 +1,87 @@
+{
+  "schema": "rsword-layout-prereg/1",
+  "prereg": "docs/PREREG-2026-09-17-indent-align.md",
+  "bundle": "/Users/user/Documents/rsword-captures/indent-align",
+  "bundleState": "OK",
+  "coverage": {
+    "wordPagesInSweep": 20,
+    "pdfPages": 20,
+    "sweepPositions": 262,
+    "linesFromSweep": 28
+  },
+  "lineDenominators": {
+    "lines": 28,
+    "ok": 28,
+    "fail": 0,
+    "undecidable": 0
+  },
+  "falsifiers": [],
+  "verdict": "EVALUATED",
+  "predictions": {
+    "G0": {
+      "prediction": "G0 每条基线都在 0.24pt 栅格上",
+      "n": 28,
+      "ok": 28,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "G1": {
+      "prediction": "G1 行首 x = 72pt + 左缩进（+ 首行缩进）",
+      "n": 16,
+      "ok": 16,
+      "undecidable": 0,
+      "misses": [],
+      "notes": [],
+      "verdict": "OK"
+    },
+    "G2": {
+      "prediction": "G2 x_right − x_left = 2 × (x_center − x_left)",
+      "n": 4,
+      "ok": 0,
+      "undecidable": 0,
+      "misses": [
+        {
+          "textIndex": 0,
+          "x_left": 72.0,
+          "x_center": 281.94624,
+          "x_right": 492.12648,
+          "右−左": 420.1265,
+          "2×(中−左)": 419.8925,
+          "差": 0.234
+        },
+        {
+          "textIndex": 1,
+          "x_left": 72.0,
+          "x_center": 263.70120000000003,
+          "x_right": 455.63615999999996,
+          "右−左": 383.6362,
+          "2×(中−左)": 383.4024,
+          "差": 0.2338
+        },
+        {
+          "textIndex": 2,
+          "x_left": 72.0,
+          "x_center": 236.29761599999998,
+          "x_right": 400.82904,
+          "右−左": 328.829,
+          "2×(中−左)": 328.5952,
+          "差": 0.2338
+        },
+        {
+          "textIndex": 3,
+          "x_left": 72.0,
+          "x_center": 208.100832,
+          "x_right": 344.43575999999996,
+          "右−左": 272.4358,
+          "2×(中−左)": 272.2017,
+          "差": 0.2341
+        }
+      ],
+      "notes": [],
+      "slack": {},
+      "verdict": "FAIL"
+    }
+  }
+}
