@@ -44,7 +44,7 @@ impl AnchorScan {
                             out.not_wrapping += 1;
                             continue;
                         }
-                        let display = rsword::model::drawing::drawing_display(dom, d.node);
+                        let display = rsword::model::drawing_display(dom, d.node);
                         out.consume(display.anchor.as_ref(), &display.extent, content);
                     }
                 }

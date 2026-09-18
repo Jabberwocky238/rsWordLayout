@@ -302,6 +302,7 @@ dependencies = [
 [[package]]
 name = "rsword"
 version = "0.0.1"
+source = "git+https://github.com/LilLeapo/rsWordParser.git?rev=a8d24ea#a8d24eaa4c656d4c0e76848fc9c715bc9f2bc91f"
 dependencies = [
  "memchr",
  "serde",

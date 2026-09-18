@@ -17,7 +17,7 @@ rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
-rsword = { path = "../rsWordParser/crates/rsword" }
+rsword = { git = "https://github.com/LilLeapo/rsWordParser.git", rev = "a8d24ea" }
 # 字体环境与布局契约来自 docx-layout（MIT OR Apache-2.0）：
 # 它的 fontenv 用 skrifa 读 OpenType，提供按码位的覆盖查询与环境指纹，
 # 正是全 Unicode 字体 fallback 需要的东西，不必在本仓库重造。
