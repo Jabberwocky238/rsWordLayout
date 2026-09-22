@@ -1,0 +1,83 @@
+{
+ "sha256": "07dea76d27bb4b085a5cc753032d60ef694e5284abe690740420a2939fc8ac23",
+ "family": "Songti SC",
+ "fontFile": "/System/Library/Fonts/Supplemental/Songti.ttc",
+ "probes": [
+  {
+   "group": "pitch",
+   "sizeHalfPoints": 21,
+   "family": "Songti SC",
+   "paras": [
+    "甲文",
+    "乙文",
+    "丙文",
+    "丁文",
+    "戊文",
+    "己文"
+   ]
+  },
+  {
+   "group": "pitch",
+   "sizeHalfPoints": 24,
+   "family": "Songti SC",
+   "paras": [
+    "甲文",
+    "乙文",
+    "丙文",
+    "丁文",
+    "戊文",
+    "己文"
+   ]
+  },
+  {
+   "group": "pitch",
+   "sizeHalfPoints": 32,
+   "family": "Songti SC",
+   "paras": [
+    "甲文",
+    "乙文",
+    "丙文",
+    "丁文",
+    "戊文",
+    "己文"
+   ]
+  },
+  {
+   "group": "pitch",
+   "sizeHalfPoints": 44,
+   "family": "Songti SC",
+   "paras": [
+    "甲文",
+    "乙文",
+    "丙文",
+    "丁文",
+    "戊文",
+    "己文"
+   ]
+  },
+  {
+   "group": "wrap",
+   "name": "wrapPlain",
+   "sizeHalfPoints": 24,
+   "family": "Songti SC",
+   "text": "这是一段没有任何格式的中文正文用来看断行点落在哪里中文字与字之间没有空格所以断行点几乎落在每两个字之间引擎走的是按字断行的那条路和西文按词断行完全不是一回事这一段特意写得长一些好让它在页面上换行好几次便于逐行比对"
+  },
+  {
+   "group": "wrap",
+   "name": "wrapKinsoku",
+   "sizeHalfPoints": 24,
+   "family": "Songti SC",
+   "text": "标点测试，逗号、顿号；分号：冒号。句号！叹号？问号）右括号】右方括号》右书名号行首禁则要求这些符号不能出现在一行的开头引擎必须把它前面的字一起带到下一行去所以只要把它们均匀撒在文本里就一定会有几个落在换行点附近，可以逐个查。"
+  },
+  {
+   "group": "mark",
+   "sizeHalfPoints": 24,
+   "family": "Songti SC",
+   "paras": [
+    "庚末",
+    "辛末",
+    "壬末"
+   ]
+  }
+ ]
+}

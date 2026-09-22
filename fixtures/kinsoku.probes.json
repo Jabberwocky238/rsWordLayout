@@ -1,0 +1,39 @@
+{
+ "sha256": "37abbd1186bc9711679816ae0addec1e4c45d23c835d5c621b188f171583fead",
+ "family": "Songti SC",
+ "fontFile": "/System/Library/Fonts/Supplemental/Songti.ttc",
+ "probes": [
+  {
+   "tag": "K1",
+   "punct": "。",
+   "text": "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥东南西北中上下左右前后内外天地。春夏秋冬风雨雷电山川草木花鸟鱼虫日月星辰云霞露霜",
+   "punctIndex": 37,
+   "sizeHalfPoints": 24,
+   "family": "Songti SC"
+  },
+  {
+   "tag": "K2",
+   "punct": "，",
+   "text": "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥东南西北中上下左右前后内外天地，春夏秋冬风雨雷电山川草木花鸟鱼虫日月星辰云霞露霜",
+   "punctIndex": 37,
+   "sizeHalfPoints": 24,
+   "family": "Songti SC"
+  },
+  {
+   "tag": "K3",
+   "punct": "）",
+   "text": "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥东南西北中上下左右前后内外天地）春夏秋冬风雨雷电山川草木花鸟鱼虫日月星辰云霞露霜",
+   "punctIndex": 37,
+   "sizeHalfPoints": 24,
+   "family": "Songti SC"
+  },
+  {
+   "tag": "K4",
+   "punct": "、",
+   "text": "甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥东南西北中上下左右前后内外天地、春夏秋冬风雨雷电山川草木花鸟鱼虫日月星辰云霞露霜",
+   "punctIndex": 37,
+   "sizeHalfPoints": 24,
+   "family": "Songti SC"
+  }
+ ]
+}

@@ -15,3 +15,6 @@ node_modules/
 # 量具的钉版 venv 与 Python 缓存
 tools/measure/.venv/
 __pycache__/
+
+# macOS 的目录元数据，不属于任何产物
+.DS_Store
