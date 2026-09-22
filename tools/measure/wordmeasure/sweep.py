@@ -158,7 +158,8 @@ def run_bundle(bundle: Path, out: Path, *, binary: Path, fixtures: dict,
         if record["traceRun"]["exitCode"] != 0 or not trace.is_file():
             return {**record, "reason": "TRACE_FAILED"}
         record["traceSha256"] = digest(trace)
-        for stage, args in (("selfcheck", [str(trace)]), ("compare", [str(bundle), str(trace)])):
+        for stage, args in (("selfcheck", [str(trace)]),
+                            ("compare", [str(bundle), str(trace), "--source-docx", binding["fixture"]])):
             name = "comparison" if stage == "compare" else stage
             result_path = out / (name + ".json")
             command = [sys.executable, "-m", "wordmeasure.cli", stage, *args, "--output", str(result_path)]
@@ -166,6 +167,11 @@ def run_bundle(bundle: Path, out: Path, *, binary: Path, fixtures: dict,
             if not result_path.is_file() or record[name + "Run"]["exitCode"] not in (0, 1, 2):
                 return {**record, "reason": name.upper() + "_FAILED"}
             result = json.loads(result_path.read_text())
+            if stage == "compare":
+                annotation = result.get("reference", {}).get("sourceAnnotation", {})
+                record["sourceAnnotation"] = annotation
+                if annotation.get("state") != OK:
+                    return {**record, "reason": "SOURCE_ANNOTATION_UNVERIFIED"}
             record[name + "State"] = result["state"]
             if stage == "compare":
                 comparison = result["comparison"]
@@ -229,7 +235,8 @@ def main(argv=None) -> int:
                   "fontReadErrors": font_errors, "python": sys.version,
                   "measurementHashes": {str(p.relative_to(REPO)): digest(p)
                                         for p in sorted((REPO / "tools/measure/wordmeasure").glob("*.py"))},
-                  "criteria": {"tolerancePt": 0, "excludedRules": [], "metrics": "real", "verticalGrid": "mac"}}
+                  "criteria": {"tolerancePt": 0, "excludedRules": [], "metrics": "real", "verticalGrid": "mac",
+                               "sourceAnnotations": "SHA-bound DOCX, verified UTF-16 ranges and captured text; offline backtest"}}
     dump(out / "provenance.json", provenance)
     rows = []
     for bundle in bundles:

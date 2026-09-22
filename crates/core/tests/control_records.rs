@@ -59,6 +59,23 @@ fn trailing_page_break_keeps_the_paragraph_mark_on_the_breaking_line() {
 }
 
 #[test]
+fn break_only_paragraph_keeps_both_control_glyphs() {
+    let p = para("\u{fffc}", vec![P::PageBreak]);
+    let r = record(std::slice::from_ref(&p));
+    assert_eq!(ranges(&r), vec![(0, 0, 2, T::PageBreak(B::BeforeMark))]);
+    let pages = Engine::new(&SimpleMetrics, PageSetup::a4()).layout(&[p]);
+    let text: String = pages[0]
+        .fragments
+        .iter()
+        .filter_map(|f| match f {
+            rsword_layout_core::Fragment::Text(t) => Some(t.text.as_str()),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(text, "  ");
+}
+
+#[test]
 fn standalone_and_consecutive_page_breaks_keep_distinct_ranges() {
     assert_eq!(
         ranges(&record(&[para("\u{fffc}\u{fffc}z", vec![P::PageBreak; 2])])),
@@ -222,6 +239,7 @@ fn control_glyphs_keep_their_own_source_positions() {
             vec![(0, 1), (1, 2), (2, 3), (3, 4)],
         ),
         (para("", vec![]), vec![(0, 1)]),
+        (para("\u{fffc}", vec![P::PageBreak]), vec![(0, 1), (1, 2)]),
     ];
     for (p, expected) in cases {
         let pages = Engine::new(&SimpleMetrics, PageSetup::a4()).layout(&[p]);

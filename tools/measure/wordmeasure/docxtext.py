@@ -32,6 +32,7 @@ import zipfile
 from pathlib import Path
 
 from . import OK, UNDECIDABLE
+from .source_text import utf16_length
 
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
@@ -52,11 +53,14 @@ def _paragraph_text(para: ET.Element) -> tuple[str, dict[int, str]]:
     """段落正文与逐控制字符的标注。返回 (文本, {段内下标: 标记})。"""
     out: list[str] = []
     marks: dict[int, str] = {}
+    offset = 0
 
     def push(text: str, mark: str | None = None):
+        nonlocal offset
         if mark is not None:
-            marks[len("".join(out))] = mark
+            marks[offset] = mark
         out.append(text)
+        offset += utf16_length(text)
 
     for node in para.iter():
         tag = node.tag
@@ -111,19 +115,21 @@ def content_text(docx: Path) -> dict:
         pPr = child.find(W + "pPr")
         has_sect = pPr is not None and pPr.find(W + "sectPr") is not None
         terminator = "\x0c" if has_sect else "\r"
-        marks[offset + len(body_text)] = MARK_SECTION if has_sect else MARK_PARAGRAPH
+        body_length = utf16_length(body_text)
+        marks[offset + body_length] = MARK_SECTION if has_sect else MARK_PARAGRAPH
         body_text += terminator
+        body_length += 1
 
         paragraphs.append(
             {
                 "index": len(paragraphs),
                 "start": offset,
-                "end": offset + len(body_text),
+                "end": offset + body_length,
                 "terminator": MARK_SECTION if has_sect else MARK_PARAGRAPH,
             }
         )
         text_parts.append(body_text)
-        offset += len(body_text)
+        offset += body_length
 
     return {
         "text": "".join(text_parts),

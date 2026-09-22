@@ -21,7 +21,7 @@ from pathlib import Path
 
 from . import FAIL, OK, UNDECIDABLE, capture as capture_mod
 from . import compare as compare_mod
-from . import adopt, controls, counting, pdfglyphs, preflight, selfcheck, wordmodel
+from . import adopt, controls, counting, pairing, pdfglyphs, preflight, selfcheck, source_binding, wordmodel
 
 DEFAULT_FAMILIES = ["Liberation Serif", "Liberation Sans", "Carlito"]
 
@@ -121,18 +121,40 @@ def cmd_glyphs(args):
     return 0
 
 
-def cmd_model(args):
+def _build_word_model(args):
     bundle = capture_mod.load_bundle(Path(args.bundle))
+    requested_source = getattr(args, "source_docx", None)
+    if requested_source:
+        try:
+            bundle = source_binding.bind_source(bundle, Path(requested_source))
+        except ValueError as exc:
+            reason = "SOURCE_ANNOTATION_UNVERIFIED: %s" % exc
+            return {
+                "schema": "rsword-layout-word-model/1", "state": UNDECIDABLE,
+                "reason": reason, "premises": dict(pairing.PREMISES),
+                "coverage": {}, "pages": [],
+                "sourceAnnotation": {"state": UNDECIDABLE, "sourceDocx": str(requested_source),
+                                     "reason": str(exc), "derived": True, "backtest": True},
+            }
     model = wordmodel.build(bundle)
+    if "sourceAnnotation" in bundle:
+        model["sourceAnnotation"] = bundle["sourceAnnotation"]
+    return model
+
+
+def cmd_model(args):
+    model = _build_word_model(args)
     hits = controls.scan_falsifiers(model)
     if args.output or args.json:
         _dump({**model, "falsifierHits": hits}, args.output)
-        return 0
+        return 0 if model["state"] == OK else (2 if model["state"] == UNDECIDABLE else 1)
 
     # 先印 state，再印任何数值（§6.5）。
     print("state=%s" % model["state"])
     if model.get("reason"):
         print("  %s" % model["reason"])
+    if "sourceAnnotation" in model:
+        print("源标注：state=%s derived=True backtest=True (--source-docx)" % model["sourceAnnotation"]["state"])
     print("覆盖：%s" % json.dumps(model["coverage"], ensure_ascii=False))
     if "lineDenominators" in model:
         d = model["lineDenominators"]
@@ -211,11 +233,16 @@ def cmd_selfcheck(args):
 
 
 def cmd_compare(args):
-    bundle = capture_mod.load_bundle(Path(args.bundle))
-    reference = wordmodel.build(bundle)
+    reference = _build_word_model(args)
     candidate = _load_trace(Path(args.trace))
     reference, exclusion = compare_mod.exclude_glyphs(reference, set(args.exclude_rule or []))
-    result = compare_mod.compare(reference, candidate, tolerance_pt=args.tolerance)
+    if reference.get("sourceAnnotation", {}).get("state") == UNDECIDABLE:
+        result = compare_mod.Comparison(
+            state=UNDECIDABLE, tolerance_pt=args.tolerance,
+            failures=[{"code": "SOURCE_ANNOTATION_UNVERIFIED", "reason": reference["reason"]}],
+        )
+    else:
+        result = compare_mod.compare(reference, candidate, tolerance_pt=args.tolerance)
     hits = controls.scan_falsifiers(reference, result)
 
     if args.output or args.json:
@@ -230,6 +257,8 @@ def cmd_compare(args):
                     "coverage": reference["coverage"],
                     "lineDenominators": reference.get("lineDenominators"),
                     "premises": reference["premises"],
+                    **({"sourceAnnotation": reference["sourceAnnotation"]}
+                       if "sourceAnnotation" in reference else {}),
                 },
                 "candidate": {
                     "trace": str(args.trace),
@@ -253,6 +282,8 @@ def cmd_compare(args):
                  exclusion["totalGlyphs"]))
     print(result.summary())
     print("Word 侧：state=%s  %s" % (reference["state"], json.dumps(reference["coverage"], ensure_ascii=False)))
+    if "sourceAnnotation" in reference:
+        print("源标注：state=%s derived=True backtest=True (--source-docx)" % reference["sourceAnnotation"]["state"])
     print("引擎侧：%s / %s" % (candidate.get("engine"), candidate.get("metrics")))
     for failure in result.failures[: args.limit]:
         print("  %s  %s" % (failure["code"], json.dumps(failure, ensure_ascii=False)[:240]))
@@ -327,6 +358,7 @@ def build_parser():
 
     p = common(sub.add_parser("model", help="§3 采集包 → 页/行/字形，逐行三态"))
     p.add_argument("bundle")
+    p.add_argument("--source-docx", help="离线补源标注；必须通过夹具 SHA256、UTF-16 段区间与逐字核查")
     p.add_argument("--verbose", "-v", action="store_true", help="连成立的行也列出来")
     p.set_defaults(func=cmd_model)
 
@@ -344,6 +376,7 @@ def build_parser():
     p = common(sub.add_parser("compare", help="§9.6 引擎轨迹 vs Word 采集包"))
     p.add_argument("bundle")
     p.add_argument("trace")
+    p.add_argument("--source-docx", help="离线补源标注；必须通过夹具 SHA256、UTF-16 段区间与逐字核查")
     p.add_argument(
         "--tolerance",
         type=float,

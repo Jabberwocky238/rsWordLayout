@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 from . import OK, UNDECIDABLE, counting, pairing
+from .source_text import InvalidSourceOffset, SourceText
 
 
 def _dedupe(reasons: list[str]) -> list[str]:
@@ -24,14 +25,20 @@ def _dedupe(reasons: list[str]) -> list[str]:
     return [r if n == 1 else "%s ×%d" % (r, n) for r, n in seen.items()]
 
 
-def lines_from_sweep(sweep: dict) -> list[dict]:
+def lines_from_sweep(sweep: dict, *, source: SourceText | None = None) -> list[dict]:
     """把逐字符的 (页, 行) 读数折成行。
 
     行的边界就是 (页, 行) 这对序数发生变化的地方。相邻位置同属一行即并入。
     **不做任何几何推断**——这些是序数，没有单位（§2.1 / §6.6）。
     """
-    content = sweep["contentText"]
+    source = source or SourceText(sweep["contentText"])
     positions = sorted(sweep["positions"], key=lambda p: p["offset"])
+    if sweep.get("endOfContent", source.length) != source.length:
+        raise InvalidSourceOffset("SOURCE_LENGTH_MISMATCH: text and Word endOfContent differ")
+    if len(positions) != source.length or any(
+        record["offset"] != index for index, record in enumerate(positions)
+    ):
+        raise InvalidSourceOffset("INCOMPLETE_SOURCE_SWEEP: each UTF-16 unit must occur exactly once")
     lines: list[dict] = []
     for record in positions:
         key = (record["page"], record["line"])
@@ -47,11 +54,11 @@ def lines_from_sweep(sweep: dict) -> list[dict]:
                 }
             )
     for line in lines:
-        line["text"] = content[line["start"] : line["end"]]
+        line["text"] = source.slice(line["start"], line["end"])
     return lines
 
 
-def line_marks(sweep: dict, line: dict) -> dict[int, str] | None:
+def line_marks(sweep: dict, line: dict, *, source: SourceText | None = None) -> dict[int, str] | None:
     """这一行的逐字符构造标注（行内下标 → `counting.RULES` 的键）。
 
     标注来自采集包里的源侧推导（`sweep.marks`，由 `docxtext` 给出），**不是从字符猜的**。
@@ -65,28 +72,38 @@ def line_marks(sweep: dict, line: dict) -> dict[int, str] | None:
     marks = sweep.get("marks")
     if not marks:
         return None
-    text = sweep["contentText"]
+    source = source or SourceText(sweep["contentText"])
     paragraphs = sweep.get("paragraphs") or []
     start, end = line["start"], line["end"]
+    start_index = source.index(start)
 
     out: dict[int, str] = {}
     for at in range(start, end):
         mark = marks.get(str(at), marks.get(at))
         if mark is None:
             continue
+        index = source.index(at) - start_index
         if mark == "PAGE_BREAK":
+            if source.text[source.index(at)] != counting.PAGE_OR_SECTION_BREAK:
+                raise InvalidSourceOffset("SOURCE_MARK_MISMATCH: PAGE_BREAK at %s is not form feed" % at)
             para = next((p for p in paragraphs if p["start"] <= at < p["end"]), None)
             if para is None:
-                out[at - start] = "PAGE_BREAK"  # 定位不了段落 → 让 counting 判不了
+                out[index] = "PAGE_BREAK"  # 定位不了段落 → 让 counting 判不了
                 continue
-            para_text = text[para["start"] : para["end"]]
-            alone = line["text"].strip("\r\x0b") == "\x0c"
-            mark = counting.resolve_page_break(
-                para_text, at - para["start"], alone_on_line=alone
-            )
+            para_text = source.slice(para["start"], para["end"])
+            next_mark = marks.get(str(at + 1), marks.get(at + 1))
+            if at + 1 < end and next_mark == "PARAGRAPH_MARK":
+                # Mac's text transport can spell the paragraph mark as LF.
+                # Its source annotation, not that spelling, identifies it.
+                mark = "PAGE_BREAK_BEFORE_MARK"
+            else:
+                mark = counting.resolve_page_break(
+                    para_text, source.index(at) - source.index(para["start"]),
+                    alone_on_line=(start == at and end == at + 1),
+                )
             if mark == "UNKNOWN":
                 mark = "PAGE_BREAK"
-        out[at - start] = mark
+        out[index] = mark
     return out
 
 
@@ -106,7 +123,22 @@ def build(bundle: dict) -> dict:
             "coverage": {},
             "pages": [],
         }
-    all_lines = lines_from_sweep(sweep)
+    try:
+        source = SourceText(sweep["contentText"])
+        all_lines = lines_from_sweep(sweep, source=source)
+        all_marks = {line["start"]: line_marks(sweep, line, source=source) for line in all_lines}
+    except InvalidSourceOffset as exc:
+        reason = "INVALID_SOURCE_OFFSETS: %s" % exc
+        return {
+            "schema": "rsword-layout-word-model/1",
+            "state": UNDECIDABLE,
+            "reason": reason,
+            "premises": dict(pairing.PREMISES),
+            "coverage": {"pdfPages": len(glyphs_doc["pages"]),
+                         "sweepPositions": len(sweep["positions"])},
+            "pages": [{"index": i, "state": UNDECIDABLE, "reason": reason, "lines": []}
+                      for i in range(len(glyphs_doc["pages"]))],
+        }
 
     # Word 的页序数从 1 起；PDF 页从 0 起。按出现顺序映到 PDF 页下标，
     # 不假设「Word 第 N 页 = PDF 第 N−1 页」，而是核过再用。
@@ -145,7 +177,7 @@ def build(bundle: dict) -> dict:
     for pdf_index, (word_page, pdf_page) in enumerate(zip(word_pages, pdf_pages)):
         page_lines = [l for l in all_lines if l["page"] == word_page]
         page_glyphs = pdf_page["glyphs"]
-        marks = {i: m for i, l in enumerate(page_lines) if (m := line_marks(sweep, l)) is not None}
+        marks = {i: m for i, l in enumerate(page_lines) if (m := all_marks[l["start"]]) is not None}
 
         if sweep.get("boxAvailable") and all("box" in l for l in page_lines):
             # Windows 通道：按行盒纵向包含归行（§3.3）。

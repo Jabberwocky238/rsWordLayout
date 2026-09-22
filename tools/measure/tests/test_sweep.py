@@ -98,6 +98,40 @@ def test_trace_failure_cannot_be_reported_as_comparison(tmp_path, monkeypatch):
     assert "comparisonState" not in result
 
 
+def test_source_binding_failure_is_not_an_admitted_comparison(tmp_path, monkeypatch):
+    bundle = tmp_path / "capture"
+    bundle.mkdir()
+    fixture, font = tmp_path / "case.docx", tmp_path / "font.ttf"
+    fixture.write_bytes(b"fixture")
+    font.write_bytes(b"font")
+    sha = hashlib.sha256(fixture.read_bytes()).hexdigest()
+    (bundle / "META.json").write_text(json.dumps(meta(sha)))
+    for name in ("sweep.json", "glyphs.json"):
+        (bundle / name).write_text("{}")
+
+    def invoke(command, output, **kwargs):
+        if "--metrics" in command:
+            Path(command[-1]).write_text("{}")
+            return {"exitCode": 0}
+        if "compare" in command:
+            assert command[command.index("--source-docx") + 1] == str(fixture)
+            result = {"state": UNDECIDABLE, "reference": {
+                "sourceAnnotation": {"state": UNDECIDABLE, "reason": "CONTENT_TEXT_MISMATCH"}}}
+        else:
+            result = {"state": OK}
+        Path(command[-1]).write_text(json.dumps(result))
+        return {"exitCode": 2 if "compare" in command else 0}
+
+    monkeypatch.setattr("wordmeasure.sweep.invoke", invoke)
+    result = run_bundle(bundle, tmp_path / "out", binary=tmp_path / "engine",
+                        fixtures={sha: [fixture]}, fonts=[{"path": str(font), "names": ["Test Family"],
+                        "sha256": hashlib.sha256(font.read_bytes()).hexdigest()}], timeout=1)
+    assert result["state"] == UNDECIDABLE
+    assert result["reason"] == "SOURCE_ANNOTATION_UNVERIFIED"
+    assert result["sourceAnnotation"]["reason"] == "CONTENT_TEXT_MISMATCH"
+    assert summarize([result])["compared"] == 0
+
+
 def test_sweep_keeps_one_engine_revision_when_cargo_replaces_the_binary(tmp_path, monkeypatch):
     binary = tmp_path / "engine"
     binary.write_bytes(b"original engine")

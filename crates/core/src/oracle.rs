@@ -45,7 +45,7 @@ pub enum LineTerminator {
 /// 手动分页符在行里的位置——决定它画几个字形。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PageBreakPosition {
-    /// 行首独占、自成一条行记录：画 **0 个**。
+    /// 分页符自身独占一条行记录（不含段落标记）：画 **0 个**。
     OwnLine,
     /// 紧跟段落标记：画 **1 个空格**（该行连同段落标记共 +2）。
     BeforeMark,

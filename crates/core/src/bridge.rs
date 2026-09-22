@@ -429,6 +429,7 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             // 引擎侧对首页为空的情形已有保护，所以文档开头的那个节不会多出一张空页。
             page_break_before: starts_section_page
                 || props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
+            overflow_punct: props.get("overflowPunct").map(as_bool).unwrap_or(true),
             source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
             terminator,
         });

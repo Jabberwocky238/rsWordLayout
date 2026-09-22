@@ -1,0 +1,962 @@
+{
+  "schema": "rsword-layout-iteration-report/1",
+  "baselineEngineCommit": "cd3894e",
+  "parserCommit": "399e36a3c645e9b9001531fb06969f8ce5347e1f",
+  "parserPullRequest": "https://github.com/LilLeapo/rsWordParser/pull/11",
+  "evidence": "Backtest of archived Mac captures; no new Word capture",
+  "criteria": {
+    "tolerancePt": 0,
+    "excludedRules": [],
+    "metrics": "real",
+    "verticalGrid": "mac",
+    "sourceAnnotations": "SHA-bound DOCX, verified UTF-16 ranges and captured text; offline backtest"
+  },
+  "measurementHashes": {
+    "tools/measure/wordmeasure/__init__.py": "f9e0fac095045a4c8970f183d6d7fcb16f38d9ce8b98700bc6bd3717d5c311fc",
+    "tools/measure/wordmeasure/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "tools/measure/wordmeasure/adopt.py": "2ffc20449e3909cf81d455b5170445d6db3d579a8a7fbade2f980d55adada801",
+    "tools/measure/wordmeasure/applescript.py": "9794ef409bd6b312accc96a028b2d1d15ff5d9faf45c5d3528b71ae07eb9b10f",
+    "tools/measure/wordmeasure/capture.py": "4c3bc5c93bdbf841af2974384252339af2958879be91fba196fc71dca2420fea",
+    "tools/measure/wordmeasure/cli.py": "76606404499bb379170ed632fc4bf42ab05fe9892ce2abe33a59e209e90ea08d",
+    "tools/measure/wordmeasure/compare.py": "f62a7017090af003527d6cfc7ad219a5edb5a46f9e880ba9019f71e33f4594c4",
+    "tools/measure/wordmeasure/controls.py": "31efd7c4d8970ee7796d90483a640aac7bf18cf2daaea938155fc9212564196e",
+    "tools/measure/wordmeasure/counting.py": "7e7ccba41e13b0e299c531a72bb366dab13327d821f1433e18201ea6fc0cf6cc",
+    "tools/measure/wordmeasure/docxtext.py": "90e1c9cb3e7dfd71dc2f941158727faee9f8a7f4821bf47c4dd1b36c7ae7c724",
+    "tools/measure/wordmeasure/fingerprint.py": "437856c76f1c41c280bcde56b387182fbb39e68ea20ebc398f4ab737513528cd",
+    "tools/measure/wordmeasure/fontcover.py": "145990896c07953e6f3c76de961c054a32026f3a0951a6c34c832c8cfa030302",
+    "tools/measure/wordmeasure/pairing.py": "40bdd3cdd9e814696360324d0eb1897dcf4b206e21822bc6250481bbdddcdf10",
+    "tools/measure/wordmeasure/pdfglyphs.py": "5a6406df7cc8b7943924f8eeb1e1f01c16c5e81f6ceff4232145d3b5f9187287",
+    "tools/measure/wordmeasure/preflight.py": "4693bcc0e5340033213849a200daa3efb550345f9798b0c6d24f36de22523557",
+    "tools/measure/wordmeasure/selfcheck.py": "cc9b5e24ecdb5ea7c9de8f55bdd54b7ba30602864af68d94b0d13a7b00ec3ebf",
+    "tools/measure/wordmeasure/source_binding.py": "52d3a548d45568b1b430d957f0f6b573e62a9c16487207852ebcab27fa521f68",
+    "tools/measure/wordmeasure/source_text.py": "b3828b65e1f1b98210c98bee4ee5ac64e0c846a530a657c744a567e1337a9af0",
+    "tools/measure/wordmeasure/sweep.py": "06251b9312cdd6c0069e03d806ffb89c53847f58c4c83d3d32984ef9acebbf32",
+    "tools/measure/wordmeasure/wordmodel.py": "faf69eb87e0ddac91c39161caa4d49f37cfb5cfa80e1f9fdf12d3497e4f36202"
+  },
+  "engineHashes": {
+    "before": "17efc176dfd1b172068389736ce88b92670124279ead36f0e7b89d31830f35bc",
+    "after": "125f2f4cc6d9079e230532a922d7e1d7c5a90c8c427a638f658acca169e332ed"
+  },
+  "verifiedEqual": [
+    "measurement module bytes",
+    "fixture bytes",
+    "font inventory entries and bytes",
+    "capture inputs",
+    "source annotation provenance"
+  ],
+  "coverage": {
+    "before": {
+      "bundles": 29,
+      "states": {
+        "OK": 0,
+        "FAIL": 24,
+        "UNDECIDABLE": 5
+      },
+      "compared": 24,
+      "notCompared": 5,
+      "selfcheckStates": {
+        "UNDECIDABLE": 24,
+        "NOT_RUN": 5
+      },
+      "comparisonStates": {
+        "FAIL": 24,
+        "NOT_RUN": 5
+      },
+      "structurallySound": 18,
+      "pageCountsEqual": 24
+    },
+    "after": {
+      "bundles": 29,
+      "states": {
+        "OK": 0,
+        "FAIL": 24,
+        "UNDECIDABLE": 5
+      },
+      "compared": 24,
+      "notCompared": 5,
+      "selfcheckStates": {
+        "UNDECIDABLE": 24,
+        "NOT_RUN": 5
+      },
+      "comparisonStates": {
+        "FAIL": 24,
+        "NOT_RUN": 5
+      },
+      "structurallySound": 21,
+      "pageCountsEqual": 24
+    }
+  },
+  "validation": {
+    "rustTests": 167,
+    "pythonTests": 102,
+    "clippy": "PASS",
+    "wasmCheck": "PASS"
+  },
+  "comparisons": [
+    {
+      "bundle": "a-form-2026-09-17",
+      "fixtureSha256": "7cbb3657575cc27832033d8a695814018dd5f5bee74202c00f6ad8ec18965ec2",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "pairs": 480,
+        "maxAbs": 4.800000009626706,
+        "glyphs": 480
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "pairs": 480,
+        "maxAbs": 4.800000009626706,
+        "glyphs": 480
+      }
+    },
+    {
+      "bundle": "accumulation-2026-09-17",
+      "fixtureSha256": "b81d4338200bd4464a87b30f940e5e3a04cdc9f58b8292e36b172615dc975463",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1340,
+          "candidatePages": 12,
+          "referenceGlyphs": 1340,
+          "referencePages": 12
+        },
+        "pairs": 1340,
+        "maxAbs": 2.6400026180904117,
+        "glyphs": 1340
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1340,
+          "candidatePages": 12,
+          "referenceGlyphs": 1340,
+          "referencePages": 12
+        },
+        "pairs": 1340,
+        "maxAbs": 2.6400026180904117,
+        "glyphs": 1340
+      }
+    },
+    {
+      "bundle": "baseline-order-2026-09-17",
+      "fixtureSha256": "9acad2f4905fb14e06fa5c23bbe5b4271cb4c234f173045e15f6230885123c98",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "pairs": 216,
+        "maxAbs": 0.24765567266076938,
+        "glyphs": 216
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "pairs": 216,
+        "maxAbs": 0.24765567266076938,
+        "glyphs": 216
+      }
+    },
+    {
+      "bundle": "breaks-sections-2026-09-17",
+      "fixtureSha256": "5087b3e6d04f659df83b065a4849546e1481222ca6bd3498d87eebd2b30f2b84",
+      "before": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GLYPH_COUNT_MISMATCH": 3
+        },
+        "structure": {
+          "candidateGlyphs": 87,
+          "candidatePages": 15,
+          "referenceGlyphs": 90,
+          "referencePages": 15
+        },
+        "pairs": 84,
+        "maxAbs": 141.05068564926262,
+        "glyphs": 87
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 90,
+          "candidatePages": 15,
+          "referenceGlyphs": 90,
+          "referencePages": 15
+        },
+        "pairs": 90,
+        "maxAbs": 141.05083764728235,
+        "glyphs": 90
+      }
+    },
+    {
+      "bundle": "cjk-plain-2026-09-18",
+      "fixtureSha256": "07dea76d27bb4b085a5cc753032d60ef694e5284abe690740420a2939fc8ac23",
+      "before": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 1
+        },
+        "structure": {
+          "candidateGlyphs": 301,
+          "candidatePages": 7,
+          "referenceGlyphs": 301,
+          "referencePages": 7
+        },
+        "pairs": 188,
+        "maxAbs": 50.88000000257598,
+        "glyphs": 301
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 301,
+          "candidatePages": 7,
+          "referenceGlyphs": 301,
+          "referencePages": 7
+        },
+        "pairs": 301,
+        "maxAbs": 50.88000000257598,
+        "glyphs": 301
+      }
+    },
+    {
+      "bundle": "cursor-unit-2026-09-17",
+      "fixtureSha256": "9cfd06fb59794515de9c74877e2903dada87848574aa65a049485e43689d1ac3",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 3048,
+          "candidatePages": 10,
+          "referenceGlyphs": 3048,
+          "referencePages": 10
+        },
+        "pairs": 3048,
+        "maxAbs": 5.760000016200104,
+        "glyphs": 3048
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 3048,
+          "candidatePages": 10,
+          "referenceGlyphs": 3048,
+          "referencePages": 10
+        },
+        "pairs": 3048,
+        "maxAbs": 5.760000016200104,
+        "glyphs": 3048
+      }
+    },
+    {
+      "bundle": "exact-spacing-2026-09-17",
+      "fixtureSha256": "95ea1ad3ea28342783f995ea116b0eebec10112919076e3a0bb0d3437eb2642a",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1440,
+          "candidatePages": 18,
+          "referenceGlyphs": 1440,
+          "referencePages": 18
+        },
+        "pairs": 1440,
+        "maxAbs": 8.160000002165654,
+        "glyphs": 1440
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1440,
+          "candidatePages": 18,
+          "referenceGlyphs": 1440,
+          "referencePages": 18
+        },
+        "pairs": 1440,
+        "maxAbs": 8.160000002165654,
+        "glyphs": 1440
+      }
+    },
+    {
+      "bundle": "first-line-2026-09-17",
+      "fixtureSha256": "a9f42e6a0c1f9aa892b9c13d67f1ce7a355133855f69085f4f11fafcd17497cd",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "pairs": 216,
+        "maxAbs": 0.24000242998774998,
+        "glyphs": 216
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "pairs": 216,
+        "maxAbs": 0.24000242998774998,
+        "glyphs": 216
+      }
+    },
+    {
+      "bundle": "fixed-distance-2026-09-17",
+      "fixtureSha256": "3fbb8a58e33951c6e699a3f543169f4368dbc809e7029594239d734751faa344",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "pairs": 480,
+        "maxAbs": 6.960000006294304,
+        "glyphs": 480
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "pairs": 480,
+        "maxAbs": 6.960000006294304,
+        "glyphs": 480
+      }
+    },
+    {
+      "bundle": "font-free-2026-09-17",
+      "fixtureSha256": "ce3c82dfeb124065b122aed566640cad1b871647f15cee8fcabd0f94049e0d30",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 720,
+          "candidatePages": 24,
+          "referenceGlyphs": 720,
+          "referencePages": 24
+        },
+        "pairs": 720,
+        "maxAbs": 15.600000002585265,
+        "glyphs": 720
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 720,
+          "candidatePages": 24,
+          "referenceGlyphs": 720,
+          "referencePages": 24
+        },
+        "pairs": 720,
+        "maxAbs": 15.600000002585265,
+        "glyphs": 720
+      }
+    },
+    {
+      "bundle": "hbox-2026-09-17",
+      "fixtureSha256": "9d972f7bfb755aecfcc7cda53f00f59ceebbedf84ebeb6c8e6adc5ca7d09078c",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 638,
+          "candidatePages": 10,
+          "referenceGlyphs": 638,
+          "referencePages": 10
+        },
+        "pairs": 638,
+        "maxAbs": 47.99867999999998,
+        "glyphs": 638
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 638,
+          "candidatePages": 10,
+          "referenceGlyphs": 638,
+          "referencePages": 10
+        },
+        "pairs": 638,
+        "maxAbs": 47.99867999999998,
+        "glyphs": 638
+      }
+    },
+    {
+      "bundle": "hbox2-2026-09-17",
+      "fixtureSha256": "df9e8bccd20357ce69b95ca70c0a7b20220029d7370bb8042dfe40da8004322d",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1147,
+          "candidatePages": 7,
+          "referenceGlyphs": 1147,
+          "referencePages": 7
+        },
+        "pairs": 1147,
+        "maxAbs": 40.99846667519052,
+        "glyphs": 1147
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1147,
+          "candidatePages": 7,
+          "referenceGlyphs": 1147,
+          "referencePages": 7
+        },
+        "pairs": 1147,
+        "maxAbs": 40.99846667519052,
+        "glyphs": 1147
+      }
+    },
+    {
+      "bundle": "indent-align-2026-09-17",
+      "fixtureSha256": "c7cd816b48331dbea4b60be8f56ff57cae60701a6e8515447ee3d403067d1730",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 262,
+          "candidatePages": 20,
+          "referenceGlyphs": 262,
+          "referencePages": 20
+        },
+        "pairs": 262,
+        "maxAbs": 0.5131759999999872,
+        "glyphs": 262
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 262,
+          "candidatePages": 20,
+          "referenceGlyphs": 262,
+          "referencePages": 20
+        },
+        "pairs": 262,
+        "maxAbs": 0.5131759999999872,
+        "glyphs": 262
+      }
+    },
+    {
+      "bundle": "kinsoku-2026-09-18",
+      "fixtureSha256": "37abbd1186bc9711679816ae0addec1e4c45d23c835d5c621b188f171583fead",
+      "before": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GLYPH_COUNT_MISMATCH": 2,
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "pairs": 0,
+        "maxAbs": null,
+        "glyphs": 252
+      },
+      "after": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "pairs": 63,
+        "maxAbs": 7.7091034498184765,
+        "glyphs": 252
+      }
+    },
+    {
+      "bundle": "kinsoku2-2026-09-18",
+      "fixtureSha256": "57e52d52a70650529b7166f6a5fd379fc5dd91a1ca5d362814f0fc8ef106f8ec",
+      "before": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "pairs": 63,
+        "maxAbs": 7.439999999999927,
+        "glyphs": 252
+      },
+      "after": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "pairs": 63,
+        "maxAbs": 7.439999999999927,
+        "glyphs": 252
+      }
+    },
+    {
+      "bundle": "noise-floor-2026-09-17",
+      "fixtureSha256": "b4e2c2c563ea52cf1087a4a2176667c78f8feee0a22ae739b35e04bc40377657",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 678,
+          "candidatePages": 6,
+          "referenceGlyphs": 678,
+          "referencePages": 6
+        },
+        "pairs": 678,
+        "maxAbs": 2.8800984047189484,
+        "glyphs": 678
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 678,
+          "candidatePages": 6,
+          "referenceGlyphs": 678,
+          "referencePages": 6
+        },
+        "pairs": 678,
+        "maxAbs": 2.8800984047189484,
+        "glyphs": 678
+      }
+    },
+    {
+      "bundle": "page-start-2026-09-17",
+      "fixtureSha256": "e9c933739fd462eb8b440438fe93a1323d6220f6c1e8c5caf8b36a4c2905dcb1",
+      "before": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 18
+        },
+        "structure": {
+          "candidateGlyphs": 1288,
+          "candidatePages": 36,
+          "referenceGlyphs": 1288,
+          "referencePages": 36
+        },
+        "pairs": 596,
+        "maxAbs": 0.9600690095619627,
+        "glyphs": 1288
+      },
+      "after": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 18
+        },
+        "structure": {
+          "candidateGlyphs": 1288,
+          "candidatePages": 36,
+          "referenceGlyphs": 1288,
+          "referencePages": 36
+        },
+        "pairs": 596,
+        "maxAbs": 0.9600690095619627,
+        "glyphs": 1288
+      }
+    },
+    {
+      "bundle": "recursive-2026-09-17",
+      "fixtureSha256": "0e189e160fa5d9b5b3946951bba25c3c10cd1447d120045d57348af61e5b7259",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "pairs": 1280,
+        "maxAbs": 4.800000055814954,
+        "glyphs": 1280
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "pairs": 1280,
+        "maxAbs": 4.800000055814954,
+        "glyphs": 1280
+      }
+    },
+    {
+      "bundle": "rounding-2026-09-17",
+      "fixtureSha256": "bddfa0b24101e017743540d04e22d45a26c2db7c36fbede40264e7651abbfc19",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "pairs": 1280,
+        "maxAbs": 2.4000000353633104,
+        "glyphs": 1280
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "pairs": 1280,
+        "maxAbs": 2.4000000353633104,
+        "glyphs": 1280
+      }
+    },
+    {
+      "bundle": "shift-floor-2026-09-17",
+      "fixtureSha256": "04d2bc8d5779b08fa126bf8e88330f3aed91e1bcb4f21f19f03ea6df016012eb",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "pairs": 1280,
+        "maxAbs": 1.4400001250001344,
+        "glyphs": 1280
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "pairs": 1280,
+        "maxAbs": 1.4400001250001344,
+        "glyphs": 1280
+      }
+    },
+    {
+      "bundle": "size-free-2026-09-17",
+      "fixtureSha256": "84deea75e148f1b6865d276cc9daed39629026d4faf46a7a658c91a44e85c789",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "pairs": 480,
+        "maxAbs": 20.880000002331087,
+        "glyphs": 480
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "pairs": 480,
+        "maxAbs": 20.880000002331087,
+        "glyphs": 480
+      }
+    },
+    {
+      "bundle": "vmisc-2026-09-17",
+      "fixtureSha256": "2d0fff0c1d50fd3624d114488705220a203594674ca415b3d793ca81055c8bc1",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 174,
+          "candidatePages": 15,
+          "referenceGlyphs": 174,
+          "referencePages": 15
+        },
+        "pairs": 174,
+        "maxAbs": 14.400000004908838,
+        "glyphs": 174
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 174,
+          "candidatePages": 15,
+          "referenceGlyphs": 174,
+          "referencePages": 15
+        },
+        "pairs": 174,
+        "maxAbs": 14.400000004908838,
+        "glyphs": 174
+      }
+    },
+    {
+      "bundle": "vmisc2-2026-09-17",
+      "fixtureSha256": "808c58e18a67a0dcff1cc22852ee985d1366e58e5c46846a219402e4fe54fdab",
+      "before": {
+        "structurallySound": false,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GLYPH_COUNT_MISMATCH": 1
+        },
+        "structure": {
+          "candidateGlyphs": 87,
+          "candidatePages": 11,
+          "referenceGlyphs": 88,
+          "referencePages": 11
+        },
+        "pairs": 86,
+        "maxAbs": 140.54160492167435,
+        "glyphs": 87
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 88,
+          "candidatePages": 11,
+          "referenceGlyphs": 88,
+          "referencePages": 11
+        },
+        "pairs": 88,
+        "maxAbs": 141.0492041842137,
+        "glyphs": 88
+      }
+    },
+    {
+      "bundle": "vmisc3-2026-09-17",
+      "fixtureSha256": "27d2c0304fffc5aa539c49b10f5e01fba529c9823f50ed9ec3d35fc0b74910e4",
+      "before": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 111,
+          "candidatePages": 12,
+          "referenceGlyphs": 111,
+          "referencePages": 12
+        },
+        "pairs": 111,
+        "maxAbs": 54.03984,
+        "glyphs": 111
+      },
+      "after": {
+        "structurallySound": true,
+        "comparisonState": "FAIL",
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "structure": {
+          "candidateGlyphs": 111,
+          "candidatePages": 12,
+          "referenceGlyphs": 111,
+          "referencePages": 12
+        },
+        "pairs": 111,
+        "maxAbs": 54.03984,
+        "glyphs": 111
+      }
+    }
+  ]
+}

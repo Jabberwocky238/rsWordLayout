@@ -188,6 +188,28 @@ F4 在开发中真的触发过一次：计数模型说判不了的行，被 §3.
 桩度量按前缀推进量算（对前缀可加的度量准确），真度量直接用 shaper 的输出——
 连字与 kerning 会让前缀和**不等于**逐字形推进，所以这两者不能混着读。
 
+## 离线补全旧采集包的源标注
+
+旧采集包缺少 `sweep.marks` 时，可以显式指定原始 DOCX：
+
+```sh
+./.venv/bin/python -m wordmeasure.cli model ../../captures/vmisc2-2026-09-17 \
+  --source-docx ../../fixtures/vmisc2.docx --output /tmp/vmisc2-model.json
+```
+
+`compare` 同样接受 `--source-docx`；离线 `sweep.py` 自动传入按 SHA256 绑定的夹具。
+补注必须同时通过采集前后文件哈希、`unchanged`、UTF-16 总长、逐段区间和完整正文核查。
+只允许已由源标注识别的段落 CR 对应 Mac 传输的 LF。已有标注必须与源一致，
+缺项才补充；失败返回 `UNDECIDABLE`，不继续猜控制符身份。原采集包不会被改写。
+
+报告中的 `sourceAnnotation` 记录输入哈希、全部核查和 `derived/backtest=true`。
+这是离线回测，不是新 Word 观测。Word 偏移始终按 UTF-16 单位解释；Python 的字符
+下标只供计数层使用。缺失或重复扫描位置、越界区间和截断代理对都会判不了。
+
+分页符自身独占一条行记录时画 0 个字形；与段落标记同处一行时，两个控制符
+合计 2 个。识别依赖源标注，不把普通 LF 猜成段落标记。纯控制行的字体、定位
+和两空格的源归属仍受内容流读序前提限制，计数相等不能证明这些几何属性正确。
+
 ## 跑测试
 
 ```sh

@@ -17,7 +17,7 @@
 //! 这条线照 dvipdfmx 的 `pdfdev.h` 划：那里坐标在 user space，
 //! device space 的换算系数在设备初始化时设一次。
 
-use crate::font::{FINE_PER_TWIP, FontMetrics, FontSpec};
+use crate::font::{FINE_PER_TWIP, FontMetrics, FontSpec, OverflowPunctuationContext};
 
 
 // ==========================================================================
@@ -873,6 +873,9 @@ pub struct Para {
     pub keep_lines: bool,
     /// `w:pageBreakBefore`。
     pub page_break_before: bool,
+    /// `w:overflowPunct`: allow a supported closing CJK punctuation glyph
+    /// outside the text boundary before applying line-start restrictions.
+    pub overflow_punct: bool,
     pub source_node: Option<u32>,
     /// 本段的终止符，通常为段落标记或分节符。
     /// 段内软回车和分页符由 `Run::placeholders` 在实际断行处处理。
@@ -894,6 +897,7 @@ impl Default for Para {
             keep_next: false,
             keep_lines: false,
             page_break_before: false,
+            overflow_punct: true,
             source_node: None,
             terminator: crate::oracle::LineTerminator::ParagraphMark,
         }
@@ -1420,7 +1424,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 首行缩进吃掉的宽度。
         let mut line_avail = (span.width() - if first_line { para.indent_first_line } else { 0 }).max(1);
 
-        for run in &para.runs {
+        // Run boundaries do not break punctuation adjacency; placeholders do.
+        // Cache the next nonempty run's first character once for the paragraph.
+        let mut next_run_chars = vec![None; para.runs.len()];
+        let mut next_char = None;
+        for (index, run) in para.runs.iter().enumerate().rev() {
+            next_run_chars[index] = next_char;
+            next_char = run.text.chars().next().or(next_char);
+        }
+        for (run_index, run) in para.runs.iter().enumerate() {
             // rsword 为每个 `w:br` 在 run 文本里放一个 U+FFFC（对象替换符）。
             // 它是**控制字符，不是文字**：占 1 个源字符位（Word 的 `Range` 数它），
             // 但既不成字形也不占宽度——Word 导出的 PDF 里一个都没有。
@@ -1432,6 +1444,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             // 在这里切而不是在绘制层滤，是因为**断行也不能算它的宽度**：
             // 只在绘制层滤，行宽照样是错的，而那种错在轨迹里看不出来。
             // 占位符可能夹在文字中间（实测 `'分页符之前￼分页符之后'`），所以按它切段。
+            let part_count = run.text.split(OBJECT_PLACEHOLDER).count();
             for (part_index, part) in run.text.split(OBJECT_PLACEHOLDER).enumerate() {
                 if part_index > 0 {
                     // 不是第一段 ⇒ 前面刚跨过一个占位符：源游标要走 1 个 UTF-16 单位，
@@ -1449,10 +1462,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     if kind.breaks_line() {
                         let at_end = consumed == paragraph_end;
                         let terminator = if kind.breaks_page() {
-                            T::PageBreak(if cur.is_empty() {
-                                B::OwnLine
-                            } else if at_end && para.terminator == T::ParagraphMark {
+                            T::PageBreak(if at_end && para.terminator == T::ParagraphMark {
                                 B::BeforeMark
+                            } else if cur.is_empty() {
+                                B::OwnLine
                             } else {
                                 B::MidParagraph
                             })
@@ -1537,7 +1550,20 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 }
 
                 // 放不下：找能塞进去的最长前缀。
-                match self.metrics.fit(rest, &run.font, remain) {
+                let context = OverflowPunctuationContext {
+                    previous: cur.last()
+                        .filter(|piece| piece.source.1 == consumed)
+                        .and_then(|piece| piece.text.chars().last()),
+                    next: if part_index + 1 == part_count {
+                        next_run_chars[run_index].filter(|&ch| ch != OBJECT_PLACEHOLDER)
+                    } else {
+                        None
+                    },
+                };
+                match self.metrics.fit_with_overflow_punctuation_context(
+                    rest, &run.font, remain, para.overflow_punct,
+                    context,
+                ) {
                     Some((cut, m)) if cut > 0 => {
                         let piece = &rest[..cut];
                         let n = piece.encode_utf16().count() as u32;
@@ -1730,7 +1756,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     /// 按 `w:spacing` 规则算行高。
     fn line_height(&self, para: &Para, content: Twips, natural: Twips) -> Twips {
         match para.line_rule {
-            LineRule::Exact => para.line_value.max(1),
+            // 分页与 keepLines/keepNext 必须预留精细游标实际推进的高度；
+            // exact 在两条路径里都不受字体内容下限约束。
+            LineRule::Exact => return para.line_value.max(1),
             LineRule::AtLeast => natural.max(para.line_value),
             // auto：line_value 以 240 为单倍。
             LineRule::Auto => {

@@ -244,6 +244,15 @@ pub struct BreakOpportunity {
     pub hyphen: bool,
 }
 
+/// Adjacent characters outside the fragment passed to punctuation fitting.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct OverflowPunctuationContext {
+    /// Immediately preceding character on the current line, without a control gap.
+    pub previous: Option<char>,
+    /// Immediately following character; controls and paragraph ends are barriers.
+    pub next: Option<char>,
+}
+
 /// 度量提供者。
 ///
 /// 实现者需保证**同一输入给出同一输出**：布局会对同一段文字反复试宽（断行二分），
@@ -269,6 +278,60 @@ pub trait FontMetrics {
             best = Some((op.offset, m));
         }
         best
+    }
+
+    /// Fit with the observed single CJK closing-punctuation overflow enabled.
+    ///
+    /// Only U+3002, U+FF0C, U+FF09 and U+3001 may overflow, after a CJK character
+    /// that is not closing punctuation. The prefix must fit normally and the
+    /// punctuation must exceed the limit. Returned metrics retain that overflow.
+    /// Use [`Self::fit_with_overflow_punctuation_context`] for adjacent runs.
+    fn fit_with_overflow_punctuation(
+        &self,
+        text: &str,
+        font: &FontSpec,
+        max_width: Twips,
+        enabled: bool,
+    ) -> Option<(usize, TextMetrics)> {
+        self.fit_with_overflow_punctuation_context(
+            text, font, max_width, enabled, OverflowPunctuationContext::default(),
+        )
+    }
+
+    /// Fit a fragment while preserving punctuation adjacency across run boundaries.
+    fn fit_with_overflow_punctuation_context(
+        &self,
+        text: &str,
+        font: &FontSpec,
+        max_width: Twips,
+        enabled: bool,
+        context: OverflowPunctuationContext,
+    ) -> Option<(usize, TextMetrics)> {
+        let ordinary = self.fit(text, font, max_width);
+        if !enabled {
+            return ordinary;
+        }
+        let fitted_end = ordinary.as_ref().map_or(0, |(end, _)| *end);
+        // Only the first candidate beyond the ordinary fit can hang. Re-fitting
+        // every later prefix makes wrapping a long paragraph cubic in its length.
+        let Some((start, end)) = super::linebreak::overflow_punctuation_candidates(text, context)
+            .find(|&(_, end)| end > fitted_end)
+        else {
+            return ordinary;
+        };
+        let prefix_fits = if start == 0 {
+            max_width >= 0
+        } else {
+            self.fit(&text[..start], font, max_width)
+                .is_some_and(|(fitted, _)| fitted == start)
+        };
+        if prefix_fits {
+            let metrics = self.measure(&text[..end], font);
+            if metrics.advance > max_width {
+                return Some((end, metrics));
+            }
+        }
+        ordinary
     }
 
     /// 文字的可断行位置，按偏移升序。

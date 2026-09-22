@@ -6,7 +6,7 @@
 //! 这不是洁癖：换度量之后如果差值里混进了断行策略的变化，就分不出是哪一边错了。
 //! 量具方法 §9.6 的三层配对里，行数一旦不同就是结构失败，连几何都量不到。
 
-use super::spec::BreakOpportunity;
+use super::spec::{BreakOpportunity, OverflowPunctuationContext};
 
 /// 判断是否是「可在其后断行」的 CJK 字符（不含行首禁则处理）。
 pub fn is_cjk(c: char) -> bool {
@@ -28,6 +28,29 @@ pub fn is_cjk(c: char) -> bool {
 pub fn is_no_line_start(c: char) -> bool {
     matches!(c, '，' | '。' | '、' | '；' | '：' | '？' | '！' | '）' | '】' | '》' | '」' | '』'
                 | ',' | '.' | ';' | ':' | '?' | '!' | ')' | ']' | '}' | '”' | '’')
+}
+
+/// Candidates for the observed single-punctuation overflow, as byte ranges.
+/// Adjacent closing punctuation stays on the ordinary kinsoku path.
+pub(super) fn overflow_punctuation_candidates(
+    text: &str,
+    context: OverflowPunctuationContext,
+) -> impl Iterator<Item = (usize, usize)> + '_ {
+    let mut previous = context.previous;
+    let mut chars = text.char_indices().peekable();
+    std::iter::from_fn(move || {
+        while let Some((start, ch)) = chars.next() {
+            let next = chars.peek().map(|&(_, c)| c).or(context.next);
+            let candidate = matches!(ch, '\u{3002}' | '\u{ff0c}' | '\u{ff09}' | '\u{3001}')
+                && previous.is_some_and(|c| is_cjk(c) && !is_no_line_start(c))
+                && !next.is_some_and(is_no_line_start);
+            previous = Some(ch);
+            if candidate {
+                return Some((start, start + ch.len_utf8()));
+            }
+        }
+        None
+    })
 }
 
 /// 文字的可断行位置，按偏移升序。
