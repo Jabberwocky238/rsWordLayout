@@ -1,0 +1,115 @@
+{
+ "schema": "rsword-layout-prereg/1",
+ "prereg": "docs/PREREG-2026-09-18-kinsoku.md",
+ "bundleState": "OK",
+ "coverage": {
+  "wordPagesInSweep": 4,
+  "pdfPages": 4,
+  "sweepPositions": 252,
+  "linesFromSweep": 11
+ },
+ "lineDenominators": {
+  "lines": 11,
+  "ok": 11,
+  "fail": 0,
+  "undecidable": 0
+ },
+ "falsifiers": [],
+ "falsifiersScanned": [
+  "F-A",
+  "F-B",
+  "F-C",
+  "F-D",
+  "F-K",
+  "F1",
+  "F2",
+  "F3",
+  "F4"
+ ],
+ "verdict": "EVALUATED",
+ "predictions": {
+  "K-a": {
+   "prediction": "K-a Word 第一行 38 个字形（标点挂出边界）",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK",
+   "readings": [
+    {
+     "tag": "K1",
+     "lines": [
+      38,
+      25
+     ]
+    },
+    {
+     "tag": "K2",
+     "lines": [
+      38,
+      25
+     ]
+    },
+    {
+     "tag": "K3",
+     "lines": [
+      38,
+      25
+     ]
+    },
+    {
+     "tag": "K4",
+     "lines": [
+      38,
+      25
+     ]
+    }
+   ]
+  },
+  "K-b": {
+   "prediction": "K-b 该标点起点 x > 523.20pt",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK",
+   "readings": [
+    {
+     "tag": "K1",
+     "punctOriginX": 523.33,
+     "lineEndX": 535.33,
+     "rightMargin": 523.2
+    },
+    {
+     "tag": "K2",
+     "punctOriginX": 523.33,
+     "lineEndX": 535.33,
+     "rightMargin": 523.2
+    },
+    {
+     "tag": "K3",
+     "punctOriginX": 523.33,
+     "lineEndX": 535.33,
+     "rightMargin": 523.2
+    },
+    {
+     "tag": "K4",
+     "punctOriginX": 523.33,
+     "lineEndX": 535.33,
+     "rightMargin": 523.2
+    }
+   ]
+  },
+  "K-c": {
+   "prediction": "K-c 四种标点表现相同",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK",
+   "note": "。／，／）／、 四者逐位相同：第一行 38 字、标点起点 523.33、行末 535.33"
+  },
+  "K-d": {
+   "prediction": "K-d 引擎第一行 36 个字形",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK",
+   "note": "在采集之前判的（K-d 不需要 Word）"
+  }
+ },
+ "conclusion": "标点溢出边界先动，行首禁则在 Word 这里没有机会动。引擎做的正相反——把第 37 个字带到下一行，于是每条这样的行与 Word 差 2 个字符。"
+}

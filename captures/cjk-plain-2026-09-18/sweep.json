@@ -1,0 +1,1714 @@
+{
+  "boxAvailable": false,
+  "boxNote": "Mac 桥拿不到行盒（§6.6）；归行只能走推算，见 pairing.PREMISES。",
+  "contentText": "甲文\n乙文\n丙文\n丁文\n戊文\n己文\n甲文\n乙文\n丙文\n丁文\n戊文\n己文\n甲文\n乙文\n丙文\n丁文\n戊文\n己文\n甲文\n乙文\n丙文\n丁文\n戊文\n己文\n这是一段没有任何格式的中文正文用来看断行点落在哪里中文字与字之间没有空格所以断行点几乎落在每两个字之间引擎走的是按字断行的那条路和西文按词断行完全不是一回事这一段特意写得长一些好让它在页面上换行好几次便于逐行比对\n标点测试，逗号、顿号；分号：冒号。句号！叹号？问号）右括号】右方括号》右书名号行首禁则要求这些符号不能出现在一行的开头引擎必须把它前面的字一起带到下一行去所以只要把它们均匀撒在文本里就一定会有几个落在换行点附近，可以逐个查。\n庚末\n辛末\n壬末\n",
+  "endOfContent": 301,
+  "marks": {
+    "11": "PARAGRAPH_MARK",
+    "14": "PARAGRAPH_MARK",
+    "17": "PARAGRAPH_MARK",
+    "178": "PARAGRAPH_MARK",
+    "2": "PARAGRAPH_MARK",
+    "20": "PARAGRAPH_MARK",
+    "23": "PARAGRAPH_MARK",
+    "26": "PARAGRAPH_MARK",
+    "29": "PARAGRAPH_MARK",
+    "291": "PARAGRAPH_MARK",
+    "294": "PARAGRAPH_MARK",
+    "297": "PARAGRAPH_MARK",
+    "300": "PARAGRAPH_MARK",
+    "32": "PARAGRAPH_MARK",
+    "35": "PARAGRAPH_MARK",
+    "38": "PARAGRAPH_MARK",
+    "41": "PARAGRAPH_MARK",
+    "44": "PARAGRAPH_MARK",
+    "47": "PARAGRAPH_MARK",
+    "5": "PARAGRAPH_MARK",
+    "50": "PARAGRAPH_MARK",
+    "53": "PARAGRAPH_MARK",
+    "56": "PARAGRAPH_MARK",
+    "59": "PARAGRAPH_MARK",
+    "62": "PARAGRAPH_MARK",
+    "65": "PARAGRAPH_MARK",
+    "68": "PARAGRAPH_MARK",
+    "71": "PARAGRAPH_MARK",
+    "8": "PARAGRAPH_MARK"
+  },
+  "marksCheck": {
+    "checks": {
+      "endOfContent": {
+        "agree": true,
+        "captured": 301,
+        "derived": 301
+      },
+      "paragraphs": {
+        "agree": true,
+        "capturedCount": 29,
+        "derivedCount": 29
+      }
+    },
+    "doesNotCheck": [
+      "终止符身份（\\r vs \\x0c）：两者都占 1 个字符位，长度与段边界核查对此不敏感（§7.2）"
+    ],
+    "reasons": [],
+    "state": "OK"
+  },
+  "paragraphs": [
+    {
+      "end": 3,
+      "index": 0,
+      "start": 0
+    },
+    {
+      "end": 6,
+      "index": 1,
+      "start": 3
+    },
+    {
+      "end": 9,
+      "index": 2,
+      "start": 6
+    },
+    {
+      "end": 12,
+      "index": 3,
+      "start": 9
+    },
+    {
+      "end": 15,
+      "index": 4,
+      "start": 12
+    },
+    {
+      "end": 18,
+      "index": 5,
+      "start": 15
+    },
+    {
+      "end": 21,
+      "index": 6,
+      "start": 18
+    },
+    {
+      "end": 24,
+      "index": 7,
+      "start": 21
+    },
+    {
+      "end": 27,
+      "index": 8,
+      "start": 24
+    },
+    {
+      "end": 30,
+      "index": 9,
+      "start": 27
+    },
+    {
+      "end": 33,
+      "index": 10,
+      "start": 30
+    },
+    {
+      "end": 36,
+      "index": 11,
+      "start": 33
+    },
+    {
+      "end": 39,
+      "index": 12,
+      "start": 36
+    },
+    {
+      "end": 42,
+      "index": 13,
+      "start": 39
+    },
+    {
+      "end": 45,
+      "index": 14,
+      "start": 42
+    },
+    {
+      "end": 48,
+      "index": 15,
+      "start": 45
+    },
+    {
+      "end": 51,
+      "index": 16,
+      "start": 48
+    },
+    {
+      "end": 54,
+      "index": 17,
+      "start": 51
+    },
+    {
+      "end": 57,
+      "index": 18,
+      "start": 54
+    },
+    {
+      "end": 60,
+      "index": 19,
+      "start": 57
+    },
+    {
+      "end": 63,
+      "index": 20,
+      "start": 60
+    },
+    {
+      "end": 66,
+      "index": 21,
+      "start": 63
+    },
+    {
+      "end": 69,
+      "index": 22,
+      "start": 66
+    },
+    {
+      "end": 72,
+      "index": 23,
+      "start": 69
+    },
+    {
+      "end": 179,
+      "index": 24,
+      "start": 72
+    },
+    {
+      "end": 292,
+      "index": 25,
+      "start": 179
+    },
+    {
+      "end": 295,
+      "index": 26,
+      "start": 292
+    },
+    {
+      "end": 298,
+      "index": 27,
+      "start": 295
+    },
+    {
+      "end": 301,
+      "index": 28,
+      "start": 298
+    }
+  ],
+  "platform": "mac",
+  "positions": [
+    {
+      "line": 1,
+      "offset": 0,
+      "page": 1
+    },
+    {
+      "line": 1,
+      "offset": 1,
+      "page": 1
+    },
+    {
+      "line": 1,
+      "offset": 2,
+      "page": 1
+    },
+    {
+      "line": 2,
+      "offset": 3,
+      "page": 1
+    },
+    {
+      "line": 2,
+      "offset": 4,
+      "page": 1
+    },
+    {
+      "line": 2,
+      "offset": 5,
+      "page": 1
+    },
+    {
+      "line": 3,
+      "offset": 6,
+      "page": 1
+    },
+    {
+      "line": 3,
+      "offset": 7,
+      "page": 1
+    },
+    {
+      "line": 3,
+      "offset": 8,
+      "page": 1
+    },
+    {
+      "line": 4,
+      "offset": 9,
+      "page": 1
+    },
+    {
+      "line": 4,
+      "offset": 10,
+      "page": 1
+    },
+    {
+      "line": 4,
+      "offset": 11,
+      "page": 1
+    },
+    {
+      "line": 5,
+      "offset": 12,
+      "page": 1
+    },
+    {
+      "line": 5,
+      "offset": 13,
+      "page": 1
+    },
+    {
+      "line": 5,
+      "offset": 14,
+      "page": 1
+    },
+    {
+      "line": 6,
+      "offset": 15,
+      "page": 1
+    },
+    {
+      "line": 6,
+      "offset": 16,
+      "page": 1
+    },
+    {
+      "line": 6,
+      "offset": 17,
+      "page": 1
+    },
+    {
+      "line": 1,
+      "offset": 18,
+      "page": 2
+    },
+    {
+      "line": 1,
+      "offset": 19,
+      "page": 2
+    },
+    {
+      "line": 1,
+      "offset": 20,
+      "page": 2
+    },
+    {
+      "line": 2,
+      "offset": 21,
+      "page": 2
+    },
+    {
+      "line": 2,
+      "offset": 22,
+      "page": 2
+    },
+    {
+      "line": 2,
+      "offset": 23,
+      "page": 2
+    },
+    {
+      "line": 3,
+      "offset": 24,
+      "page": 2
+    },
+    {
+      "line": 3,
+      "offset": 25,
+      "page": 2
+    },
+    {
+      "line": 3,
+      "offset": 26,
+      "page": 2
+    },
+    {
+      "line": 4,
+      "offset": 27,
+      "page": 2
+    },
+    {
+      "line": 4,
+      "offset": 28,
+      "page": 2
+    },
+    {
+      "line": 4,
+      "offset": 29,
+      "page": 2
+    },
+    {
+      "line": 5,
+      "offset": 30,
+      "page": 2
+    },
+    {
+      "line": 5,
+      "offset": 31,
+      "page": 2
+    },
+    {
+      "line": 5,
+      "offset": 32,
+      "page": 2
+    },
+    {
+      "line": 6,
+      "offset": 33,
+      "page": 2
+    },
+    {
+      "line": 6,
+      "offset": 34,
+      "page": 2
+    },
+    {
+      "line": 6,
+      "offset": 35,
+      "page": 2
+    },
+    {
+      "line": 1,
+      "offset": 36,
+      "page": 3
+    },
+    {
+      "line": 1,
+      "offset": 37,
+      "page": 3
+    },
+    {
+      "line": 1,
+      "offset": 38,
+      "page": 3
+    },
+    {
+      "line": 2,
+      "offset": 39,
+      "page": 3
+    },
+    {
+      "line": 2,
+      "offset": 40,
+      "page": 3
+    },
+    {
+      "line": 2,
+      "offset": 41,
+      "page": 3
+    },
+    {
+      "line": 3,
+      "offset": 42,
+      "page": 3
+    },
+    {
+      "line": 3,
+      "offset": 43,
+      "page": 3
+    },
+    {
+      "line": 3,
+      "offset": 44,
+      "page": 3
+    },
+    {
+      "line": 4,
+      "offset": 45,
+      "page": 3
+    },
+    {
+      "line": 4,
+      "offset": 46,
+      "page": 3
+    },
+    {
+      "line": 4,
+      "offset": 47,
+      "page": 3
+    },
+    {
+      "line": 5,
+      "offset": 48,
+      "page": 3
+    },
+    {
+      "line": 5,
+      "offset": 49,
+      "page": 3
+    },
+    {
+      "line": 5,
+      "offset": 50,
+      "page": 3
+    },
+    {
+      "line": 6,
+      "offset": 51,
+      "page": 3
+    },
+    {
+      "line": 6,
+      "offset": 52,
+      "page": 3
+    },
+    {
+      "line": 6,
+      "offset": 53,
+      "page": 3
+    },
+    {
+      "line": 1,
+      "offset": 54,
+      "page": 4
+    },
+    {
+      "line": 1,
+      "offset": 55,
+      "page": 4
+    },
+    {
+      "line": 1,
+      "offset": 56,
+      "page": 4
+    },
+    {
+      "line": 2,
+      "offset": 57,
+      "page": 4
+    },
+    {
+      "line": 2,
+      "offset": 58,
+      "page": 4
+    },
+    {
+      "line": 2,
+      "offset": 59,
+      "page": 4
+    },
+    {
+      "line": 3,
+      "offset": 60,
+      "page": 4
+    },
+    {
+      "line": 3,
+      "offset": 61,
+      "page": 4
+    },
+    {
+      "line": 3,
+      "offset": 62,
+      "page": 4
+    },
+    {
+      "line": 4,
+      "offset": 63,
+      "page": 4
+    },
+    {
+      "line": 4,
+      "offset": 64,
+      "page": 4
+    },
+    {
+      "line": 4,
+      "offset": 65,
+      "page": 4
+    },
+    {
+      "line": 5,
+      "offset": 66,
+      "page": 4
+    },
+    {
+      "line": 5,
+      "offset": 67,
+      "page": 4
+    },
+    {
+      "line": 5,
+      "offset": 68,
+      "page": 4
+    },
+    {
+      "line": 6,
+      "offset": 69,
+      "page": 4
+    },
+    {
+      "line": 6,
+      "offset": 70,
+      "page": 4
+    },
+    {
+      "line": 6,
+      "offset": 71,
+      "page": 4
+    },
+    {
+      "line": 1,
+      "offset": 72,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 73,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 74,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 75,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 76,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 77,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 78,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 79,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 80,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 81,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 82,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 83,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 84,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 85,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 86,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 87,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 88,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 89,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 90,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 91,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 92,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 93,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 94,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 95,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 96,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 97,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 98,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 99,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 100,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 101,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 102,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 103,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 104,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 105,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 106,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 107,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 108,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 109,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 110,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 111,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 112,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 113,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 114,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 115,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 116,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 117,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 118,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 119,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 120,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 121,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 122,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 123,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 124,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 125,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 126,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 127,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 128,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 129,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 130,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 131,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 132,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 133,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 134,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 135,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 136,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 137,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 138,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 139,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 140,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 141,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 142,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 143,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 144,
+      "page": 5
+    },
+    {
+      "line": 2,
+      "offset": 145,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 146,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 147,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 148,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 149,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 150,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 151,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 152,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 153,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 154,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 155,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 156,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 157,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 158,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 159,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 160,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 161,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 162,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 163,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 164,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 165,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 166,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 167,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 168,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 169,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 170,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 171,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 172,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 173,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 174,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 175,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 176,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 177,
+      "page": 5
+    },
+    {
+      "line": 3,
+      "offset": 178,
+      "page": 5
+    },
+    {
+      "line": 1,
+      "offset": 179,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 180,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 181,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 182,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 183,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 184,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 185,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 186,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 187,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 188,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 189,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 190,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 191,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 192,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 193,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 194,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 195,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 196,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 197,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 198,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 199,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 200,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 201,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 202,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 203,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 204,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 205,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 206,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 207,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 208,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 209,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 210,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 211,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 212,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 213,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 214,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 215,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 216,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 217,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 218,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 219,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 220,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 221,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 222,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 223,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 224,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 225,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 226,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 227,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 228,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 229,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 230,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 231,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 232,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 233,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 234,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 235,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 236,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 237,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 238,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 239,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 240,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 241,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 242,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 243,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 244,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 245,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 246,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 247,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 248,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 249,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 250,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 251,
+      "page": 6
+    },
+    {
+      "line": 2,
+      "offset": 252,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 253,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 254,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 255,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 256,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 257,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 258,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 259,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 260,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 261,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 262,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 263,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 264,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 265,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 266,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 267,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 268,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 269,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 270,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 271,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 272,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 273,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 274,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 275,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 276,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 277,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 278,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 279,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 280,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 281,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 282,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 283,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 284,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 285,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 286,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 287,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 288,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 289,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 290,
+      "page": 6
+    },
+    {
+      "line": 3,
+      "offset": 291,
+      "page": 6
+    },
+    {
+      "line": 1,
+      "offset": 292,
+      "page": 7
+    },
+    {
+      "line": 1,
+      "offset": 293,
+      "page": 7
+    },
+    {
+      "line": 1,
+      "offset": 294,
+      "page": 7
+    },
+    {
+      "line": 2,
+      "offset": 295,
+      "page": 7
+    },
+    {
+      "line": 2,
+      "offset": 296,
+      "page": 7
+    },
+    {
+      "line": 2,
+      "offset": 297,
+      "page": 7
+    },
+    {
+      "line": 3,
+      "offset": 298,
+      "page": 7
+    },
+    {
+      "line": 3,
+      "offset": 299,
+      "page": 7
+    },
+    {
+      "line": 3,
+      "offset": 300,
+      "page": 7
+    }
+  ],
+  "resultType": "text（sdef 声明 result type text）；按 int 解析；序数（本页第几行 / 第几页），**不是长度，未做单位映射**",
+  "schema": "rsword-layout-line-sweep/1",
+  "source": "AppleScript get range information; information type = first character line number / active end page number"
+}

@@ -1,0 +1,134 @@
+{
+ "schema": "rsword-layout-prereg/1",
+ "prereg": "docs/PREREG-2026-09-18-cjk-plain.md",
+ "bundle": "/Users/user/Documents/rsword-captures/cjk-plain",
+ "bundleState": "OK",
+ "coverage": {
+  "wordPagesInSweep": 7,
+  "pdfPages": 7,
+  "sweepPositions": 301,
+  "linesFromSweep": 33
+ },
+ "lineDenominators": {
+  "lines": 33,
+  "ok": 33,
+  "fail": 0,
+  "undecidable": 0
+ },
+ "falsifiers": [],
+ "falsifiersScanned": [
+  "F-A",
+  "F-B",
+  "F-C",
+  "F-D",
+  "F1",
+  "F2",
+  "F3",
+  "F4"
+ ],
+ "falsifierNote": "F1–F4 是本仓库第一次真正扫（前 22 批只扫了 F-A~F-D）。初扫时 F3 命中 68 处，全部是子集字体把汉字解成康熙部首（文→⽂ U+2F42 等）；按 Unicode 的兼容分解（NFKC）改掉身份核对的等价规则后归零，行分母一条不少。",
+ "verdict": "EVALUATED",
+ "predictions": {
+  "Z1": {
+   "prediction": "Z1 每条基线都在 0.24pt 栅格上",
+   "n": 301,
+   "ok": 301,
+   "undecidable": 0,
+   "verdict": "OK"
+  },
+  "Z2": {
+   "prediction": "Z2 行距 = N7 = (hhea.asc−hhea.desc+gap)/upem × 字号 × 1.3",
+   "n": 4,
+   "ok": 4,
+   "undecidable": 0,
+   "verdict": "OK",
+   "readings": [
+    {
+     "sizePt": 10.5,
+     "measured": 19.104,
+     "predicted": 19.11,
+     "tol": 0.048
+    },
+    {
+     "sizePt": 12.0,
+     "measured": 21.84,
+     "predicted": 21.84,
+     "tol": 0.048
+    },
+    {
+     "sizePt": 16.0,
+     "measured": 29.136,
+     "predicted": 29.12,
+     "tol": 0.048
+    },
+    {
+     "sizePt": 22.0,
+     "measured": 40.032,
+     "predicted": 40.04,
+     "tol": 0.048
+    }
+   ]
+  },
+  "Z3": {
+   "prediction": "Z3 每个段落标记画 1 个空格字形",
+   "n": 27,
+   "ok": 27,
+   "undecidable": 0,
+   "verdict": "OK"
+  },
+  "Z4": {
+   "prediction": "Z4 每行第一个字形的 x = 72.0000pt",
+   "n": 33,
+   "ok": 33,
+   "undecidable": 0,
+   "verdict": "OK"
+  },
+  "Z5": {
+   "prediction": "Z5 Word 每行的源字符数与引擎逐行相同",
+   "n": 2,
+   "ok": 1,
+   "undecidable": 0,
+   "verdict": "FAIL",
+   "misses": [
+    {
+     "page": 5,
+     "word": [
+      37,
+      37,
+      39
+     ],
+     "engine": [
+      37,
+      37,
+      36,
+      3
+     ],
+     "cause": "Word 让行末的『。』挂到右边界外（起点 523.33pt > 边界 523.20pt，行末到 538.30pt）——标点溢出边界。引擎没有这条，于是把末 3 个字符推成新的一行。"
+    }
+   ],
+   "notes": [
+    "wrapPlain（无标点）逐行相同 [37,37,33]：CJK 按字断行本身对上了。"
+   ]
+  },
+  "Z6": {
+   "prediction": "Z6 断行组里没有任何一行以行首禁则字符开头",
+   "n": 6,
+   "ok": 0,
+   "undecidable": 6,
+   "verdict": "UNDECIDABLE",
+   "notes": [
+    "两段都是 0/3，按预注册 §2 的对照说明：禁则在本夹具上根本没有被触发过（换行点恰好不落在标点前），所以判不了，不是成立。要判它得把标点精确摆在换行点上。"
+   ],
+   "supersededBy": "captures/kinsoku2-2026-09-18：关掉 w:overflowPunct 之后禁则立刻可判，J-a~J-d 各 4/4，Z6 因此已确立。"
+  }
+ },
+ "engineComparison": {
+  "pairs": 188,
+  "excludedPages": [
+   5
+  ],
+  "dxMaxAbsPt": 0.0005,
+  "firstGlyphDxExact": "30/30",
+  "dyNote": "纵向误差整个是缺掉的 ×1.3：逐行 Δy 增量 12pt 页 −5.04（=21.84−16.80）、16pt 页 −6.72（=29.12−22.40）、22pt 页 −9.12~−9.36（=40.04−30.80）、10.5pt 页 −4.32~−4.56（=19.11−14.70）。"
+ }
+}

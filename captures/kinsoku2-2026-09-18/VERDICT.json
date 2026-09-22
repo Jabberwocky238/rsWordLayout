@@ -1,0 +1,59 @@
+{
+ "schema": "rsword-layout-prereg/1",
+ "prereg": "docs/PREREG-2026-09-18-kinsoku2.md",
+ "bundleState": "OK",
+ "coverage": {
+  "wordPagesInSweep": 4,
+  "pdfPages": 4,
+  "sweepPositions": 252,
+  "linesFromSweep": 11
+ },
+ "falsifiers": [],
+ "falsifiersScanned": [
+  "F-A",
+  "F-B",
+  "F-C",
+  "F-D",
+  "F-J",
+  "F1",
+  "F2",
+  "F3",
+  "F4"
+ ],
+ "verdict": "EVALUATED",
+ "predictions": {
+  "J-a": {
+   "prediction": "J-a 关掉 overflowPunct 后 Word 第一行 36 个字形（禁则动）",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK"
+  },
+  "J-b": {
+   "prediction": "J-b 第一行没有字形起点超过 523.20pt",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK",
+   "note": "越界字形 0 个"
+  },
+  "J-c": {
+   "prediction": "J-c 四种标点表现相同",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK"
+  },
+  "J-d": {
+   "prediction": "J-d Word 与引擎第一行字形数相同",
+   "n": 4,
+   "ok": 4,
+   "verdict": "OK",
+   "note": "两边都是 36"
+  }
+ },
+ "conclusion": "Word 确实有行首禁则。默认配置下它没机会动，是因为标点溢出边界先动；把 w:overflowPunct 关掉，禁则立刻接手，且与引擎逐行一致。引擎的 CJK 断行（含禁则）是对的，唯一缺的是溢出那条。",
+ "lineDenominators": {
+  "lines": 11,
+  "ok": 11,
+  "fail": 0,
+  "undecidable": 0
+ }
+}
