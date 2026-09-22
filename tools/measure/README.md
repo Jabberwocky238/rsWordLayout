@@ -82,6 +82,27 @@ PostScript 名，再交给引擎 `--require` 核查。缺字体、缺身份、�
 
 ## 这台机器上的能力边界
 
+### 同行上下标精度实验
+
+`fixtures/vertical-precision.docx` 用三个本机字体、七种字号，在同一行内比较普通、
+上标和下标。其逐段 UTF-16 范围、字体输入和判据在采集前固定，见
+[`PREREG-2026-09-22-vertical-precision.md`](../../docs/PREREG-2026-09-22-vertical-precision.md)。
+离线复算命令：
+
+```sh
+tools/measure/.venv/bin/python tools/measure/prereg_vertical_precision.py CAPTURE_DIR \
+  --probes fixtures/vertical-precision.probes.json \
+  --source-docx fixtures/vertical-precision.docx \
+  --font-inputs fixtures/vertical-precision.font-inputs.json \
+  --output evaluation.json
+```
+
+它要求新采集的完整重复扫描回执、来源哈希和逐字身份核验。输出分别报告绘制字号、
+整 run 推进量和基线位移；候选公式不符仍保留为 FAIL。这个专项协议使用固定的
+`1e-6 pt` 数值比较阈值，不修改通用引擎比较器的零容差规则。
+
+### 平台范围
+
 采集环境是 **Word for Mac 16.112**。方法 §6.6 说得很清楚：
 **Mac Word 与 Windows Word 不能互相替代**（两套字体度量、`usePre2018iOSMacLayout`）。
 本目录的一切读数只能写「在 Mac Word 上观测到」。

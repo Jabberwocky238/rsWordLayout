@@ -1,0 +1,891 @@
+{
+  "schema": "rsword-layout-vertical-probes/1",
+  "fixtureSha256": "5f7d0996db0fad961d887fc3f08b9ed973bba7483838bc9aca6d52c8c6850fca",
+  "fontInputsSha256": "1a03114d854bbbc3b2df36f51f67d6155c9809cc3a5fce667389a5c0a1b71081",
+  "expectedPages": 1,
+  "expectedLines": 21,
+  "cases": [
+    {
+      "id": "F0S17",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 17,
+      "sourceStart": 0,
+      "sourceEnd": 29,
+      "text": "F0S17:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          0,
+          6
+        ],
+        "anchorA": [
+          6,
+          7
+        ],
+        "normal": [
+          7,
+          13
+        ],
+        "anchorB": [
+          13,
+          14
+        ],
+        "superscript": [
+          14,
+          20
+        ],
+        "anchorC": [
+          20,
+          21
+        ],
+        "subscript": [
+          21,
+          27
+        ],
+        "anchorD": [
+          27,
+          28
+        ]
+      }
+    },
+    {
+      "id": "F0S20",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 20,
+      "sourceStart": 29,
+      "sourceEnd": 58,
+      "text": "F0S20:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          29,
+          35
+        ],
+        "anchorA": [
+          35,
+          36
+        ],
+        "normal": [
+          36,
+          42
+        ],
+        "anchorB": [
+          42,
+          43
+        ],
+        "superscript": [
+          43,
+          49
+        ],
+        "anchorC": [
+          49,
+          50
+        ],
+        "subscript": [
+          50,
+          56
+        ],
+        "anchorD": [
+          56,
+          57
+        ]
+      }
+    },
+    {
+      "id": "F0S21",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 21,
+      "sourceStart": 58,
+      "sourceEnd": 87,
+      "text": "F0S21:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          58,
+          64
+        ],
+        "anchorA": [
+          64,
+          65
+        ],
+        "normal": [
+          65,
+          71
+        ],
+        "anchorB": [
+          71,
+          72
+        ],
+        "superscript": [
+          72,
+          78
+        ],
+        "anchorC": [
+          78,
+          79
+        ],
+        "subscript": [
+          79,
+          85
+        ],
+        "anchorD": [
+          85,
+          86
+        ]
+      }
+    },
+    {
+      "id": "F0S24",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 24,
+      "sourceStart": 87,
+      "sourceEnd": 116,
+      "text": "F0S24:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          87,
+          93
+        ],
+        "anchorA": [
+          93,
+          94
+        ],
+        "normal": [
+          94,
+          100
+        ],
+        "anchorB": [
+          100,
+          101
+        ],
+        "superscript": [
+          101,
+          107
+        ],
+        "anchorC": [
+          107,
+          108
+        ],
+        "subscript": [
+          108,
+          114
+        ],
+        "anchorD": [
+          114,
+          115
+        ]
+      }
+    },
+    {
+      "id": "F0S26",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 26,
+      "sourceStart": 116,
+      "sourceEnd": 145,
+      "text": "F0S26:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          116,
+          122
+        ],
+        "anchorA": [
+          122,
+          123
+        ],
+        "normal": [
+          123,
+          129
+        ],
+        "anchorB": [
+          129,
+          130
+        ],
+        "superscript": [
+          130,
+          136
+        ],
+        "anchorC": [
+          136,
+          137
+        ],
+        "subscript": [
+          137,
+          143
+        ],
+        "anchorD": [
+          143,
+          144
+        ]
+      }
+    },
+    {
+      "id": "F0S36",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 36,
+      "sourceStart": 145,
+      "sourceEnd": 174,
+      "text": "F0S36:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          145,
+          151
+        ],
+        "anchorA": [
+          151,
+          152
+        ],
+        "normal": [
+          152,
+          158
+        ],
+        "anchorB": [
+          158,
+          159
+        ],
+        "superscript": [
+          159,
+          165
+        ],
+        "anchorC": [
+          165,
+          166
+        ],
+        "subscript": [
+          166,
+          172
+        ],
+        "anchorD": [
+          172,
+          173
+        ]
+      }
+    },
+    {
+      "id": "F0S43",
+      "family": "Times New Roman",
+      "sizeHalfPoints": 43,
+      "sourceStart": 174,
+      "sourceEnd": 203,
+      "text": "F0S43:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          174,
+          180
+        ],
+        "anchorA": [
+          180,
+          181
+        ],
+        "normal": [
+          181,
+          187
+        ],
+        "anchorB": [
+          187,
+          188
+        ],
+        "superscript": [
+          188,
+          194
+        ],
+        "anchorC": [
+          194,
+          195
+        ],
+        "subscript": [
+          195,
+          201
+        ],
+        "anchorD": [
+          201,
+          202
+        ]
+      }
+    },
+    {
+      "id": "F1S17",
+      "family": "Arial",
+      "sizeHalfPoints": 17,
+      "sourceStart": 203,
+      "sourceEnd": 232,
+      "text": "F1S17:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          203,
+          209
+        ],
+        "anchorA": [
+          209,
+          210
+        ],
+        "normal": [
+          210,
+          216
+        ],
+        "anchorB": [
+          216,
+          217
+        ],
+        "superscript": [
+          217,
+          223
+        ],
+        "anchorC": [
+          223,
+          224
+        ],
+        "subscript": [
+          224,
+          230
+        ],
+        "anchorD": [
+          230,
+          231
+        ]
+      }
+    },
+    {
+      "id": "F1S20",
+      "family": "Arial",
+      "sizeHalfPoints": 20,
+      "sourceStart": 232,
+      "sourceEnd": 261,
+      "text": "F1S20:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          232,
+          238
+        ],
+        "anchorA": [
+          238,
+          239
+        ],
+        "normal": [
+          239,
+          245
+        ],
+        "anchorB": [
+          245,
+          246
+        ],
+        "superscript": [
+          246,
+          252
+        ],
+        "anchorC": [
+          252,
+          253
+        ],
+        "subscript": [
+          253,
+          259
+        ],
+        "anchorD": [
+          259,
+          260
+        ]
+      }
+    },
+    {
+      "id": "F1S21",
+      "family": "Arial",
+      "sizeHalfPoints": 21,
+      "sourceStart": 261,
+      "sourceEnd": 290,
+      "text": "F1S21:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          261,
+          267
+        ],
+        "anchorA": [
+          267,
+          268
+        ],
+        "normal": [
+          268,
+          274
+        ],
+        "anchorB": [
+          274,
+          275
+        ],
+        "superscript": [
+          275,
+          281
+        ],
+        "anchorC": [
+          281,
+          282
+        ],
+        "subscript": [
+          282,
+          288
+        ],
+        "anchorD": [
+          288,
+          289
+        ]
+      }
+    },
+    {
+      "id": "F1S24",
+      "family": "Arial",
+      "sizeHalfPoints": 24,
+      "sourceStart": 290,
+      "sourceEnd": 319,
+      "text": "F1S24:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          290,
+          296
+        ],
+        "anchorA": [
+          296,
+          297
+        ],
+        "normal": [
+          297,
+          303
+        ],
+        "anchorB": [
+          303,
+          304
+        ],
+        "superscript": [
+          304,
+          310
+        ],
+        "anchorC": [
+          310,
+          311
+        ],
+        "subscript": [
+          311,
+          317
+        ],
+        "anchorD": [
+          317,
+          318
+        ]
+      }
+    },
+    {
+      "id": "F1S26",
+      "family": "Arial",
+      "sizeHalfPoints": 26,
+      "sourceStart": 319,
+      "sourceEnd": 348,
+      "text": "F1S26:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          319,
+          325
+        ],
+        "anchorA": [
+          325,
+          326
+        ],
+        "normal": [
+          326,
+          332
+        ],
+        "anchorB": [
+          332,
+          333
+        ],
+        "superscript": [
+          333,
+          339
+        ],
+        "anchorC": [
+          339,
+          340
+        ],
+        "subscript": [
+          340,
+          346
+        ],
+        "anchorD": [
+          346,
+          347
+        ]
+      }
+    },
+    {
+      "id": "F1S36",
+      "family": "Arial",
+      "sizeHalfPoints": 36,
+      "sourceStart": 348,
+      "sourceEnd": 377,
+      "text": "F1S36:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          348,
+          354
+        ],
+        "anchorA": [
+          354,
+          355
+        ],
+        "normal": [
+          355,
+          361
+        ],
+        "anchorB": [
+          361,
+          362
+        ],
+        "superscript": [
+          362,
+          368
+        ],
+        "anchorC": [
+          368,
+          369
+        ],
+        "subscript": [
+          369,
+          375
+        ],
+        "anchorD": [
+          375,
+          376
+        ]
+      }
+    },
+    {
+      "id": "F1S43",
+      "family": "Arial",
+      "sizeHalfPoints": 43,
+      "sourceStart": 377,
+      "sourceEnd": 406,
+      "text": "F1S43:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          377,
+          383
+        ],
+        "anchorA": [
+          383,
+          384
+        ],
+        "normal": [
+          384,
+          390
+        ],
+        "anchorB": [
+          390,
+          391
+        ],
+        "superscript": [
+          391,
+          397
+        ],
+        "anchorC": [
+          397,
+          398
+        ],
+        "subscript": [
+          398,
+          404
+        ],
+        "anchorD": [
+          404,
+          405
+        ]
+      }
+    },
+    {
+      "id": "F2S17",
+      "family": "Courier New",
+      "sizeHalfPoints": 17,
+      "sourceStart": 406,
+      "sourceEnd": 435,
+      "text": "F2S17:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          406,
+          412
+        ],
+        "anchorA": [
+          412,
+          413
+        ],
+        "normal": [
+          413,
+          419
+        ],
+        "anchorB": [
+          419,
+          420
+        ],
+        "superscript": [
+          420,
+          426
+        ],
+        "anchorC": [
+          426,
+          427
+        ],
+        "subscript": [
+          427,
+          433
+        ],
+        "anchorD": [
+          433,
+          434
+        ]
+      }
+    },
+    {
+      "id": "F2S20",
+      "family": "Courier New",
+      "sizeHalfPoints": 20,
+      "sourceStart": 435,
+      "sourceEnd": 464,
+      "text": "F2S20:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          435,
+          441
+        ],
+        "anchorA": [
+          441,
+          442
+        ],
+        "normal": [
+          442,
+          448
+        ],
+        "anchorB": [
+          448,
+          449
+        ],
+        "superscript": [
+          449,
+          455
+        ],
+        "anchorC": [
+          455,
+          456
+        ],
+        "subscript": [
+          456,
+          462
+        ],
+        "anchorD": [
+          462,
+          463
+        ]
+      }
+    },
+    {
+      "id": "F2S21",
+      "family": "Courier New",
+      "sizeHalfPoints": 21,
+      "sourceStart": 464,
+      "sourceEnd": 493,
+      "text": "F2S21:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          464,
+          470
+        ],
+        "anchorA": [
+          470,
+          471
+        ],
+        "normal": [
+          471,
+          477
+        ],
+        "anchorB": [
+          477,
+          478
+        ],
+        "superscript": [
+          478,
+          484
+        ],
+        "anchorC": [
+          484,
+          485
+        ],
+        "subscript": [
+          485,
+          491
+        ],
+        "anchorD": [
+          491,
+          492
+        ]
+      }
+    },
+    {
+      "id": "F2S24",
+      "family": "Courier New",
+      "sizeHalfPoints": 24,
+      "sourceStart": 493,
+      "sourceEnd": 522,
+      "text": "F2S24:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          493,
+          499
+        ],
+        "anchorA": [
+          499,
+          500
+        ],
+        "normal": [
+          500,
+          506
+        ],
+        "anchorB": [
+          506,
+          507
+        ],
+        "superscript": [
+          507,
+          513
+        ],
+        "anchorC": [
+          513,
+          514
+        ],
+        "subscript": [
+          514,
+          520
+        ],
+        "anchorD": [
+          520,
+          521
+        ]
+      }
+    },
+    {
+      "id": "F2S26",
+      "family": "Courier New",
+      "sizeHalfPoints": 26,
+      "sourceStart": 522,
+      "sourceEnd": 551,
+      "text": "F2S26:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          522,
+          528
+        ],
+        "anchorA": [
+          528,
+          529
+        ],
+        "normal": [
+          529,
+          535
+        ],
+        "anchorB": [
+          535,
+          536
+        ],
+        "superscript": [
+          536,
+          542
+        ],
+        "anchorC": [
+          542,
+          543
+        ],
+        "subscript": [
+          543,
+          549
+        ],
+        "anchorD": [
+          549,
+          550
+        ]
+      }
+    },
+    {
+      "id": "F2S36",
+      "family": "Courier New",
+      "sizeHalfPoints": 36,
+      "sourceStart": 551,
+      "sourceEnd": 580,
+      "text": "F2S36:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          551,
+          557
+        ],
+        "anchorA": [
+          557,
+          558
+        ],
+        "normal": [
+          558,
+          564
+        ],
+        "anchorB": [
+          564,
+          565
+        ],
+        "superscript": [
+          565,
+          571
+        ],
+        "anchorC": [
+          571,
+          572
+        ],
+        "subscript": [
+          572,
+          578
+        ],
+        "anchorD": [
+          578,
+          579
+        ]
+      }
+    },
+    {
+      "id": "F2S43",
+      "family": "Courier New",
+      "sizeHalfPoints": 43,
+      "sourceStart": 580,
+      "sourceEnd": 609,
+      "text": "F2S43:AHHHHHHBHHHHHHCHHHHHHD\r",
+      "spans": {
+        "tag": [
+          580,
+          586
+        ],
+        "anchorA": [
+          586,
+          587
+        ],
+        "normal": [
+          587,
+          593
+        ],
+        "anchorB": [
+          593,
+          594
+        ],
+        "superscript": [
+          594,
+          600
+        ],
+        "anchorC": [
+          600,
+          601
+        ],
+        "subscript": [
+          601,
+          607
+        ],
+        "anchorD": [
+          607,
+          608
+        ]
+      }
+    }
+  ]
+}

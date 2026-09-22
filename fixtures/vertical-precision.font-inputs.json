@@ -1,0 +1,361 @@
+{
+  "schema": "rsword-layout-font-inputs/1",
+  "createdAtUtc": "2026-09-22T06:56:13.682619+00:00",
+  "method": "Read each original font once as bytes; SHA256 and every field are derived from that same byte snapshot with Python struct big-endian SFNT parsing. Original font files are read-only; no Word call or font installation.",
+  "scope": "Regular faces only: Times New Roman, Arial, Courier New. Luminari is excluded from the primary experiment.",
+  "units": {
+    "upem": "font design units per em",
+    "hhea": "font design units",
+    "H.hmtxAdvance": "font design units",
+    "OS2 sizes and offsets": "signed font design units",
+    "OS2RatiosEm": "raw field / upem"
+  },
+  "fieldSources": {
+    "tableFileOffsets": "SFNT table directory: table offset at record + 8; offsets are absolute within the file.",
+    "names": "name table IDs 1/2/4/6; prefer Windows English-US Unicode records, with the chosen IDs retained per field.",
+    "upem": "head.unitsPerEm, uint16 at table offset + 18.",
+    "hhea": "ascender/descender/lineGap are int16 at +4/+6/+8; numberOfHMetrics is uint16 at +34.",
+    "H.glyphId": "Resolve U+0048 through the selected Unicode cmap subtable. For format 4, apply idRangeOffset and nonzero glyph idDelta modulo 65536; for format 12, use startGlyphId + codepoint - startCharCode.",
+    "H.hmtxAdvance": "hmtx uint16 advanceWidth at 4 * min(glyphId, hhea.numberOfHMetrics - 1); exact file byte offset is retained.",
+    "OS2.version": "OS/2 uint16 at table offset + 0.",
+    "OS2": {
+      "ySubscriptXSize": {
+        "table": "OS/2",
+        "relativeByteOffset": 10,
+        "type": "int16 big-endian"
+      },
+      "ySubscriptYSize": {
+        "table": "OS/2",
+        "relativeByteOffset": 12,
+        "type": "int16 big-endian"
+      },
+      "ySubscriptXOffset": {
+        "table": "OS/2",
+        "relativeByteOffset": 14,
+        "type": "int16 big-endian"
+      },
+      "ySubscriptYOffset": {
+        "table": "OS/2",
+        "relativeByteOffset": 16,
+        "type": "int16 big-endian"
+      },
+      "ySuperscriptXSize": {
+        "table": "OS/2",
+        "relativeByteOffset": 18,
+        "type": "int16 big-endian"
+      },
+      "ySuperscriptYSize": {
+        "table": "OS/2",
+        "relativeByteOffset": 20,
+        "type": "int16 big-endian"
+      },
+      "ySuperscriptXOffset": {
+        "table": "OS/2",
+        "relativeByteOffset": 22,
+        "type": "int16 big-endian"
+      },
+      "ySuperscriptYOffset": {
+        "table": "OS/2",
+        "relativeByteOffset": 24,
+        "type": "int16 big-endian"
+      }
+    }
+  },
+  "predictionLimit": "OS/2 recommendations and hmtx metrics are independent candidate-model inputs, not evidence that Word uses them. Horizontal and vertical size recommendations differ. Word font selection and PDF transforms require separate capture-side verification.",
+  "fonts": [
+    {
+      "path": "/System/Library/Fonts/Supplemental/Times New Roman.ttf",
+      "sha256": "f3b4ffff71c2a0c7227d37497683b2498fb2d0a4e8beae26f022e3ccfcaabfa3",
+      "byteLength": 824920,
+      "faceIndex": 0,
+      "family": "Times New Roman",
+      "subfamily": "Regular",
+      "fullName": "Times New Roman",
+      "postscript": "TimesNewRomanPSMT",
+      "nameRecords": {
+        "family": {
+          "value": "Times New Roman",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 1
+        },
+        "subfamily": {
+          "value": "Regular",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 2
+        },
+        "fullName": {
+          "value": "Times New Roman",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 4
+        },
+        "postscript": {
+          "value": "TimesNewRomanPSMT",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 6
+        }
+      },
+      "upem": 2048,
+      "tableFileOffsets": {
+        "head": 396,
+        "hhea": 452,
+        "hmtx": 616,
+        "cmap": 103244,
+        "name": 732696,
+        "OS/2": 520
+      },
+      "hhea": {
+        "ascender": 1825,
+        "descender": -443,
+        "lineGap": 87,
+        "numberOfHMetrics": 3380
+      },
+      "H": {
+        "character": "H",
+        "codepoint": "U+0048",
+        "glyphId": 43,
+        "hmtxAdvance": 1479,
+        "advanceEm": 0.72216796875,
+        "hmtxMetricIndex": 43,
+        "advanceFileOffset": 788,
+        "cmapSource": {
+          "table": "cmap",
+          "platformId": 3,
+          "encodingId": 1,
+          "format": 4,
+          "subtableFileOffset": 107680,
+          "segmentIndex": 0,
+          "startCode": 32,
+          "endCode": 126,
+          "idDelta": -29,
+          "idRangeOffset": 0,
+          "glyphIndexFileOffset": null
+        }
+      },
+      "OS2": {
+        "version": 3,
+        "ySubscriptXSize": 1434,
+        "ySubscriptYSize": 1331,
+        "ySubscriptXOffset": 0,
+        "ySubscriptYOffset": 293,
+        "ySuperscriptXSize": 1434,
+        "ySuperscriptYSize": 1331,
+        "ySuperscriptXOffset": 0,
+        "ySuperscriptYOffset": 928
+      },
+      "OS2RatiosEm": {
+        "ySubscriptXSize": 0.7001953125,
+        "ySubscriptYSize": 0.64990234375,
+        "ySubscriptXOffset": 0.0,
+        "ySubscriptYOffset": 0.14306640625,
+        "ySuperscriptXSize": 0.7001953125,
+        "ySuperscriptYSize": 0.64990234375,
+        "ySuperscriptXOffset": 0.0,
+        "ySuperscriptYOffset": 0.453125
+      }
+    },
+    {
+      "path": "/System/Library/Fonts/Supplemental/Arial.ttf",
+      "sha256": "525979822591a3447cfc49d943d6f7683508e25543407871c0ed8fed05fd2bd9",
+      "byteLength": 773236,
+      "faceIndex": 0,
+      "family": "Arial",
+      "subfamily": "Regular",
+      "fullName": "Arial",
+      "postscript": "ArialMT",
+      "nameRecords": {
+        "family": {
+          "value": "Arial",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 1
+        },
+        "subfamily": {
+          "value": "Regular",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 2
+        },
+        "fullName": {
+          "value": "Arial",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 4
+        },
+        "postscript": {
+          "value": "ArialMT",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 6
+        }
+      },
+      "upem": 2048,
+      "tableFileOffsets": {
+        "head": 396,
+        "hhea": 452,
+        "hmtx": 616,
+        "cmap": 755364,
+        "name": 661596,
+        "OS/2": 520
+      },
+      "hhea": {
+        "ascender": 1854,
+        "descender": -434,
+        "lineGap": 67,
+        "numberOfHMetrics": 3381
+      },
+      "H": {
+        "character": "H",
+        "codepoint": "U+0048",
+        "glyphId": 43,
+        "hmtxAdvance": 1479,
+        "advanceEm": 0.72216796875,
+        "hmtxMetricIndex": 43,
+        "advanceFileOffset": 788,
+        "cmapSource": {
+          "table": "cmap",
+          "platformId": 3,
+          "encodingId": 1,
+          "format": 4,
+          "subtableFileOffset": 759812,
+          "segmentIndex": 0,
+          "startCode": 32,
+          "endCode": 126,
+          "idDelta": -29,
+          "idRangeOffset": 0,
+          "glyphIndexFileOffset": null
+        }
+      },
+      "OS2": {
+        "version": 3,
+        "ySubscriptXSize": 1434,
+        "ySubscriptYSize": 1331,
+        "ySubscriptXOffset": 0,
+        "ySubscriptYOffset": 283,
+        "ySuperscriptXSize": 1434,
+        "ySuperscriptYSize": 1331,
+        "ySuperscriptXOffset": 0,
+        "ySuperscriptYOffset": 977
+      },
+      "OS2RatiosEm": {
+        "ySubscriptXSize": 0.7001953125,
+        "ySubscriptYSize": 0.64990234375,
+        "ySubscriptXOffset": 0.0,
+        "ySubscriptYOffset": 0.13818359375,
+        "ySuperscriptXSize": 0.7001953125,
+        "ySuperscriptYSize": 0.64990234375,
+        "ySuperscriptXOffset": 0.0,
+        "ySuperscriptYOffset": 0.47705078125
+      }
+    },
+    {
+      "path": "/System/Library/Fonts/Supplemental/Courier New.ttf",
+      "sha256": "c886ca3172d8ce9189976992d145ec090500a4ff516ecb9d4df56b1a78336247",
+      "byteLength": 684624,
+      "faceIndex": 0,
+      "family": "Courier New",
+      "subfamily": "Regular",
+      "fullName": "Courier New",
+      "postscript": "CourierNewPSMT",
+      "nameRecords": {
+        "family": {
+          "value": "Courier New",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 1
+        },
+        "subfamily": {
+          "value": "Regular",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 2
+        },
+        "fullName": {
+          "value": "Courier New",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 4
+        },
+        "postscript": {
+          "value": "CourierNewPSMT",
+          "platformId": 3,
+          "encodingId": 1,
+          "languageId": 1033,
+          "nameId": 6
+        }
+      },
+      "upem": 2048,
+      "tableFileOffsets": {
+        "head": 380,
+        "hhea": 436,
+        "hmtx": 600,
+        "cmap": 11408,
+        "name": 618120,
+        "OS/2": 504
+      },
+      "hhea": {
+        "ascender": 1705,
+        "descender": -615,
+        "lineGap": 0,
+        "numberOfHMetrics": 3
+      },
+      "H": {
+        "character": "H",
+        "codepoint": "U+0048",
+        "glyphId": 43,
+        "hmtxAdvance": 1229,
+        "advanceEm": 0.60009765625,
+        "hmtxMetricIndex": 2,
+        "advanceFileOffset": 608,
+        "cmapSource": {
+          "table": "cmap",
+          "platformId": 3,
+          "encodingId": 1,
+          "format": 4,
+          "subtableFileOffset": 15856,
+          "segmentIndex": 0,
+          "startCode": 32,
+          "endCode": 126,
+          "idDelta": -29,
+          "idRangeOffset": 0,
+          "glyphIndexFileOffset": null
+        }
+      },
+      "OS2": {
+        "version": 2,
+        "ySubscriptXSize": 1434,
+        "ySubscriptYSize": 1331,
+        "ySubscriptXOffset": 0,
+        "ySubscriptYOffset": 285,
+        "ySuperscriptXSize": 1434,
+        "ySuperscriptYSize": 1331,
+        "ySuperscriptXOffset": 0,
+        "ySuperscriptYOffset": 865
+      },
+      "OS2RatiosEm": {
+        "ySubscriptXSize": 0.7001953125,
+        "ySubscriptYSize": 0.64990234375,
+        "ySubscriptXOffset": 0.0,
+        "ySubscriptYOffset": 0.13916015625,
+        "ySuperscriptXSize": 0.7001953125,
+        "ySuperscriptYSize": 0.64990234375,
+        "ySuperscriptXOffset": 0.0,
+        "ySuperscriptYOffset": 0.42236328125
+      }
+    }
+  ]
+}
