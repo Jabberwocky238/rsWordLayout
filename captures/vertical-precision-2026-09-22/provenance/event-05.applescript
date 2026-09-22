@@ -1,0 +1,1 @@
+save as document "vertical-precision-capture-20260922.docx" file name "/Users/lilleap/code/rsWordLayout/artifacts/vertical-precision-2026-09-22/capture-01/case.pdf" file format format PDF add to recent files false lock comments false read only recommended false embed truetype fonts false

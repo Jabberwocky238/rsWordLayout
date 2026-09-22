@@ -1,0 +1,1 @@
+return (version as text) & "|documents=" & (count of documents as text)

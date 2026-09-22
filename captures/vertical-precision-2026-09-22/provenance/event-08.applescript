@@ -1,0 +1,1 @@
+close document "vertical-precision-capture-20260922.docx" saving no

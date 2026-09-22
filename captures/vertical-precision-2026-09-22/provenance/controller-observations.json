@@ -1,0 +1,219 @@
+{
+  "schema": "rsword-controlled-local-session/1",
+  "events": [
+    {
+      "script": "event-00.applescript",
+      "startedUtc": "2026-09-22T07:07:42.503259+00:00",
+      "receipt": "event-00.txt",
+      "receiptSha256": "15afb3b0719ad21f666d2b4a7529a2d3cb189ce5b3ba01308c84b2f2cb9b2f15",
+      "finishedUtc": "2026-09-22T07:07:42.683363+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-01.applescript",
+      "startedUtc": "2026-09-22T07:07:44.120858+00:00",
+      "receipt": "event-01.txt",
+      "receiptSha256": "bf8c1054f806fd9607a02f629ad024bd5d05db5e677125c92b637c1f0fa185c2",
+      "finishedUtc": "2026-09-22T07:08:01.928329+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-02.applescript",
+      "startedUtc": "2026-09-22T07:08:01.988851+00:00",
+      "receipt": "event-02.txt",
+      "receiptSha256": "ee31815d1ac9a3bc44ea0cb44ae10e1ea9a0a06fb1cab66e5136e7048da95864",
+      "finishedUtc": "2026-09-22T07:08:02.166541+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-03.applescript",
+      "startedUtc": "2026-09-22T07:08:02.208573+00:00",
+      "receipt": "event-03.txt",
+      "receiptSha256": "4c3ff75378655f4ffaa9de3eb65773505a8d22e350ac57e0befcdb3e17b57ec9",
+      "finishedUtc": "2026-09-22T07:08:02.331071+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-04.applescript",
+      "startedUtc": "2026-09-22T07:08:02.368153+00:00",
+      "receipt": "event-04.txt",
+      "receiptSha256": "0f2b4dabf754510803c3e30a7f8d16ef5de17ee5a82f5e8c7e22000b08a0b4cf",
+      "finishedUtc": "2026-09-22T07:08:03.031508+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-05.applescript",
+      "startedUtc": "2026-09-22T07:08:03.108601+00:00",
+      "receipt": "event-05.txt",
+      "receiptSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "finishedUtc": "2026-09-22T07:08:05.876671+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-06.applescript",
+      "startedUtc": "2026-09-22T07:08:05.952919+00:00",
+      "receipt": "event-06.txt",
+      "receiptSha256": "043f7c99bbb2f0c699fc77dffa71cd5591c0ac203e85f3a8be4c5c001997d68a",
+      "finishedUtc": "2026-09-22T07:08:21.737111+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-07.applescript",
+      "startedUtc": "2026-09-22T07:08:21.801632+00:00",
+      "receipt": "event-07.txt",
+      "receiptSha256": "043f7c99bbb2f0c699fc77dffa71cd5591c0ac203e85f3a8be4c5c001997d68a",
+      "finishedUtc": "2026-09-22T07:08:37.426406+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-08.applescript",
+      "startedUtc": "2026-09-22T07:08:37.558698+00:00",
+      "receipt": "event-08.txt",
+      "receiptSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "finishedUtc": "2026-09-22T07:08:37.769848+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    },
+    {
+      "script": "event-09.applescript",
+      "startedUtc": "2026-09-22T07:08:37.863559+00:00",
+      "receipt": "event-09.txt",
+      "receiptSha256": "15afb3b0719ad21f666d2b4a7529a2d3cb189ce5b3ba01308c84b2f2cb9b2f15",
+      "finishedUtc": "2026-09-22T07:08:38.007089+00:00",
+      "processAfter": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word"
+    }
+  ],
+  "startedUtc": "2026-09-22T07:07:42.463873+00:00",
+  "processBefore": "39057   501 Tue Sep 22 14:31:11 2026     /Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word",
+  "inventoryBefore": "16.112.3|documents=0\n",
+  "openedDocument": "/Users/lilleap/code/rsWordLayout/artifacts/vertical-precision-2026-09-22/vertical-precision-capture-20260922.docx|saved=true|count=1\n",
+  "result": {
+    "fixture": {
+      "before": {
+        "path": "/Users/lilleap/code/rsWordLayout/artifacts/vertical-precision-2026-09-22/vertical-precision-capture-20260922.docx",
+        "sha256": "5f7d0996db0fad961d887fc3f08b9ed973bba7483838bc9aca6d52c8c6850fca",
+        "bytes": 2298,
+        "documentXmlSha256": "a91ddd0c665c3c9e595ef2251bf4483b909d084adb4e84a0eb345960e8a25f05",
+        "parts": [
+          "[Content_Types].xml",
+          "_rels/.rels",
+          "word/document.xml"
+        ]
+      },
+      "after": {
+        "path": "/Users/lilleap/code/rsWordLayout/artifacts/vertical-precision-2026-09-22/vertical-precision-capture-20260922.docx",
+        "sha256": "5f7d0996db0fad961d887fc3f08b9ed973bba7483838bc9aca6d52c8c6850fca",
+        "bytes": 2298,
+        "documentXmlSha256": "a91ddd0c665c3c9e595ef2251bf4483b909d084adb4e84a0eb345960e8a25f05",
+        "parts": [
+          "[Content_Types].xml",
+          "_rels/.rels",
+          "word/document.xml"
+        ]
+      },
+      "unchanged": true
+    },
+    "pageCount": 1,
+    "sweepStability": {
+      "schema": "rsword-layout-sweep-stability/1",
+      "state": "OK",
+      "reasons": [],
+      "method": "Two consecutive scans of the same open document after one PDF export; no retry or replacement",
+      "sourceUtf16Length": 609,
+      "scans": {
+        "first": {
+          "state": "OK",
+          "reasons": [],
+          "endOfContent": 609,
+          "observedPositions": 609,
+          "completeUtf16Coverage": true,
+          "rawReceipt": {
+            "file": "sweep-first.raw.txt",
+            "sha256": "043f7c99bbb2f0c699fc77dffa71cd5591c0ac203e85f3a8be4c5c001997d68a",
+            "bytes": 5118,
+            "encoding": "UTF-8 of unchanged AppleScript stdout"
+          }
+        },
+        "repeat": {
+          "state": "OK",
+          "reasons": [],
+          "endOfContent": 609,
+          "observedPositions": 609,
+          "completeUtf16Coverage": true,
+          "rawReceipt": {
+            "file": "sweep-repeat.raw.txt",
+            "sha256": "043f7c99bbb2f0c699fc77dffa71cd5591c0ac203e85f3a8be4c5c001997d68a",
+            "bytes": 5118,
+            "encoding": "UTF-8 of unchanged AppleScript stdout"
+          }
+        }
+      },
+      "endOfContentEqual": true,
+      "rawReceiptsEqual": true,
+      "positionDifferences": {
+        "count": 0,
+        "first": null
+      },
+      "note": "Agreement does not independently establish line identity, PDF alignment, or Word layout quiescence."
+    },
+    "fontSubstitution": {
+      "schema": "rsword-layout-font-substitution/2",
+      "basis": "\u65b9\u6cd5 \u00a76.2\uff1a\u51e0\u4f55\u81ea\u68c0\u67e5\u4e0d\u51fa\u5b57\u4f53\u66ff\u6362\uff0c\u53ea\u6709\u5b57\u4f53\u540d\u80fd\u3002\u53ef\u63a5\u53d7\u7684\u540d\u5b57\u53d6\u81ea**\u5b57\u4f53\u6587\u4ef6\u81ea\u5df1\u58f0\u660e\u7684** name \u8868\uff08\u65cf\u540d/\u5168\u540d/PostScript \u540d\uff09\uff0c\u4e0d\u9760\u65cf\u540d\u5b57\u7b26\u4e32\u53bb\u731c\u3002",
+      "pdfFontNames": [
+        "AAAAAC+TimesNewRomanPSMT",
+        "AAAAAE+TimesNewRomanPSMT",
+        "AAAAAG+TimesNewRomanPSMT",
+        "AAAAAI+TimesNewRomanPSMT",
+        "AAAAAK+TimesNewRomanPSMT",
+        "AAAAAM+TimesNewRomanPSMT",
+        "AAAAAO+TimesNewRomanPSMT",
+        "AAAAAQ+TimesNewRomanPSMT",
+        "AAAAAS+TimesNewRomanPSMT",
+        "AAAAAU+TimesNewRomanPSMT",
+        "AAAAAW+TimesNewRomanPSMT",
+        "AAAAAY+TimesNewRomanPSMT",
+        "AAAABA+TimesNewRomanPSMT",
+        "AAAABC+ArialMT",
+        "AAAABE+ArialMT",
+        "AAAABG+ArialMT",
+        "AAAABI+ArialMT",
+        "AAAABK+ArialMT",
+        "AAAABM+ArialMT",
+        "AAAABO+ArialMT",
+        "AAAABQ+ArialMT",
+        "AAAABS+ArialMT",
+        "AAAABU+ArialMT",
+        "AAAABW+ArialMT",
+        "AAAABY+ArialMT",
+        "AAAACA+ArialMT",
+        "AAAACB+CourierNewPSMT",
+        "AAAACC+CourierNewPSMT",
+        "AAAACD+CourierNewPSMT",
+        "AAAACE+CourierNewPSMT",
+        "AAAACF+CourierNewPSMT",
+        "AAAACG+CourierNewPSMT",
+        "AAAACH+CourierNewPSMT",
+        "AAAACI+CourierNewPSMT",
+        "AAAACJ+CourierNewPSMT",
+        "AAAACK+CourierNewPSMT",
+        "AAAACL+CourierNewPSMT",
+        "AAAACM+CourierNewPSMT",
+        "AAAACN+CourierNewPSMT"
+      ],
+      "fontFilesRead": [
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "/System/Library/Fonts/Supplemental/Courier New.ttf",
+        "/System/Library/Fonts/Supplemental/Times New Roman.ttf"
+      ],
+      "requiredFamiliesSeenInPdf": {
+        "Times New Roman": true,
+        "Arial": true,
+        "Courier New": true
+      },
+      "optionalFamilies": [],
+      "unexpectedNames": [],
+      "result": "PASS"
+    }
+  },
+  "inventoryAfter": "16.112.3|documents=0\n",
+  "finishedUtc": "2026-09-22T07:08:38.026014+00:00"
+}

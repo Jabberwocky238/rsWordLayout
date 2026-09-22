@@ -1,0 +1,1 @@
+return content of text object of document "vertical-precision-capture-20260922.docx"
