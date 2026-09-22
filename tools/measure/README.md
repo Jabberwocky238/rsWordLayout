@@ -54,6 +54,32 @@ cargo run --features fontenv --bin layout-trace -- \
 不能拿 `select_face` 代替：那带 fallback，族没装也会返回一个能盖住码位的 face，
 于是核查永远通过。
 
+## 离线全量回放
+
+已有采集包可重复回放，不启动 Word：
+
+```sh
+tools/measure/.venv/bin/python tools/measure/sweep.py \
+    --trace-bin target/debug/layout-trace \
+    --font-dir /System/Library/Fonts \
+    --font-dir fixtures/fonts \
+    --output /tmp/rsword-sweep-current
+```
+
+`--bundle captures/font-free-2026-09-17` 可重复指定，只跑所选包。默认扫描全部
+`captures/*/META.json`，包括会明确记为 `UNDECIDABLE` 的 VOID 包。输出目录必须是新目录，
+不覆盖采集。每包保存轨迹、`selfcheck`、原版 `compare` 结果与命令日志，汇总在
+`summary.json` / `summary.md`；比较器仍用 0pt 容差、不排除任何约定。
+
+夹具按 META 的采前、采后 SHA 与本仓库 `fixtures` 实际文件绑定，不依赖旧机器绝对路径。
+字体从 `--font-dir` 递归读取 TTF/OTF/TTC/OTC 的 name 表，精确匹配所需族名、全名或
+PostScript 名，再交给引擎 `--require` 核查。缺字体、缺身份、未执行比较各自列出，
+不会算作通过。当前字体文件 SHA 和二进制 SHA 随输出保存；旧 META 未逐文件钉字体字节，
+因此相同名字不能证明与采集机的字体版本相同。
+
+对比修改前后时，分别传入两个二进制与两个新输出目录。退出码 0 表示全部通过，
+1 表示有失败，2 表示有判不了且无失败；结构相同但非零几何差仍按原比较器记失败。
+
 ## 这台机器上的能力边界
 
 采集环境是 **Word for Mac 16.112**。方法 §6.6 说得很清楚：

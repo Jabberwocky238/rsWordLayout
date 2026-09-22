@@ -20,9 +20,9 @@ use std::collections::HashMap;
 
 use rustybuzz::{Face, UnicodeBuffer};
 
-use crate::layout::{TWIPS_PER_POINT, Twips};
 use super::FontSpec;
 use crate::layout::{ShapedRun, TextShaper};
+use crate::layout::{TWIPS_PER_POINT, Twips};
 
 /// rustybuzz 整形器。
 ///
@@ -96,23 +96,40 @@ impl RustybuzzShaper {
         };
 
         let mut buf = UnicodeBuffer::new();
-        buf.push_str(text);
-        // 方向与脚本由 rustybuzz 按内容推断：阿拉伯语自动走 RTL，
-        // 混排时按 Unicode 的脚本属性分段。
+        let mut source_end = 0;
+        for ch in text.chars() {
+            // 直接用 Word Range 的 UTF-16 单位标 cluster，避免把 UTF-8 字节
+            // 或输出字形序号当作字符归属（连字、代理对、RTL 均不一一对应）。
+            buf.add(ch, source_end);
+            source_end += ch.len_utf16() as u32;
+        }
+        // 这里只推断当前段的方向与脚本；不同脚本和双向文本须由调用方分段。
         buf.guess_segment_properties();
 
+        // S-1：未启用 Word 连字选项时，关闭 Latin 的可选连字。
+        // AAT 字体可在 morx 默认标志中开启 rare/historical 连字：Zapfino
+        // 的 di 就走 rare（dlig），只关 liga/clig 仍会合成。rlig 保留。
+        // 只覆盖 Latin；其它脚本的 clig/rlig 可能是必需的文字成形步骤。
+        let mut features = Vec::new();
+        if buf.script() == rustybuzz::script::LATIN {
+            for tag in [b"liga", b"clig", b"dlig", b"hlig"] {
+                features.push(rustybuzz::Feature::new(
+                    rustybuzz::ttf_parser::Tag::from_bytes(tag),
+                    0,
+                    ..,
+                ));
+            }
+        }
         // 字距调整默认**关**（OOXML `w:kern` 的语义，见 `FontSpec::kerning`）。
         // rustybuzz 不传 feature 时默认开，所以必须显式关掉，不能靠不传。
-        let features: &[rustybuzz::Feature] = if kerning {
-            &[]
-        } else {
-            &[rustybuzz::Feature::new(
+        if !kerning {
+            features.push(rustybuzz::Feature::new(
                 rustybuzz::ttf_parser::Tag::from_bytes(b"kern"),
                 0,
                 ..,
-            )]
-        };
-        let out = rustybuzz::shape(&face, features, buf);
+            ));
+        }
+        let out = rustybuzz::shape(&face, &features, buf);
 
         // rustybuzz 的位置量以字体设计单位计；先换到点，再换到 twips。
         //
@@ -132,6 +149,16 @@ impl RustybuzzShaper {
 
         let infos = out.glyph_infos();
         let positions = out.glyph_positions();
+        // cluster 起点按源顺序求后继，不能按输出顺序：RTL 输出顺序反向，
+        // 且一个 cluster 可产出多个字形；它们应共享同一个源区间。
+        let mut cluster_starts: Vec<u32> = infos.iter().map(|info| info.cluster).collect();
+        cluster_starts.push(source_end);
+        cluster_starts.sort_unstable();
+        cluster_starts.dedup();
+        let cluster_spans: HashMap<u32, u32> = cluster_starts
+            .windows(2)
+            .map(|pair| (pair[0], pair[1]))
+            .collect();
         let mut acc = 0.0f64;
         let mut acc_twips: Twips = 0;
         let mut runs = Vec::with_capacity(infos.len());
@@ -147,6 +174,9 @@ impl RustybuzzShaper {
                 // 偏移是相对本字形的，不参与累计，各自取整即可。
                 x_offset: exact(pos.x_offset).round() as Twips,
                 y_offset: exact(pos.y_offset).round() as Twips,
+                source: cluster_spans
+                    .get(&info.cluster)
+                    .map(|&end| (info.cluster, end)),
             });
             acc = next;
             acc_twips = next_twips;
@@ -168,7 +198,11 @@ impl TextShaper for RustybuzzShaper {
     fn shape(&self, text: &str, font: &FontSpec) -> Vec<ShapedRun> {
         // FontSpec::family 是 OOXML 里的字体名，未必等于注册时用的 face 标识；
         // 先直接试，再退到默认 face。真正的按族选字体应走 docx-layout 的 fontenv。
-        let face = self.by_name.get(&font.family).copied().or(self.default_face);
+        let face = self
+            .by_name
+            .get(&font.family)
+            .copied()
+            .or(self.default_face);
         match face {
             Some(i) => self.shape_with_face(i, text, font.size_half_points, font.kerning),
             None => Vec::new(),

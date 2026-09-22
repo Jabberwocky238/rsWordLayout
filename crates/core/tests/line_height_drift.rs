@@ -94,6 +94,26 @@ fn line_tops_track_the_exact_height_not_the_rounded_one() {
 }
 
 #[test]
+fn wrapped_lines_keep_the_same_fine_step_as_unwrapped_lines() {
+    use rsword_layout_core::Fragment;
+    let text = "word ".repeat(100);
+    let pages = Engine::new(&GridMetrics, PageSetup::a4())
+        .layout(&[para(text.trim_end())]);
+    assert_eq!(pages.len(), 1);
+    let mut ys = std::collections::BTreeMap::new();
+    for fragment in &pages[0].fragments {
+        if let Fragment::Text(t) = fragment {
+            ys.entry(t.line).or_insert(t.baseline_fine);
+        }
+    }
+    let ys: Vec<_> = ys.into_values().collect();
+    assert!(ys.len() > 3);
+    for pair in ys.windows(2) {
+        assert_eq!(pair[1] - pair[0], NATURAL_FINE);
+    }
+}
+
+#[test]
 fn drift_would_be_visible_at_this_length() {
     // 自证这条测试有意义：按取整值累加时，第 12 行会偏出半个 twip 以上。
     // 若某天行高恰好是整 twips，本测试就不再有鉴别力——这条断言会先失败提醒。

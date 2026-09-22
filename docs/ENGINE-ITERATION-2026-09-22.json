@@ -1,0 +1,932 @@
+{
+  "schema": "rsword-layout-engine-iteration/1",
+  "date": "2026-09-22",
+  "baselineCommit": "19a290e",
+  "scope": "Mac archived captures; retrospective backtest; no new Word collection",
+  "criteria": {
+    "tolerancePt": 0,
+    "excludedRules": [],
+    "metrics": "real",
+    "verticalGrid": "mac"
+  },
+  "comparisonModulesUnchanged": true,
+  "matchedInputFontBytesUnchanged": true,
+  "before": {
+    "coverage": {
+      "bundles": 29,
+      "states": {
+        "OK": 0,
+        "FAIL": 21,
+        "UNDECIDABLE": 8
+      },
+      "compared": 22,
+      "notCompared": 7,
+      "selfcheckStates": {
+        "UNDECIDABLE": 21,
+        "FAIL": 1,
+        "NOT_RUN": 7
+      },
+      "comparisonStates": {
+        "FAIL": 21,
+        "NOT_RUN": 7,
+        "UNDECIDABLE": 1
+      },
+      "structurallySound": 14,
+      "pageCountsEqual": 22
+    },
+    "engineSha256": "7ecf90fe2be20a07e518277f9d8913f60e732478bf460a29715d12d9192551de"
+  },
+  "after": {
+    "coverage": {
+      "bundles": 29,
+      "states": {
+        "OK": 0,
+        "FAIL": 21,
+        "UNDECIDABLE": 8
+      },
+      "compared": 24,
+      "notCompared": 5,
+      "selfcheckStates": {
+        "UNDECIDABLE": 24,
+        "NOT_RUN": 5
+      },
+      "comparisonStates": {
+        "FAIL": 21,
+        "UNDECIDABLE": 3,
+        "NOT_RUN": 5
+      },
+      "structurallySound": 17,
+      "pageCountsEqual": 24
+    },
+    "engineSha256": "17efc176dfd1b172068389736ce88b92670124279ead36f0e7b89d31830f35bc"
+  },
+  "commonComparisonScope": {
+    "bundles": 22,
+    "structurallySoundBefore": 14,
+    "structurallySoundAfter": 15,
+    "structuralRegressions": []
+  },
+  "validation": {
+    "rustTestsPassed": 141,
+    "pythonTestsPassed": 62,
+    "clippyWarningsDenied": true,
+    "wasmWorkspaceCheck": true
+  },
+  "results": [
+    {
+      "bundle": "a-form-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 480,
+        "maxAbs": 4.800000009626706,
+        "pages": 16,
+        "glyphs": 480
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 480,
+        "maxAbs": 4.800000009626706,
+        "pages": 16,
+        "glyphs": 480
+      }
+    },
+    {
+      "bundle": "accumulation-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1340,
+        "maxAbs": 2.6400026180904117,
+        "pages": 12,
+        "glyphs": 1340
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1340,
+        "maxAbs": 2.6400026180904117,
+        "pages": 12,
+        "glyphs": 1340
+      }
+    },
+    {
+      "bundle": "baseline-order-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 216,
+        "maxAbs": 0.24765567266076938,
+        "pages": 24,
+        "glyphs": 216
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 216,
+        "maxAbs": 0.24765567266076938,
+        "pages": 24,
+        "glyphs": 216
+      }
+    },
+    {
+      "bundle": "breaks-sections-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_FAIL",
+        "selfcheckState": "FAIL",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "PAGE_UNDECIDABLE": 6,
+          "GLYPH_COUNT_MISMATCH": 1
+        },
+        "pairs": 49,
+        "maxAbs": 0.7655661636827594,
+        "pages": 15,
+        "glyphs": 75
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "UNDECIDABLE",
+        "structurallySound": false,
+        "failureCodes": {
+          "PAGE_UNDECIDABLE": 6
+        },
+        "pairs": 51,
+        "maxAbs": 0.7655661636827594,
+        "pages": 15,
+        "glyphs": 87
+      }
+    },
+    {
+      "bundle": "cjk-plain-2026-09-18",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 1
+        },
+        "pairs": 188,
+        "maxAbs": 50.88000000257598,
+        "pages": 7,
+        "glyphs": 301
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 1
+        },
+        "pairs": 188,
+        "maxAbs": 50.88000000257598,
+        "pages": 7,
+        "glyphs": 301
+      }
+    },
+    {
+      "bundle": "cursor-unit-2026-09-17",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_FAILED",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 3048,
+        "maxAbs": 5.760000016200104,
+        "pages": 10,
+        "glyphs": 3048
+      }
+    },
+    {
+      "bundle": "exact-spacing-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1440,
+        "maxAbs": 8.160000002165654,
+        "pages": 18,
+        "glyphs": 1440
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1440,
+        "maxAbs": 8.160000002165654,
+        "pages": 18,
+        "glyphs": 1440
+      }
+    },
+    {
+      "bundle": "first-line-2026-09-17",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_FAILED",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 216,
+        "maxAbs": 0.24000242998774998,
+        "pages": 24,
+        "glyphs": 216
+      }
+    },
+    {
+      "bundle": "first-line-2026-09-17-void",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      }
+    },
+    {
+      "bundle": "fixed-distance-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 480,
+        "maxAbs": 6.960000006294304,
+        "pages": 16,
+        "glyphs": 480
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 480,
+        "maxAbs": 6.960000006294304,
+        "pages": 16,
+        "glyphs": 480
+      }
+    },
+    {
+      "bundle": "font-free-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "GLYPH_COUNT_MISMATCH": 3
+        },
+        "pairs": 711,
+        "maxAbs": 15.600000002585265,
+        "pages": 24,
+        "glyphs": 717
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 720,
+        "maxAbs": 15.600000002585265,
+        "pages": 24,
+        "glyphs": 720
+      }
+    },
+    {
+      "bundle": "hbox-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 638,
+        "maxAbs": 47.99867999999998,
+        "pages": 10,
+        "glyphs": 638
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 638,
+        "maxAbs": 47.99867999999998,
+        "pages": 10,
+        "glyphs": 638
+      }
+    },
+    {
+      "bundle": "hbox2-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1147,
+        "maxAbs": 40.99846667519052,
+        "pages": 7,
+        "glyphs": 1147
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1147,
+        "maxAbs": 40.99846667519052,
+        "pages": 7,
+        "glyphs": 1147
+      }
+    },
+    {
+      "bundle": "indent-align-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 262,
+        "maxAbs": 0.5131759999999872,
+        "pages": 20,
+        "glyphs": 262
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 262,
+        "maxAbs": 0.5131759999999872,
+        "pages": 20,
+        "glyphs": 262
+      }
+    },
+    {
+      "bundle": "kinsoku-2026-09-18",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "GLYPH_COUNT_MISMATCH": 2,
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "pairs": 0,
+        "maxAbs": null,
+        "pages": 4,
+        "glyphs": 252
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "GLYPH_COUNT_MISMATCH": 2,
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "pairs": 0,
+        "maxAbs": null,
+        "pages": 4,
+        "glyphs": 252
+      }
+    },
+    {
+      "bundle": "kinsoku2-2026-09-18",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "pairs": 63,
+        "maxAbs": 7.439999999999927,
+        "pages": 4,
+        "glyphs": 252
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 3
+        },
+        "pairs": 63,
+        "maxAbs": 7.439999999999927,
+        "pages": 4,
+        "glyphs": 252
+      }
+    },
+    {
+      "bundle": "noise-floor-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 678,
+        "maxAbs": 2.8800984047189484,
+        "pages": 6,
+        "glyphs": 678
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 678,
+        "maxAbs": 2.8800984047189484,
+        "pages": 6,
+        "glyphs": 678
+      }
+    },
+    {
+      "bundle": "page-start-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 18
+        },
+        "pairs": 596,
+        "maxAbs": 0.9600690095619627,
+        "pages": 36,
+        "glyphs": 1288
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "LINE_COUNT_MISMATCH": 18
+        },
+        "pairs": 596,
+        "maxAbs": 0.9600690095619627,
+        "pages": 36,
+        "glyphs": 1288
+      }
+    },
+    {
+      "bundle": "page-start-2026-09-17-void",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      }
+    },
+    {
+      "bundle": "probe-metrics-2026-09-17",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      }
+    },
+    {
+      "bundle": "recursive-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1280,
+        "maxAbs": 4.800000055814954,
+        "pages": 16,
+        "glyphs": 1280
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1280,
+        "maxAbs": 4.800000055814954,
+        "pages": 16,
+        "glyphs": 1280
+      }
+    },
+    {
+      "bundle": "rounding-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1280,
+        "maxAbs": 2.4000000353633104,
+        "pages": 16,
+        "glyphs": 1280
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1280,
+        "maxAbs": 2.4000000353633104,
+        "pages": 16,
+        "glyphs": 1280
+      }
+    },
+    {
+      "bundle": "shift-floor-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1280,
+        "maxAbs": 1.4400001250001344,
+        "pages": 16,
+        "glyphs": 1280
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 1280,
+        "maxAbs": 1.4400001250001344,
+        "pages": 16,
+        "glyphs": 1280
+      }
+    },
+    {
+      "bundle": "size-free-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 480,
+        "maxAbs": 20.880000002331087,
+        "pages": 16,
+        "glyphs": 480
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 480,
+        "maxAbs": 20.880000002331087,
+        "pages": 16,
+        "glyphs": 480
+      }
+    },
+    {
+      "bundle": "vmisc-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 174,
+        "maxAbs": 14.400000004908838,
+        "pages": 15,
+        "glyphs": 174
+      },
+      "after": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": true,
+        "failureCodes": {
+          "GEOMETRY_EXCEEDS_TOLERANCE": 1
+        },
+        "pairs": 174,
+        "maxAbs": 14.400000004908838,
+        "pages": 15,
+        "glyphs": 174
+      }
+    },
+    {
+      "bundle": "vmisc2-2026-09-17",
+      "before": {
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "FAIL",
+        "structurallySound": false,
+        "failureCodes": {
+          "PAGE_UNDECIDABLE": 3,
+          "GLYPH_COUNT_MISMATCH": 1
+        },
+        "pairs": 46,
+        "maxAbs": 24.000000000767923,
+        "pages": 11,
+        "glyphs": 83
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "UNDECIDABLE",
+        "structurallySound": false,
+        "failureCodes": {
+          "PAGE_UNDECIDABLE": 3
+        },
+        "pairs": 51,
+        "maxAbs": 24.000000000767923,
+        "pages": 11,
+        "glyphs": 87
+      }
+    },
+    {
+      "bundle": "vmisc2-2026-09-17-void",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      }
+    },
+    {
+      "bundle": "vmisc3-2026-09-17",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "UNDECIDABLE",
+        "structurallySound": false,
+        "failureCodes": {
+          "PAGE_UNDECIDABLE": 1
+        },
+        "pairs": 103,
+        "maxAbs": 54.03984,
+        "pages": 12,
+        "glyphs": 111
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE",
+        "selfcheckState": "UNDECIDABLE",
+        "comparisonState": "UNDECIDABLE",
+        "structurallySound": false,
+        "failureCodes": {
+          "PAGE_UNDECIDABLE": 1
+        },
+        "pairs": 103,
+        "maxAbs": 54.03984,
+        "pages": 12,
+        "glyphs": 111
+      }
+    },
+    {
+      "bundle": "vmisc3-2026-09-17-void",
+      "before": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      },
+      "after": {
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID",
+        "selfcheckState": null,
+        "comparisonState": null,
+        "structurallySound": null,
+        "failureCodes": null,
+        "pairs": null,
+        "maxAbs": null
+      }
+    }
+  ]
+}
