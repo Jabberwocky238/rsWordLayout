@@ -12,14 +12,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from wordmeasure import FAIL, OK, UNDECIDABLE, selfcheck
 
 
-def line(index, start, end, terminator="WRAP", expected=0, glyphs=0, glyph_id=1):
+def line(index, start, end, terminator="WRAP", expected=0, glyphs=0, glyph_id=1, baseline=0.0):
     return {
         "index": index,
         "sourceStart": start,
         "sourceEnd": end,
         "terminator": terminator,
         "terminatorExpectedGlyphs": expected,
-        "glyphs": [{"origin": [0.0, 0.0], "glyphId": glyph_id} for _ in range(glyphs)],
+        "glyphs": [{"origin": [0.0, baseline], "glyphId": glyph_id} for _ in range(glyphs)],
     }
 
 
@@ -103,11 +103,39 @@ def test_multichar_lines_are_skipped():
 
 
 def test_contiguous_records_flagged_as_run_granularity():
-    """同页内源区间首尾相接的连排记录 → 记账粒度是 run 不是行。"""
+    """同页内源区间首尾相接、**且同基线**的连排记录 → 记账粒度是 run 不是行。"""
     t = trace([line(0, 0, 10, glyphs=10), line(1, 10, 11, glyphs=1), line(2, 11, 16, glyphs=5)])
     result = selfcheck.check_line_granularity(t)
     assert result["state"] == FAIL
     assert result["contiguousRecords"] == 2
+    assert result["sameBaseline"] == 2
+
+
+def test_wrapped_lines_are_not_run_granularity():
+    """自动换行的下一行本来就接着上一行的源区间——那是常态，不是缺陷。
+
+    逼出这条的读数：22 份采集包的引擎轨迹共 2642 条接续记录，按基线分开后
+    同基线 0 条。旧判据不看基线，于是 22 份全部误报，连 E-4 判「已修」的
+    5 份也一起误报。换行处被 trim 的空格留在上一行的源区间里，
+    所以 `sourceStart == 上一条 sourceEnd`，而两行的基线**必然不同**。
+    """
+    t = trace([
+        line(0, 0, 10, glyphs=10, baseline=84.96),
+        line(1, 10, 20, glyphs=10, baseline=98.64),
+        line(2, 20, 30, glyphs=10, baseline=112.32),
+    ])
+    result = selfcheck.check_line_granularity(t)
+    assert result["state"] == OK, "换行不该被判成按 run 切碎"
+    assert result["differentBaseline"] == 2
+    assert result["sameBaseline"] == 0
+
+
+def test_contiguous_record_without_glyphs_is_undecidable():
+    """空行没有基线，分不出是换行还是 run 切碎——记判不了，不当通过。"""
+    t = trace([line(0, 0, 10, glyphs=10, baseline=84.96), line(1, 10, 11, glyphs=0)])
+    result = selfcheck.check_line_granularity(t)
+    assert result["state"] == UNDECIDABLE
+    assert result["baselineUnknown"] == 1
 
 
 def test_line_granularity_undecidable_when_offsets_are_broken():
@@ -143,3 +171,35 @@ def test_top_level_takes_the_worst_and_keeps_undecidable_distinct():
         line(1, 20, 21, terminator="PARAGRAPH_MARK", expected=1, glyphs=1),
     ])
     assert selfcheck.run(good)["state"] == OK
+
+
+# ---- 覆盖查询读不读得了 TTC ----
+
+
+def test_covered_chars_reads_ttc():
+    """TTC 从偏移 0 读表目录只会读出垃圾——实测 Songti.ttc 被报成一个汉字都画不出。
+
+    方向是安全的（宁严勿松，§fontcover），但它把本机唯一能画中文、
+    且 Word 列得出的字体挡在了夹具外面。这条钉住 TTC 支持。
+    """
+    import os
+
+    from wordmeasure.fontcover import covered_chars
+
+    ttc = "/System/Library/Fonts/Supplemental/Songti.ttc"
+    if not os.path.exists(ttc):
+        return  # 本机没有就不判——不当成通过
+    got = covered_chars(ttc, "汉字文末甲乙，。")
+    assert got == set("汉字文末甲乙，。"), f"TTC 里这些字该都有，实际少了 {set('汉字文末甲乙，。') - got}"
+
+
+def test_covered_chars_still_reports_missing():
+    """上一条不能把这道关整个关掉：真缺字形仍要报缺。"""
+    import os
+
+    from wordmeasure.fontcover import covered_chars
+
+    ttf = "/System/Library/Fonts/Supplemental/Zapfino.ttf"
+    if not os.path.exists(ttf):
+        return
+    assert covered_chars(ttf, "汉") == set(), "Zapfino 没有汉字，不该报成画得出"

@@ -117,6 +117,15 @@ def check_terminator_glyphs(trace: dict) -> dict:
     }
 
 
+def _baseline(line: dict):
+    """这条记录的基线 y。没有字形就没有基线——返回 None，不猜。"""
+    glyphs = line.get("glyphs") or []
+    if not glyphs:
+        return None
+    origin = glyphs[0].get("origin")
+    return origin[1] if origin else None
+
+
 def check_line_granularity(trace: dict) -> dict:
     """一行只能有一条记录。
 
@@ -125,7 +134,19 @@ def check_line_granularity(trace: dict) -> dict:
     于是「行」这一层被 run 切碎，比较器的行层配对必然对不上，
     而且失败看起来像「引擎少排了行」，其实是记账粒度错了。
 
-    判据：同一行的记录不该出现「源区间接续上一条」的连排。
+    判据：同页内**源区间接续**、且**基线相同**的连排记录。
+
+    **两个条件缺一不可。** 只看接续会把每一次自动换行都判成缺陷：换行处被
+    trim 的空格仍留在上一行的源区间里（引擎与 Word 的逐页字形数逐份相等，
+    hbox p4 196=196、p5 324=324），于是下一行的 `sourceStart` 正好等于
+    上一行的 `sourceEnd`——**接续是换行的常态，不是征兆**。
+    分开两者的是基线：run 切碎出来的多条记录**共用一条基线**，换行的不共用。
+
+    逼出这条的读数：22 份采集包的引擎轨迹里共 2642 条接续记录，
+    按基线分开之后**同基线 0 条**。旧判据在这 22 份上全部误报，
+    连 E-4 当初判「已修」的 `breaks`/`wrap`/`sample`/`complex` 也一起误报——
+    那 5 份当初能过，只是因为那时的引擎把换行空格丢在了行外。
+
     段内偏移下查不了这条（每段都从 0 重来），此时记判不了。
     """
     if check_source_offsets(trace)["state"] != OK:
@@ -136,24 +157,54 @@ def check_line_granularity(trace: dict) -> dict:
         }
 
     runs = []
+    wraps = 0
+    unknown = []
     previous = None
     for page, line in _lines(trace):
         start, end = line.get("sourceStart"), line.get("sourceEnd")
+        baseline = _baseline(line)
         if start is None or end is None:
             previous = None
             continue
         if previous is not None and previous[0] == page["index"] and previous[1] == start:
-            runs.append({"page": page["index"], "line": line["index"], "continuesFrom": start})
-        previous = (page["index"], end)
+            entry = {
+                "page": page["index"],
+                "line": line["index"],
+                "continuesFrom": start,
+                "baseline": baseline,
+            }
+            if baseline is None or previous[2] is None:
+                unknown.append(entry)
+            elif baseline == previous[2]:
+                runs.append(entry)
+            else:
+                wraps += 1
+        previous = (page["index"], end, baseline)
+
+    if runs:
+        state = FAIL
+        reason = (
+            "%d 条记录既接续上一条、又与它同基线——那是按 run 出的记录被当成了行。" % len(runs)
+        )
+    elif unknown:
+        state = UNDECIDABLE
+        reason = (
+            "%d 条接续记录里有一侧没有字形，判不出是换行还是 run 切碎——"
+            "空行本来就没有基线，这条对它无能为力。" % len(unknown)
+        )
+    else:
+        state = OK
+        reason = None
 
     return {
         "check": "一行一条记录",
-        "state": OK if not runs else FAIL,
-        "contiguousRecords": len(runs),
-        "sample": runs[:6],
-        "reason": None
-        if not runs
-        else "%d 条记录的源区间紧接上一条——很可能是按 run 出的记录被当成了行。" % len(runs),
+        "state": state,
+        "contiguousRecords": len(runs) + wraps + len(unknown),
+        "sameBaseline": len(runs),
+        "differentBaseline": wraps,
+        "baselineUnknown": len(unknown),
+        "sample": (runs or unknown)[:6],
+        "reason": reason,
     }
 
 

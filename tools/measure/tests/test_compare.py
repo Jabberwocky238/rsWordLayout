@@ -189,3 +189,64 @@ def test_derived_assignment_splits_when_totals_agree():
     assert len(grouped[0]) == 3 and len(grouped[1]) == 3
     # 推算不是测量：前提必须随结果一起传下去。
     assert "推算而非测量" in info["premise"]
+
+
+# ---- 身份核对的空白等价（§3.1） ----
+
+
+def test_subset_tounicode_whitespace_is_not_an_identity_mismatch():
+    """子集字体把段落标记的空格解成 `\\t`——那是 ToUnicode 不可靠，不是配对错。
+
+    逼出这条的读数：22 份采集包里 5 份命中预注册的证否条件 F3，共 442 行，
+    **全部**是同一形（源 `\\n` ↔ PDF 解出 `\\t`），且全部出自 AppleMyungjo 的子集；
+    不含该字体的 17 份一条都没有。§3.1 已写明 ToUnicode 对子集字体不可作依据，
+    所以空白与空白之间不该判不符。
+    """
+    from wordmeasure import pairing
+
+    glyphs = [
+        {"textStatus": "mapped", "text": "m"},
+        {"textStatus": "mapped", "text": "\t"},
+    ]
+    result = pairing.pair_line(0, 0, "m\n", 0, glyphs)
+    assert result.identity_checked == 2
+    assert result.identity_mismatched == 0, "空白对空白不该判身份不符"
+
+
+def test_real_identity_mismatch_still_caught():
+    """真的配错了字符仍要抓——上一条不能把 F3 整个关掉。"""
+    from wordmeasure import pairing
+
+    glyphs = [
+        {"textStatus": "mapped", "text": "m"},
+        {"textStatus": "mapped", "text": "z"},
+    ]
+    result = pairing.pair_line(0, 0, "mn", 0, glyphs)
+    assert result.identity_mismatched == 1
+
+
+def test_kangxi_radical_tounicode_is_not_an_identity_mismatch():
+    """子集字体把汉字解成它的康熙部首——ToUnicode 反查不是单射，不是配对错。
+
+    逼出这条的读数：`cjk-plain` 采集里 68 处身份不符**全部**是这一形
+    （文 U+6587 → ⽂ U+2F42、行 → ⾏、一 → ⼀…），而且全是「本身就是部首」的那些字。
+    Unicode 的兼容分解正是为这层等价定的，所以按 NFKC 比。
+    """
+    from wordmeasure import pairing
+
+    glyphs = [
+        {"textStatus": "mapped", "text": "\u2f42"},   # ⽂ KANGXI RADICAL SCRIPT U+2F42
+        {"textStatus": "mapped", "text": "末"},   # 末
+    ]
+    result = pairing.pair_line(0, 0, "\u6587\u672b", 0, glyphs)   # 文末
+    assert result.identity_checked == 2
+    assert result.identity_mismatched == 0
+
+
+def test_similar_but_different_hanzi_still_mismatch():
+    """上一条不能把 CJK 的身份核对整个关掉：己/已、日/曰 这类必须仍然抓。"""
+    from wordmeasure import pairing
+
+    glyphs = [{"textStatus": "mapped", "text": "已"}]   # 已
+    result = pairing.pair_line(0, 0, "己", 0, glyphs)   # 己
+    assert result.identity_mismatched == 1

@@ -18,13 +18,26 @@ import struct
 from pathlib import Path
 
 
-def _table_offsets(data: bytes) -> dict[str, int]:
-    count = struct.unpack(">H", data[4:6])[0]
+def _table_offsets(data: bytes, face_off: int = 0) -> dict[str, int]:
+    count = struct.unpack(">H", data[face_off + 4 : face_off + 6])[0]
     out = {}
     for i in range(count):
-        at = 12 + 16 * i
+        at = face_off + 12 + 16 * i
         out[data[at : at + 4].decode("latin1")] = struct.unpack(">II", data[at + 8 : at + 16])[0]
     return out
+
+
+def _face_offsets(data: bytes) -> list[int]:
+    """文件里各 face 的表目录偏移。普通字体一个，TTC 有几个给几个。
+
+    不认 TTC 会读出一堆垃圾表名，于是 `cmap` 找不到、返回空集合——
+    方向是安全的（宁严勿松），但**正当的夹具会被挡住**：实测 Songti.ttc
+    被报成「一个汉字都画不出」，而它是本机唯一能画中文且 Word 列得出的字体。
+    """
+    if data[:4] == b"ttcf":
+        n = struct.unpack(">I", data[8:12])[0]
+        return list(struct.unpack(">%dI" % n, data[12 : 12 + 4 * n]))
+    return [0]
 
 
 def covered_chars(path, chars: str | set[str]) -> set[str]:
@@ -33,10 +46,21 @@ def covered_chars(path, chars: str | set[str]) -> set[str]:
     只看 Unicode 子表（3,1 / 3,10 / 0,x），支持 format 4 与 12——
     桌面字体里这两种覆盖了绝大多数情况。读不出 `cmap` 时返回空集合，
     **宁可报「画不出」也不报「画得出」**：这道关宁严勿松。
+
+    TTC 取**各 face 的并集**：Word 按族名选 face，选中哪一个这里无从得知，
+    而这道关要回答的是「这个字体文件画不画得出」。取并集在这一点上是对的，
+    代价是它挡不住「族里某个字重缺字形」——那一类得靠采集后的字体名核查（§6.2）。
     """
     want = set(chars)
     data = Path(path).read_bytes()
-    tables = _table_offsets(data)
+    got_all: set[str] = set()
+    for face_off in _face_offsets(data):
+        got_all |= _covered_at(data, face_off, want)
+    return got_all
+
+
+def _covered_at(data: bytes, face_off: int, want: set[str]) -> set[str]:
+    tables = _table_offsets(data, face_off)
     if "cmap" not in tables:
         return set()
     base = tables["cmap"]

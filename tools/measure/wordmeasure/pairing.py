@@ -18,6 +18,8 @@ Mac 走 `DERIVED_FROM_LINE_NUMBERS` 归行——那是**推算**不是测量，�
 
 from __future__ import annotations
 
+import unicodedata
+
 from dataclasses import dataclass, field
 
 from . import FAIL, OK, UNDECIDABLE
@@ -192,7 +194,27 @@ def pair_line(
         result.identity_checked += 1
         if glyph["text"] != text[src_i]:
             # 空格类等价：Word 把段落标记、软回车、制表符都画成空格（§4）。
-            if not (glyph["text"] == " " and text[src_i].isspace()):
+            #
+            # 两侧都要认，不能只认 PDF 侧解出 `" "` 的情形：子集字体的 ToUnicode
+            # 本身就不可靠（§3.1 明说这条对 CJK 子集无效，只能当配对之后的核对手段）。
+            # 实测 AppleMyungjo 的子集把段落标记那个空格字形解成 `"\t"`——
+            # 5 份采集包、**442 行**全部是这一形，零例外（font-free 40、noise-floor 21、
+            # page-start 61、recursive 160、shift-floor 160），而不含该字体的 17 份一条都没有。
+            # 旧写法把它们全判成身份不符，于是预注册的证否条件 **F3 命中 442 次**。
+            # 那不是读序前提出了问题，是拿一份已知不可靠的映射去核对空白字符的类别。
+            #
+            # 二、**同形等价**：子集字体的 ToUnicode 反查不是单射。CJK 里汉字与它的
+            # 康熙部首共用同一个字形，反查会挑到部首那个码位——实测 Songti SC 的
+            # `文 U+6587` 解成 `⽂ U+2F8B`、`行` 解成 `⾏`、`一` 解成 `⼀`……
+            # cjk-plain 那份采集里 **68 处身份不符全部是这一形，零例外**，
+            # 而且全部是「本身就是部首」的那些字，其余汉字一个都没错。
+            # Unicode 自己定义了这层等价（康熙部首的兼容分解），所以按 NFKC 比，
+            # 不是自己编一张表。实测 14/14 对上，且 文/丈、己/已、日/曰 不会被弄混。
+            same_space = glyph["text"].isspace() and text[src_i].isspace()
+            same_shape = unicodedata.normalize("NFKC", glyph["text"]) == unicodedata.normalize(
+                "NFKC", text[src_i]
+            )
+            if not (same_space or same_shape):
                 result.identity_mismatched += 1
 
     if predicted.expected != g:
