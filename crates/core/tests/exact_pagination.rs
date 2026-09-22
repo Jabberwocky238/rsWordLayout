@@ -36,6 +36,7 @@ fn exact(text: &str) -> Para {
                 .map(|_| PlaceholderKind::LineBreak)
                 .collect(),
             rise: 0,
+            rise_fine: None,
         }],
         line_rule: LineRule::Exact,
         line_value: 100,

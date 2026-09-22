@@ -22,6 +22,7 @@ fn run(text: &str, family: &str) -> Run {
         color: Color::BLACK,
         placeholders: Vec::new(),
         rise: 0,
+        rise_fine: None,
     }
 }
 
@@ -106,6 +107,7 @@ fn a_lone_page_break_gets_its_own_line_record() {
             color: Color::BLACK,
             placeholders: vec![PlaceholderKind::PageBreak],
         rise: 0,
+        rise_fine: None,
         }],
         ..Para::default()
     };

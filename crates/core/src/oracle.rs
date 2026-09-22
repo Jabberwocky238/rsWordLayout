@@ -123,6 +123,8 @@ pub struct GlyphRecord {
     /// Mac 通道的 PDF 里 `fontSize` 逐条恒为 1（字号在文本矩阵里），
     /// 故那一侧不可作字号读数；本字段只与 Windows 侧比对。
     pub size_half_points: u32,
+    /// Effective font size in 1/100 point, without the legacy half-point rounding.
+    pub size_centipoints: u64,
     /// 本字形对应的源字符区间。多字符合成一个字形（连字）时跨多个字符；
     /// 自动编号标签在源文本里没有对应字符，此时为 `None`。
     pub source: Option<SourceRange>,
@@ -286,6 +288,7 @@ impl GlyphRecord {
             face: g.face.clone(),
             glyph_id: g.glyph_id,
             size_half_points: g.size_half_points,
+            size_centipoints: g.size_centipoints,
             source: g.source.map(|(a, b)| SourceRange::new(a, b)),
         }
     }

@@ -129,6 +129,7 @@ fn painted_sources(text: &str) -> Vec<(u32, u32)> {
             color: Color::BLACK,
             placeholders: Vec::new(),
             rise: 0,
+            rise_fine: None,
         }],
         ..Para::default()
     };

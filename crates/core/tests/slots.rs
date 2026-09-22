@@ -25,7 +25,11 @@ fn ascii_goes_to_ascii_slot() {
 #[test]
 fn cjk_goes_to_east_asia_slot() {
     for ch in ['中', '日', '本', 'あ', 'ア', '가'] {
-        assert_eq!(slots().slot_for(ch), SlotKind::EastAsia, "{ch:?} 应走 eastAsia");
+        assert_eq!(
+            slots().slot_for(ch),
+            SlotKind::EastAsia,
+            "{ch:?} 应走 eastAsia"
+        );
     }
 }
 
@@ -64,6 +68,7 @@ fn slot_selection_differs_from_single_family() {
         slots: slots(),
         family: "Times New Roman".into(),
         size_half_points: 24,
+        size_centipoints: None,
         bold: false,
         italic: false,
         letter_spacing: 0,
@@ -84,23 +89,42 @@ fn slot_selection_differs_from_single_family() {
 fn missing_slot_falls_back_to_family() {
     // 槽没写就退到 family；这不是 Word 的 fallback，只是「该槽未指定」。
     let font = FontSpec {
-        slots: FontSlots { ascii: Some("Calibri".into()), ..FontSlots::default() },
+        slots: FontSlots {
+            ascii: Some("Calibri".into()),
+            ..FontSlots::default()
+        },
         family: "Calibri".into(),
         size_half_points: 24,
+        size_centipoints: None,
         bold: false,
         italic: false,
         letter_spacing: 0,
         scale_pct: 100,
         kerning: false,
     };
-    assert_eq!(font.family_for('中'), "Calibri", "eastAsia 未指定时退到 family");
+    assert_eq!(
+        font.family_for('中'),
+        "Calibri",
+        "eastAsia 未指定时退到 family"
+    );
 }
 
 #[test]
 fn inherit_fills_only_missing_slots() {
     // 样式链与 docDefaults 靠它：已写的槽不被覆盖。
-    let mut child = FontSlots { east_asia: Some("MS Mincho".into()), ..FontSlots::default() };
+    let mut child = FontSlots {
+        east_asia: Some("MS Mincho".into()),
+        ..FontSlots::default()
+    };
     child.inherit(&slots());
-    assert_eq!(child.east_asia.as_deref(), Some("MS Mincho"), "自己写了就不继承");
-    assert_eq!(child.ascii.as_deref(), Some("Times New Roman"), "没写的才继承");
+    assert_eq!(
+        child.east_asia.as_deref(),
+        Some("MS Mincho"),
+        "自己写了就不继承"
+    );
+    assert_eq!(
+        child.ascii.as_deref(),
+        Some("Times New Roman"),
+        "没写的才继承"
+    );
 }

@@ -13,6 +13,7 @@ fn run(text: &str) -> Run {
         color: Color::BLACK,
         placeholders: vec![],
         rise: 0,
+        rise_fine: None,
     }
 }
 

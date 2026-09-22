@@ -176,7 +176,8 @@ pub fn to_trace_json(record: &LayoutRecord, meta: &TraceMeta) -> String {
                 };
                 out.push_str(&format!(
                     "            {{\"origin\": [{}, {}], \"advance\": [{}, {}], \
-                     \"glyphId\": {}, \"face\": {}, \"sizeHalfPoints\": {}, \"sourceChar\": {}}}",
+                     \"glyphId\": {}, \"face\": {}, \"sizeHalfPoints\": {}, \
+                     \"sizeCentipoints\": {}, \"sourceChar\": {}}}",
                     num(glyph.origin_x_pt),
                     num(pt_fine(glyph.origin_y_fine)),
                     num(glyph.advance_x_pt),
@@ -184,6 +185,7 @@ pub fn to_trace_json(record: &LayoutRecord, meta: &TraceMeta) -> String {
                     glyph.glyph_id,
                     json_string(&glyph.face),
                     glyph.size_half_points,
+                    glyph.size_centipoints,
                     source
                 ));
             }

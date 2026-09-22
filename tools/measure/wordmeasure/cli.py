@@ -90,6 +90,9 @@ def cmd_capture(args):
     if not meta["fixture"]["unchanged"]:
         print("  **夹具在采集过程中变了，读数作废**", file=sys.stderr)
         return 1
+    if meta.get("usability") == UNDECIDABLE:
+        print("  UNDECIDABLE: " + "; ".join(meta.get("usabilityReason") or []), file=sys.stderr)
+        return 2
     return 0
 
 

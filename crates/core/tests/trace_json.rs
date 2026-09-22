@@ -31,6 +31,7 @@ fn glyph(x: i32, y: i32) -> GlyphRecord {
         face: "face".into(),
         glyph_id: 7,
         size_half_points: 24,
+        size_centipoints: 1200,
         source: Some(SourceRange::new(3, 4)),
     }
 }
@@ -82,6 +83,21 @@ fn missing_source_stays_null_not_zero() {
     assert!(json.contains("\"sourceEnd\": null"), "{json}");
     assert!(json.contains("\"sourceChar\": null"), "{json}");
     assert!(!json.contains("\"sourceChar\": 0"), "缺失被写成了 0：{json}");
+}
+
+#[test]
+fn precise_font_size_is_not_reconstructed_from_legacy_half_points() {
+    let mut g = glyph(0, 0);
+    g.size_half_points = 16;
+    g.size_centipoints = 792;
+    let json = to_trace_json(&record_with(LineRecord {
+        glyphs: vec![g],
+        ..LineRecord::default()
+    }), &meta());
+    let value: serde_json::Value = serde_json::from_str(&json).unwrap();
+    let out = &value["pages"][0]["lines"][0]["glyphs"][0];
+    assert_eq!(out["sizeHalfPoints"], 16);
+    assert_eq!(out["sizeCentipoints"], 792);
 }
 
 #[test]

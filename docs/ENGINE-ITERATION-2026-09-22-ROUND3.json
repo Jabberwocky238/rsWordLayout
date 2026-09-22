@@ -1,0 +1,1609 @@
+{
+  "schema": "rsword-layout-iteration-report/1",
+  "baselineEngineCommit": "1fddc3a",
+  "parserCommit": "399e36a3c645e9b9001531fb06969f8ce5347e1f",
+  "evidence": "Archived-capture engine backtest, plus separate new native line-ordinal diagnostics; new diagnostics do not replace or admit old captures.",
+  "criteria": {
+    "tolerancePt": 0,
+    "excludedRules": [],
+    "metrics": "real",
+    "verticalGrid": "mac",
+    "sourceAnnotations": "SHA-bound DOCX, verified UTF-16 ranges and captured text; offline backtest"
+  },
+  "measurementHashes": {
+    "tools/measure/wordmeasure/__init__.py": "f9e0fac095045a4c8970f183d6d7fcb16f38d9ce8b98700bc6bd3717d5c311fc",
+    "tools/measure/wordmeasure/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "tools/measure/wordmeasure/adopt.py": "2ffc20449e3909cf81d455b5170445d6db3d579a8a7fbade2f980d55adada801",
+    "tools/measure/wordmeasure/applescript.py": "9794ef409bd6b312accc96a028b2d1d15ff5d9faf45c5d3528b71ae07eb9b10f",
+    "tools/measure/wordmeasure/capture.py": "addb1dba2bf1522ff4eea4c4c9364c196e9ddfe61367bcb3407e6f0c97067929",
+    "tools/measure/wordmeasure/cli.py": "1a56f5fc9bb375de043f203b1a27fbce29abfdda6039036aae59b0282a589d87",
+    "tools/measure/wordmeasure/compare.py": "f62a7017090af003527d6cfc7ad219a5edb5a46f9e880ba9019f71e33f4594c4",
+    "tools/measure/wordmeasure/controls.py": "31efd7c4d8970ee7796d90483a640aac7bf18cf2daaea938155fc9212564196e",
+    "tools/measure/wordmeasure/counting.py": "7e7ccba41e13b0e299c531a72bb366dab13327d821f1433e18201ea6fc0cf6cc",
+    "tools/measure/wordmeasure/docxtext.py": "90e1c9cb3e7dfd71dc2f941158727faee9f8a7f4821bf47c4dd1b36c7ae7c724",
+    "tools/measure/wordmeasure/fingerprint.py": "437856c76f1c41c280bcde56b387182fbb39e68ea20ebc398f4ab737513528cd",
+    "tools/measure/wordmeasure/fontcover.py": "145990896c07953e6f3c76de961c054a32026f3a0951a6c34c832c8cfa030302",
+    "tools/measure/wordmeasure/pairing.py": "40bdd3cdd9e814696360324d0eb1897dcf4b206e21822bc6250481bbdddcdf10",
+    "tools/measure/wordmeasure/pdfglyphs.py": "5a6406df7cc8b7943924f8eeb1e1f01c16c5e81f6ceff4232145d3b5f9187287",
+    "tools/measure/wordmeasure/preflight.py": "4693bcc0e5340033213849a200daa3efb550345f9798b0c6d24f36de22523557",
+    "tools/measure/wordmeasure/selfcheck.py": "cc9b5e24ecdb5ea7c9de8f55bdd54b7ba30602864af68d94b0d13a7b00ec3ebf",
+    "tools/measure/wordmeasure/source_binding.py": "52d3a548d45568b1b430d957f0f6b573e62a9c16487207852ebcab27fa521f68",
+    "tools/measure/wordmeasure/source_text.py": "b3828b65e1f1b98210c98bee4ee5ac64e0c846a530a657c744a567e1337a9af0",
+    "tools/measure/wordmeasure/sweep.py": "06251b9312cdd6c0069e03d806ffb89c53847f58c4c83d3d32984ef9acebbf32",
+    "tools/measure/wordmeasure/sweep_stability.py": "729e74b0b918f4d0317a359fd376322540b7c0473c222d1a97f1b691ffc5a701",
+    "tools/measure/wordmeasure/wordmodel.py": "faf69eb87e0ddac91c39161caa4d49f37cfb5cfa80e1f9fdf12d3497e4f36202"
+  },
+  "engineHashes": {
+    "before": "125f2f4cc6d9079e230532a922d7e1d7c5a90c8c427a638f658acca169e332ed",
+    "after": "375a77f2147147f21c3c0a5c597939a1e4ee558d161ac718164a9247c02b3099"
+  },
+  "verifiedEqual": [
+    "measurement module bytes",
+    "fixture bytes",
+    "font inventory entries and bytes",
+    "capture inputs",
+    "source annotation provenance"
+  ],
+  "coverage": {
+    "before": {
+      "bundles": 29,
+      "states": {
+        "OK": 0,
+        "FAIL": 24,
+        "UNDECIDABLE": 5
+      },
+      "compared": 24,
+      "notCompared": 5,
+      "selfcheckStates": {
+        "UNDECIDABLE": 24,
+        "NOT_RUN": 5
+      },
+      "comparisonStates": {
+        "FAIL": 24,
+        "NOT_RUN": 5
+      },
+      "structurallySound": 21,
+      "pageCountsEqual": 24
+    },
+    "after": {
+      "bundles": 29,
+      "states": {
+        "OK": 0,
+        "FAIL": 24,
+        "UNDECIDABLE": 5
+      },
+      "compared": 24,
+      "notCompared": 5,
+      "selfcheckStates": {
+        "UNDECIDABLE": 24,
+        "NOT_RUN": 5
+      },
+      "comparisonStates": {
+        "FAIL": 24,
+        "NOT_RUN": 5
+      },
+      "structurallySound": 21,
+      "pageCountsEqual": 24
+    }
+  },
+  "validation": {
+    "rustTestsPassed": 189,
+    "pythonTestsPassed": 126,
+    "strictClippy": "PASS",
+    "wasmWorkspaceCheck": "PASS"
+  },
+  "nativeDiagnostic": {
+    "documentedIn": "docs/CAPTURE-LINE-ORDINAL-AUDIT-2026-09-22.md",
+    "fixtureCount": 2,
+    "scansPerFixture": 6,
+    "positionsPerScan": 252,
+    "kinsokuStablePositionsAcrossScans": 1512,
+    "kinsoku2ChangedOrdinalsBetweenFirstTwoScans": 189,
+    "kinsoku2ChangedPageOrdinals": 0,
+    "kinsoku2ChangedSourceLineBoundaries": 0,
+    "newPdfGlyphArraysEqualArchivedPages": "4/4 pages in each fixture",
+    "admittedToEngineBacktest": false
+  },
+  "captures": [
+    {
+      "bundle": "a-form-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 4.800000009626706,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 4.800000009626706,
+        "maxDx": 0.5460319999999967,
+        "maxDy": 4.800000000000125,
+        "pairs": 480,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 4.800000009626706,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 4.800000009626706,
+        "maxDx": 0.5460319999999967,
+        "maxDy": 4.800000000000125,
+        "pairs": 480,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "accumulation-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 2.6400026180904117,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 2.6400026180904117,
+        "maxDx": 0.022469999999998436,
+        "maxDy": 2.640000000000043,
+        "pairs": 1340,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1340,
+          "candidatePages": 12,
+          "referenceGlyphs": 1340,
+          "referencePages": 12
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 2.6400026180904117,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 2.6400026180904117,
+        "maxDx": 0.022469999999998436,
+        "maxDy": 2.640000000000043,
+        "pairs": 1340,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1340,
+          "candidatePages": 12,
+          "referenceGlyphs": 1340,
+          "referencePages": 12
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "baseline-order-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 0.24765567266076938,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 0.24765567266076938,
+        "maxDx": 0.06110099999999363,
+        "maxDy": 0.24000000000012278,
+        "pairs": 216,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 0.24765567266076938,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 0.24765567266076938,
+        "maxDx": 0.06110099999999363,
+        "maxDy": 0.24000000000012278,
+        "pairs": 216,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "breaks-sections-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 141.05083764728235,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 141.05083764728235,
+        "maxDx": 141.049,
+        "maxDy": 0.7199999999999562,
+        "pairs": 90,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 90,
+          "candidatePages": 15,
+          "referenceGlyphs": 90,
+          "referencePages": 15
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 141.05083764728235,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 141.05083764728235,
+        "maxDx": 141.049,
+        "maxDy": 0.7199999999999562,
+        "pairs": 90,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 90,
+          "candidatePages": 15,
+          "referenceGlyphs": 90,
+          "referencePages": 15
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "cjk-plain-2026-09-18",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 50.88000000257598,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 50.88000000257598,
+        "maxDx": 7.326000000000249,
+        "maxDy": 50.87999999999988,
+        "pairs": 301,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 301,
+          "candidatePages": 7,
+          "referenceGlyphs": 301,
+          "referencePages": 7
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 50.88000000257598,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 50.88000000257598,
+        "maxDx": 7.326000000000249,
+        "maxDy": 50.87999999999988,
+        "pairs": 301,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 301,
+          "candidatePages": 7,
+          "referenceGlyphs": 301,
+          "referencePages": 7
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "cursor-unit-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 5.760000016200104,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 5.760000016200104,
+        "maxDx": 0.47923799999999517,
+        "maxDy": 5.760000000000105,
+        "pairs": 3048,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 3048,
+          "candidatePages": 10,
+          "referenceGlyphs": 3048,
+          "referencePages": 10
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 5.760000016200104,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 5.760000016200104,
+        "maxDx": 0.47923799999999517,
+        "maxDy": 5.760000000000105,
+        "pairs": 3048,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 3048,
+          "candidatePages": 10,
+          "referenceGlyphs": 3048,
+          "referencePages": 10
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "exact-spacing-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 8.160000002165654,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 8.160000002165654,
+        "maxDx": 0.004800000000003024,
+        "maxDy": 8.159999999999968,
+        "pairs": 1440,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1440,
+          "candidatePages": 18,
+          "referenceGlyphs": 1440,
+          "referencePages": 18
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 8.160000002165654,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 8.160000002165654,
+        "maxDx": 0.004800000000003024,
+        "maxDy": 8.159999999999968,
+        "pairs": 1440,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1440,
+          "candidatePages": 18,
+          "referenceGlyphs": 1440,
+          "referencePages": 18
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "first-line-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 0.24000242998774998,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 0.24000242998774998,
+        "maxDx": 0.0010800000000017462,
+        "maxDy": 0.24000000000012278,
+        "pairs": 216,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 0.24000242998774998,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 0.24000242998774998,
+        "maxDx": 0.0010800000000017462,
+        "maxDy": 0.24000000000012278,
+        "pairs": 216,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 216,
+          "candidatePages": 24,
+          "referenceGlyphs": 216,
+          "referencePages": 24
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "fixed-distance-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 6.960000006294304,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 6.960000006294304,
+        "maxDx": 0.5460319999999967,
+        "maxDy": 6.960000000000122,
+        "pairs": 480,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 6.960000006294304,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 6.960000006294304,
+        "maxDx": 0.5460319999999967,
+        "maxDy": 6.960000000000122,
+        "pairs": 480,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "font-free-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 15.600000002585265,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 15.600000002585265,
+        "maxDx": 0.42928799999999967,
+        "maxDy": 15.600000000000136,
+        "pairs": 720,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 720,
+          "candidatePages": 24,
+          "referenceGlyphs": 720,
+          "referencePages": 24
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 15.600000002585265,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 15.600000002585265,
+        "maxDx": 0.42928799999999967,
+        "maxDy": 15.600000000000136,
+        "pairs": 720,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 720,
+          "candidatePages": 24,
+          "referenceGlyphs": 720,
+          "referencePages": 24
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "hbox-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 47.99867999999998,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 47.99867999999998,
+        "maxDx": 47.99867999999998,
+        "maxDy": 0.4800000000000466,
+        "pairs": 638,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 638,
+          "candidatePages": 10,
+          "referenceGlyphs": 638,
+          "referencePages": 10
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 47.99867999999998,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 47.99867999999998,
+        "maxDx": 47.99867999999998,
+        "maxDy": 0.4800000000000466,
+        "pairs": 638,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 638,
+          "candidatePages": 10,
+          "referenceGlyphs": 638,
+          "referencePages": 10
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "hbox2-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 40.99846667519052,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 40.99846667519052,
+        "maxDx": 40.992143999999655,
+        "maxDy": 0.720000000000141,
+        "pairs": 1147,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1147,
+          "candidatePages": 7,
+          "referenceGlyphs": 1147,
+          "referencePages": 7
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 40.99846667519052,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 40.99846667519052,
+        "maxDx": 40.992143999999655,
+        "maxDy": 0.720000000000141,
+        "pairs": 1147,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1147,
+          "candidatePages": 7,
+          "referenceGlyphs": 1147,
+          "referencePages": 7
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "indent-align-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 0.5131759999999872,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 0.5131759999999872,
+        "maxDx": 0.5131759999999872,
+        "maxDy": 0.24000000000010857,
+        "pairs": 262,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 262,
+          "candidatePages": 20,
+          "referenceGlyphs": 262,
+          "referencePages": 20
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 0.5131759999999872,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 0.5131759999999872,
+        "maxDx": 0.5131759999999872,
+        "maxDy": 0.24000000000010857,
+        "pairs": 262,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 262,
+          "candidatePages": 20,
+          "referenceGlyphs": 262,
+          "referencePages": 20
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "kinsoku-2026-09-18",
+      "before": {
+        "failures": [
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 1,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 2,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 3,
+            "reference": 3
+          }
+        ],
+        "maxAbs": 7.7091034498184765,
+        "maxDx": 7.326000000000249,
+        "maxDy": 7.439999999999927,
+        "pairs": 63,
+        "state": "FAIL",
+        "structurallySound": false,
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 1,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 2,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 3,
+            "reference": 3
+          }
+        ],
+        "maxAbs": 7.7091034498184765,
+        "maxDx": 7.326000000000249,
+        "maxDy": 7.439999999999927,
+        "pairs": 63,
+        "state": "FAIL",
+        "structurallySound": false,
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "kinsoku2-2026-09-18",
+      "before": {
+        "failures": [
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 1,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 2,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 3,
+            "reference": 3
+          }
+        ],
+        "maxAbs": 7.439999999999927,
+        "maxDx": 0.0,
+        "maxDy": 7.439999999999927,
+        "pairs": 63,
+        "state": "FAIL",
+        "structurallySound": false,
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 1,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 2,
+            "reference": 3
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 3,
+            "reference": 3
+          }
+        ],
+        "maxAbs": 7.439999999999927,
+        "maxDx": 0.0,
+        "maxDy": 7.439999999999927,
+        "pairs": 63,
+        "state": "FAIL",
+        "structurallySound": false,
+        "structure": {
+          "candidateGlyphs": 252,
+          "candidatePages": 4,
+          "referenceGlyphs": 252,
+          "referencePages": 4
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "noise-floor-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 2.8800984047189484,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 2.8800984047189484,
+        "maxDx": 0.10917600000001926,
+        "maxDy": 2.8800000000001234,
+        "pairs": 678,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 678,
+          "candidatePages": 6,
+          "referenceGlyphs": 678,
+          "referencePages": 6
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 2.8800984047189484,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 2.8800984047189484,
+        "maxDx": 0.10917600000001926,
+        "maxDy": 2.8800000000001234,
+        "pairs": 678,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 678,
+          "candidatePages": 6,
+          "referenceGlyphs": 678,
+          "referencePages": 6
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "page-start-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "candidate": 19,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 0,
+            "reference": 15
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 1,
+            "reference": 6
+          },
+          {
+            "candidate": 17,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 2,
+            "reference": 13
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 3,
+            "reference": 6
+          },
+          {
+            "candidate": 16,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 4,
+            "reference": 12
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 5,
+            "reference": 6
+          },
+          {
+            "candidate": 20,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 24,
+            "reference": 15
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 25,
+            "reference": 7
+          },
+          {
+            "candidate": 17,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 26,
+            "reference": 13
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 27,
+            "reference": 7
+          },
+          {
+            "candidate": 16,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 28,
+            "reference": 12
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 29,
+            "reference": 7
+          },
+          {
+            "candidate": 17,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 30,
+            "reference": 13
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 31,
+            "reference": 7
+          },
+          {
+            "candidate": 15,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 32,
+            "reference": 12
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 33,
+            "reference": 5
+          },
+          {
+            "candidate": 14,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 34,
+            "reference": 11
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 35,
+            "reference": 6
+          }
+        ],
+        "maxAbs": 0.9600690095619627,
+        "maxDx": 0.011967999999995982,
+        "maxDy": 0.9600000000001501,
+        "pairs": 596,
+        "state": "FAIL",
+        "structurallySound": false,
+        "structure": {
+          "candidateGlyphs": 1288,
+          "candidatePages": 36,
+          "referenceGlyphs": 1288,
+          "referencePages": 36
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "candidate": 19,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 0,
+            "reference": 15
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 1,
+            "reference": 6
+          },
+          {
+            "candidate": 17,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 2,
+            "reference": 13
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 3,
+            "reference": 6
+          },
+          {
+            "candidate": 16,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 4,
+            "reference": 12
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 5,
+            "reference": 6
+          },
+          {
+            "candidate": 20,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 24,
+            "reference": 15
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 25,
+            "reference": 7
+          },
+          {
+            "candidate": 17,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 26,
+            "reference": 13
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 27,
+            "reference": 7
+          },
+          {
+            "candidate": 16,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 28,
+            "reference": 12
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 29,
+            "reference": 7
+          },
+          {
+            "candidate": 17,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 30,
+            "reference": 13
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 31,
+            "reference": 7
+          },
+          {
+            "candidate": 15,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 32,
+            "reference": 12
+          },
+          {
+            "candidate": 2,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 33,
+            "reference": 5
+          },
+          {
+            "candidate": 14,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 34,
+            "reference": 11
+          },
+          {
+            "candidate": 3,
+            "code": "LINE_COUNT_MISMATCH",
+            "page": 35,
+            "reference": 6
+          }
+        ],
+        "maxAbs": 0.9600690095619627,
+        "maxDx": 0.011967999999995982,
+        "maxDy": 0.9600000000001501,
+        "pairs": 596,
+        "state": "FAIL",
+        "structurallySound": false,
+        "structure": {
+          "candidateGlyphs": 1288,
+          "candidatePages": 36,
+          "referenceGlyphs": 1288,
+          "referencePages": 36
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "recursive-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 4.800000055814954,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 4.800000055814954,
+        "maxDx": 0.004894000000007281,
+        "maxDy": 4.7999999999999545,
+        "pairs": 1280,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 4.800000055814954,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 4.800000055814954,
+        "maxDx": 0.004894000000007281,
+        "maxDy": 4.7999999999999545,
+        "pairs": 1280,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "rounding-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 2.4000000353633104,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 2.4000000353633104,
+        "maxDx": 0.0006000000000057071,
+        "maxDy": 2.3999999999999773,
+        "pairs": 1280,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 2.4000000353633104,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 2.4000000353633104,
+        "maxDx": 0.0006000000000057071,
+        "maxDy": 2.3999999999999773,
+        "pairs": 1280,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "shift-floor-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 1.4400001250001344,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 1.4400001250001344,
+        "maxDx": 0.0008200000000044838,
+        "maxDy": 1.4400000000001398,
+        "pairs": 1280,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 1.4400001250001344,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 1.4400001250001344,
+        "maxDx": 0.0008200000000044838,
+        "maxDy": 1.4400000000001398,
+        "pairs": 1280,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 1280,
+          "candidatePages": 16,
+          "referenceGlyphs": 1280,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "size-free-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 20.880000002331087,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 20.880000002331087,
+        "maxDx": 0.6299999999999955,
+        "maxDy": 20.880000000000052,
+        "pairs": 480,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 20.880000002331087,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 20.880000002331087,
+        "maxDx": 0.6299999999999955,
+        "maxDy": 20.880000000000052,
+        "pairs": 480,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 480,
+          "candidatePages": 16,
+          "referenceGlyphs": 480,
+          "referencePages": 16
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "vmisc-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 14.400000004908838,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 14.400000004908838,
+        "maxDx": 0.27319200000000876,
+        "maxDy": 14.399999999999949,
+        "pairs": 174,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 174,
+          "candidatePages": 15,
+          "referenceGlyphs": 174,
+          "referencePages": 15
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 14.400000004908838,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 14.400000004908838,
+        "maxDx": 0.27319200000000876,
+        "maxDy": 14.399999999999949,
+        "pairs": 174,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 174,
+          "candidatePages": 15,
+          "referenceGlyphs": 174,
+          "referencePages": 15
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "vmisc2-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 141.0492041842137,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 141.0492041842137,
+        "maxDx": 141.049,
+        "maxDy": 23.999999999999922,
+        "pairs": 88,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 88,
+          "candidatePages": 11,
+          "referenceGlyphs": 88,
+          "referencePages": 11
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 141.0492041842137,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 141.0492041842137,
+        "maxDx": 141.049,
+        "maxDy": 23.999999999999922,
+        "pairs": 88,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 88,
+          "candidatePages": 11,
+          "referenceGlyphs": 88,
+          "referencePages": 11
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    },
+    {
+      "bundle": "vmisc3-2026-09-17",
+      "before": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 54.03984,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 54.03984,
+        "maxDx": 54.03984,
+        "maxDy": 11.519999999999953,
+        "pairs": 111,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 111,
+          "candidatePages": 12,
+          "referenceGlyphs": 111,
+          "referencePages": 12
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "after": {
+        "failures": [
+          {
+            "code": "GEOMETRY_EXCEEDS_TOLERANCE",
+            "maxAbs": 54.03984,
+            "note": "噪声底为 0（§5）：这不是量得不准，是引擎错或配对错。",
+            "tolerancePt": 0.0
+          }
+        ],
+        "maxAbs": 54.03984,
+        "maxDx": 54.03984,
+        "maxDy": 11.519999999999953,
+        "pairs": 111,
+        "state": "FAIL",
+        "structurallySound": true,
+        "structure": {
+          "candidateGlyphs": 111,
+          "candidatePages": 12,
+          "referenceGlyphs": 111,
+          "referencePages": 12
+        },
+        "toleranceNote": "噪声底 0.0000pt（§5）：非零差不可能是量得不准。",
+        "tolerancePt": 0.0
+      },
+      "geometryChanged": false
+    }
+  ]
+}

@@ -42,13 +42,13 @@ fn paint_with_props(text: &str, props: serde_json::Value) -> PaintList {
     paint_document(&Engine::new(&metrics, PageSetup::a4()).layout(&paras), None, &[])
 }
 
-/// 每条绘制指令的 (基线 y, 字号半点)。
-fn runs(list: &PaintList) -> Vec<(i32, u32)> {
+/// 每条绘制指令的 (精细基线 y，1/7200 英寸，兼容字号半点)。
+fn runs(list: &PaintList) -> Vec<(i64, u32)> {
     let mut out = Vec::new();
     for page in &list.pages {
         for cmd in &page.cmds {
-            if let DrawCmd::DrawGlyphs { origin_y, font, .. } = cmd {
-                out.push((*origin_y, font.size_half_points));
+            if let DrawCmd::DrawGlyphs { origin_y_fine, font, .. } = cmd {
+                out.push((*origin_y_fine, font.size_half_points));
             }
         }
     }
@@ -64,8 +64,8 @@ fn superscript_shrinks_and_rises() {
     assert_eq!(base_size, 24, "正文该是 12pt");
     // 0.66 × 24 = 15.84 半点；整数半点取最近的 16。
     assert_eq!(sup_size, 16, "上标字号该缩到 0.66 em 的最近整数半点");
-    // 12pt = 240 twips，抬升 0.34 em = 81.6 → 81 twips（向上，故 y 减小）。
-    assert_eq!(base_y - sup_y, 81, "上标抬升量不对：{r:?}");
+    // 12pt × 0.34 = 4.08pt = 408 精细单位，不先截为 81 twips。
+    assert_eq!(base_y - sup_y, 408, "上标抬升量不对：{r:?}");
 }
 
 #[test]
@@ -76,8 +76,8 @@ fn subscript_shrinks_and_drops() {
 
     assert_eq!(base_size, 24);
     assert_eq!(sub_size, 16, "下标与上标用同一个缩放比例");
-    // 下沉 0.08 em = 19.2 → 19 twips（向下，故 y 增大）。
-    assert_eq!(sub_y - base_y, 19, "下标下沉量不对：{r:?}");
+    // 12pt × 0.08 = 0.96pt = 96 精细单位，不先截为 19 twips。
+    assert_eq!(sub_y - base_y, 96, "下标下沉量不对：{r:?}");
 }
 
 #[test]
@@ -88,7 +88,7 @@ fn position_raises_without_resizing() {
     let (up_y, up_size) = r[1];
 
     assert_eq!(up_size, base_size, "`w:position` 不该改字号——这是它与上下标的关键区别");
-    assert_eq!(base_y - up_y, 80, "抬升量该是 8 半点 = 80 twips：{r:?}");
+    assert_eq!(base_y - up_y, 400, "抬升量该是 8 半点 = 400 精细单位：{r:?}");
 }
 
 #[test]
@@ -97,7 +97,7 @@ fn negative_position_lowers() {
     let (base_y, _) = r[0];
     let (down_y, down_size) = r[1];
     assert_eq!(down_size, 24);
-    assert_eq!(down_y - base_y, 60, "负的 `w:position` 该下沉：{r:?}");
+    assert_eq!(down_y - base_y, 300, "负的 `w:position` 该下沉：{r:?}");
 }
 
 #[test]
@@ -119,6 +119,7 @@ fn rise_does_not_change_the_advance() {
             color: Color::BLACK,
             placeholders: Vec::new(),
             rise,
+            rise_fine: None,
         }],
         ..Para::default()
     };
@@ -151,7 +152,7 @@ fn rise_does_not_change_the_advance() {
 #[test]
 fn rise_scales_with_the_runs_own_size_not_the_paragraph_base() {
     // 段落基准是 24 半点（12pt）：前一个 run 不带 size，走默认。
-    for (half_points, want_sup, want_sub) in [(20u32, 68i32, -16i32), (24, 81, -19), (36, 122, -28)]
+    for (half_points, want_sup, want_sub) in [(20u32, 340i64, -80i64), (24, 408, -96), (36, 612, -144)]
     {
         let sup = runs(&paint_with_props(
             "x",
@@ -182,7 +183,7 @@ fn rise_scales_with_the_runs_own_size_not_the_paragraph_base() {
 /// 这一条盯的是「它到底有没有随字号变」，不依赖具体数值。
 #[test]
 fn the_three_sizes_give_three_different_rises() {
-    let rises: Vec<i32> = [20u32, 24, 36]
+    let rises: Vec<i64> = [20u32, 24, 36]
         .iter()
         .map(|&hp| {
             let r = runs(&paint_with_props(

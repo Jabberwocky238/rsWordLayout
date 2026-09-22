@@ -52,6 +52,7 @@ fn para(text: &str) -> Para {
             color: Color::BLACK,
             placeholders: Vec::new(),
             rise: 0,
+            rise_fine: None,
         }],
         ..Para::default()
     }

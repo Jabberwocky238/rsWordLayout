@@ -478,6 +478,8 @@ pub struct PositionedGlyph {
     pub advance_y: Twips,
     /// 字号，半点。
     pub size_half_points: u32,
+    /// 有效字号，0.01pt；半点字段仅为兼容近似值。
+    pub size_centipoints: u64,
     /// 本字形对应源文本的哪一段（UTF-16 单位，与 rsword 的坐标流一致）。
     ///
     /// 配对**不能靠 Unicode 身份**（PDF 字形可能没有 ToUnicode 映射），只能按读序，
@@ -743,6 +745,8 @@ impl WrapContext {
 
 /// 页内一个已定位的绘制项。
 #[derive(Debug, Clone)]
+// Text is the common case; keep it inline to avoid an allocation per fragment.
+#[allow(clippy::large_enum_variant)]
 pub enum Fragment {
     Text(TextFragment),
     /// 实心矩形：底纹、边框、下划线、删除线都归一到它。
@@ -778,9 +782,11 @@ pub struct TextFragment {
     /// 比较器按读序配对，需要它把字形对回源字符。`None` 表示引擎未能确定，
     /// 比较器据此报「判不了」而不是猜一个区间。
     pub source: Option<(u32, u32)>,
-    /// 基线抬升，twips，正值向上。`baseline_y` 已经减去过它；
+    /// 兼容抬升近似值，twips，正值向上。实际落位使用 `rise_fine`；
     /// 单独留着是为了让下游能分辨「这行基线在这里」与「这段被抬高了」。
     pub rise: Twips,
+    /// 精确基线抬升，1/7200 英寸，正值向上；`baseline_fine` 已扣除。
+    pub rise_fine: i64,
     /// 本片段属于本页第几行，从 0 计。
     ///
     /// **一行可能有多个片段**（换字体、上标、分页符都会把行切开），而绘制指令是
@@ -918,7 +924,7 @@ pub struct Run {
     /// 长度与 `text` 里的占位符个数对不上时，桥接层应当整体退回 [`PlaceholderKind::Object`]
     /// ——那是保守方向：不会凭空造出分页。
     pub placeholders: Vec<PlaceholderKind>,
-    /// 基线抬升，twips，**正值向上**。
+    /// 基线抬升，twips，**正值向上**。`rise_fine` 指定时优先使用精细值。
     ///
     /// 两个来源：`w:vertAlign`（上下标，同时缩小字号——那部分反映在
     /// [`FontSpec::size_half_points`] 里）与 `w:position`（只抬升，不改字号）。
@@ -927,6 +933,15 @@ pub struct Run {
     /// 抬升不改变推进量，只改变落笔的 y。放进 FontSpec 会让度量缓存按它分桶，
     /// 白白多出一倍的键。
     pub rise: Twips,
+    /// 精确抬升，1/7200 英寸。未指定时沿用 `rise` 的 twips 值。
+    pub rise_fine: Option<i64>,
+}
+
+impl Run {
+    /// 精确抬升，1/7200 英寸；旧调用方仍可只设置 `rise`。
+    pub fn effective_rise_fine(&self) -> i64 {
+        self.rise_fine.unwrap_or_else(|| i64::from(self.rise) * FINE_PER_TWIP)
+    }
 }
 
 /// run 文本里一个 [`OBJECT_PLACEHOLDER`] 代表什么。
@@ -985,8 +1000,8 @@ struct LinePiece {
     text: String,
     font: FontSpec,
     color: Color,
-    /// 基线抬升，twips，正值向上。见 [`Run::rise`]。
-    rise: Twips,
+    /// 基线抬升，1/7200 英寸，正值向上。
+    rise_fine: i64,
     /// 源字符区间，UTF-16 单位、相对所在段落。
     ///
     /// 断行是唯一知道「切在第几个字符」的地方，所以必须在这里记下；
@@ -996,7 +1011,6 @@ struct LinePiece {
 
 /// 排好的一行，尚未定位到页面。
 struct PendingLine {
-    height: Twips,
     baseline: Twips,
     pieces: Vec<LinePiece>,
     width: Twips,
@@ -1010,7 +1024,7 @@ struct PendingLine {
     trailing_glyphs: usize,
     end_font: FontSpec,
     end_color: Color,
-    end_rise: Twips,
+    end_rise_fine: i64,
     /// 首行要额外吃 `indent_first_line`（可负，即悬挂缩进）。
     is_first: bool,
     /// 本行实际落在哪个横向区间。无环绕时就是整个正文宽度；
@@ -1023,9 +1037,8 @@ struct PendingLine {
     page_break_after: bool,
     /// 本行高度的**精确值**，单位 1/7200 英寸。
     ///
-    /// `height` 是它落到整 twips 的结果；游标按 `height` 累加会逐行漂移
-    /// （栅格上的 273.6 twips 落成 274，每行多 0.4 twip，一页 40 行攒 0.8pt）。
-    /// 所以纵向游标走这一个，`height` 只用于「放不放得下」这类整 twips 的判断。
+    /// 游标推进、整段保留与分页预留都使用同一个值，避免逐行取整后
+    /// 「放得下」的判断与实际推进相矛盾。
     height_fine: i64,
     /// 本行起点在全篇 UTF-16 偏移空间里的下标。
     ///
@@ -1102,7 +1115,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             source_cursor = para_base + para_units + 1;
 
             let lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
-            let block_height: Twips = lines.iter().map(|l| l.height).sum();
+            let block_height_fine: i64 = lines.iter().map(|l| l.height_fine).sum();
 
             if para.page_break_before && !page.fragments.is_empty() {
                 pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
@@ -1114,7 +1127,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
             // keepLines：整段放不下就先翻页（除非本页是空的，那样翻了也没用）。
             if para.keep_lines
-                && coarse(cursor_fine) + block_height > area.bottom()
+                && cursor_fine + block_height_fine > fine(area.bottom())
                 && !page.fragments.is_empty()
             {
                 pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
@@ -1123,12 +1136,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             }
 
             // keepNext：本段是最后一段时无意义；否则要保证下一段至少第一行同页。
-            let next_first_line = if para.keep_next {
+            let next_first_line_fine = if para.keep_next {
                 paras.get(idx + 1).and_then(|n| {
                     // 只取高度，源区间用不上；给下一段的正确基点，免得读代码时费解。
                     self.break_paragraph(n, area, coarse(cursor_fine), source_cursor)
                         .first()
-                        .map(|l| l.height)
+                        .map(|l| l.height_fine)
                 }).unwrap_or(0)
             } else {
                 0
@@ -1136,12 +1149,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
             let total_lines = lines.len();
             for (li, line) in lines.into_iter().enumerate() {
-                let mut needed = line.height;
+                let mut needed_fine = line.height_fine;
                 // 最后一行还要替下一段的首行占位。
                 if para.keep_next && li + 1 == total_lines {
-                    needed += next_first_line;
+                    needed_fine += next_first_line_fine;
                 }
-                if coarse(cursor_fine) + needed > area.bottom() && !page.fragments.is_empty() {
+                if cursor_fine + needed_fine > fine(area.bottom()) && !page.fragments.is_empty() {
                     pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
                     cursor_fine = fine(area.y);
                     line_index = 0;
@@ -1237,7 +1250,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             p.source.1 == suffix_start
                 && p.font == line.end_font
                 && p.color == line.end_color
-                && p.rise == line.end_rise
+                && p.rise_fine == line.end_rise_fine
         });
         if let Some(first_piece) = line.pieces.first()
             && line.source_start < first_piece.source.0
@@ -1254,6 +1267,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 source: Some((line.source_start, first_piece.source.0)),
                 terminator: crate::oracle::LineTerminator::Wrapped,
                 rise: 0,
+                rise_fine: 0,
                 line: line_index,
             }));
         }
@@ -1275,15 +1289,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 x,
                 x_pt,
                 // 抬升是**向上**的，而页内 y 向下增长，所以要减。
-                baseline_y: coarse(baseline_fine - fine(p.rise)),
-                baseline_fine: baseline_fine - fine(p.rise),
+                baseline_y: coarse(baseline_fine - p.rise_fine),
+                baseline_fine: baseline_fine - p.rise_fine,
                 text,
                 font: p.font.clone(),
                 color: p.color,
                 source_node: para.source_node,
                 source: Some(source),
                 terminator,
-                rise: p.rise,
+                rise: (p.rise_fine / FINE_PER_TWIP) as Twips,
+                rise_fine: p.rise_fine,
                 line: line_index,
             }));
         }
@@ -1318,15 +1333,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 page.fragments.push(Fragment::Text(TextFragment {
                     x: base_x + offset + line.width + justify_gap * last as Twips,
                     x_pt: base_x_pt + offset_pt + line.width_pt + justify_gap_pt * last as f64,
-                    baseline_y: coarse(baseline_fine - fine(line.end_rise)),
-                    baseline_fine: baseline_fine - fine(line.end_rise),
+                    baseline_y: coarse(baseline_fine - line.end_rise_fine),
+                    baseline_fine: baseline_fine - line.end_rise_fine,
                     text,
                     font: line.end_font.clone(),
                     color: line.end_color,
                     source_node: para.source_node,
                     source: Some(source),
                     terminator,
-                    rise: line.end_rise,
+                    rise: (line.end_rise_fine / FINE_PER_TWIP) as Twips,
+                    rise_fine: line.end_rise_fine,
                     line: line_index,
                 }));
             }
@@ -1369,7 +1385,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 .max_by_key(|s| s.width())
                 .unwrap_or_else(|| Span::new(area.x, area.right()));
             lines.push(PendingLine {
-                height: h,
                 height_fine: self.line_height_fine(
                     para,
                     m.ascent + m.descent,
@@ -1384,7 +1399,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 trailing_glyphs: para.terminator.expected_glyphs(),
                 end_font: font,
                 end_color: para.runs.first().map_or(Color::BLACK, |r| r.color),
-                end_rise: para.runs.first().map_or(0, |r| r.rise),
+                end_rise_fine: para.runs.first().map_or(0, Run::effective_rise_fine),
                 is_first: true,
                 span,
                 page_break_after: false,
@@ -1489,7 +1504,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             h
                         };
                         lines.push(PendingLine {
-                            height: h,
                             height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
                             baseline: cur_ascent,
                             pieces: std::mem::take(&mut cur),
@@ -1501,7 +1515,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 + if ends_paragraph { para.terminator.expected_glyphs() } else { 0 },
                             end_font: run.font.clone(),
                             end_color: run.color,
-                            end_rise: run.rise,
+                            end_rise_fine: run.effective_rise_fine(),
                             is_first: first_line,
                             span,
                             page_break_after: kind.breaks_page(),
@@ -1535,7 +1549,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         text: rest.to_string(),
                         font: run.font.clone(),
                         color: run.color,
-                        rise: run.rise,
+                        rise_fine: run.effective_rise_fine(),
                         source: (consumed, consumed + n),
                     });
                     consumed += n;
@@ -1573,7 +1587,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             text: piece.to_string(),
                             font: run.font.clone(),
                             color: run.color,
-                            rise: run.rise,
+                            rise_fine: run.effective_rise_fine(),
                             source: (consumed, consumed + n),
                         });
                         consumed += n;
@@ -1605,7 +1619,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 text: rest[..n].to_string(),
                                 font: run.font.clone(),
                                 color: run.color,
-                                rise: run.rise,
+                                rise_fine: run.effective_rise_fine(),
                                 source: (consumed, consumed + u16n),
                             });
                             consumed += u16n;
@@ -1624,7 +1638,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 // 收行。
                 let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
                 lines.push(PendingLine {
-                    height: h,
                     height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
                     baseline: cur_ascent,
                     pieces: std::mem::take(&mut cur),
@@ -1635,7 +1648,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     trailing_glyphs: 0,
                     end_font: run.font.clone(),
                     end_color: run.color,
-                    end_rise: run.rise,
+                    end_rise_fine: run.effective_rise_fine(),
                     is_first: first_line,
                     span,
                     page_break_after: false,
@@ -1669,12 +1682,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 let m = self.metrics.empty_line_metrics(font);
                 cur_ascent = m.ascent;
                 cur_descent = m.descent;
-                cur_natural = m.natural_height();
                 cur_natural_fine = self.metrics.natural_height_fine("", font);
             }
-            let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
             lines.push(PendingLine {
-                height: h,
                 height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
                 baseline: cur_ascent,
                 pieces: cur,
@@ -1685,7 +1695,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 trailing_glyphs: para.terminator.expected_glyphs(),
                 end_font: para.runs.last().expect("nonempty paragraph").font.clone(),
                 end_color: para.runs.last().expect("nonempty paragraph").color,
-                end_rise: para.runs.last().expect("nonempty paragraph").rise,
+                end_rise_fine: para.runs.last().expect("nonempty paragraph").effective_rise_fine(),
                 is_first: first_line,
                 span,
                 page_break_after: false,
@@ -1982,6 +1992,7 @@ fn position_glyphs(
                 advance_x_pt: g.x_advance_pt,
                 advance_y: 0,
                 size_half_points: t.font.size_half_points,
+                size_centipoints: t.font.effective_size_centipoints(),
                 source,
             };
             pen += g.x_advance;

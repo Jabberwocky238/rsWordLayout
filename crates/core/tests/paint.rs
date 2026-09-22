@@ -23,6 +23,7 @@ fn doc() -> Vec<rsword_layout_core::Page> {
             color: Color::BLACK,
             placeholders: Vec::new(),
         rise: 0,
+        rise_fine: None,
         }],
         ..Para::default()
     };

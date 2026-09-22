@@ -95,6 +95,20 @@ fn distinct_sizes_are_distinct_entries() {
 }
 
 #[test]
+fn fractional_sizes_do_not_alias_the_rounded_half_point_cache_entry() {
+    let mut a = GlyphAtlas::new(256, 256);
+    let mut r = Stub { size: 16, calls: 0 };
+    let precise = GlyphKey::from_centipoints("face-a", 7, 792);
+    let rounded = GlyphKey::new("face-a", 7, 16);
+    a.get(&precise, &mut r).unwrap();
+    a.get(&rounded, &mut r).unwrap();
+    a.get(&GlyphKey::from_centipoints("face-a", 7, 800), &mut r).unwrap();
+    a.get(&precise, &mut r).unwrap();
+    assert_eq!(r.calls, 2);
+    assert_eq!(a.len(), 2);
+}
+
+#[test]
 fn blank_glyph_cached_without_area() {
     let mut a = GlyphAtlas::new(64, 64);
     let mut r = Stub { size: 16, calls: 0 };

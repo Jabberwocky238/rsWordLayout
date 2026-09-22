@@ -145,13 +145,13 @@ impl FrameBuilder {
         }
         self.ensure(BatchKind::Glyph, None);
         for pg in positioned {
-            let key = GlyphKey::new(pg.face.clone(), pg.glyph_id, pg.size_half_points);
+            let key = GlyphKey::from_centipoints(pg.face.clone(), pg.glyph_id, pg.size_centipoints);
             let Some(g) = src.glyph(&key) else { continue };
             if g.width <= 0.0 || g.height <= 0.0 {
                 continue;
             }
-            let x = crate::to_px(pg.x, self.dpi);
-            let y = crate::to_px(pg.y, self.dpi);
+            let x = (pg.x_pt * f64::from(self.dpi) / 72.0) as f32;
+            let y = (pg.y_fine as f64 * f64::from(self.dpi) / 7200.0) as f32;
             self.quad(
                 (x + g.left, y - g.top, g.width, g.height),
                 (g.u0, g.v0, g.u1, g.v1),

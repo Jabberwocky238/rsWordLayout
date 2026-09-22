@@ -13,6 +13,7 @@ fn para(text: &str, placeholders: Vec<P>) -> Para {
             color: Color::BLACK,
             placeholders,
             rise: 0,
+            rise_fine: None,
         }],
         ..Para::default()
     }

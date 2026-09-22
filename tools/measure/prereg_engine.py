@@ -31,6 +31,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import prereg_probe as P  # noqa: E402  预测值只此一份，两边共用
 from wordmeasure import docxtext  # noqa: E402
+from wordmeasure.source_text import SourceText  # noqa: E402
+
+
+def _size_pt(glyph: dict) -> float:
+    if "sizeCentipoints" in glyph:
+        return glyph["sizeCentipoints"] / 100.0
+    return glyph["sizeHalfPoints"] / 2.0
 
 
 def _lines(trace: dict, text: str) -> list[dict]:
@@ -40,6 +47,7 @@ def _lines(trace: dict, text: str) -> list[dict]:
     偏移空间与 Word 的一致（见 `tools/measure/README.md`）。
     """
     out = []
+    source = SourceText(text)
     for page in trace["pages"]:
         for ln in page["lines"]:
             glyphs = ln["glyphs"]
@@ -47,12 +55,12 @@ def _lines(trace: dict, text: str) -> list[dict]:
                 continue
             out.append({
                 "page": page["index"],
-                "text": text[ln["sourceStart"]:ln["sourceEnd"]].strip("\r\x0b\x0c"),
+                "text": source.slice(ln["sourceStart"], ln["sourceEnd"]).strip("\r\x0b\x0c"),
                 "baseline": glyphs[0]["origin"][1],
-                "sizePt": glyphs[0]["sizeHalfPoints"] / 2.0,
-                # 判据按 `sizePt` 取值，轨迹给的是半点——在这里换算，
+                "sizePt": _size_pt(glyphs[0]),
+                # 新轨迹优先读精确字号，旧轨迹仍可读半点近似。
                 # 好让 prereg_probe 的判据函数一个字都不用改。
-                "glyphs": [{**g, "sizePt": g["sizeHalfPoints"] / 2.0} for g in glyphs],
+                "glyphs": [{**g, "sizePt": _size_pt(g)} for g in glyphs],
             })
     return out
 

@@ -12,9 +12,9 @@
 //! - 空格：0.25 em
 //! - ascent 0.8 em、descent 0.2 em、line gap 0.15 em
 
-use crate::layout::{Twips, half_points_to_twips};
 use super::linebreak::is_cjk;
 use super::{BreakOpportunity, FontMetrics, FontSpec, TextMetrics};
+use crate::layout::Twips;
 
 pub struct SimpleMetrics;
 
@@ -30,22 +30,27 @@ impl SimpleMetrics {
             500
         }
     }
+
+    fn advance_units(text: &str, font: &FontSpec) -> (i64, i64) {
+        let mut permille = 0;
+        let mut count = 0;
+        for ch in text.chars() {
+            permille += Self::advance_permille(ch);
+            count += 1;
+        }
+        if font.bold {
+            permille = permille * 1030 / 1000;
+        }
+        (permille, count)
+    }
 }
 
 impl FontMetrics for SimpleMetrics {
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
-        let em = i64::from(half_points_to_twips(font.size_half_points));
-        let mut permille: i64 = 0;
-        let mut count: i64 = 0;
-        for c in text.chars() {
-            permille += Self::advance_permille(c);
-            count += 1;
-        }
-        // 粗体略宽；这是桩实现的近似，真实度量由字体给。
-        if font.bold {
-            permille = permille * 1030 / 1000;
-        }
-        let mut advance = (em * permille / 1000) as Twips;
+        let em = i128::from(font.effective_size_centipoints());
+        let (permille, count) = Self::advance_units(text, font);
+        // Five centipoints per twip; retain fractions until each legacy output.
+        let mut advance = (em * i128::from(permille) / 5000) as Twips;
         // 横向缩放与字距。
         if font.scale_pct != 100 && font.scale_pct > 0 {
             advance = ((i64::from(advance) * i64::from(font.scale_pct)) / 100) as Twips;
@@ -54,10 +59,25 @@ impl FontMetrics for SimpleMetrics {
 
         TextMetrics {
             advance,
-            ascent: (em * 800 / 1000) as Twips,
-            descent: (em * 200 / 1000) as Twips,
-            line_gap: (em * 150 / 1000) as Twips,
+            ascent: (em * 800 / 5000) as Twips,
+            descent: (em * 200 / 5000) as Twips,
+            line_gap: (em * 150 / 5000) as Twips,
         }
+    }
+
+    fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
+        let (permille, count) = Self::advance_units(text, font);
+        let mut advance = font.size_pt() * permille as f64 / 1000.0;
+        if font.scale_pct != 100 && font.scale_pct > 0 {
+            advance *= f64::from(font.scale_pct) / 100.0;
+        }
+        advance + count as f64 * f64::from(font.letter_spacing) / 20.0
+    }
+
+    fn natural_height_fine(&self, _text: &str, font: &FontSpec) -> i64 {
+        // A fine unit is 1/100 point; round the whole height only once.
+        let height = (u128::from(font.effective_size_centipoints()) * 115 + 50) / 100;
+        height.min(i64::MAX as u128) as i64
     }
 
     fn break_opportunities(&self, text: &str) -> Vec<BreakOpportunity> {

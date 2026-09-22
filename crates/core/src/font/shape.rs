@@ -88,6 +88,22 @@ impl RustybuzzShaper {
         size_half_points: u32,
         kerning: bool,
     ) -> Vec<ShapedRun> {
+        self.shape_with_face_centipoints(
+            face_index,
+            text,
+            u64::from(size_half_points) * 50,
+            kerning,
+        )
+    }
+
+    /// Shape with an exact size in hundredths of a point.
+    pub fn shape_with_face_centipoints(
+        &self,
+        face_index: usize,
+        text: &str,
+        size_centipoints: u64,
+        kerning: bool,
+    ) -> Vec<ShapedRun> {
         let Some((_, bytes, index)) = self.faces.get(face_index) else {
             return Vec::new();
         };
@@ -144,7 +160,7 @@ impl RustybuzzShaper {
         if upem <= 0.0 {
             return Vec::new();
         }
-        let pt_size = f64::from(size_half_points) / 2.0;
+        let pt_size = size_centipoints as f64 / 100.0;
         let exact = |v: i32| -> f64 { f64::from(v) * pt_size / upem * f64::from(TWIPS_PER_POINT) };
 
         let infos = out.glyph_infos();
@@ -204,7 +220,12 @@ impl TextShaper for RustybuzzShaper {
             .copied()
             .or(self.default_face);
         match face {
-            Some(i) => self.shape_with_face(i, text, font.size_half_points, font.kerning),
+            Some(i) => self.shape_with_face_centipoints(
+                i,
+                text,
+                font.effective_size_centipoints(),
+                font.kerning,
+            ),
             None => Vec::new(),
         }
     }

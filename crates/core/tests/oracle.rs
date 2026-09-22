@@ -17,7 +17,8 @@ fn record() -> LayoutRecord {
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
             placeholders: Vec::new(),
-        rise: 0,
+            rise: 0,
+            rise_fine: None,
         }],
         align: Align::Left,
         ..Para::default()
@@ -98,7 +99,8 @@ fn source_ranges_cover_the_line_in_reading_order() {
             font: FontSpec::new("Test", 24),
             color: Color::BLACK,
             placeholders: Vec::new(),
-        rise: 0,
+            rise: 0,
+            rise_fine: None,
         }],
         ..Para::default()
     };
@@ -136,6 +138,7 @@ fn distance_is_euclidean() {
         face: "f".into(),
         glyph_id: 1,
         size_half_points: 24,
+        size_centipoints: 1200,
         source: None,
     };
     let b = GlyphRecord { origin_x: 30, origin_y: 40, origin_x_pt: 1.5, ..a.clone() };

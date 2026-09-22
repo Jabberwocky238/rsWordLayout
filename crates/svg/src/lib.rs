@@ -246,7 +246,7 @@ impl VectorCanvas for SvgCanvas {
                     ),
                 }
             }
-            DrawCmd::DrawGlyphs { origin_x, origin_y, text, font, paint, .. } => {
+            DrawCmd::DrawGlyphs { origin_x_pt, origin_y_fine, text, font, paint, .. } => {
                 if text.is_empty() {
                     return Ok(());
                 }
@@ -254,11 +254,11 @@ impl VectorCanvas for SvgCanvas {
                 // 体积也小得多。字形序列在这里用不上。
                 write!(
                     self.cur,
-                    "<text x=\"{:.2}\" y=\"{:.2}\" font-family=\"{}\" font-size=\"{:.2}\"",
-                    u(*origin_x),
-                    u(*origin_y),
+                    "<text x=\"{:.6}\" y=\"{:.2}\" font-family=\"{}\" font-size=\"{:.2}\"",
+                    origin_x_pt,
+                    *origin_y_fine as f64 / 100.0,
                     esc(&font.family),
-                    f64::from(font.size_half_points) / 2.0
+                    font.size_pt()
                 )?;
                 if font.bold {
                     self.cur.push_str(" font-weight=\"bold\"");

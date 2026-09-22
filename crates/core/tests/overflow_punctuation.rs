@@ -260,6 +260,7 @@ fn paragraph_wrapping_does_not_add_an_extra_complexity_factor() {
             color: Color::BLACK,
             placeholders: vec![],
             rise: 0,
+            rise_fine: None,
         };
         let setup = PageSetup {
             size: Size::new(400, 100000),

@@ -8,6 +8,9 @@
       case.docx            夹具原件（按字节拷进来，采前采后核 sha256）
       case.pdf             Word 导出的 PDF
       sweep.json           行号扫描：逐字符位置的 (页, 行) 与段落区间
+      sweep-first.raw.txt   首次扫描的原始 AppleScript 回执
+      sweep-repeat.raw.txt  紧接复扫的原始回执（不覆盖首次扫描）
+      sweep-repeat.json    复扫读数与验证结果；META.sweepStability 记录比较
       glyphs.json          PDF 逐字形几何
 
 Mac 通道的边界（§6.6）：**没有行盒**。所以本采集包里没有 `lines[].box`，
@@ -25,8 +28,8 @@ import shutil
 import time
 from pathlib import Path
 
-from . import docxtext, fingerprint, pdfglyphs, preflight
-from .applescript import literal, tell_word
+from . import OK, UNDECIDABLE, docxtext, fingerprint, pdfglyphs, preflight, sweep_stability
+from .applescript import AppleScriptError, literal, tell_word
 
 # §2.2：导出参数向量逐位显式。Mac 没有 XPS，只有 save as + format PDF（§6.6）。
 EXPORT_VECTOR = {
@@ -270,18 +273,45 @@ def capture(
         export_pdf(doc_expr, pdf_path)
         timings["exportSeconds"] = time.monotonic() - started
 
-        started = time.monotonic()
-        raw = tell_word(_sweep_script(doc_expr), timeout=1800.0)
-        timings["sweepSeconds"] = time.monotonic() - started
+        scans = []
+        for scan_label, timing in (("first", "sweepSeconds"), ("repeat", "repeatSweepSeconds")):
+            started = time.monotonic()
+            read_error = None
+            if scans and scans[-1].get("readError"):
+                raw = ""
+                read_error = "NOT_RUN_AFTER_FIRST_SWEEP_ERROR"
+            else:
+                try:
+                    raw = tell_word(_sweep_script(doc_expr), timeout=1800.0)
+                except AppleScriptError as exc:
+                    raw = exc.stdout
+                    read_error = str(exc)
+            timings[timing] = time.monotonic() - started
+            receipt_path = bundle / ("sweep-%s.raw.txt" % scan_label)
+            receipt_bytes = raw.encode("utf-8")
+            receipt_path.write_bytes(receipt_bytes)
+            scan = sweep_stability.parse_receipt(raw)
+            scan["rawReceipt"] = {"file": receipt_path.name,
+                                  "sha256": fingerprint.sha256_bytes(receipt_bytes),
+                                  "bytes": len(receipt_bytes),
+                                  "encoding": "UTF-8 of unchanged AppleScript stdout"}
+            if read_error:
+                scan["readError"] = read_error
+            scans.append(scan)
     finally:
         try:
             close_document(doc_expr)
         except Exception:
             pass  # 关不掉不改采集结果；留给下游从进程状态判断。
 
-    head, _, body = raw.partition("\n---\n")
-    end_of_content = int(head.strip())
-    sweep_rows = _decode_rows(body)
+    first_scan, repeat_scan = scans
+    stability = sweep_stability.verify(first_scan, repeat_scan, content)
+    end_of_content = first_scan["endOfContent"]
+    (bundle / "sweep-repeat.json").write_text(json.dumps({
+        "schema": "rsword-layout-line-sweep-repeat/1", "platform": "mac",
+        **repeat_scan, "validation": stability["scans"]["repeat"],
+        "sourceTextReference": "sweep.json:contentText (read once before PDF export)",
+    }, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
 
     # 从 `document.xml` 推出逐字符的构造标注，**并用采集侧的独立读数核过**（§6.4）。
     #
@@ -295,7 +325,9 @@ def capture(
         derived, end_of_content=end_of_content,
         paragraphs=[{"index": i, "start": s0, "end": e0}
                     for i, (s0, e0) in enumerate(paragraphs)],
-    )
+    ) if end_of_content is not None else {
+        "state": UNDECIDABLE, "reasons": ["SWEEP_END_OF_CONTENT_UNAVAILABLE"],
+    }
     marks = ({str(k): v for k, v in derived["marks"].items()}
              if marks_check["state"] == "OK" else None)
 
@@ -313,7 +345,9 @@ def capture(
         "endOfContent": end_of_content,
         "contentText": content,
         "paragraphs": [{"index": i, "start": s, "end": e} for i, (s, e) in enumerate(paragraphs)],
-        "positions": [{"offset": o, "line": ln, "page": pg} for o, ln, pg in sweep_rows],
+        "positions": first_scan["positions"],
+        "rawReceipt": first_scan["rawReceipt"],
+        "validation": stability["scans"]["first"],
     }
     (bundle / "sweep.json").write_text(
         json.dumps(sweep, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
@@ -360,7 +394,12 @@ def capture(
         "glyphTotal": sum(pdfglyphs.glyph_counts(glyphs)),
         "timings": timings,
         "wordDocumentName": name,
+        "sweepStability": stability,
     }
+    if stability["state"] != OK:
+        meta["usability"] = UNDECIDABLE
+        meta["usabilityReason"] = ["SWEEP_STABILITY_UNVERIFIED: " + reason
+                                   for reason in stability["reasons"]]
     (bundle / "META.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     )

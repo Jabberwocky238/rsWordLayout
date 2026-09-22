@@ -197,10 +197,12 @@ impl FontRegistry {
         let mut run_start = 0;
         let append = |out: &mut Vec<ShapedRun>, face: &Option<String>, run: &str, start: u32| {
             if let Some(i) = face.as_ref().and_then(|f| self.index_of.get(f)) {
-                for mut shaped in
-                    self.shaper
-                        .shape_with_face(*i, run, font.size_half_points, font.kerning)
-                {
+                for mut shaped in self.shaper.shape_with_face_centipoints(
+                    *i,
+                    run,
+                    font.effective_size_centipoints(),
+                    font.kerning,
+                ) {
                     if let Some((source_start, source_end)) = shaped.source.as_mut() {
                         *source_start += start;
                         *source_end += start;

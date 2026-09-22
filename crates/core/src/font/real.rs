@@ -22,7 +22,7 @@ use skrifa::{FontRef, MetadataProvider};
 
 use super::registry::FontRegistry;
 use super::spec::{BreakOpportunity, FINE_PER_TWIP, FontMetrics, FontSpec, TextMetrics};
-use crate::layout::{Twips, half_points_to_twips};
+use crate::layout::Twips;
 
 /// 纵向量化栅格。
 ///
@@ -87,7 +87,11 @@ pub struct RealMetrics<'r> {
 
 impl<'r> RealMetrics<'r> {
     pub fn new(registry: &'r FontRegistry) -> RealMetrics<'r> {
-        RealMetrics { registry, grid: VerticalGrid::None, vertical: RefCell::new(BTreeMap::new()) }
+        RealMetrics {
+            registry,
+            grid: VerticalGrid::None,
+            vertical: RefCell::new(BTreeMap::new()),
+        }
     }
 
     /// 开启纵向量化。**先读 [`VerticalGrid`] 的限定**：其中两条是回测，不是已验证的规则。
@@ -121,13 +125,15 @@ impl<'r> RealMetrics<'r> {
                 line_gap: f64::from(m.leading),
             })
         })();
-        self.vertical.borrow_mut().insert(face.to_string(), computed);
+        self.vertical
+            .borrow_mut()
+            .insert(face.to_string(), computed);
         computed
     }
 
     /// 本次请求用到的各 face 的纵向量取最大，单位 twips，**未取整**。
     fn vertical_raw(&self, text: &str, font: &FontSpec) -> Option<(f64, f64, f64)> {
-        let em = f64::from(half_points_to_twips(font.size_half_points));
+        let em = font.size_pt() * 20.0;
         let (mut ascent, mut descent, mut line_gap) = (0.0f64, 0.0f64, 0.0f64);
         let mut found = false;
 
@@ -135,12 +141,16 @@ impl<'r> RealMetrics<'r> {
         let probe = if text.is_empty() { "x" } else { text };
         let mut seen: Vec<String> = Vec::new();
         for ch in probe.chars() {
-            let Some(face) = self.registry.select_face_for(font, ch) else { continue };
+            let Some(face) = self.registry.select_face_for(font, ch) else {
+                continue;
+            };
             if seen.contains(&face) {
                 continue;
             }
             seen.push(face.clone());
-            let Some(v) = self.face_vertical(&face) else { continue };
+            let Some(v) = self.face_vertical(&face) else {
+                continue;
+            };
             found = true;
             ascent = ascent.max(v.ascent / v.upem * em);
             descent = descent.max(v.descent / v.upem * em);
@@ -168,7 +178,9 @@ impl<'r> RealMetrics<'r> {
     /// 这里原来把步长量化到 **0.24pt**，比上表最粗的那一档还粗。
     /// 量化该做的地方是 [`FontMetrics::quantize_baseline_fine`]——落位时做一次。
     fn natural_raw(&self, text: &str, font: &FontSpec) -> f64 {
-        let Some((a, d, g)) = self.vertical_raw(text, font) else { return 0.0 };
+        let Some((a, d, g)) = self.vertical_raw(text, font) else {
+            return 0.0;
+        };
         a + d + g
     }
 
@@ -253,7 +265,9 @@ impl FontMetrics for RealMetrics<'_> {
     fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {
         // 栅格步距换算到 1/7200 英寸：0.24pt = 4.8 twips = **24 个单位**，是整数，
         // 所以这里的量化是精确的整数运算，不像落到 twips 那样必然有残差。
-        let Some(step_twips) = self.grid.step() else { return y_fine };
+        let Some(step_twips) = self.grid.step() else {
+            return y_fine;
+        };
         let step = (step_twips * FINE_PER_TWIP as f64).round() as i64;
         if step <= 0 {
             return y_fine;

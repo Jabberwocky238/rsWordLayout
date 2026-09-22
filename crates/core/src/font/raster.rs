@@ -69,13 +69,29 @@ pub struct GlyphKey {
     pub face: String,
     /// 字体内的字形编号。
     pub glyph_id: u32,
-    /// 字号，半点。同一字形不同字号要分别栅格化。
-    pub size_half_points: u32,
+    /// Canonical size in hundredths of a point (or pixel after DPI scaling).
+    pub size_centipoints: u64,
 }
 
 impl GlyphKey {
     pub fn new(face: impl Into<String>, glyph_id: u32, size_half_points: u32) -> GlyphKey {
-        GlyphKey { face: face.into(), glyph_id, size_half_points }
+        Self::from_centipoints(face, glyph_id, u64::from(size_half_points) * 50)
+    }
+
+    pub fn from_centipoints(
+        face: impl Into<String>,
+        glyph_id: u32,
+        size_centipoints: u64,
+    ) -> GlyphKey {
+        GlyphKey {
+            face: face.into(),
+            glyph_id,
+            size_centipoints,
+        }
+    }
+
+    pub fn size_pt(&self) -> f64 {
+        self.size_centipoints as f64 / 100.0
     }
 }
 
@@ -127,10 +143,11 @@ pub trait Rasterizer {
 use std::collections::HashMap;
 
 use skrifa::instance::{LocationRef, Size};
-use skrifa::outline::{DrawSettings, HintingInstance, HintingOptions, OutlinePen, SmoothMode, Target};
+use skrifa::outline::{
+    DrawSettings, HintingInstance, HintingOptions, OutlinePen, SmoothMode, Target,
+};
 use skrifa::{FontRef, MetadataProvider};
 use zeno::{Format, Mask, PathBuilder};
-
 
 /// 把 skrifa 的画笔命令转成 zeno 的路径。
 ///
@@ -179,7 +196,7 @@ pub struct SkrifaRasterizer {
     ///
     /// `HintingInstance::new` 要解释字体的提示字节码，每个字形重建一次会让
     /// 栅格化慢一个量级，所以必须缓存。
-    hinters: HashMap<(String, u32, HintingMode), HintingInstance>,
+    hinters: HashMap<(String, u64, HintingMode), HintingInstance>,
     hinting: HintingMode,
     format: RasterFormat,
     /// 伽马查表：下标是线性覆盖率，值是感知空间的结果。
@@ -279,9 +296,9 @@ impl Rasterizer for SkrifaRasterizer {
         let data = self.faces.get(&key.face)?;
         let font = FontRef::from_index(&data.bytes, data.index).ok()?;
 
-        // 半点 → 像素。DPI 缩放由调用方折进 key 的字号，这样同一字号不同 DPI
+        // 百分之一点 → 像素。DPI 缩放由调用方折进 key 的字号，这样同一字号不同 DPI
         // 各自缓存，不会互相污染。
-        let px = key.size_half_points as f32 / 2.0;
+        let px = key.size_pt() as f32;
         let size = Size::new(px);
         let outlines = font.outline_glyphs();
         let glyph = outlines.get(skrifa::GlyphId::new(key.glyph_id))?;
@@ -296,7 +313,7 @@ impl Rasterizer for SkrifaRasterizer {
         let hinted = match self.hinting {
             HintingMode::None => false,
             mode => {
-                let cache_key = (key.face.clone(), key.size_half_points, mode);
+                let cache_key = (key.face.clone(), key.size_centipoints, mode);
                 if !self.hinters.contains_key(&cache_key) {
                     let target = match mode {
                         HintingMode::Mono => Target::Mono,
@@ -308,8 +325,12 @@ impl Rasterizer for SkrifaRasterizer {
                         // 上面已排除。
                         HintingMode::None => Target::Mono,
                     };
-                    let opts = HintingOptions { engine: Default::default(), target };
-                    if let Ok(h) = HintingInstance::new(&outlines, size, LocationRef::default(), opts)
+                    let opts = HintingOptions {
+                        engine: Default::default(),
+                        target,
+                    };
+                    if let Ok(h) =
+                        HintingInstance::new(&outlines, size, LocationRef::default(), opts)
                     {
                         self.hinters.insert(cache_key.clone(), h);
                     }
@@ -324,7 +345,10 @@ impl Rasterizer for SkrifaRasterizer {
         };
         if !hinted {
             glyph
-                .draw(DrawSettings::unhinted(size, LocationRef::default()), &mut pen)
+                .draw(
+                    DrawSettings::unhinted(size, LocationRef::default()),
+                    &mut pen,
+                )
                 .ok()?;
         }
 
@@ -336,7 +360,13 @@ impl Rasterizer for SkrifaRasterizer {
         // 空白字形（空格等）：没有轮廓，仍要返回以便缓存，避免反复栅格化。
         if pen.path.is_empty() {
             return Some(RasterGlyph {
-                metrics: GlyphMetrics { width: 0, height: 0, left: 0.0, top: 0.0, advance },
+                metrics: GlyphMetrics {
+                    width: 0,
+                    height: 0,
+                    left: 0.0,
+                    top: 0.0,
+                    advance,
+                },
                 coverage: Vec::new(),
                 format: self.format,
             });

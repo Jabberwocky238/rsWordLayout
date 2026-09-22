@@ -10,8 +10,8 @@ use serde_json::Value;
 
 use crate::layout::Color;
 use crate::layout::{Align, LineRule, OBJECT_PLACEHOLDER, Para, PlaceholderKind, Run};
-use crate::layout::{Twips, half_points_to_twips};
-use crate::font::{FontHint, FontSlots, FontSpec};
+use crate::layout::Twips;
+use crate::font::{FINE_PER_TWIP, FontHint, FontSlots, FontSpec};
 
 /// 文档默认正文字体与字号（对应 fixture 的 `docDefaults`）。
 const BODY_FAMILY: &str = "Times New Roman, SimSun, serif";
@@ -31,7 +31,7 @@ fn as_bool(v: &Value) -> bool {
     v.as_bool().unwrap_or(false)
 }
 
-/// `w:vertAlign` 与 `w:position` → (有效字号半点, 基线抬升 twips)。
+/// `w:vertAlign` 与 `w:position` → (有效字号 0.01pt, 基线抬升 1/7200 英寸)。
 ///
 /// 两者是**不同的机制**，不要合并：
 ///
@@ -39,42 +39,31 @@ fn as_bool(v: &Value) -> bool {
 /// - `w:position`（半点，可负）**只挪基线，不改字号**——实测 `w:position=8`
 ///   的那段仍是 12pt，只是抬高了。
 ///
-/// 抬升量落在实测的 1/300 英寸纵向栅格上（`w:position=8` 即 4.00pt，
-/// 实测抬升 4.08pt = 17 × 0.24pt）。这里不做量化——量化属于度量层，
-/// 本仓库尚未实现（见 docs 的 G-5）。
-fn vertical_run_shape(props: &Value, base_size: u32) -> (u32, Twips) {
-    let em = i64::from(half_points_to_twips(base_size));
+/// 本层不额外量化抬升量，保留布局层先量化行基线、再扣抬升的次序。
+/// `w:position=8` 的名义值 4.00pt 与单份采集的 4.08pt 仍有差别。
+fn vertical_run_shape(props: &Value, base_size: u32) -> (u64, i64) {
+    let em_fine = i64::from(base_size) * 50;
     match props.get("vertAlign").and_then(Value::as_str) {
         Some("superscript") => (
             scaled_size(base_size),
-            (em * SUPERSCRIPT_RISE_PERMILLE / 1000) as Twips,
+            em_fine * SUPERSCRIPT_RISE_PERMILLE / 1000,
         ),
         Some("subscript") => (
             scaled_size(base_size),
-            -((em * SUBSCRIPT_DROP_PERMILLE / 1000) as Twips),
+            -(em_fine * SUBSCRIPT_DROP_PERMILLE / 1000),
         ),
-        // `w:position` 与上下标互斥时以上下标为准（Word 的行为，实测未覆盖，
-        // 此处按 OOXML 的属性独立性取「没有 vertAlign 才看 position」）。
+        // 同时指定时保持上下标优先；此组合尚未实测。
         _ => {
             // `w:position` 的单位是**半点**，正值向上。
             let half_points = props.get("position").and_then(Value::as_i64).unwrap_or(0);
-            (base_size, half_points_to_twips_signed(half_points))
+            (u64::from(base_size) * 50, half_points.saturating_mul(50))
         }
     }
 }
 
-/// 上下标的字号，取**最近的**整数半点。
-///
-/// 截断会差得多：12pt 的 0.66 是 15.84 半点，截断给 15（7.5pt，差 −0.42pt），
-/// 四舍五入给 16（8pt，差 +0.08pt）。
-fn scaled_size(base_size: u32) -> u32 {
-    // 四舍五入，不是向上取整：向上取整在 15.2 这类值上会给 16，偏得更远。
-    ((base_size * SUPERSUB_SIZE_NUM + SUPERSUB_SIZE_DEN / 2) / SUPERSUB_SIZE_DEN).max(1)
-}
-
-/// 半点 → twips，带符号（`half_points_to_twips` 只收无符号）。
-fn half_points_to_twips_signed(half_points: i64) -> Twips {
-    (half_points * 10) as Twips
+/// 整数半点输入乘以 0.66 后，能用整数 0.01pt 精确表示。
+fn scaled_size(base_size: u32) -> u64 {
+    u64::from(base_size) * 50 * SUPERSUB_SIZE_NUM / SUPERSUB_SIZE_DEN
 }
 
 /// run 自己的 `w:sz`，没有就落回段落基准。
@@ -95,7 +84,7 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
     let size = run_size(props, base_size);
     // 上下标要缩小字号——这一步必须在这里做，因为字号影响度量，
     // 而抬升不影响（抬升挂在 `Run::rise` 上）。
-    let (size, _) = vertical_run_shape(props, size);
+    let (size_centipoints, _) = vertical_run_shape(props, size);
     let bold = props.get("bold").map(as_bool).unwrap_or(base_bold);
     let italic = props.get("italic").map(as_bool).unwrap_or(false);
     let slots = read_slots(props.get("fonts"));
@@ -108,18 +97,19 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
 
     // `w:kern` 是**启用字距调整的最小字号**（半点），不是开关。
     // 不写或写 0 即不调整——这是 OOXML 的语义，也与实测的 Word 行为一致。
-    let kern_threshold = props.get("kern").and_then(Value::as_u64).unwrap_or(0) as u32;
+    let kern_threshold = props.get("kern").and_then(Value::as_u64).unwrap_or(0);
 
     FontSpec {
         slots,
         family,
         size_half_points: size,
+        size_centipoints: None,
         bold,
         italic,
         letter_spacing: 0,
         scale_pct: 100,
-        kerning: kern_threshold > 0 && size >= kern_threshold,
-    }
+        kerning: kern_threshold > 0 && size_centipoints >= kern_threshold.saturating_mul(50),
+    }.with_size_centipoints(size_centipoints)
 }
 
 /// 读 `w:rFonts` 的四个槽与 `w:hint`。
@@ -150,7 +140,7 @@ fn read_slots(fonts: Option<&Value>) -> FontSlots {
 
 /// 上下标的字号比例与基线偏移。
 ///
-/// **这些是 Word 自己的常数，不是字体给的。** 实测把两者分开了
+/// **本轮沿用单份采集的经验比例，不使用字体 OS/2 比例。** 实测把两者分开了
 /// （Liberation Serif 12pt，Word for Mac）：
 ///
 /// | | 字体 OS/2 说 | Word 实际用 |
@@ -166,12 +156,10 @@ fn read_slots(fonts: Option<&Value>) -> FontSlots {
 /// 这一读法；但要证实或推翻，需要一份**专门变字号与字体**的夹具。
 /// 按量具方法 §7.5 标「回测」，**不当独立检验**。
 ///
-/// **还有一条单位上的天花板**：12pt 的 0.66 是 **7.92pt = 15.84 半点**，
-/// 而 `FontSpec::size_half_points` 是整数半点，**表达不了**。这里取最近的整数半点
-/// （16 半点 = 8pt，差 +0.08pt）。要真正对上，字号得能表示到半点以下。
-/// 与 `Twips` 对不上纵向栅格是同一类问题（见 docs 的 G-8）。
-const SUPERSUB_SIZE_NUM: u32 = 66;
-const SUPERSUB_SIZE_DEN: u32 = 100;
+/// 用 0.01pt 保留 12pt × 0.66 = 7.92pt；旧半点字段仅保留最近近似值。
+/// 这消除表示误差，并未验证上述比例对其他字体或字号成立。
+const SUPERSUB_SIZE_NUM: u64 = 66;
+const SUPERSUB_SIZE_DEN: u64 = 100;
 /// 上标抬升，em 的千分比。
 const SUPERSCRIPT_RISE_PERMILLE: i64 = 340;
 /// 下标下沉，em 的千分比。
@@ -230,13 +218,15 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
                     && !t.is_empty()
                 {
                     let props = inlines.get("props").cloned().unwrap_or(Value::Null);
+                    // 与 `run_font` 取同一个字号——见 `run_size` 的说明。
+                    let rise_fine = vertical_run_shape(&props, run_size(&props, base_size)).1;
                     out.push(Run {
                         text: t.to_string(),
                         font: run_font(&props, base_size, base_bold),
                         color: Color::BLACK,
                         placeholders: run_placeholders(inlines, t),
-                        // 与 `run_font` 取同一个字号——见 `run_size` 的说明。
-                        rise: vertical_run_shape(&props, run_size(&props, base_size)).1,
+                        rise: (rise_fine / FINE_PER_TWIP) as Twips,
+                        rise_fine: Some(rise_fine),
                     });
                 }
             } else if kind == "field" {
@@ -402,6 +392,7 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
                 color: Color::BLACK,
                 placeholders: Vec::new(),
                 rise: 0,
+                rise_fine: None,
             });
         }
 

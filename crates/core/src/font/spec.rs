@@ -26,8 +26,12 @@ pub struct FontSpec {
     /// 去查对应的槽。所以「宋体 + Calibri」的中英混排是一个 run 就能表达的。
     /// 见 ECMA-376 §17.3.2.26。
     pub slots: FontSlots,
-    /// 字号，半点（`w:sz`）。
+    /// 字号，半点（`w:sz`）。精确覆盖存在时，此值只供旧调用方读取近似字号。
     pub size_half_points: u32,
+    /// Exact size in hundredths of a point, overriding `size_half_points`.
+    /// `None` keeps the legacy half-point size authoritative.
+    /// Clear this override before changing only the legacy size.
+    pub size_centipoints: Option<u64>,
     pub bold: bool,
     pub italic: bool,
     /// `w:spacing`：字符间距调整，twips，可负。
@@ -177,6 +181,23 @@ impl FontSlots {
 }
 
 impl FontSpec {
+    pub fn effective_size_centipoints(&self) -> u64 {
+        self.size_centipoints
+            .unwrap_or_else(|| u64::from(self.size_half_points) * 50)
+    }
+
+    pub fn size_pt(&self) -> f64 {
+        self.effective_size_centipoints() as f64 / 100.0
+    }
+
+    /// Set an exact size and retain the nearest half point for legacy readers.
+    pub fn with_size_centipoints(mut self, size_centipoints: u64) -> Self {
+        let half_points = size_centipoints / 50 + u64::from(size_centipoints % 50 >= 25);
+        self.size_half_points = half_points.min(u64::from(u32::MAX)) as u32;
+        self.size_centipoints = Some(size_centipoints);
+        self
+    }
+
     /// 按 Word 的规则为一个字符选字体名。
     ///
     /// 槽里没写就退到 `family`——那是 `ascii` 槽的值，也是最接近「文档默认」的东西。
@@ -191,9 +212,13 @@ impl FontSpec {
     pub fn new(family: impl Into<String>, size_half_points: u32) -> FontSpec {
         let family = family.into();
         FontSpec {
-            slots: FontSlots { ascii: Some(family.clone()), ..FontSlots::default() },
+            slots: FontSlots {
+                ascii: Some(family.clone()),
+                ..FontSlots::default()
+            },
             family,
             size_half_points,
+            size_centipoints: None,
             bold: false,
             italic: false,
             letter_spacing: 0,
@@ -294,7 +319,11 @@ pub trait FontMetrics {
         enabled: bool,
     ) -> Option<(usize, TextMetrics)> {
         self.fit_with_overflow_punctuation_context(
-            text, font, max_width, enabled, OverflowPunctuationContext::default(),
+            text,
+            font,
+            max_width,
+            enabled,
+            OverflowPunctuationContext::default(),
         )
     }
 
@@ -353,7 +382,7 @@ pub trait FontMetrics {
     /// 行内累积到 0.04pt（`docs/MEASUREMENT-BACKLOG.md` 的 H2）。
     ///
     /// 默认实现由 `measure` 的 twips 值换算，**不提供额外精度**——
-    /// 对不做取整的实现（如 [`crate::SimpleMetrics`]）这就是精确值。
+    /// 实现可覆盖此方法，在整 twips 出口之外保留精确推进量。
     fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
         f64::from(self.measure(text, font).advance) / 20.0
     }
@@ -365,7 +394,7 @@ pub trait FontMetrics {
     /// 取整成 274，每行多 0.4 twip）。游标按取整值累加，一页 40 行就攒到 0.8pt。
     ///
     /// 默认实现由 `measure` 的 twips 值换算，**不提供额外精度**——
-    /// 对不做量化的实现（如 [`crate::SimpleMetrics`]）这就是精确值。
+    /// 实现可覆盖此方法，在整 twips 出口之外保留精确行高。
     /// **做量化的实现应当覆盖它**，并且不要在里面做整形：行高只取决于字体的纵向量，
     /// 覆盖版应当比 `measure` 便宜。
     fn natural_height_fine(&self, text: &str, font: &FontSpec) -> i64 {
