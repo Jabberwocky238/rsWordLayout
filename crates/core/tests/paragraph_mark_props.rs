@@ -319,7 +319,11 @@ fn recovered_hidden_paragraph_marks_use_original_resolver_and_current_nodes() {
             _ => None,
         })
         .unwrap();
-    assert_eq!(b.source.unwrap(), (4, 6));
+    assert_eq!(b.source.unwrap(), (4, 5));
+    let records = LayoutRecord::from_paint(&paint_document(&pages, None, &[]));
+    let last = records.pages.last().unwrap().lines.last().unwrap();
+    let source = last.source.unwrap();
+    assert_eq!((source.start, source.end), (4, 6));
 }
 
 #[test]
@@ -344,7 +348,7 @@ fn sibling_rpr_repair_keeps_each_paragraph_mark_on_its_rebuilt_node() {
 }
 
 #[test]
-fn retained_nonempty_marks_do_not_change_layout_painting_or_source_ranges() {
+fn independent_marks_preserve_body_placement_pagination_and_source_ranges() {
     let blocks: Vec<_> = (0..5)
         .map(|index| text_block(index + 10, "A", None))
         .collect();
@@ -371,6 +375,17 @@ fn retained_nonempty_marks_do_not_change_layout_painting_or_source_ranges() {
         assert_eq!(before.len(), 3);
         let expected_paint = paint_document(&before, None, &[]);
         let records = LayoutRecord::from_paint(&expected_paint);
+        let body_positions = |pages: &[rsword_layout_core::Page]| {
+            pages.iter().enumerate().flat_map(|(page, p)| {
+                p.fragments.iter().filter_map(move |fragment| match fragment {
+                    Fragment::Text(t) if t.text.starts_with('A') => Some((
+                        page, t.line, t.x, t.x_pt, t.baseline_fine,
+                        t.font.clone(), t.color, t.source.map(|s| s.0),
+                    )),
+                    _ => None,
+                })
+            }).collect::<Vec<_>>()
+        };
         let mut cursor = 0;
         for line in records.pages.iter().flat_map(|page| &page.lines) {
             let source = line.source.unwrap();
@@ -389,7 +404,12 @@ fn retained_nonempty_marks_do_not_change_layout_painting_or_source_ranges() {
             }
             let after = engine.layout_document(&changed);
             assert_eq!(after.len(), before.len());
-            assert_eq!(paint_document(&after, None, &[]), expected_paint);
+            let paint = paint_document(&after, None, &[]);
+            assert_eq!(LayoutRecord::from_paint(&paint), records);
+            assert_eq!(body_positions(&after), body_positions(&before));
+            if raw.get("size").is_none() {
+                assert_eq!(paint, expected_paint);
+            }
         }
     }
 }

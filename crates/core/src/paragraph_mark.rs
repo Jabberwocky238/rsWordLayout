@@ -2,6 +2,12 @@
 
 use serde_json::Value;
 
+/// Painting only: these values do not contribute to line metrics or visibility.
+pub(crate) struct ParagraphMarkStyle {
+    pub font: crate::FontSpec,
+    pub rise_fine: i64,
+}
+
 /// Paragraph-mark run properties, separate from the paragraph's text runs.
 ///
 /// `declared` is the native JSON `props.rpr` value; `effective` is the result of
@@ -11,9 +17,11 @@ use serde_json::Value;
 /// remain distinguishable from `None`.
 ///
 /// These values preserve the parser's JSON projection, not original XML bytes.
-/// Existing layout still uses effective font/rise only for empty DOCX paragraphs;
-/// independent mark metrics, visibility and painting for other paragraphs remain
-/// unresolved. Retaining a property does not imply it affects layout.
+/// Layout can use independently resolved font/rise for the paragraph-end glyph
+/// when a Latin font, a valid size and valid position/vertical alignment are
+/// available. Missing or invalid required fields retain the legacy paint
+/// fallback; other font fields use the existing run projection. Mark metrics
+/// and visibility remain unresolved.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ParagraphMarkProperties {
     declared: Option<Value>,
@@ -35,5 +43,9 @@ impl ParagraphMarkProperties {
 
     pub fn effective(&self) -> Option<&Value> {
         self.effective.as_ref()
+    }
+
+    pub(crate) fn paint_style(&self) -> Option<ParagraphMarkStyle> {
+        crate::bridge::paragraph_mark_paint_style(self.effective.as_ref()?)
     }
 }

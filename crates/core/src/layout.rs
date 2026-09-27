@@ -1380,10 +1380,17 @@ impl LineTail {
         color: Color,
         rise_fine: i64,
     ) -> Self {
+        let (font, rise_fine) = if para.terminator == crate::oracle::LineTerminator::ParagraphMark
+            && let Some(style) = para.mark.paint_style()
+        {
+            (style.font, style.rise_fine)
+        } else {
+            (font.clone(), rise_fine)
+        };
         Self {
             source: (source, source + 1),
             spaces: para.terminator.expected_glyphs(),
-            font: font.clone(),
+            font,
             color,
             rise_fine,
         }
@@ -2067,9 +2074,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             + para.runs.iter().map(|r| r.text.encode_utf16().count() as u32).sum::<u32>();
         let segs = segments(para, source_base);
 
-        // Hidden text still owns source positions. Independent mark inputs do
-        // not yet govern visibility or metrics here; keep the existing visible
-        // mark and font fallback for an entirely hidden paragraph.
+        // Hidden text still owns source positions. Keep the existing visibility
+        // and metric fallback; paragraph_end applies the independent paint style
+        // without changing the empty line's baseline or vertical extent.
         if segs.is_empty() {
             let mark_run = para
                 .runs

@@ -134,6 +134,34 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
     }.with_size_centipoints(size_centipoints)
 }
 
+/// Resolver output can be sparse. Do not invent host defaults for an
+/// independent mark or fill its missing fields from the last visible run.
+pub(crate) fn paragraph_mark_paint_style(
+    props: &Value,
+) -> Option<crate::paragraph_mark::ParagraphMarkStyle> {
+    let size = u32::try_from(props.get("size")?.as_u64()?).ok()?;
+    if size == 0 {
+        return None;
+    }
+    let fonts = props.get("fonts")?;
+    let family = fonts.get("ascii").and_then(Value::as_str)
+        .or_else(|| fonts.get("hAnsi").and_then(Value::as_str))?;
+    if family.trim().is_empty()
+        || props.get("position").is_some_and(|v| {
+            v.as_i64().and_then(|value| i32::try_from(value).ok()).is_none()
+        })
+        || props.get("vertAlign").is_some_and(|v| {
+            !matches!(v.as_str(), Some("baseline" | "superscript" | "subscript"))
+        })
+    {
+        return None;
+    }
+    Some(crate::paragraph_mark::ParagraphMarkStyle {
+        font: run_font(props, size, false),
+        rise_fine: vertical_run_shape(props, size).1,
+    })
+}
+
 /// `w:spacing`（run 级，**不是**段落的 `w:spacing`）：字符间距，twips，可负。
 ///
 /// 解析器的键名是 `spacing`，与段落属性里行距的 `spacing` 同名但不同物——

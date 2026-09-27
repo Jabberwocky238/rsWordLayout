@@ -275,7 +275,7 @@ impl LayoutDocument {
             "diagnostics": self.diagnostics,
             "sourceWarnings": self.source_warnings,
             "paragraphMarks": {
-                "layoutPolicy": "legacy: effective font/rise for empty DOCX paragraphs; independent mark metrics, visibility and painting otherwise unresolved",
+                "layoutPolicy": "independent font/rise painting requires resolved Latin font, positive u32 size and valid position/vertAlign; missing or invalid required fields use legacy paint fallback; color, visibility and vertical metrics retain legacy behavior",
                 "paragraphs": self.paras.iter().enumerate().map(|(index, para)| json!({
                     "paragraph": index,
                     "sourceNode": para.source_node,
@@ -283,6 +283,7 @@ impl LayoutDocument {
                     "declared": para.mark.declared(),
                     "effectiveAvailable": para.mark.effective().is_some(),
                     "effective": para.mark.effective(),
+                    "paintStyleAvailable": para.mark.paint_style().is_some(),
                 })).collect::<Vec<_>>(),
             },
             "grid": {

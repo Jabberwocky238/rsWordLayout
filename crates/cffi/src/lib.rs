@@ -390,14 +390,14 @@ mod tests {
     fn session_goes_through_load_document() {
         // 同一份 docx 换个入口不该排得不一样：这里的字符间距要与 layout-trace 一样到位。
         let session = build_session(&double_rpr_docx(), 96.0).unwrap();
-        let spacing: Vec<i32> = session.doc[0]
+        let spacing: Vec<_> = session.doc[0]
             .fragments
             .iter()
             .filter_map(|f| match f {
-                Fragment::Text(t) => Some(t.font.letter_spacing),
+                Fragment::Text(t) => Some((t.text.as_str(), t.source, t.font.letter_spacing)),
                 _ => None,
             })
             .collect();
-        assert_eq!(spacing, [20]);
+        assert_eq!(spacing, [("alpha", Some((0, 5)), 20), (" ", Some((5, 6)), 0)]);
     }
 }
