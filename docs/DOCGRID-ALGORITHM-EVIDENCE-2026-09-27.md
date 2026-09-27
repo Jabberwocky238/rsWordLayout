@@ -449,3 +449,38 @@ parent+e0，和此前保存的三 halfword 转换/写入形成明确的表示接
 
 新的 [页面容量探针](DOCGRID-PAGE-FIT-2026-09-27.md) 正用于约束末行是否能容纳。
 本片没有把一个拟合的步长同时当作首行偏移、逐行推进和分页占高，也没有改变生产网格策略。
+
+## 独立网格 helper 的整数算法已闭合
+
+`artifacts/docgrid-pure-helper-2026-09-27/` 冻结 19 个文件，清单 SHA-256 为
+`5cc1909764ca4d1965c8569865aefd1f9d29809dfb5b9302fecf76bf54c1930d`。
+580 字节 helper 的两个必要算术 leaf 已闭合。正常非负且不溢出的输入可写成：
+
+```text
+H, A, B, C, D = input tuple words at offsets 0, 4, 8, c, 10
+S = unsigned scale word at scaleObject+8
+p = trunc(period*S/1440), saturated to signed32
+other = trunc(p*(tag==2 ? parameter[4] : 240)/240)
+multiple = p>=1 ? ceil(H/p)*p : H
+chosen = max(other,multiple)
+lo = max(chosen-H,0)/2 rounded down
+hi = max(chosen-H,0)-lo
+outer = tag==2 ? H : max(nearest(parameter[2]*S/1440),H)
+output = [H, A, B+hi+max(outer-chosen,0), C+lo, D+lo]
+```
+
+实际代码还包含零周期/零尺度、参数转换旁路、饱和、32 位溢出、诊断和 C 的夹限；
+完整中性模型保存这些分支，不能以本段简式替代它。原生先截断转换周期，参数中的
+另一个 u16 值却用最近整数转换，两者不可互换。helper 不改元组的 0 和 4 字段。
+
+20045 项倒数乘法检查与普通整数截断相符；10000 组正数域输入在新旧分支各自的
+正常消费者投影后，六字段全部相同。这个跨路径检查条件为 tags 0/2、H>=A>=0、
+初始 C/D 为零且没有后处理；它不是新函数完整 ARM 解释器、原生运行或 PDF 对齐。
+
+可复用的算法部分现在是“整数域转换、ceil、分量余量分配”。接入真实引擎仍须绑定
+尺度 S、H/A 的字体来源以及分页和绘制消费者；不能直接把 H 替换为当前
+`natural_height_fine`，或把任意 twip pitch 的 ceil 当作等价实现。为检验这个临界点，
+又准备了 274 至 277 twips、270 锚点及无网格的 6 份大页输入，manifest SHA-256 为
+`63aaf75f8c4b37a9b423881857a0be359f5f8fee885dfa91b460c2daa5170d3b`，目录
+`artifacts/docgrid-pitch-threshold-source-2026-09-27/`。这些是根据既有证据选择的新输入，
+不称为盲测，不预置 Word 的页数或步长结果。
