@@ -183,8 +183,8 @@ convert 的分母为零时返回 INT32_MAX；否则先调用导入的 `VarR8From
 运算次序不能压成语言内建 round；最终范围与无序比较可返回 INT32_MAX。
 局部指标路径使用的乘数和分母均为 1，仍需保留这些浮点、半字和越界语义。
 
-当前未闭合边界移到 Q.ptr[8] 的具体字体接口、原始分量与缩放参数的运行值，
-以及初始化与后续变更。已知 `MsoGetTextMetricsW` 包装器的地址引用没有证明
+源提供者片留下 Q.ptr[8] 的具体字体接口、原始分量与缩放参数的运行值，
+以及初始化与后续变更；接口合同由下文后续片补齐。已知 `MsoGetTextMetricsW` 包装器的地址引用没有证明
 它属于这里的虚表 +30，故没有用同布局结构或邻近符号跨接这条边。
 这些静态字段尚不提供将 `RealMetrics` 直接投影为原生网格 H 的依据。
 
@@ -200,6 +200,41 @@ Word 的 arm64 符号表明确将 `VarR8FromR4` 绑定到 OLEAutomation 导入�
 次正规数处理，也不据此把具体字体输入尺度视为已知。OLEAutomation 整体哈希为
 `dfd1ee8efae232194129434f0d977661a1bb0562ff65ef9036aac98af528d75a`。
 
+## 字体接口与请求记录的后续闭合
+
+宿主查询使用的 16 字节 GUID 与 `IDWriteFontFace1` 完全一致；创建路径的另一 GUID
+对应 `IDWriteFactory`，且实际调用具名 `DWriteCreateFactory` 导入。依据固定版本的
+[官方 dwrite.h](https://github.com/microsoft/win32metadata/blob/5c5efbc01d4c87f6830ec304d42777991d533154/generation/WinSDK/RecompiledIdlHeaders/um/dwrite.h)
+和 [dwrite_1.h](https://github.com/microsoft/win32metadata/blob/5c5efbc01d4c87f6830ec304d42777991d533154/generation/WinSDK/RecompiledIdlHeaders/um/dwrite_1.h)，
+原 face 的 +80 与查询所得 face1 的 +98 分别对应两版 `GetGdiCompatibleMetrics`。
+这里命名的是接口合同，尚未跟踪返回对象的具体 Mac 方法实现。
+
+基本指标记录为 20 字节，Face1 扩展后为 48 字节。Q+10 对应 designUnitsPerEm，
+Q+12/+14/+16 对应 ascent/descent/lineGap，Q+3c 对应 hasTypographicMetrics。
+Q+40 已在这份记录之外：成功 Face1 初始化路径从 OS/2 表 +2 读取它，公开字段为
+xAvgCharWidth。该值经宿主缩放进入 T+14 和初始 M+10，与 lineGap 不同；后续
+回调如何使用它仍不能由字体表字段名替代证明。
+
+GDI 兼容接口接受 DIP 单位的 emSize，返回字体设计单位的指标。宿主初始化时传入
+designUnitsPerEm，临时指标构建时传入 `float32(neg32(Q[0x48]))`，两处均为
+pixelsPerDip=1、transform=null。宿主之后仍执行自己的单精度比例、整数舍入和
+半字写入，不能将 API 的输出直接当作布局坐标。
+
+264 字节请求记录的前 92 字节已绑定 LOGFONTW：具名 GetGdiInterop /
+ConvertFontFaceToLOGFONT 调用、实际 92 字节复制和 UTF-16 半字操作相互印证。
+Q+48 是 lfHeight，Q+50 是 lfEscapement，因此先前 900/2700 分支有十分之一度
+的角度字段依据。公共 lfHeight 的逻辑单位仍不证明 Word 的点数映射。
+其中一条按字体家族匹配的路径复用 request+4 作为 stretch，不能把该位置在所有
+路径上一概解释成 lfWidth。
+
+`0x1005c4104` 的高度赋值受门控约束：`0x1005c4720` 返回零时跳过转换与高度
+写入，把先前清零的 264 字节记录传给构造器。另一分支也未检查转换调用的 HRESULT，
+故只能确认复制预清零输出缓冲区，不能假定转换成功。资源管理器选脸、Arial 重试、
+feature 替换、初始化 fallback 和 adjusted-wrapper 后续变更仍须保留。
+
+这一步把缺口缩小为实际点数到 lfHeight/坐标尺度、实际选中字体与指标返回值，
+没有证明 TNR12 的 lfHeight 是 -16 或 -50，也没有新增生产常量。
+
 ## 冻结与验证
 
 所有目录位于 `artifacts/`。表中哈希是各自 `SHA256SUMS` 文件的 SHA-256。
@@ -213,6 +248,7 @@ Word 的 arm64 符号表明确将 `VarR8FromR4` 绑定到 OLEAutomation 导入�
 | docgrid-font-provider-object-2026-09-27/ | 33 | `2acbaa3d0a58d19d8324bd4d63d462baad34d51500e8152fa083a5672fbee6c0` |
 | docgrid-font-source-provider-2026-09-27/ | 61 | `03f6e799d02ecf84f153f1167a6c0df3d24595bd50bc73f4ce71f70aa18a439d` |
 | docgrid-float-conversion-2026-09-27/ | 12 | `3ef120400f674a9ab7a19ebca399b981f4f1b34e0ff6c658ab60ce50ab6dc9d7` |
+| docgrid-font-face-inputs-2026-09-27/ | 37 | `3b3c4a2e298786e456c640edb31818a2acf13216c1d4bf9cd916fb11b800a3b5` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -226,6 +262,10 @@ Word 的 arm64 符号表明确将 `VarR8FromR4` 绑定到 OLEAutomation 导入�
 同组函数已完整重采并核验指令一致；没有补造旧回执或改写此前冻结材料。
 浮点导入片另核对导入/导出、函数起止、四个原始指令 word、完整反汇编覆盖与源码
 语法；12 文件清单校验和独立复核均通过。
+接口与请求片另核对 13 个完整函数、两组 GUID、六个诊断字符串、三个官方头文件
+与 OS/2 来源。官方 GitHub commit API 的 403 回执保留，随后通过公开 Git ref
+解析固定提交，并重新下载核对三个头文件逐字节相等。37 文件清单校验通过；
+独立复核指出的门控旁路和未检查 HRESULT 两项限定已在冻结前补正。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
