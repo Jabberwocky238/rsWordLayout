@@ -17,6 +17,13 @@
 显式 false 不关闭移动视图规则。分节符不被当成段落标记，段内还有文字时仍按原分页控制流处理。
 多次使用同一个 Engine 不会把上一份文档的开关泄漏到下一份。
 
+`noColumnBalance` 也通过同一 QName/OnOff 通道保留三态，单独读取，
+不依赖 `splitPgBreakAndParaMark` 是否存在。它已进入文档与轨迹，但尚未接入栏平衡策略；
+在输入阶段不能把值为 false 当成引擎已经执行了平衡。设置关系路径、命名空间、修复路径
+以及两个开关的独立读取由 `document_compat` 回归覆盖。
+两项原始兼容布尔值若非法，沿用 parser OnOff 的 true 回退，同时将 codec 警告加入
+布局 `sourceWarnings`，保留设置 part 与原始字节区间。不会静默丢弃警告或改写原生 JSON。
+
 ## 页内候选行与保留规则
 
 `Para.widow_control` 读取有效 `widowControl`。未指定时沿用宿主 false，样式和 docDefaults

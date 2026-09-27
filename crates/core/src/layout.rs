@@ -890,6 +890,9 @@ pub struct Para {
     /// Avoid leaving a single paragraph line on either side of an automatic
     /// page break. Missing source properties keep the host default (`false`).
     pub widow_control: bool,
+    /// Effective paragraph grid participation; absence remains an unresolved default.
+    /// Document grid metrics are retained separately and are not yet applied.
+    pub snap_to_grid: Option<bool>,
     /// `w:pageBreakBefore`。
     pub page_break_before: bool,
     /// `w:overflowPunct`: allow a supported closing CJK punctuation glyph
@@ -929,6 +932,7 @@ impl Default for Para {
             keep_next: false,
             keep_lines: false,
             widow_control: false,
+            snap_to_grid: None,
             page_break_before: false,
             overflow_punct: true,
             tabs: Vec::new(),

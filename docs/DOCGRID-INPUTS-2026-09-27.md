@@ -1,7 +1,8 @@
 # docGrid 输入、继承边界与夹具核查
 
 日期：2026-09-27。本文记录本地源码、解析器执行结果和 DOCX 包内 XML，
-用于下一片输入接入。本片只分离纵向推进与占高，不接入文档网格，不拟合行高常数，
+输入已接入 `DocumentGrid` 与 `Para.snap_to_grid`，见下文当前实现。
+本片保留文档网格输入，不应用网格行距，不拟合行高常数，
 也不把解析器行为当成新的 Word 实测。
 
 解析器钉住版本为 `399e36a3c645e9b9001531fb06969f8ce5347e1f`，见
@@ -13,11 +14,11 @@
 
 | XML 位置 | 解析器 Rust 字段 | native JSON 路径 | 当前布局状态 |
 | --- | --- | --- | --- |
-| `w:sectPr/w:docGrid` | `SectionProps.doc_grid: Option<DocGrid>` | `sections[i].props.docGrid` | `LayoutSection` 尚不保留 |
-| `w:docGrid/@w:type` | `DocGrid.kind: Option<Val<DocGridType>>` | `docGrid.kind` | 不读取；键名不是 `type` |
-| `w:docGrid/@w:linePitch` | `DocGrid.line_pitch: Option<Val<i32>>` | `docGrid.linePitch` | 不读取 |
-| `w:docGrid/@w:charSpace` | `DocGrid.char_space: Option<Val<i32>>` | `docGrid.charSpace` | 不读取 |
-| `w:pPr/w:snapToGrid` | `ParaProps.snap_to_grid: Option<bool>` | 段落 `props.snapToGrid`，以及有效段落属性中的同名键 | `effective.paras` 已保留，桥接到 `Para` 时丢弃 |
+| `w:sectPr/w:docGrid` | `SectionProps.doc_grid: Option<DocGrid>` | `sections[i].props.docGrid` | `LayoutSection.grid` 保留原声明 |
+| `w:docGrid/@w:type` | `DocGrid.kind: Option<Val<DocGridType>>` | `docGrid.kind` | `DocumentGrid::kind()`；键名不是 `type` |
+| `w:docGrid/@w:linePitch` | `DocGrid.line_pitch: Option<Val<i32>>` | `docGrid.linePitch` | `DocumentGrid::line_pitch()`，不补默认值 |
+| `w:docGrid/@w:charSpace` | `DocGrid.char_space: Option<Val<i32>>` | `docGrid.charSpace` | `DocumentGrid::char_space()`，保持原整数单位 |
+| `w:pPr/w:snapToGrid` | `ParaProps.snap_to_grid: Option<bool>` | 段落 `props.snapToGrid`，以及有效段落属性中的同名键 | 有效属性投影到 `Para.snap_to_grid`，保留 None/false/true |
 | `w:rPr/w:snapToGrid` | 未建模，留在 `RunProps.raw_unmodeled` | 不投影 | 不能通过现有 run Resolver 取得 |
 
 字段来源为
@@ -46,7 +47,7 @@ run 的同名元素只出现在
 `resolver.para(...).props.to_json(...)`。当段落未指定样式时使用默认段落样式；
 当它显式指定了不存在的样式时，现有代码不会再退回默认样式。
 [project_paragraphs](../crates/core/src/bridge.rs:728) 已优先读取这份有效属性。
-下一片应在这里投影 `snapToGrid`，不必重新写样式合成，也不必重新读取 styles XML。
+当前已在这里投影 `snapToGrid`，没有重写样式合成或重新读取 styles XML。
 裸 `paras_from_document` 入口没有完整 Resolver，仍只具备它现有的声明值/近似能力。
 
 通过当前解析器执行最小 DOCX 探针，确认以下结果；这验证的是输入合成，不是 Word 布局：
@@ -69,8 +70,8 @@ run 的同名元素只出现在
 实际两节探针中，第一节有 `docGrid`、第二节 `<w:sectPr/>` 时，第二节 JSON 不含 `docGrid`。
 这证明 parser 没替布局做网格继承，不能据此断言 Word 跨节一定继承或一定不继承。
 
-下一片应从 [document_from_json](../crates/core/src/document.rs:229)
-正在遍历的 `sections[i].props` 保存节网格，使用既有 `blockRange/paraRange` 归属。
+当前从 [document_from_json](../crates/core/src/document.rs)
+遍历的 `sections[i].props` 保存节网格，使用既有 `blockRange/paraRange` 归属。
 不要从某个段落有效 `props.sectPr` 外推全节网格，也不要因为上一节有网格就自动向后复制。
 连续分节的网格切换时机尚无这里可以证明的规则，应单独记录而不是混入页面尺寸切换。
 
@@ -111,6 +112,9 @@ run 的同名元素只出现在
 回退布尔值并伴随 warning，不能期待 `snapToGrid` 的 JSON 自带 `raw`。
 其读取规则见
 [OnOff:90](/Users/lilleap/.cargo/git/checkouts/rswordparser-deb0c68799df1823/399e36a/crates/rsword/src/semantic/props/codec.rs:90)。
+`LayoutDocument.source_warnings` 和轨迹 `sourceWarnings` 原样保留解析器警告对象，
+包括来源 part、字节区间、代码和消息；不会因页面覆盖丢失。非法 snap 的回退布尔值
+因此与原始错误一起可见，原 `LoadedDocument.json` 不改写。
 
 ## 实际夹具
 
@@ -145,6 +149,17 @@ run 的同名元素只出现在
 本次只读取原文件，没有修改外部夹具或重写报告。
 
 ## 与纵向度量分离的接口
+
+`DocumentGrid` 以原始声明为事实来源；访问器返回 `Result<Option<T>, String>`，
+区分缺省、合法声明和不能解释的输入。节轨迹保存原声明与各字段解析状态，
+顶层 `grid.paragraphSnapToGrid` 按段落索引保留有效三态值。
+两处都标记 `applied: false`。缺省、不支持类型、非法或非正 pitch、字符间距限制
+进入诊断，不会静默套用行网格。页面几何覆盖不会更改网格声明。
+
+`grid_input.rs` 验证原生 JSON 与真实 DOCX、节范围、样式继承/直接 false、非法值和
+四个平台/视图组合下当前布局不变。这里验证输入合同，尚不验收 docGrid 的行间推进。
+本片网格 18 项、文档兼容 16 项及有效属性/段落保留/节几何 60 项测试通过；
+验证日志保存在 `artifacts/grid-input-2026-09-27/`。
 
 本片 [VerticalExtent](../crates/core/src/layout/vertical.rs:7) 分开记录
 `advance_fine` 和 `required_fine`。两者均为 1/7200 英寸，分别用于推进后续行原点和判断

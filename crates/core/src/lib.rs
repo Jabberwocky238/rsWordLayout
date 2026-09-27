@@ -9,6 +9,7 @@
 mod anchor;
 mod bridge;
 mod document;
+mod grid;
 mod layout;
 mod load;
 pub mod font;
@@ -58,6 +59,7 @@ pub use font::{
 // ---- rsword 桥接 ----
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
+pub use grid::{DocumentGrid, GridKind};
 pub use document::{
     ColumnLayout, ColumnSpec, DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
     document_from_json,

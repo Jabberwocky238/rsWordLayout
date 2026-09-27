@@ -100,6 +100,7 @@ pub struct LoadedDocument {
     pub merge_error: Option<String>,
     effective: EffectiveProperties,
     compatibility: DocumentCompatibility,
+    compatibility_warnings: Vec<Value>,
 }
 
 impl LoadedDocument {
@@ -108,6 +109,7 @@ impl LoadedDocument {
         let json = self.layout_json();
         let mut document = crate::document_from_json(&json);
         document.compatibility = self.compatibility;
+        document.source_warnings.extend(self.compatibility_warnings.iter().cloned());
         let (mut paras, _) = project_paragraphs(&json, Some(&self.effective));
         // 分节的起页由文档格式器处理；这里只保留继承或直接声明的段落起页。
         for para in &mut paras {
@@ -167,37 +169,39 @@ fn load_open(
 ) -> Result<LoadedDocument, Box<dyn std::error::Error>> {
     let json: Value = serde_json::from_str(&sessions.document(id, None)?)?;
     let effective = sessions.inspect(id, |session, _| effective_properties(session))?;
-    let compatibility = sessions.inspect(id, |session, _| document_compatibility(session))?;
-    Ok(best_effort(json, effective, compatibility, |json| merge_open(sessions, id, bytes, json)))
+    let (compatibility, warnings) = sessions.inspect(id, |session, _| document_compatibility(session))?;
+    let mut loaded = best_effort(json, effective, compatibility, |json| merge_open(sessions, id, bytes, json));
+    loaded.compatibility_warnings = warnings;
+    Ok(loaded)
 }
 
 /// The pinned parser (399e36a) keeps compat booleans in `raw_unmodeled` and
 /// omits them from native JSON. Read the original settings DOM, including false,
 /// without modifying declared JSON or pulling in the editing API.
-fn document_compatibility(session: &EditSession) -> DocumentCompatibility {
+fn document_compatibility(session: &EditSession) -> (DocumentCompatibility, Vec<Value>) {
     let mut result = DocumentCompatibility::default();
     let Some(compat) = session.document().settings.as_ref().and_then(|s| s.compat.as_ref()) else {
-        return result;
+        return (result, Vec::new());
     };
     let package = session.package();
     let settings_part = package.related(package.main_part(), RelType::Settings).next()
         .or_else(|| package.find_name("word/settings.xml"));
     let Some(dom) = settings_part.and_then(|part| package.part(part).dom()) else {
-        return result;
-    };
-    let Some(&node) = compat.raw_unmodeled.iter()
-        .find(|&&node| dom.name(node) == Some(QName::w(LocalName::SplitPgBreakAndParaMark)))
-    else {
-        return result;
+        return (result, Vec::new());
     };
     let mut diagnostics = Vec::new();
-    let mut context = Ctx::new(dom, &mut diagnostics);
-    context.enter(node);
-    result.split_page_break_and_para_mark = Some(
-        dom.attr_value(node, QName::w(LocalName::Val))
-            .is_none_or(|value| OnOff::parse(&value, &mut context)),
-    );
-    result
+    let mut flag = |name| {
+        let &node = compat.raw_unmodeled.iter()
+            .find(|&&node| dom.name(node) == Some(QName::w(name)))?;
+        let mut context = Ctx::new(dom, &mut diagnostics);
+        context.enter(node);
+        Some(dom.attr_value(node, QName::w(LocalName::Val))
+            .is_none_or(|value| OnOff::parse(&value, &mut context)))
+    };
+    result.split_page_break_and_para_mark = flag(LocalName::SplitPgBreakAndParaMark);
+    result.no_column_balance = flag(LocalName::NoColumnBalance);
+    let cx = ProjCx { pkg: package, display: false };
+    (result, diagnostics.iter().map(|warning| warning.to_json(&cx)).collect())
 }
 
 /// 合并一步的结果：`Ok(None)` 无改写；`Ok(Some)` 带重建后的 JSON、有效属性与合并处数。
@@ -213,11 +217,11 @@ fn best_effort(
 ) -> LoadedDocument {
     match merge(&json) {
         Ok(Some((merged, effective, n))) => {
-            LoadedDocument { json: merged, merged_run_props: n, merge_error: None, effective, compatibility }
+            LoadedDocument { json: merged, merged_run_props: n, merge_error: None, effective, compatibility, compatibility_warnings: Vec::new() }
         }
-        Ok(None) => LoadedDocument { json, merged_run_props: 0, merge_error: None, effective, compatibility },
+        Ok(None) => LoadedDocument { json, merged_run_props: 0, merge_error: None, effective, compatibility, compatibility_warnings: Vec::new() },
         Err(error) => {
-            LoadedDocument { json, merged_run_props: 0, merge_error: Some(error.to_string()), effective, compatibility }
+            LoadedDocument { json, merged_run_props: 0, merge_error: Some(error.to_string()), effective, compatibility, compatibility_warnings: Vec::new() }
         }
     }
 }
@@ -488,7 +492,10 @@ mod tests {
     #[test]
     fn a_failed_merge_falls_back_to_the_unmerged_json() {
         let json = serde_json::json!({"mainPart": 3, "main": []});
-        let compatibility = DocumentCompatibility { split_page_break_and_para_mark: Some(true) };
+        let compatibility = DocumentCompatibility {
+            split_page_break_and_para_mark: Some(true),
+            no_column_balance: Some(false),
+        };
         let LoadedDocument { json: got, merged_run_props, merge_error, compatibility: got_compatibility, .. } =
             best_effort(json.clone(), EffectiveProperties::default(), compatibility, |_| Err("replacePartXml 失败".into()));
         assert_eq!(got, json, "合并失败时交回原样的 JSON");

@@ -84,7 +84,7 @@ CLI 的缺字扫描也跳过隐藏 run，避免它改变可见文字的回退字
 
 ## 2. 有效属性与兼容输入贯穿桥接
 
-**状态：有效属性与 `splitPgBreakAndParaMark` 已实现。**
+**状态：有效属性与 `splitPgBreakAndParaMark` 已实现，`noColumnBalance` 三态输入已保留。**
 
 实际入口为 `LoadedDocument::layout_document()` / `paragraphs()`；原始 `.json` 保持
 声明值合同，裸 JSON 桥接保留旧行为。run/para 属性使用钉住版本的 `Resolver`，
@@ -156,12 +156,14 @@ Android 的无 styles 最小夹具不能证明样式合成正确；新样式用�
 
 ## 4. 文档网格与行间推进、页面占高
 
-**状态：页数证据审计、推进/占高分离已接入，docGrid 算法待实现。**
+**状态：页数证据审计、推进/占高分离、docGrid 与 snapToGrid 输入已接入，网格算法待实现。**
 `tools/measure/android_pages.py` 保存全部 PGIDX 与上下文，九份旧日志严格模式全部不可判；
 条件比较六份相同、三份因 80 条采样耗尽不可判。三组容量继续保留为报告级约束，
 不能宣称原日志已认证最终页数。见 [页数证据进展](ANDROID-PAGE-EVIDENCE-2026-09-27.md)。
 
 修改节投影读取 `docGrid`，段落投影读取 `snapToGrid`。
+输入已由 `LayoutSection.grid` / `Para.snap_to_grid` 保留，轨迹明确记录尚未应用。
+见 [输入接入与证据](DOCGRID-INPUTS-2026-09-27.md)。
 修改 `PendingLine` / `line_height_fine` 与编排层，把“下一行基线/游标如何推进”与
 “该行放到本页所需的上下边界”分开；使用现有 fine 单位，所有保留约束读同一套量。
 `VerticalGrid::MacWordThreeHundredthsInch` 是度量量化策略，与 DOCX 的 docGrid 是两个输入。
@@ -250,7 +252,7 @@ Mac 既有误差与不可判项按回放报告保留，切片的条件是相对�
 
 页面几何、跨页续排、有效属性、首个文档兼容项与段落保留已完成首轮接入。
 打印页数证据路径、行间推进/占高分离与顺序多栏流已经落地；
-下一步推进 docGrid 的真实输入、栏平衡与同页混合栏组。
+docGrid 与 snapToGrid 的真实输入已保留，下一步推进网格度量、栏平衡与同页混合栏组。
 不要把错误输入吸收到行高公式里。
 
 ## 第一片验收记录

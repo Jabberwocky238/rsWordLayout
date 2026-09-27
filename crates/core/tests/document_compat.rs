@@ -98,6 +98,7 @@ fn absent_enabled_and_disabled_switches_combine_with_all_platform_view_pairs() {
     for flag in [None, Some(true), Some(false)] {
         let compatibility = DocumentCompatibility {
             split_page_break_and_para_mark: flag,
+            ..DocumentCompatibility::default()
         };
         let mut document = loaded.layout_document();
         document.compatibility = compatibility;
@@ -327,4 +328,175 @@ fn trace_metadata_distinguishes_absence_from_explicit_false() {
         document.trace_metadata()["compatibility"]["splitPgBreakAndParaMark"],
         false
     );
+}
+
+#[test]
+fn no_column_balance_real_docx_values_preserve_three_states_and_namespaces() {
+    for (namespace, prefix) in [
+        (W, "w"),
+        (W, "s"),
+        ("http://purl.oclc.org/ooxml/wordprocessingml/main", "s"),
+    ] {
+        for (value, enabled) in [
+            (None, true),
+            (Some("1"), true),
+            (Some("true"), true),
+            (Some("on"), true),
+            (Some("0"), false),
+            (Some("false"), false),
+            (Some("off"), false),
+        ] {
+            let attr =
+                value.map_or_else(String::new, |value| format!(r#" {prefix}:val="{value}""#));
+            let flag = format!("<{prefix}:noColumnBalance{attr}/>");
+            let loaded = load(
+                BODY,
+                Some(&settings(&flag, prefix, namespace)),
+                "settings.xml",
+            );
+            let document = loaded.layout_document();
+            assert_eq!(document.compatibility.no_column_balance, Some(enabled));
+            assert_eq!(document.compatibility.split_page_break_and_para_mark, None);
+            assert_eq!(
+                document.trace_metadata()["compatibility"]["noColumnBalance"],
+                enabled
+            );
+            assert!(
+                loaded.json["settings"]["compat"]
+                    .get("noColumnBalance")
+                    .is_none()
+            );
+        }
+    }
+    for xml in [None, Some(settings("", "w", W))] {
+        let document = load(BODY, xml.as_deref(), "settings.xml").layout_document();
+        assert_eq!(document.compatibility.no_column_balance, None);
+        assert!(document.trace_metadata()["compatibility"]["noColumnBalance"].is_null());
+    }
+}
+
+#[test]
+fn no_column_balance_ignores_unrelated_elements_and_namespaces() {
+    for xml in [
+        format!(r#"<w:settings xmlns:w="{W}"><w:noColumnBalance/></w:settings>"#),
+        settings(r#"<a:noColumnBalance xmlns:a="urn:test"/>"#, "w", W),
+        settings(
+            r#"<w:compatSetting w:name="noColumnBalance" w:val="1"/>"#,
+            "w",
+            W,
+        ),
+    ] {
+        let document = load(BODY, Some(&xml), "settings.xml").layout_document();
+        assert_eq!(document.compatibility.no_column_balance, None);
+    }
+}
+
+#[test]
+fn no_column_balance_uses_the_settings_relationship_without_rewriting_native_json() {
+    let loaded = load(
+        BODY,
+        Some(&settings(r#"<w:noColumnBalance w:val="0"/>"#, "w", W)),
+        "custom-settings.xml",
+    );
+    assert_eq!(
+        loaded.layout_document().compatibility.no_column_balance,
+        Some(false)
+    );
+    assert_eq!(
+        document_from_json(&loaded.json)
+            .compatibility
+            .no_column_balance,
+        None
+    );
+}
+
+#[test]
+fn no_column_balance_survives_sibling_run_property_repair() {
+    let body = r#"<w:p><w:r><w:rPr><w:spacing w:val="10"/></w:rPr><w:rPr><w:sz w:val="24"/></w:rPr><w:br w:type="page"/></w:r></w:p><w:p><w:r><w:t>x</w:t></w:r></w:p>"#;
+    for flag in [true, false] {
+        let xml = settings(
+            &format!(r#"<w:noColumnBalance w:val="{flag}"/><w:splitPgBreakAndParaMark/>"#),
+            "w",
+            W,
+        );
+        let loaded = load(body, Some(&xml), "settings.xml");
+        assert_eq!(loaded.merged_run_props, 1);
+        assert!(loaded.merge_error.is_none());
+        assert_eq!(
+            loaded.layout_document().compatibility,
+            DocumentCompatibility {
+                split_page_break_and_para_mark: Some(true),
+                no_column_balance: Some(flag),
+            }
+        );
+    }
+}
+
+#[test]
+fn invalid_compatibility_values_retain_codec_warnings_without_rewriting_parser_json() {
+    for body in [BODY, r#"<w:p><w:r><w:rPr><w:spacing w:val="10"/></w:rPr><w:rPr><w:sz w:val="24"/></w:rPr><w:t>x</w:t></w:r></w:p>"#] {
+        let xml = settings(
+            r#"<w:noColumnBalance w:val="invalid-balance"/><w:splitPgBreakAndParaMark w:val="invalid-split"/>"#,
+            "w", W,
+        );
+        let loaded = load(body, Some(&xml), "custom-settings.xml");
+        let original = loaded.json.clone();
+        let document = loaded.layout_document();
+        assert_eq!(document.compatibility, DocumentCompatibility {
+            split_page_break_and_para_mark: Some(true), no_column_balance: Some(true),
+        });
+        for raw in ["invalid-balance", "invalid-split"] {
+            let warnings: Vec<_> = document.source_warnings.iter()
+                .filter(|warning| warning["message"].as_str().is_some_and(|text| text.contains(raw)))
+                .collect();
+            assert_eq!(warnings.len(), 1, "{raw}");
+            assert_eq!(warnings[0]["code"], "PROP_BAD_VALUE");
+            assert!(warnings[0].get("part").is_some());
+            assert!(warnings[0].get("range").is_some());
+        }
+        assert_eq!(document.trace_metadata()["sourceWarnings"], json!(document.source_warnings));
+        assert_eq!(loaded.json, original);
+    }
+}
+
+#[test]
+fn no_column_balance_and_split_mark_inputs_stay_independent_when_reusing_an_engine() {
+    // A single-column fixture observes the existing split-mark switch while
+    // preserving noColumnBalance as input. This makes no balancing prediction.
+    let absent = load(BODY, None, "settings.xml").layout_document();
+    for platform in [Platform::Desktop, Platform::Android] {
+        for view in [View::Print, View::Mobile] {
+            let engine = Engine::new(&SimpleMetrics, PageSetup::a4())
+                .with_platform(platform, view)
+                .with_compatibility(DocumentCompatibility {
+                    split_page_break_and_para_mark: Some(true),
+                    no_column_balance: Some(true),
+                });
+            for no_balance in [false, true, false] {
+                for split in [false, true] {
+                    let xml = settings(
+                        &format!(
+                            r#"<w:noColumnBalance w:val="{no_balance}"/><w:splitPgBreakAndParaMark w:val="{split}"/>"#,
+                        ),
+                        "w",
+                        W,
+                    );
+                    let document = load(BODY, Some(&xml), "settings.xml").layout_document();
+                    let saved = document.compatibility;
+                    assert_eq!(
+                        ranges(&engine.layout_document(&document)),
+                        expected(split || view == View::Mobile)
+                    );
+                    assert_eq!(document.compatibility, saved);
+                    assert_eq!(document.compatibility.no_column_balance, Some(no_balance));
+                    assert_eq!(
+                        ranges(&engine.layout_document(&absent)),
+                        expected(view == View::Mobile)
+                    );
+                    assert_eq!(absent.compatibility.no_column_balance, None);
+                }
+            }
+            assert_eq!(ranges(&engine.layout(&absent.paras)), expected(true));
+        }
+    }
 }

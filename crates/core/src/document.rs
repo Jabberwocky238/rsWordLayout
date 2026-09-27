@@ -4,7 +4,7 @@ use std::ops::Range;
 
 use serde_json::{Value, json};
 
-use crate::{Margins, PageSetup, Para, Rect, Twips, paras_from_document};
+use crate::{DocumentGrid, Margins, PageSetup, Para, Rect, Twips, paras_from_document};
 
 // Pinned rsword schema/props/section.toml, CT_Columns: at most 45 columns.
 const MAX_COLUMNS: usize = 45;
@@ -176,6 +176,8 @@ pub struct LayoutSection {
     pub setup: PageSetup,
     pub kind: SectionStart,
     pub columns: ColumnLayout,
+    /// Declared section grid; retained independently of geometry overrides.
+    pub grid: DocumentGrid,
     /// Missing or invalid values use the host's A4 / one-inch defaults.
     pub fallback_fields: Vec<&'static str>,
 }
@@ -193,6 +195,8 @@ pub struct DocumentCompatibility {
     /// `w:compat/w:splitPgBreakAndParaMark`. Absence and explicit false both keep
     /// the print-view default; mobile view still splits the paragraph mark.
     pub split_page_break_and_para_mark: Option<bool>,
+    /// `w:compat/w:noColumnBalance`, preserved separately from layout policy.
+    pub no_column_balance: Option<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -202,6 +206,8 @@ pub struct LayoutDocument {
     pub compatibility: DocumentCompatibility,
     pub skipped_blocks: usize,
     pub diagnostics: Vec<String>,
+    /// Original parser diagnostics, separate from layout diagnostics and unchanged.
+    pub source_warnings: Vec<Value>,
     overrides: PageOverrides,
 }
 
@@ -263,8 +269,15 @@ impl LayoutDocument {
             "sourceCoverage": if self.skipped_blocks == 0 { "projected main-story paragraphs" } else { "partial: unsupported blocks omitted; CP is projected text only" },
             "skippedBlocks": self.skipped_blocks,
             "diagnostics": self.diagnostics,
+            "sourceWarnings": self.source_warnings,
+            "grid": {
+                "applied": false,
+                "status": "inputs retained; grid layout and absent defaults are unresolved",
+                "paragraphSnapToGrid": self.paras.iter().map(|para| para.snap_to_grid).collect::<Vec<_>>(),
+            },
             "compatibility": {
                 "splitPgBreakAndParaMark": self.compatibility.split_page_break_and_para_mark,
+                "noColumnBalance": self.compatibility.no_column_balance,
             },
             "overrides": {
                 "margin": self.overrides.margin,
@@ -279,6 +292,7 @@ impl LayoutDocument {
                 "margins": {"top": s.setup.margins.top, "right": s.setup.margins.right,
                     "bottom": s.setup.margins.bottom, "left": s.setup.margins.left},
                 "columns": s.columns.trace_metadata(s.setup.content_area()),
+                "grid": s.grid.trace_metadata(),
                 "fallbackFields": s.fallback_fields,
             })).collect::<Vec<_>>(),
         })
@@ -503,12 +517,16 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             ];
         }
         let columns = section_columns(props, setup.content_area(), sections.len(), &mut diagnostics);
+        let grid = DocumentGrid::from_json(props.get("docGrid"));
+        diagnostics.extend(grid.diagnostics().into_iter()
+            .map(|note| format!("section {}: {note}", sections.len())));
         sections.push(LayoutSection {
             block_range: start..end,
             para_range: prefix[start]..prefix[end],
             setup,
             kind,
             columns,
+            grid,
             fallback_fields,
         });
         covered = end;
@@ -526,6 +544,7 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             setup,
             kind: SectionStart::NextPage,
             columns: ColumnLayout::default(),
+            grid: DocumentGrid::default(),
             fallback_fields,
         }];
     }
@@ -546,14 +565,24 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
         {
             diagnostics.push(format!("section at block {} changes continuous columns: current page retains its columns; new columns start on the next page; balancing and mixed column regions are not implemented", pair[1].block_range.start));
         }
+        if matches!(pair[1].kind, SectionStart::Continuous | SectionStart::NextColumn)
+            && pair[0].grid != pair[1].grid
+        {
+            diagnostics.push(format!("section at block {} changes continuous docGrid declarations: each section input is retained; grid switch timing is unresolved and neither grid is applied", pair[1].block_range.start));
+        }
     }
     // The page formatter handles section starts separately; keep only the explicit
     // paragraph property here, including when a section begins with a skipped block.
-    for (para, block) in paras
+    for (para, (block_index, block)) in paras
         .iter_mut()
-        .zip(main.iter().filter(|b| b["kind"] == "text"))
+        .zip(main.iter().enumerate().filter(|(_, block)| block["kind"] == "text"))
     {
         para.page_break_before = block["props"]["pageBreakBefore"].as_bool().unwrap_or(false);
+        if let Some(value) = block["props"].get("snapToGrid")
+            && !value.is_boolean()
+        {
+            diagnostics.push(format!("block {block_index}: snapToGrid requires a boolean; cannot interpret {value}"));
+        }
     }
     LayoutDocument {
         paras,
@@ -561,6 +590,7 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
         compatibility: DocumentCompatibility::default(),
         skipped_blocks,
         diagnostics,
+        source_warnings: doc["warnings"].as_array().cloned().unwrap_or_default(),
         overrides: PageOverrides::default(),
     }
 }
