@@ -106,6 +106,20 @@ f4..fb 的写入；其它指针参数与未展开 callee 仍可能有别名或�
 非零写入者仍未找到；下一条证据必须来自真实 callback/参数别名，不能据这些局部
 负查推导最终 Rf8 恒零。
 
+后续核对了普通 `LsCreateLine` 的真实输出范围。框架内部先清零一个 184 字节栈
+对象，但公开 wrapper 仅把其中 88 字节复制到 R+48，实际覆盖止于 R+9f，
+没有清零 Rf8。另两个输出分别到 break record 和 line 指针，宿主随后写 R+158
+和 R+1e0。这排除了把内部栈对象整体当成 R 的解释。
+
+扩展 fetch 路径的局部传递也已对应：paragraph client 存于 formatprop+0，
+经 fetch content+10 到 fetch+28，最后由 SLsFetchProp+8 指定 host callback 的
+x1 槽。callback 的 x0 则来自 context+8；已示默认 builder 令其为空，hook 可以
+改写，且 builder 结果与当前 R40 的全局 getter 尚未绑定为同一次创建。
+中途 helper `0x1f234` 收到 SLsFetchProp 地址而未展开，因此不声称原始 P 跨整条
+调用链不变。已示 host fetch helper 经 `0x1000c10cc(P)` 和虚表 +20/+0/+10
+取得 provider，尚没有证明 provider/run 到 R 的别名。完整范围说明见
+[callback-path README](../artifacts/docgrid-retained-callback-path-2026-09-27/README.md)。
+
 ## overhang 的宿主决策
 
 context+250 解码到 `0x1034d7510`。它先在 name client+18 为正或 cookie 对象
@@ -133,6 +147,7 @@ allow = e > v || (e == v && paraclient.byte[0x10].bit0 != 0)
 | docgrid-simple-bottom-space-2026-09-27/ | 19 | `40d0418bc292bebf12676f481be3e1221beda28647895f3972a3257a097d68c5` |
 | docgrid-bottom-retained-component-2026-09-27/ | 16 | `b8f814a9db27ecbc6422c1a885299590e401a1d5f5812786f684043b41a8086e` |
 | docgrid-bottom-retained-writer-2026-09-27/ | 27 | `bff8c428fdf29e87bad114d03b0fbe35bb8f1d64b38128f86783d6cfc297a7d5` |
+| docgrid-retained-callback-path-2026-09-27/ | 46 | `81817a11f05a8fc6eb1af45d1fd20e02b8413d62ed77c6dd619a4da0edfe3395` |
 
 主代理逐项校验通过。区域分派、矩形存储、S 查询参数和 Simple 比较/修改已独立
 复核；宿主片的五个完整函数、两个实际 fixup、client 身份、候选写入/清零和
@@ -142,6 +157,8 @@ Rf8 续查的实际 R 身份、新分配/复用区别和条件 reset 也通过�
 补齐了后段调用边的旧原文与哈希绑定，16 文件逐项校验通过。
 别名续查的两个槽、实际参数传递、基址重定位和候选排除通过独立复核；
 27 文件清单逐项校验通过，没有将函数体的负查扩大成调用树不变性结论。
+callback 续查核对 16 个完整函数与九份采集回执，46 文件清单通过。
+独立复核确认公开输出的精确范围，并补明 P 槽在未展开调用前后的不变性缺口。
 
 仍需确认实际运行分支、Q 与字体尺度、Rf8、coalesced 属性/缓存和宿主修正。
 [原有 U/V/J/K 与 delta/alpha](DOCGRID-PTS-HEIGHTS-2026-09-27.md) 的条件继续有效。
