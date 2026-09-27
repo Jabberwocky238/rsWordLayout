@@ -276,7 +276,44 @@ manager 的真实 fixup 已闭合：选择值 2/3/4 进入 `0x100343e50 -> 0x100
 传入的是 +16；它不能用来证明普通 LS 的 TNR12 请求是 -16。
 
 这次闭合了实际 store 与模式 2 覆写，尚待确认活动模式、内部字号的源 setter、
-临时/最终 face 身份及构造后的 adjusted-wrapper 缩放。没有选一个 DPI 去拟合分页。
+临时/最终 face 身份。构造后的 adjusted-wrapper 缩放见下节，没有选一个 DPI 去拟合分页。
+
+## 构造后的字体调整与缩放
+
+默认 wrapper 的 M 会在构造之后更新，初始 M 不能直接作为 LS 的最终输入。
+本次固定了三个不同对象：选中的字体记录 F、尺度上下文 C、wrapper 内 M。
+`0x10034110c..118` 真实执行 `memcpy(C,F,0x188)`，覆盖指标区域而保留
+C+188/+18c 的横纵尺度。随后 `0x100349a90 -> 0x10034a04c -> 0x10034a054`
+更新默认 wrapper，直接得到：
+
+```text
+M = [C.c8, C.c4, wrap32(C.c8+C.c4), old_M.c, C.184, old_M.14]
+```
+
+这是明确的复制与覆盖链，不是根据相同偏移假定 F 与 C 是同一对象。可选的 alternate
+wrapper 仍可能被回调优先选择，当前样本文档走哪个分支尚未观测。
+
+在 F.mode=2 的缩放分支，`0x100348f8c` 逐项调用已恢复的有符号最近整数乘除 N：
+
+```text
+h2 = F.u16[196]; dx = F.i32[168]; dy = F.i32[174]
+for k in [c0,c8,c4,cc,d0]: F[k] = N(C.18c, wrap32(F[k]*h2), wrap32(dy*144))
+for k in [294,28c,290,bc,180]: F[k] = N(C.188, wrap32(F[k]*h2), wrap32(dx*144))
+```
+
+F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计算
+`n=N(wrap32(V.0-V.c),incoming.u16[6],F.174)`，再按无符号数钳到 1..3276。
+负 n 因而落到 3276。V 是选中字体对象的 vslot4f0 输出，尚未绑定为此前的 T。
+
+缩放之前，已捕获的一条调整路径可以从 ascent 减 V.c，再加 V.10；另一路径会重新
+分配上下部指标。缩放之后还可能给 F.c8 加 `trunc_signed(C.18c/36)`：门控来自
+在 `0x100341b44` 保存的 P.0 的 bit16/bit15、当前 C mode 和 V.byte37.bit0，
+不能误用早先装入同一寄存器的 C.d4。必须保留先调整、逐项舍入、再补偿的顺序。
+
+原始证据与分支限定见
+[adjusted-font README](../artifacts/docgrid-adjusted-font-metrics-2026-09-27/README.md)。
+内部字号与 OOXML 的映射、V 的实际提供者、F.184 生产者、现场尺度、可选 wrapper
+和后续回调修正仍未全部闭合，因此这里没有启用生产网格算法。
 
 ## 冻结与验证
 
@@ -293,6 +330,7 @@ manager 的真实 fixup 已闭合：选择值 2/3/4 进入 `0x100343e50 -> 0x100
 | docgrid-float-conversion-2026-09-27/ | 12 | `3ef120400f674a9ab7a19ebca399b981f4f1b34e0ff6c658ab60ce50ab6dc9d7` |
 | docgrid-font-face-inputs-2026-09-27/ | 37 | `3b3c4a2e298786e456c640edb31818a2acf13216c1d4bf9cd916fb11b800a3b5` |
 | docgrid-font-request-size-2026-09-27/ | 31 | `78a5e6eec51a8875e50ae64280c9eeccae68421424eaa167785694f037a5b3da` |
+| docgrid-adjusted-font-metrics-2026-09-27/ | 33 | `3fd1611a399f9a2e4fda5f3167b56d1e1c0e437b21c1f30c1fc10bddaed90ed2` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -313,6 +351,8 @@ manager 的真实 fixup 已闭合：选择值 2/3/4 进入 `0x100343e50 -> 0x100
 字号 store 片核对 15 个完整函数、五个真实 fixup，31 文件清单逐项通过。
 独立复核确认初始换算、manager 分派和模式 2 分支；临时 face 与最终 face 身份
 尚未等同的限定已在冻结前补齐。旧 176 个证据文件保持原哈希。
+构造后调整片核对 20 个完整函数、21 个既有 fixup 与 172 个旧证据文件；33 文件
+清单通过。独立复核纠正了 F/C 对象身份和补偿 gate 的寄存器来源，冻结前均已补齐。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
