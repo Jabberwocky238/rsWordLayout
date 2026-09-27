@@ -393,25 +393,38 @@ fn reported_android_calibri_column_page_counts() {
 }
 
 #[cfg(feature = "fontenv")]
-#[test]
-#[ignore = "needs RSWORD_TEST_TIMES_NEW_ROMAN"]
-fn reported_mac_times_new_roman_terminal_columns_and_source_anchors() {
-    use rsword_layout_core::{LineRule, RealMetrics, font::FontRegistry, load_document};
-
-    // Word for Mac 16.112.3: docs/COLUMN-BALANCE-MAC-2026-09-27.md.
-    // This capture establishes page/column assignment and source anchors only.
-    // It does not establish glyph coordinates or any other balance fixture.
+fn times_new_roman_registry() -> rsword_layout_core::font::FontRegistry {
+    use rsword_layout_core::font::FontRegistry;
     let font = std::env::var_os("RSWORD_TEST_TIMES_NEW_ROMAN")
         .expect("set RSWORD_TEST_TIMES_NEW_ROMAN to Times New Roman.ttf");
     let mut registry = FontRegistry::new();
     registry.add(std::fs::read(font).unwrap(), 0).unwrap();
     assert!(registry.covers_family("Times New Roman"));
-    let metrics = RealMetrics::new(&registry);
+    registry
+}
+
+#[cfg(feature = "fontenv")]
+fn canonical_mac_fixture(name: &str) -> LayoutDocument {
     let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../fixtures/column-balance-2026-09-27/terminal40-noBalance0.docx");
-    let document = load_document(&std::fs::read(fixture).unwrap())
+        .join("../../fixtures/column-balance-canonical-2026-09-27")
+        .join(name);
+    rsword_layout_core::load_document(&std::fs::read(fixture).unwrap())
         .unwrap()
-        .layout_document();
+        .layout_document()
+}
+
+#[cfg(feature = "fontenv")]
+#[test]
+#[ignore = "needs RSWORD_TEST_TIMES_NEW_ROMAN"]
+fn reported_mac_times_new_roman_terminal_columns_and_source_anchors() {
+    use rsword_layout_core::{LineRule, RealMetrics};
+
+    // Word for Mac 16.112.3: docs/COLUMN-BALANCE-MAC-2026-09-27.md.
+    // This capture establishes page/column assignment and source anchors only.
+    // It does not establish glyph coordinates or any other balance fixture.
+    let registry = times_new_roman_registry();
+    let metrics = RealMetrics::new(&registry);
+    let document = canonical_mac_fixture("terminal40-noBalance0.docx");
     assert_eq!(document.compatibility.no_column_balance, Some(false));
     assert_eq!(document.paras.len(), 40);
     for (index, para) in document.paras.iter().enumerate() {
@@ -447,5 +460,51 @@ fn reported_mac_times_new_roman_terminal_columns_and_source_anchors() {
             (source.start, source.end),
             (index as u32 * 5, (index as u32 + 1) * 5)
         );
+    }
+}
+
+#[cfg(feature = "fontenv")]
+#[test]
+#[ignore = "needs RSWORD_TEST_TIMES_NEW_ROMAN"]
+fn reported_mac_times_new_roman_column_break_source_neighbors() {
+    use rsword_layout_core::{LineTerminator, RealMetrics};
+
+    // Canonical Mac captures agree for noColumnBalance=false/true: C009 ends
+    // with the column break at CP 49, followed by a separate paragraph mark.
+    // END placement and control-glyph counts are outside this regression.
+    let registry = times_new_roman_registry();
+    let metrics = RealMetrics::new(&registry);
+    for no_balance in [false, true] {
+        let name = format!(
+            "continuous40-break10-noBalance{}.docx",
+            u8::from(no_balance)
+        );
+        let document = canonical_mac_fixture(&name);
+        assert_eq!(document.compatibility.no_column_balance, Some(no_balance));
+        let pages = Engine::new(&metrics, PageSetup::a4())
+            .with_platform(Platform::Desktop, View::Print)
+            .layout_document(&document);
+        let captured = record(&pages);
+        let lines = &captured.pages[0].lines;
+        let before_break = lines
+            .iter()
+            .position(|line| line.source.is_some_and(|source| source.start == 45))
+            .expect("C009 remains on page 0");
+        for (offset, (start, end, terminator, column)) in [
+            (45, 50, LineTerminator::ColumnBreak, 0),
+            (50, 51, LineTerminator::ParagraphMark, 1),
+            (51, 56, LineTerminator::ParagraphMark, 1),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let line_index = before_break + offset;
+            let line = &lines[line_index];
+            let source = line.source.unwrap();
+            assert_eq!((source.start, source.end), (start, end), "{name}");
+            assert_eq!(line.terminator, terminator, "{name}");
+            assert_eq!(line.column, Some(column), "{name}");
+            assert_eq!(pages[0].line_columns[line_index], column, "{name}");
+        }
     }
 }

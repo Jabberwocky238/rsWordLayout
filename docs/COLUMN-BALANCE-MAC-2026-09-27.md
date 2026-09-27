@@ -20,7 +20,8 @@ settings.xml 的哈希和标签的源区间，没有写入 Word 期望结果。
 生成器默认改用 `widowControl → spacing → jc → rPr → sectPr` 的相对顺序。
 新的六份规范输入在 `fixtures/column-balance-canonical-2026-09-27/`，同栏对照在
 `fixtures/column-balance-canonical-same-columns-2026-09-27/`；清单 schema 为 `/2`。
-这些是不同哈希的待采样输入，没有继承首版的 Word 期望结果。
+这些是不同哈希的独立输入，没有继承首版的 Word 期望结果。
+下文“规范版本对照”另行记录它们后续取得的独立读数。
 
 所有正文和段落标记显式指定 Times New Roman 12pt、exact 480 twips 行距、段前后 0、
 widowControl 关闭。纸张为 11906×16838 twips，四边距 720，两栏间距 720，等宽栏各
@@ -102,20 +103,66 @@ y 为 511.2pt。后继 END 源起点 CP=200，在 PDF 第 0 页 `(36.0, 535.2)`p
 两次原生扫描为第 1 页 Ln41。页号的零基/一基差别保留，Ln41 未被猜作栏号。
 原输入的属性顺序限定仍然适用，不能将这份结果转用于规范版。
 
-当前两份首版证据区分了普通末页与双栏到连续单栏边界；`noColumnBalance=true`、
-相同栏数后继、硬栏断及规范版对照仍待独立采集。
+这两份首版证据区分了普通末页与双栏到连续单栏边界；开关、同栏数后继、硬栏断
+和规范输入的结论来自下面另外进行的采集。
+
+## 规范版本对照
+
+后续七份规范输入均独立打开、导出 PDF、双扫描、核对源区间和字体；七份字体检查 PASS、
+扫描一致且完整覆盖全部 UTF-16 位置，关闭自有文档后原生文档数为 0。
+仍是同机 Word 16.112.3 / 16.112.26083020、输入声明兼容模式 15、同一 TNR 字体文件。
+首四例产物位于 `artifacts/column-balance-canonical-capture-2026-09-27/`，
+后三例位于 `artifacts/column-balance-canonical-append-2026-09-27/`，不覆盖先前采集。
+每例有独立 `META.json`、`observations.json`、原始 PDF 和双扫描回执。
+最后一次关闭之后，原生文档计数和只读 AX 窗口计数均为 0，本批 Word 操作已结束。
+
+| 规范输入 | 实测页数 | C000–C039 的栏分配 | 后继 END |
+| --- | ---: | --- | --- |
+| terminal40-noBalance0/1 | 1 | 32+8 | 无 |
+| continuous40-noBalance0 | 1 | 20+20 | 同页 `(36.0,535.2)`pt |
+| continuous40-noBalance1 | 1 | 20+20 | 同页 `(36.0,535.2)`pt |
+| continuous40-sameCols-noBalance0 | 1 | 20+20 | 同页 `(36.0,535.2)`pt，从下方左栏开始 |
+| continuous40-break10-noBalance0/1 | 1 | 左 10、右 30 个标签；右栏另有空标记行 | 同页 `(36.0,799.2)`pt |
+
+三份 continuous 的 END 均为源 CP200，原生双扫 page1/Ln41；两栏均从 y=55.2pt
+到 511.2pt。相同栏数后继没有沿前组右栏继续，因此此对照不支持“只有栏数改变才平衡”。
+`noColumnBalance=1` 也未改变此版本、模式和输入下的可见分配，不能直接据其名字实现
+“true 就禁用平衡”。这没有证明该开关在其他宿主/版本/兼容模式永远无效，也不补推缺省值。
+
+连续双栏到单栏 noBalance0 的输入/PDF SHA256 分别为
+`a3fe3a31550903fdff0dd276ffba89d3572ee90057cd9e6a66ab77591c6d9d97` /
+`0c025dfd7ea3fc0288791e63b5b356f909a1806dd4f396a365dfef61d31f438f`。
+其余哈希见各例 META，与规范源清单逐字节绑定。
+
+硬栏断两个对照的 C009 为 `(36.0,271.2)`pt，C010 为 `(315.6,79.2)`pt，
+C039 为 `(315.6,775.2)`pt；END 源起点 CP201，位置为 `(36.0,799.2)`pt。
+两遍原生扫描都给出 page1 的 Ln10=`[45,50)`（含 C009 和栏断 CP49）、
+Ln11=`[50,51)`（独立段落标记）、Ln12=`[51,56)`（C010），END 为 Ln42。
+这里的源区间来自逐字符回执，不把段落范围 `[45,51)` 整体误当成一行。
+可见标签、源行分组与 glyph 计数是不同证据；控制字形数量仍未确证。
+这两个输入保留了强制换栏后的 10/30 标签分配，也与从最深栏实际内容以下接续 END 相容。
+原生 content 事件的原始 stdout 字节在相邻位置为 `C009\x0e\rC010\r`，即栏断为
+U+000E、段落标记为 U+000D。保存后的 `structure.contentText` 出现 LF 是 Python 文本
+读取的通用换行归一化，不是 Word 原生改用了 LF。采集的 `sourceCheck=OK` 只验收长度
+和段界；原始字节身份单独保存，不能把该状态扩大为逐控制字符身份已核对。
 
 ## 引擎回归
 
 `column_flow::reported_mac_times_new_roman_terminal_columns_and_source_anchors`
-用实际 Times New Roman 字体回放首版 terminal40-noBalance0；断言 1 页、32+8 行、
+用实际 Times New Roman 字体回放规范版 terminal40-noBalance0；断言 1 页、32+8 行、
 每行栏归属及 UTF-16 区间从 0 到 200 连续，已通过。该测试保留为需要本机字体的
 ignored 测试，以 `RSWORD_TEST_TIMES_NEW_ROMAN` 指定文件运行。
 它不比较字形坐标，也不为尚未成功采集的其他夹具写期望。
-独立 CLI 轨迹与原生段落区间核对也为 40/40，页栏分配相同；产物在
+首版的独立 CLI 轨迹与原生段落区间核对也为 40/40，页栏分配相同；产物在
 `artifacts/column-balance-engine-2026-09-27/`。几何仍未对齐：本次未启用纵向量化的
 轨迹首字形相对 Word 为 x 差 0 至 0.05pt、y 差 -8.5pt，不能把页栏匹配写成完整布局通过。
 
-本片全工作区 `cargo test --offline --workspace --features rsword-layout-core/fontenv`
+本片首次全工作区 `cargo test --offline --workspace --features rsword-layout-core/fontenv`
 为 537 通过、10 ignored、0 失败；上述本机 TNR 专项另行执行 1 项通过。
 新生成器还逐字节复现了旧版 7 个 DOCX 和 2 份清单，规范版 285 个段落的属性顺序核查通过。
+测试切到规范版并新增硬栏断回归后，两个真实 TNR 专项均通过，core 全目标 Clippy 通过。
+新增回归只钉住 `[45,50)` 栏断行、`[50,51)` 段落标记行和 `[51,56)` C010 行的
+相邻源区间、终止符、栏归属，未把尚未实现的 END 落位或未测字形计数当成通过。
+当前引擎的四份规范输入基线保存在
+同目录 `canonical/`：普通末页为 32+8，三个 continuous 输入仍为 32+9（含 END）。
+这明确记录了待实现的行为差异，没有把 Word 的 20+20 读数写成当前引擎已通过。
