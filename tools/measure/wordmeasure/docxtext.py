@@ -19,7 +19,7 @@
 | `<w:t>` 文本 | 原样 |
 | `<w:tab/>` | `\\t` |
 | `<w:br w:type="page"/>` | `\\x0c` |
-| `<w:br w:type="column"/>` | `\\x0c`，独立标注 `COLUMN_BREAK`，字形数未测 |
+| `<w:br w:type="column"/>` | `\\x0e`，独立标注 `COLUMN_BREAK`，字形数未测 |
 | `<w:br/>`、`<w:br w:type="textWrapping"/>` | `\\x0b` |
 | 段末（`</w:p>`） | `\\r` |
 | `<w:drawing>` / `<w:object>` | `\\x01`（行内对象占位符） |
@@ -75,7 +75,7 @@ def _paragraph_text(para: ET.Element) -> tuple[str, dict[int, str]]:
             if kind == "page":
                 push("\x0c", MARK_PAGE_BREAK)
             elif kind == "column":
-                push("\x0c", MARK_COLUMN_BREAK)
+                push("\x0e", MARK_COLUMN_BREAK)
             else:
                 push("\x0b", MARK_SOFT_RETURN)
         elif tag in (W + "drawing", W + "object", W + "pict"):

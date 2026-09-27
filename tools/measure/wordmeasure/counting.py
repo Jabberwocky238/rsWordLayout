@@ -19,6 +19,7 @@ from . import OK, UNDECIDABLE
 PARAGRAPH_MARK = "\r"
 SOFT_RETURN = "\x0b"  # w:br type="textWrapping"
 PAGE_OR_SECTION_BREAK = "\x0c"  # 分节符与手动分页符在 Range.Text 里都是 \x0c
+COLUMN_BREAK = "\x0e"  # Source identity is known; its glyph count remains unmeasured.
 TAB = "\t"
 INLINE_OBJECT = "\x01"  # 行内对象占位符
 
@@ -175,6 +176,11 @@ def expected_glyphs(
             take(RULES["PARAGRAPH_MARK"].glyphs, "PARAGRAPH_MARK")
         elif ch == SOFT_RETURN:
             take(RULES["SOFT_RETURN"].glyphs, "SOFT_RETURN")
+        elif ch == COLUMN_BREAK:
+            refuse(
+                "COLUMN_BREAK_COUNT_UNKNOWN: \\x0e identifies a column break; "
+                "no measured glyph-count rule, so page-break rules do not apply"
+            )
         elif ch == PAGE_OR_SECTION_BREAK:
             key = {
                 "OWN_LINE": "PAGE_BREAK_OWN_LINE",

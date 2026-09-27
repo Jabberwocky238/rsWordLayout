@@ -12,7 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from wordmeasure import OK, UNDECIDABLE, counting, docxtext, pairing, wordmodel
+from wordmeasure import OK, UNDECIDABLE, compare, counting, docxtext, pairing, wordmodel
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
@@ -152,15 +152,19 @@ def test_column_source_annotation_is_distinct_from_measured_controls(tmp_path):
     with zipfile.ZipFile(path, "w") as archive:
         archive.writestr("word/document.xml", xml)
     derived = docxtext.content_text(path)
-    assert derived["text"] == "A\x0c\x0c\x0b\r"
+    assert derived["text"] == "A\x0e\x0c\x0b\r"
     assert derived["marks"] == {
         1: "COLUMN_BREAK", 2: "PAGE_BREAK", 3: "SOFT_RETURN", 4: "PARAGRAPH_MARK"}
 
 
 @pytest.mark.parametrize("text,mark_at,line_end", [
+    # Keep old explicitly annotated captures undecidable as well.
     ("\x0c\r", 0, 1),
     ("\x0c\r", 0, 2),
     ("A\x0cB\r", 1, 3),
+    ("\x0e\r", 0, 1),
+    ("\x0e\r", 0, 2),
+    ("A\x0eB\r", 1, 3),
 ])
 @pytest.mark.parametrize("glyph_count", [0, 1])
 def test_column_break_never_borrows_page_break_counting(text, mark_at, line_end, glyph_count):
@@ -181,3 +185,62 @@ def test_column_break_never_borrows_page_break_counting(text, mark_at, line_end,
     assert paired.state == UNDECIDABLE
     assert paired.expected is None
     assert paired.pairs == []
+
+
+@pytest.mark.parametrize("no_balance", [0, 1])
+def test_canonical_column_fixture_preserves_captured_control_identity(no_balance):
+    """2026-09-27 raw Mac receipts contain C009\x0e\rC010\r, not form feed.
+
+    This tests source identity only, not the number of glyphs drawn by the break.
+    """
+    root = Path(__file__).resolve().parents[3]
+    fixture = root / "fixtures/column-balance-canonical-2026-09-27" / (
+        f"continuous40-break10-noBalance{no_balance}.docx"
+    )
+    derived = docxtext.content_text(fixture)
+    assert derived["text"][45:56] == "C009\x0e\rC010\r"
+    assert ord(derived["text"][49]) == 14
+    assert ord(derived["text"][50]) == 13
+    assert derived["marks"][49] == "COLUMN_BREAK"
+    assert derived["marks"][50] == "PARAGRAPH_MARK"
+    assert [(p["start"], p["end"]) for p in derived["paragraphs"][9:11]] == [
+        (45, 51), (51, 56)
+    ]
+    assert derived["text"][200:205] == "\x0cEND\r"
+    assert derived["marks"][200] == "SECTION_BREAK"
+    assert derived["endOfContent"] == 205
+
+
+def test_unannotated_column_break_does_not_borrow_a_page_break_hint():
+    predicted = counting.expected_glyphs("A\x0e\r", page_break_kind="BEFORE_MARK")
+    assert predicted.state == UNDECIDABLE
+    assert predicted.expected is None
+    assert any("COLUMN_BREAK_COUNT_UNKNOWN" in reason for reason in predicted.reasons)
+    assert not any(rule.startswith("PAGE_BREAK") for rule in predicted.applied)
+
+
+def test_bare_word_column_control_cannot_pass_without_source_annotations():
+    """Synthetic equal counts must not certify an unmeasured column-break rule."""
+    text = "A\x0e\r"
+    glyphs = [
+        {"glyphOrigin": [float(i), 10.0], "advanceVector": [1.0, 0.0],
+         "text": glyph_text, "textStatus": "mapped", "fontName": "test-font",
+         "effectiveSizePt": 12, "rise": 0}
+        for i, glyph_text in enumerate("A  ")
+    ]
+    bundle = {
+        "path": "synthetic-unannotated-column-control",
+        "sweep": {
+            "contentText": text, "endOfContent": 3,
+            "paragraphs": [{"start": 0, "end": 3}],
+            "positions": [{"offset": i, "page": 1, "line": 1} for i in range(3)],
+        },
+        "glyphs": {"pages": [{"index": 0, "width": 100, "height": 100, "glyphs": glyphs}]},
+    }
+    model = wordmodel.build(bundle)
+    assert model["state"] == UNDECIDABLE
+    assignment = model["pages"][0]["assignment"]
+    assert assignment["reason"] == "PAGE_COUNT_MODEL_INCOMPLETE"
+    assert any("COLUMN_BREAK_COUNT_UNKNOWN" in reason
+               for item in assignment["detail"] for reason in item["reasons"])
+    assert compare.compare(model, model).state == UNDECIDABLE
