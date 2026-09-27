@@ -3,6 +3,17 @@
 use super::*;
 use std::collections::VecDeque;
 
+#[derive(Clone, Copy)]
+struct KeepContinuation {
+    last_para: usize,
+    relaxed: bool,
+}
+
+struct FlowQuota {
+    count: usize,
+    successor: Option<KeepPrefix>,
+}
+
 #[derive(Clone)]
 struct ReplayStart {
     para: usize,
@@ -12,6 +23,8 @@ struct ReplayStart {
     regions: FlowRegions,
     page: Page,
     line_index: u32,
+    keep_continuation: Option<KeepContinuation>,
+    keep_prefix: Option<KeepPrefix>,
 }
 
 struct Flow {
@@ -26,6 +39,10 @@ struct Flow {
     // and region.
     // A document predecessor alone cannot establish adjacency after a flow break.
     paragraph_after: Option<Twips>,
+    // Continuation survives automatic flow changes; an actual prefix promise
+    // belongs only to the region where its predecessor was committed.
+    keep_continuation: Option<KeepContinuation>,
+    keep_prefix: Option<KeepPrefix>,
     replay: Option<ReplayStart>,
     trial_bottom: Option<i64>,
     next_bottom: Option<i64>,
@@ -47,6 +64,8 @@ impl Flow {
             required_bottom: top,
             previous_bottom: top,
             paragraph_after: None,
+            keep_continuation: None,
+            keep_prefix: None,
             replay: None,
             trial_bottom: None,
             next_bottom: None,
@@ -66,6 +85,8 @@ impl Flow {
             // The replay origin already includes the first paragraph's before
             // space. Its resumed formatter must not consume that space again.
             paragraph_after: None,
+            keep_continuation: start.keep_continuation,
+            keep_prefix: start.keep_prefix,
             replay: None,
             trial_bottom: Some(bottom),
             next_bottom: None,
@@ -84,13 +105,27 @@ impl Flow {
     }
 
     fn keep_capacity(&self, next: bool) -> i64 {
-        if self.trial_bottom.is_some() {
-            i64::MAX
-        } else if next {
+        if next {
             self.regions.next_full_height_fine()
         } else {
             self.regions.full_height_fine()
         }
+    }
+
+    fn keep_is_relaxed(&self) -> bool {
+        self.keep_continuation.is_some_and(|keep| keep.relaxed)
+    }
+
+    fn select_keep(&mut self, reservation: KeepReservation, current: VerticalExtent) -> (VerticalExtent, KeepPrefix) {
+        let relaxed = self.keep_is_relaxed()
+            || current.then(reservation.preferred).required_fine > self.keep_capacity(false);
+        self.keep_continuation = Some(KeepContinuation {
+            last_para: self.keep_continuation.map_or(reservation.last_para, |keep| {
+                keep.last_para.max(reservation.last_para)
+            }),
+            relaxed,
+        });
+        reservation.selected(relaxed)
     }
 
     // Every height-dependent rejection contributes the next capacity event.
@@ -128,6 +163,7 @@ impl Flow {
             return Err(());
         }
         self.paragraph_after = None;
+        self.keep_prefix = None;
         self.previous_bottom = self.previous_bottom.max(self.cursor_fine);
         self.regions.advance(
             &mut self.pages,
@@ -156,6 +192,8 @@ impl Flow {
                 regions: self.regions.clone(),
                 page: self.page.clone(),
                 line_index: self.line_index,
+                keep_continuation: self.keep_continuation,
+                keep_prefix: self.keep_prefix,
             });
         }
     }
@@ -312,6 +350,8 @@ impl<M: FontMetrics> Engine<'_, M> {
                 flow.required_bottom = trial.required_bottom;
                 flow.previous_bottom = trial.previous_bottom;
                 flow.paragraph_after = trial.paragraph_after;
+                flow.keep_continuation = trial.keep_continuation;
+                flow.keep_prefix = trial.keep_prefix;
                 return;
             }
             let Some(next) = trial.next_bottom else {
@@ -332,12 +372,12 @@ impl<M: FontMetrics> Engine<'_, M> {
         source: std::ops::Range<u32>,
         pending: &VecDeque<PendingLine>,
         flow: &mut Flow,
-    ) -> usize {
+    ) -> FlowQuota {
         let area = flow.regions.area();
         let next_region = flow.regions.next_region();
-        let keep_after = if Self::keep_link(paras, sections, index) {
-            let current = lines_extent(pending.iter());
-            self.keep_after_extent(
+        let current = lines_extent(pending.iter());
+        let selected = if !pending.is_empty() && !pending.iter().any(|line| line.flow_break.is_hard()) {
+            self.keep_reservation(
                 paras,
                 sections,
                 index,
@@ -347,42 +387,74 @@ impl<M: FontMetrics> Engine<'_, M> {
                     source.end,
                     next_region,
                 ),
-                flow.keep_capacity(false),
+                KeepPolicy {
+                    capacity: flow.keep_capacity(false),
+                    immediate_only: flow.keep_is_relaxed(),
+                },
             )
+            .map(|reservation| flow.select_keep(reservation, current))
         } else {
             None
         };
-        let (count, next_bottom) = self.page_line_quota(
-            &paras[index],
-            pending,
-            PageFit {
+        let segment = pending.iter().position(|line| line.flow_break.is_hard())
+            .map_or(pending.len(), |i| i + 1);
+        let whole = lines_extent(pending.iter().take(segment));
+        let keep_lines_feasible = paras[index].keep_lines
+            && whole.required_fine <= flow.keep_capacity(false);
+        let quota = |keep_after| {
+            let (count, next_bottom) = self.page_line_quota(&paras[index], pending, PageFit {
                 area,
                 next_region,
                 top_fine: flow.cursor_fine,
                 bottom_fine: flow.bottom(),
                 source_base: source.start,
                 keep_after,
-            },
-        );
+            });
+            if count < segment && keep_lines_feasible {
+                let whole_bottom = flow.cursor_fine + whole.required_fine;
+                (0, Some(next_bottom.map_or(whole_bottom, |next| next.max(whole_bottom))))
+            } else {
+                (count, next_bottom)
+            }
+        };
+        let (mut count, mut next_bottom) = quota(selected.map(|(extent, _)| extent));
+        let mut successor = selected.map(|(_, prefix)| prefix);
+        let incoming = flow.keep_prefix.filter(|prefix| {
+            prefix.source_start == source.start
+                && pending.front().is_some_and(|line| line.source_start < prefix.source_end)
+        });
+        let incoming_unmet = incoming.is_some_and(|prefix| {
+            count == 0 || pending[count - 1].source_end < prefix.source_end
+        });
+        let own_constraint_conflict = count == 0
+            && (keep_lines_feasible || paras[index].widow_control)
+            && whole.required_fine <= flow.keep_capacity(false)
+            && selected.is_some_and(|(after, _)| {
+                current.then(after).required_fine > flow.keep_capacity(false)
+            });
+        if incoming_unmet || own_constraint_conflict {
+            // A later outgoing keep may conflict with an already accepted
+            // prefix. Prefer the accepted prefix only if real fit and the
+            // paragraph's widow/keepLines constraints still allow it. Without
+            // an incoming promise, also preserve a feasible paragraph shape
+            // when that shape plus the outgoing prefix exceeds the physical
+            // body. A short balance trial alone must not create this conflict.
+            let (without_keep, next) = quota(None);
+            if without_keep > 0 && incoming.is_none_or(|prefix| {
+                pending[without_keep - 1].source_end >= prefix.source_end
+            }) {
+                count = without_keep;
+                next_bottom = next;
+                successor = None;
+            }
+        }
         if let Some(next) = next_bottom {
             flow.consider(next);
         }
-        if paras[index].keep_lines {
-            let segment = pending
-                .iter()
-                .position(|line| line.flow_break.is_hard())
-                .map_or(pending.len(), |i| i + 1);
-            let whole = lines_extent(pending.iter().take(segment));
-            if count < segment
-                && (flow.trial_bottom.is_some()
-                    || (flow.regions.is_partial()
-                        && whole.required_fine <= flow.regions.full_height_fine()))
-            {
-                flow.consider(flow.cursor_fine + whole.required_fine);
-                return 0;
-            }
+        FlowQuota {
+            count,
+            successor: if count == pending.len() && count > 0 { successor } else { None },
         }
-        count
     }
 
     fn format_flow_paragraph(
@@ -395,6 +467,15 @@ impl<M: FontMetrics> Engine<'_, M> {
         flow: &mut Flow,
     ) -> Result<(), ()> {
         let para = &paras[index];
+        if flow.keep_continuation.is_some_and(|keep| index > keep.last_para) {
+            flow.keep_continuation = None;
+        }
+        if flow.keep_prefix.is_some_and(|prefix| {
+            prefix.source_start != source_base
+                || resume.is_some_and(|cursor| cursor.source >= prefix.source_end)
+        }) {
+            flow.keep_prefix = None;
+        }
         let source_end = source_base
             + para
                 .runs
@@ -456,9 +537,10 @@ impl<M: FontMetrics> Engine<'_, M> {
         if para.keep_next
             && !flow.regions.is_empty(flow.line_index)
             && !lines.iter().any(|line| line.flow_break.is_hard())
+            && flow.keep_prefix.is_none()
         {
             let current = lines_extent(lines.iter());
-            let after = self.keep_after_extent(
+            let after = self.keep_reservation(
                 paras,
                 sections,
                 index,
@@ -468,8 +550,11 @@ impl<M: FontMetrics> Engine<'_, M> {
                     source_end,
                     flow.regions.next_region(),
                 ),
-                flow.keep_capacity(false),
-            );
+                KeepPolicy {
+                    capacity: flow.keep_capacity(false),
+                    immediate_only: flow.keep_is_relaxed(),
+                },
+            ).map(|reservation| flow.select_keep(reservation, current).0);
             if let Some(after) = after
                 && flow.cursor_fine + current.then(after).required_fine > flow.bottom()
             {
@@ -478,7 +563,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                 let next_lines =
                     self.break_paragraph_at(para, next_region.area, next_region.top_fine, source_base, start);
                 let next_extent = lines_extent(next_lines.iter());
-                let next_after = self.keep_after_extent(
+                let next_after = self.keep_reservation(
                     paras,
                     sections,
                     index,
@@ -488,19 +573,29 @@ impl<M: FontMetrics> Engine<'_, M> {
                         source_end,
                         flow.regions.region_after_next(),
                     ),
-                    flow.keep_capacity(true),
+                    KeepPolicy {
+                        capacity: flow.keep_capacity(true),
+                        immediate_only: flow.keep_is_relaxed(),
+                    },
                 );
                 let needed = next_after
-                    .map_or(next_extent, |after| next_extent.then(after))
+                    .map_or(next_extent, |reservation| {
+                        let relaxed = flow.keep_is_relaxed()
+                            || next_extent.then(reservation.preferred).required_fine > flow.keep_capacity(true);
+                        next_extent.then(reservation.selected(relaxed).0)
+                    })
                     .required_fine;
                 if needed <= flow.regions.next_full_height_fine() {
                     flow.advance(false)?;
+                    if let Some(reservation) = next_after {
+                        flow.select_keep(reservation, next_extent);
+                    }
                     lines = next_lines;
                 }
             }
         }
         let mut pending: VecDeque<_> = lines.into();
-        let mut remaining = self.flow_quota(
+        let mut quota = self.flow_quota(
             paras,
             sections,
             index,
@@ -509,7 +604,7 @@ impl<M: FontMetrics> Engine<'_, M> {
             flow,
         );
         while !pending.is_empty() {
-            if remaining == 0
+            if quota.count == 0
                 && (!flow.regions.is_empty(flow.line_index) || flow.regions.is_partial())
             {
                 flow.advance(false)?;
@@ -527,7 +622,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                         },
                     )
                     .into();
-                remaining = self.flow_quota(
+                quota = self.flow_quota(
                     paras,
                     sections,
                     index,
@@ -536,14 +631,15 @@ impl<M: FontMetrics> Engine<'_, M> {
                     flow,
                 );
                 // An empty partial band must not use the full-page oversized fallback.
-                if remaining == 0 && flow.regions.is_partial() {
+                if quota.count == 0 && flow.regions.is_partial() {
                     continue;
                 }
             }
-            if remaining == 0 && flow.trial_bottom.is_some() {
+            if quota.count == 0 && flow.trial_bottom.is_some() {
                 return Err(());
             }
-            remaining = remaining.max(1);
+            let accepted = quota.count > 0;
+            quota.count = quota.count.max(1);
             let line = pending.pop_front().expect("remaining source line");
             flow.record_start(index, source_base, &line);
             self.place_line(
@@ -559,8 +655,15 @@ impl<M: FontMetrics> Engine<'_, M> {
                 .max(flow.cursor_fine + line.vertical.required_fine);
             flow.cursor_fine += line.vertical.advance_fine;
             flow.line_index += 1;
-            remaining -= 1;
+            quota.count -= 1;
+            if flow.keep_prefix.is_some_and(|prefix| line.source_end >= prefix.source_end) {
+                flow.keep_prefix = None;
+            }
+            if accepted && pending.is_empty() && !line.flow_break.is_hard() {
+                flow.keep_prefix = quota.successor;
+            }
             if line.flow_break.is_hard() {
+                flow.keep_continuation = None;
                 flow.advance(line.flow_break == FlowBreak::Page)?;
                 area = flow.regions.area();
                 if let Some(line) = pending.front() {
@@ -577,7 +680,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                         )
                         .into();
                 }
-                remaining = self.flow_quota(
+                quota = self.flow_quota(
                     paras,
                     sections,
                     index,

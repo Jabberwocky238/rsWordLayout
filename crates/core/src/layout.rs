@@ -1533,6 +1533,37 @@ struct PageFit {
     keep_after: Option<VerticalExtent>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct KeepPrefix {
+    source_start: u32,
+    source_end: u32,
+}
+
+#[derive(Clone, Copy)]
+struct KeepPolicy {
+    capacity: i64,
+    immediate_only: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct KeepReservation {
+    preferred: VerticalExtent,
+    minimum: VerticalExtent,
+    preferred_prefix: KeepPrefix,
+    minimum_prefix: KeepPrefix,
+    last_para: usize,
+}
+
+impl KeepReservation {
+    fn selected(self, relaxed: bool) -> (VerticalExtent, KeepPrefix) {
+        if relaxed {
+            (self.minimum, self.minimum_prefix)
+        } else {
+            (self.preferred, self.preferred_prefix)
+        }
+    }
+}
+
 fn lines_extent<'a>(lines: impl Iterator<Item = &'a PendingLine>) -> VerticalExtent {
     lines.fold(VerticalExtent::default(), |extent, line| extent.then(line.vertical))
 }
@@ -1740,21 +1771,24 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             })
     }
 
-    /// Space required after a linked paragraph. Intermediate keepNext paragraphs
-    /// stay whole when the chain fits; an oversized chain relaxes to the immediate
-    /// successor's minimum prefix so an empty page always makes progress.
-    fn keep_after_extent(
+    /// Preferred reservation: whole intermediate keepNext paragraphs followed
+    /// by the terminal paragraph's legal prefix. This does not measure the whole
+    /// connected paragraph group. The caller includes its current extent before
+    /// deciding whether this reservation can fit the physical body.
+    fn keep_reservation(
         &self,
         paras: &[Para],
         sections: &[crate::LayoutSection],
         index: usize,
         area: Rect,
         position: (i64, u32, FlowRegion),
-        capacity: i64,
-    ) -> Option<VerticalExtent> {
+        policy: KeepPolicy,
+    ) -> Option<KeepReservation> {
         let (origin, mut source, next_region) = position;
         let mut extent: Option<VerticalExtent> = None;
         let mut minimum = None;
+        let mut preferred_prefix = None;
+        let mut minimum_prefix = None;
         let mut index = index;
         while Self::keep_link(paras, sections, index) {
             let next = &paras[index + 1];
@@ -1784,12 +1818,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 }
             }
             let mut prefix_extent = lines_extent(lines.iter().take(prefix));
-            if prefix_extent.required_fine > capacity {
+            if prefix_extent.required_fine > policy.capacity {
                 prefix = if next.widow_control {
                     if segment_len == 3 { 3 } else { 2.min(segment_len) }
                 } else { 1.min(segment_len) };
                 prefix_extent = lines_extent(lines.iter().take(prefix));
-                if prefix_extent.required_fine > capacity {
+                if prefix_extent.required_fine > policy.capacity {
+                    prefix = 1.min(segment_len);
                     prefix_extent = lines.first().map_or(VerticalExtent::default(), |l| l.vertical);
                 }
             }
@@ -1800,20 +1835,32 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 |previous| previous.with_gap(gap).then(next),
             );
             minimum.get_or_insert(append(prefix_extent));
+            let prefix_source = KeepPrefix {
+                source_start: source,
+                source_end: lines[prefix - 1].source_end,
+            };
+            minimum_prefix.get_or_insert(prefix_source);
             let has_hard_break = lines.iter().any(|l| l.flow_break.is_hard());
-            let intermediate = !has_hard_break && Self::keep_link(paras, sections, index + 1);
+            let intermediate = !policy.immediate_only
+                && !has_hard_break && Self::keep_link(paras, sections, index + 1);
+            preferred_prefix.get_or_insert(if intermediate {
+                KeepPrefix { source_start: source, source_end: lines[segment_len - 1].source_end }
+            } else { prefix_source });
             let combined = append(if intermediate { whole } else { prefix_extent });
             extent = Some(combined);
-            if combined.required_fine > capacity {
-                return minimum;
-            }
             if !intermediate {
                 break;
             }
             source += next.runs.iter().map(|r| utf16_len(&r.text)).sum::<u32>() + 1;
             index += 1;
         }
-        extent
+        extent.map(|preferred| KeepReservation {
+            preferred,
+            minimum: minimum.expect("a successor has a minimum prefix"),
+            preferred_prefix: preferred_prefix.expect("a successor has a preferred prefix"),
+            minimum_prefix: minimum_prefix.expect("a successor has a minimum prefix source"),
+            last_para: index + 1,
+        })
     }
 
     /// Choose an automatic page boundary before committing any of the candidate
