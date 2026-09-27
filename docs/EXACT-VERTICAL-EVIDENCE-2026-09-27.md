@@ -133,3 +133,107 @@ JSON contract `SOFT_RETURN`; its failed result and script snapshot are retained.
 After fixing that check, all 12 cases pass and all 12 trace hashes are identical
 between the two runs. No fixture, engine behavior or capture was changed to
 obtain the passing validator result.
+
+## Native host arithmetic candidate
+
+The installed Word 16.112.3 / 16.112.26083020 arm64 host contains an actual
+two-stage integer calculation. This supplies a new source-derived candidate;
+the public property mapping and runtime branch selection are still unknown.
+The whole host binary SHA-256 is
+`b569d257c22eb75b990ff8212b75c734ae20f51e9dacc9ccc509c988a6e0d52c`,
+and its arm64 slice SHA-256 is
+`ee57641615f6889e854e058e665e3932f23db42c0f947c6ec8cc52d4280bd94d`.
+
+The host wrapper at `0x100379ef4` forwards four integer components to
+`PTLS7::LsModifyLineHeight` and conditionally `LsModifyDisplayLineHeight`.
+Its caller at `0x1003789a8` contains this bounded branch, using neutral field
+names rather than assuming that recovered offsets are OOXML properties:
+
+```text
+H = signed16(thread_context + 0x38)
+S = signed32(*global_slot_0x10472c620 + 0x18c)
+T = helper(abs(H), S, 1440)
+... branch conditions ...
+C = helper(T, 4, 5)
+signed32(line_record + 0xc0) = C
+```
+
+The first helper call is at `0x100378f1c`, the second at `0x100379800`, and
+the store at `0x10037988c`. Reaching the second call depends on a negative H,
+intervening object/compatibility gates, a virtual-method result and selector
+`thread_context+0x6c == 0`. Neighboring branches instead use one half, one fifth
+or a difference from another component. Later code can modify the result.
+Consequently, the existence of the 4/5 operation does not make it a universal
+baseline proportion or establish `C` as a PDF glyph offset.
+
+For normal in-range arguments the helper at `0x100064708` calculates `a*b/c`
+with nearest rounding, ties away from zero. A separate instruction
+transliteration agrees with independent rational arithmetic on 59,628
+synthetic checks; it did not execute the native binary. The saved analysis
+also distinguishes division by zero and the ARM64 fast-path signed-division
+overflow exception, so the helper is not described as globally saturating.
+
+The two scale slots are `0x10472c620` and `0x10472c628`. Their encoded Mach-O
+fixups point at an initial structure in `__DATA.__common`, a `S_ZEROFILL`
+section. Offline zero-initialized words at +0x188/+0x18c are not file-backed
+runtime scale values. Initialization/selection can replace these values; no
+unconditional scale of 300 was found. The frozen native README initially used
+the inaccurate phrase "file-backed words"; the companion zero-fill correction
+records the section evidence while preserving the original artifact hashes.
+
+Before forwarding to PTLS, `0x100379b98` also converts multiple components
+between the two scale contexts and reconciles their sum with a separately
+rounded total, distributing integer remainders. That is a concrete next
+dataflow target. It has not been established as the cause of the residuals.
+
+Static files are in `artifacts/exact-baseline-native-2026-09-27/`; its
+11-file `SHA256SUMS` has SHA-256
+`743dde772e90b77ae1cdc71fffc3765c940a836bf56005210014ad3418c75677`.
+The additive correction is
+`artifacts/exact-baseline-native-2026-09-27-zero-fill-correction.md`.
+Its SHA-256 is
+`7ee26b530709425518cec2d305cd63037c1db5fdc6291161889e0914e1d6f696`.
+All disassembly was offline, with no process launch, attachment or Word event.
+
+## Fixed retrospective candidate result
+
+The candidate evaluation fixed S=300, both rounding operations, and this
+component-to-PDF mapping before reading the bound old-input table:
+
+```text
+predicted_y = (topTwips * 300 / 1440
+               + round(round(lineTwips * 300 / 1440) * 4 / 5)) * 72 / 300
+```
+
+S=300 was an explicit hypothesis motivated by the 0.24 pt PDF lattice,
+not measured host state. No scale search, coefficient fitting, added bias or
+font-specific adjustment was performed. All arithmetic uses rational values.
+Archived decimal origins are also retained; lattice normalization only removes
+serialization residuals below the predeclared 1e-8 pt bound.
+
+Of 113 bound page starts, 110 satisfy the exact/zero-before/unraised-origin
+scope: 98 match and 12 fail. Three atLeast entries remain OUT_OF_SCOPE. All
+12 failures have observed y greater than predicted y by exactly 0.24 pt:
+
+| exact line (twips) | Failing observations | Predicted y (pt) | Word y (pt) |
+| ---: | ---: | ---: | ---: |
+| 256 | 6 font families | 82.08 | 82.32 |
+| 280 | 1 | 83.04 | 83.28 |
+| 304 | 1 | 84.00 | 84.24 |
+| 328 | 1 | 84.96 | 85.20 |
+| 400 | 1 | 87.84 | 88.08 |
+| 520 | 1 | 92.64 | 92.88 |
+| 640 | 1 | 97.44 | 97.68 |
+
+The previously observed canonical exact480/top720 column point matches and is
+reported separately. Eight local vmisc2 matches do not upgrade that bundle's
+UNDECIDABLE status. The table above is retrospective counterevidence to the
+complete hypothesized mapping, not an independent validation or disproof of
+the native branch itself. The engine baseline rule remains unchanged.
+
+`artifacts/exact-baseline-candidate-2026-09-27/results.json` has SHA-256
+`d4695ce4f04bc1688b937ec950271a803f8c9665dfcc897d6a45a4408f9f1cb1`.
+Its four-file `SHA256SUMS` has SHA-256
+`dbba25d60c4b5eecadebc74fc05bb32e78c57be62df8843e60fb03f6ebb892fd`.
+Next work is to identify scale units, selector/property mapping and subsequent
+component-to-glyph conversion, then test them against the new canonical inputs.
