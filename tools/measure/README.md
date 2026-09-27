@@ -286,6 +286,21 @@ V 裁到 30，true 保留 40。S 的来源、单位、查询失败和外层分�
 不可覆盖。精确合同与生产接入约束见
 [Simple 可执行参考](../../docs/SIMPLE-FIT-REFERENCE-2026-09-27.md)。
 
+### 显示行高与端点量化参考
+
+`display_height.py` 用显式起点、源高度 R.b8、两端比例和当前行记录，重放
+`N(origin+height)-N(origin)` 及随后宿主的行高调整。
+
+```sh
+python3 tools/measure/display_height.py \
+  --input tools/measure/examples/display-height-explicit.json \
+  --out artifacts/display-height-new.json
+```
+
+输出保留转换端点、直接字段写入和 LS 四项转发参数。`ARITHMETIC_REFERENCE`
+不推断实际尺度、最终基线或 PDF 原点；R.b8 与旧 R.b4 必须分别提供。
+合同和证据见[显示行高参考](../../docs/DISPLAY-HEIGHT-REFERENCE-2026-09-27.md)。
+
 ### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：

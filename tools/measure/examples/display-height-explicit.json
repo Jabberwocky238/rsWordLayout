@@ -1,0 +1,11 @@
+{
+  "schema": "rsword-display-height-input/1",
+  "conversion": {
+    "origin": 1,
+    "height_b8": 1,
+    "source_scale": 2,
+    "target_scale": 1
+  },
+  "record": {"b4": 1, "bc": 1, "c4": 0, "d4": 1},
+  "hasLine": true
+}
