@@ -237,3 +237,86 @@ Its four-file `SHA256SUMS` has SHA-256
 `dbba25d60c4b5eecadebc74fc05bb32e78c57be62df8843e60fb03f6ebb892fd`.
 Next work is to identify scale units, selector/property mapping and subsequent
 component-to-glyph conversion, then test them against the new canonical inputs.
+
+## Scale selection and component reconciliation
+
+A subsequent bounded offline slice identifies actual scale initialization
+paths, without measuring the active mode. The initializer at `0x10006f468`
+uses `input & 3`: mode 2 supplies 294912 on both axes, mode 3 supplies 1440,
+and modes 0/1 obtain their values from other records. The parent at
+`0x10006e9c8` contains the diagnostic string `Unexpected SetFlm call during
+font loading`. Its request's low three bits select slot 620, and bits 3..5
+select slot 628; these selectors are distinct from the initializer's modes.
+Some paths alias the two pointers. Others use a two-stage nearest-rounded
+72/100 calculation; cancelling the factors would discard an intermediate
+rounding step. No physical DPI or PDF export mode name is established.
+
+The complete reconciliation function `[0x100379b98,0x100379ef4)` has now been
+extracted into a neutral model. Let `Fxx` denote the record's signed 32-bit
+field at hexadecimal offset xx, and `S0/S1` the two scale words. The branch
+tests **pointer identity**, not equality of the scale values. When pointers
+are equal it copies six fields and returns these differences:
+
+```text
+B = Fb8 - (Fc0 + Fc8)
+C = Fc0 - Fd8
+```
+
+For distinct pointers, the function separately rounds the total, four
+partition components and another extent using `R(v,S1,S0)`, then distributes
+their discrepancy. Positive discrepancy adds first to B, then C, then B.
+Negative discrepancy first removes from the other components; when those
+cannot supply a unit, a helper compares reverse-converted differences to
+choose B or C. Its comparison is not simply which component is larger.
+This path also clamps one extent; the equal-pointer path does not.
+
+The caller forwards `(Fc4, B, C, Fd4)` as four PTLS height arguments. Thus
+the earlier `4/5` result stored at Fc0 is split between differences rather
+than passed unchanged as one height. Other conditional writes can change
+Fc0 before reconciliation. A subsequent conditional hook can independently
+increase Fc4 and Fd4 before forwarding. The hook's increments remain unknown.
+
+The model agrees with a saved-instruction interpreter on 10,385 complete
+function inputs, visiting 253/253 instruction addresses. Another 12,744
+checks cover the rounding helper's signed and overflow boundaries. These
+are static-model checks, not execution of native Word. Automatic conversion
+conserves a nonnegative partition under the documented finite positive-scale
+conditions and a nonnull adjustment context. Conservation is not universal:
+four synthetic explicit-total-override counterexamples are retained. The
+first overly broad conservation assertion and its failure log are preserved.
+
+The PTLS display entry supplies a further boundary. Under bit 1 of the
+display-subline record's +0x58 flags, `LsDisplayLineNew` rounds the incoming
+point using +0x64/+0x5c on x and +0x68/+0x60 on y before calling
+`LserrDisplaySublineCore`. Later code uses inverse ratios. This establishes
+another conditional conversion, not the incoming point or the PDF origin.
+
+The bounded artifacts and their hash-list SHA-256 values are:
+
+| Directory under `artifacts/` | Hash list | SHA-256 |
+| --- | --- | --- |
+| `exact-scale-native-2026-09-27/` | `SHA256SUMS`, 5 files | `d2371ee4fb8bbc6929a76fecab28c803d9bf42e93627140367aee20c521d3912` |
+| `exact-height-reconcile-2026-09-27/` | `SHA256SUMS`, 11 files | `bab4723bcbedc9cde66b3b1a41af7493c74937848baae977469d1a63327c2827` |
+| `exact-display-origin-native-2026-09-27/` | `SHA256SUMS`, 3 files | `7fa1526e25c99c0d393d6f4ad702c8c36d89a7e41ed274a907df66f5f2ece576` |
+
+The reconciliation passing report has SHA-256
+`29963e16369aa40cdf1454ea9c2433abbf17f30f6c9636c3ecba2f8a764fd711`.
+Host and PTLS hashes match the preceding evidence. No production formula or
+old frozen artifact changed. Runtime selectors/scales, the complete public
+property mapping and the final glyph-origin calculation remain unresolved;
+these static findings do not rescue the rejected fixed-300 candidate.
+
+A separate selector slice proves a representation conversion, while leaving
+its public names unresolved. `0x100338fb0` converts H at context+0x38 and
+F at +0x3a into three halfwords: negative H becomes `[1,-H,0]`; nonnegative
+H with F=0 becomes `[0,H,0]`; otherwise it becomes `[2,0,H]`. Another path
+preserves selector +0x6c values 0..4 and reports an error before mapping
+larger values to 4 in a destination object's byte. The height consumer reads
+the raw context selector, so that separate validation is not its proven
+precondition. A discovered 696-byte context write is a paired save/restore,
+not an original property setter. No OOXML enum or default is inferred.
+
+`artifacts/exact-selector-map-2026-09-27/SHA256SUMS` binds six files and has
+SHA-256 `1aac3f2449fe05a65bb2bc38e6615b8551d1494cdc27ffd7355e327f4b2980ea`.
+Its README records the bounded lookup and the next concrete context-population
+entry, `0x100353de4`, rather than assigning names from historical offsets.
