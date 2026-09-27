@@ -73,3 +73,24 @@ Clippy `-D warnings` 和新二进制构建，均退出 0。Android 历史窄路�
 `cafa1d1bf21ec7a7b799ad208884065858614bc3939d0b832f2d78306fc229b9`。
 Mac 回放包为 533 个成员，清单 SHA-256：
 `582f11010862b75c4daca3ed18cb512f02cb98093212546fd4822ca8a15e2413`。
+
+## 后续：行单位段距的输入边界
+
+`beforeLines` / `afterLines` 的丢失点已定位到 `bridge::read_spacing`。钉住的 parser
+已解析并按属性合并它们，`Resolver::para` 的有效 JSON 也保留这两个字段；当前 bridge
+只消费 `line`、`lineRule`、`before` 和 `after`。因此并非缺少 XML 解析能力。
+
+旧 `before-lines` 报告的 5 份 DOCX 共 210 段，均未声明字体、字号、样式、settings
+或网格，只保存了汇总页数。其结果与当时未知默认字体环境下 240-twip 的基数相容，
+不能将该基数泛化为所有字体、字号和网格的“一行”。有效属性入口的缺省 after 也已是
+0，不能继续沿用报告中旧 bridge 默认 after=120 的解释。
+
+另外，Word 对层叠有明确差异：较早样式层的非零行单位段距会覆盖随后应用的对应普通
+单位段距，见 [MS-OI29500 2.1.60](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/264a0139-8174-4574-b20d-ab778e770931)。
+parser 的逐属性合并保留了两者，但没有替布局器做这一单位优先级决策。显式零、
+自动段距及实际一行尺寸仍需分别验证，不能仅加一个固定的 `value * 240 / 100`。
+
+本片只记录输入审计，没有启用换算。5 个源包、15 个部件、逐段 CP 和 11 份来源的
+哈希保存在 `artifacts/before-after-lines-evidence-2026-09-27/source-audit.json`，
+SHA-256 为 `e4d158617440bda2005d46f128e73448ccf86daf101a0970a345fa819ab6f98c`。
+没有新的 Word、引擎或原生函数执行。
