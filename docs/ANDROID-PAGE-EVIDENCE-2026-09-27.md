@@ -145,10 +145,10 @@ win ascent=1950、descent=550，两种自然高度之和均为 2500 字体单位
 
 ## 下一步代码边界
 
-`PendingLine.height_fine` 目前同时用于游标推进、页底判断和 keep 保留约束。
-先将其分成推进量 `advance_fine` 与落位后需要容纳的边界 `required_fine`，无网格时
-保持现有数值不变。整段保留需要累计 `max(prefix_advance + required)`，不能直接把
-所有占高相加；也不能只看末行，因为之前行的上/下延伸可能更大。
+`PendingLine` 已分成推进量 `advance_fine` 与需要容纳的底边 `required_fine`，
+无网格时保持现有数值不变。整段保留累计 `max(prefix_advance + required)`，
+不直接相加所有占高，也不只看末行，因为之前行的下延伸可能更大。
+实现与边界测试见 [纵向度量](LINE-VERTICAL-METRICS-2026-09-27.md)。
 
 网格投影分别接入节 `docGrid` 与段 `snapToGrid`，不混入字体度量的 Mac 基线量化选项。
 自动行距的网格步长和边界应接受字体度量及段落属性产生的输入；exact 对照保持原行为。

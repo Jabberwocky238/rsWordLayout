@@ -43,14 +43,12 @@ Android 的 `ptls7/ls`、`ptls7/pts` 字符串、回调族，以及 LS 产行、
 | PTS 对应职责 | `layout.rs::Engine::layout`、`line_height_fine` | 根据节、页面/栏、保留约束和行度量选择落位及续排位置 |
 | 输出 | `place_line`、`paint_document`、`oracle.rs`、`oracle_json.rs` | 保留行身份和源区间，分别报告断行、几何与页/栏归属 |
 
-有三处会直接限制下一阶段算法，优先处理：
+制定路线时有三处接缝限制了后续算法，现已完成基础改造：
 
-1. `layout-trace` 目前从 `PageSetup::a4()` 加 CLI 覆盖值构造页面，没有读取 DOCX 页宽、
-   页高和各边页边距。`bridge.rs` 将分节简化成 `page_break_before`。
-2. `Engine::layout` 先整段 `break_paragraph`，之后才处理段前分页、`keepLines` 和逐行
-   换页。行的可用区间已按旧 y 算好；有浮动对象或换栏后，需要在实际位置重新断行。
-3. `PendingLine.height_fine` 同时用于游标推进、保留约束和页面边界判断。
-   docGrid 实验要求区分行间推进与边界占高，不能只替换这个数的公式。
+1. `layout-trace` 已读取 DOCX 页宽、页高和边距，并单独记录 CLI 覆盖值；分节保留独立输入。
+2. 页面或环绕变化后，`LineCursor` 从原源流续排；保留规则搬移整段时也重新断行。
+3. `PendingLine.vertical` 已区分游标推进与最大占高，分页和保留约束共用组合规则。
+   现有无网格行仍产生相等数值，尚未引入网格阈值，见 [纵向度量](LINE-VERTICAL-METRICS-2026-09-27.md)。
 
 先修改现有模块。到第 3 片确实需要续排状态时，再将相关私有实现提取到
 `crates/core/src/layout/line.rs` 和 `layout/flow.rs`；保留 `Engine` 及 `lib.rs` 的公开出口。
@@ -158,7 +156,7 @@ Android 的无 styles 最小夹具不能证明样式合成正确；新样式用�
 
 ## 4. 文档网格与行间推进、页面占高
 
-**状态：页数证据审计已接入，docGrid 算法待实现。**
+**状态：页数证据审计、推进/占高分离已接入，docGrid 算法待实现。**
 `tools/measure/android_pages.py` 保存全部 PGIDX 与上下文，九份旧日志严格模式全部不可判；
 条件比较六份相同、三份因 80 条采样耗尽不可判。三组容量继续保留为报告级约束，
 不能宣称原日志已认证最终页数。见 [页数证据进展](ANDROID-PAGE-EVIDENCE-2026-09-27.md)。
@@ -249,7 +247,7 @@ Mac 既有误差与不可判项按回放报告保留，切片的条件是相对�
 [量具说明](../tools/measure/README.md#android-页容器计数审计)，不运行 Word 或引擎。
 
 页面几何、跨页续排、有效属性、首个文档兼容项与段落保留已完成首轮接入。
-打印页数证据路径已经落地；下一步分离行间推进与页面占高，再推进 docGrid 和分栏。
+打印页数证据路径与行间推进/占高分离已经落地；下一步推进 docGrid 的真实输入和分栏。
 不要把错误输入吸收到行高公式里。
 
 ## 第一片验收记录

@@ -1320,6 +1320,11 @@ struct TabSegment {
     before_point: f64,
 }
 
+mod vertical;
+use vertical::VerticalExtent;
+#[cfg(test)]
+mod flow_tests;
+
 /// 排好的一行，尚未定位到页面。
 struct PendingLine {
     baseline: Twips,
@@ -1353,11 +1358,9 @@ struct PendingLine {
     /// 与 `Para::page_break_before` 不同：那条是段落属性（`w:pageBreakBefore`），
     /// 这条是段**内**任意位置的手动分页符，所以必须挂在行上而不是段上。
     page_break_after: bool,
-    /// 本行高度的**精确值**，单位 1/7200 英寸。
-    ///
-    /// 游标推进、整段保留与分页预留都使用同一个值，避免逐行取整后
-    /// 「放得下」的判断与实际推进相矛盾。
-    height_fine: i64,
+    /// Cursor advance and required bottom extent, in 1/7200 inch units.
+    /// Kept separate so a future grid can advance beyond the occupied line box.
+    vertical: VerticalExtent,
     /// 本行起点在全篇 UTF-16 偏移空间里的下标。
     ///
     /// 有片段时可以从片段推，但**空行没有片段**——而空行同样要有源位置，
@@ -1384,7 +1387,11 @@ struct PageFit {
     next_area: Rect,
     top_fine: i64,
     source_base: u32,
-    keep_after_fine: i64,
+    keep_after: Option<VerticalExtent>,
+}
+
+fn lines_extent<'a>(lines: impl Iterator<Item = &'a PendingLine>) -> VerticalExtent {
+    lines.fold(VerticalExtent::default(), |extent, line| extent.then(line.vertical))
 }
 
 /// 模拟哪个平台上的 Word。
@@ -1579,26 +1586,27 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     /// Space required after a linked paragraph. Intermediate keepNext paragraphs
     /// stay whole when the chain fits; an oversized chain relaxes to the immediate
     /// successor's minimum prefix so an empty page always makes progress.
-    fn keep_after_height(
+    fn keep_after_extent(
         &self,
         paras: &[Para],
         sections: &[crate::LayoutSection],
         index: usize,
         area: Rect,
         position: (i64, u32, Rect),
-    ) -> i64 {
-        let (mut top, mut source, next_area) = position;
-        let origin = top;
+    ) -> Option<VerticalExtent> {
+        let (origin, mut source, next_area) = position;
+        let mut extent: Option<VerticalExtent> = None;
         let capacity = i64::from(area.height) * FINE_PER_TWIP;
         let mut minimum = None;
         let mut index = index;
         while Self::keep_link(paras, sections, index) {
             let next = &paras[index + 1];
-            top += (i64::from(paras[index].space_after) + i64::from(next.space_before)) * FINE_PER_TWIP;
-            let y = (top as f64 / FINE_PER_TWIP as f64).round() as Twips;
+            let gap = (i64::from(paras[index].space_after) + i64::from(next.space_before)) * FINE_PER_TWIP;
+            let advance = extent.map_or(0, |extent| extent.advance_fine) + gap;
+            let y = ((origin + advance) as f64 / FINE_PER_TWIP as f64).round() as Twips;
             let lines = self.break_paragraph(next, area, y, source);
             let segment_len = lines.iter().position(|l| l.page_break_after).map_or(lines.len(), |i| i + 1);
-            let whole: i64 = lines.iter().take(segment_len).map(|l| l.height_fine).sum();
+            let whole = lines_extent(lines.iter().take(segment_len));
             let mut prefix = if next.keep_lines || (next.widow_control && segment_len == 3) {
                 segment_len
             } else if next.widow_control { 2.min(segment_len) } else { 1.min(segment_len) };
@@ -1613,22 +1621,29 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     prefix = segment_len;
                 }
             }
-            let mut prefix_height: i64 = lines.iter().take(prefix).map(|l| l.height_fine).sum();
-            if prefix_height > capacity {
+            let mut prefix_extent = lines_extent(lines.iter().take(prefix));
+            if prefix_extent.required_fine > capacity {
                 prefix = if next.widow_control {
                     if segment_len == 3 { 3 } else { 2.min(segment_len) }
                 } else { 1.min(segment_len) };
-                prefix_height = lines.iter().take(prefix).map(|l| l.height_fine).sum();
-                if prefix_height > capacity {
-                    prefix_height = lines.first().map_or(0, |l| l.height_fine);
+                prefix_extent = lines_extent(lines.iter().take(prefix));
+                if prefix_extent.required_fine > capacity {
+                    prefix_extent = lines.first().map_or(VerticalExtent::default(), |l| l.vertical);
                 }
             }
-            minimum.get_or_insert(top - origin + prefix_height);
+            let append = |next: VerticalExtent| extent.map_or(
+                // The first successor can start before this origin when spacing
+                // is negative. An empty prefix must not occupy the origin itself.
+                VerticalExtent { advance_fine: gap + next.advance_fine, required_fine: gap + next.required_fine },
+                |previous| previous.with_gap(gap).then(next),
+            );
+            minimum.get_or_insert(append(prefix_extent));
             let has_hard_break = lines.iter().any(|l| l.page_break_after);
             let intermediate = !has_hard_break && Self::keep_link(paras, sections, index + 1);
-            top += if intermediate { whole } else { prefix_height };
-            if top - origin > capacity {
-                return minimum.unwrap_or(0);
+            let combined = append(if intermediate { whole } else { prefix_extent });
+            extent = Some(combined);
+            if combined.required_fine > capacity {
+                return minimum;
             }
             if !intermediate {
                 break;
@@ -1636,7 +1651,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             source += next.runs.iter().map(|r| utf16_len(&r.text)).sum::<u32>() + 1;
             index += 1;
         }
-        top - origin
+        extent
     }
 
     /// Choose an automatic page boundary before committing any of the candidate
@@ -1647,15 +1662,18 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         lines: &std::collections::VecDeque<PendingLine>,
         fit: PageFit,
     ) -> usize {
-        let mut top = fit.top_fine;
+        let mut extent = VerticalExtent::default();
         let mut count = 0;
         for (i, line) in lines.iter().enumerate() {
-            let keep_after = if i + 1 == lines.len() && !line.page_break_after { fit.keep_after_fine } else { 0 };
-            if top + line.height_fine + keep_after > i64::from(fit.area.bottom()) * FINE_PER_TWIP {
+            let candidate = extent.then(line.vertical);
+            let required = if i + 1 == lines.len() && !line.page_break_after {
+                fit.keep_after.map_or(candidate, |after| candidate.then(after)).required_fine
+            } else { candidate.required_fine };
+            if fit.top_fine + required > i64::from(fit.area.bottom()) * FINE_PER_TWIP {
                 break;
             }
             count += 1;
-            top += line.height_fine;
+            extent = candidate;
             if line.page_break_after {
                 break;
             }
@@ -1778,20 +1796,20 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             cursor_fine += fine(para.space_before);
             let mut lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
             let first_segment = lines.iter().position(|l| l.page_break_after).map_or(lines.len(), |i| i + 1);
-            let block_height_fine: i64 = lines.iter().take(first_segment).map(|l| l.height_fine).sum();
+            let block_extent = lines_extent(lines.iter().take(first_segment));
 
             // keepLines only moves a group that can fit a fresh page. For an
             // oversized group, relax this constraint without breaking a feasible
             // keepNext link to the preceding paragraph.
             if para.keep_lines
-                && cursor_fine + block_height_fine > fine(area.bottom())
+                && cursor_fine + block_extent.required_fine > fine(area.bottom())
                 && !page.fragments.is_empty()
             {
                 let next_area = setup.content_area();
                 let next_lines = self.break_paragraph(para, next_area, next_area.y, para_base);
                 let next_segment = next_lines.iter().position(|l| l.page_break_after).map_or(next_lines.len(), |i| i + 1);
-                let next_height: i64 = next_lines.iter().take(next_segment).map(|l| l.height_fine).sum();
-                if next_height <= fine(next_area.height) {
+                let next_extent = lines_extent(next_lines.iter().take(next_segment));
+                if next_extent.required_fine <= fine(next_area.height) {
                     area = next_area;
                     pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                     cursor_fine = fine(area.y);
@@ -1803,14 +1821,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             // Move a keepNext chain before committing its first line when the
             // group fits a fresh page. Hard breaks remain stronger than keep rules.
             if para.keep_next && !page.fragments.is_empty() && !lines.iter().any(|l| l.page_break_after) {
-                let height: i64 = lines.iter().map(|l| l.height_fine).sum();
-                let after = self.keep_after_height(paras, sections, idx, area, (cursor_fine + height, source_cursor, setup.content_area()));
-                if after > 0 && cursor_fine + height + after > fine(area.bottom()) {
+                let current = lines_extent(lines.iter());
+                let after = self.keep_after_extent(paras, sections, idx, area, (cursor_fine + current.advance_fine, source_cursor, setup.content_area()));
+                if after.is_some_and(|after| cursor_fine + current.then(after).required_fine > fine(area.bottom())) {
                     let next_area = setup.content_area();
                     let next_lines = self.break_paragraph(para, next_area, next_area.y, para_base);
-                    let next_height: i64 = next_lines.iter().map(|l| l.height_fine).sum();
-                    let next_after = self.keep_after_height(paras, sections, idx, next_area, (fine(next_area.y) + next_height, source_cursor, next_area));
-                    if next_height + next_after <= fine(next_area.height) {
+                    let next_extent = lines_extent(next_lines.iter());
+                    let next_after = self.keep_after_extent(paras, sections, idx, next_area, (fine(next_area.y) + next_extent.advance_fine, source_cursor, next_area));
+                    if next_after.map_or(next_extent, |after| next_extent.then(after)).required_fine <= fine(next_area.height) {
                         area = next_area;
                         pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                         cursor_fine = fine(area.y);
@@ -1822,13 +1840,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
             let mut pending: std::collections::VecDeque<_> = lines.into();
             let quota = |pending: &std::collections::VecDeque<PendingLine>, area: Rect, top_fine: i64| {
-                let keep_after_fine = if Self::keep_link(paras, sections, idx) {
-                    let height: i64 = pending.iter().map(|l| l.height_fine).sum();
-                    self.keep_after_height(paras, sections, idx, area, (top_fine + height, source_cursor, setup.content_area()))
-                } else { 0 };
+                let keep_after = if Self::keep_link(paras, sections, idx) {
+                    let current = lines_extent(pending.iter());
+                    self.keep_after_extent(paras, sections, idx, area, (top_fine + current.advance_fine, source_cursor, setup.content_area()))
+                } else { None };
                 self.page_line_quota(para, pending, PageFit {
                     area, next_area: setup.content_area(), top_fine, source_base: para_base,
-                    keep_after_fine,
+                    keep_after,
                 })
             };
             let mut remaining = quota(&pending, area, cursor_fine);
@@ -1855,8 +1873,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 self.place_line(&mut page, &line, para, cursor_fine, line_index);
                 remaining -= 1;
                 line_index += 1;
-                // **精确累加**：用 height_fine 而不是取整后的 height。
-                cursor_fine += line.height_fine;
+                // Advance in fine units; the occupied bottom only controls fit.
+                cursor_fine += line.vertical.advance_fine;
 
                 // 段内手动分页符：本行之后翻页。
                 //
@@ -2129,7 +2147,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 .max_by_key(|s| s.width())
                 .unwrap_or_else(|| Span::new(area.x, area.right()));
             lines.push(PendingLine {
-                height_fine: self.line_height_fine(
+                vertical: self.line_vertical(
                     para,
                     m.ascent + m.descent,
                     self.metrics.natural_height_fine("", &font),
@@ -2283,7 +2301,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             h
                         };
                         lines.push(PendingLine {
-                            height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
+                            vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
                             baseline: cur_ascent,
                             pieces: std::mem::take(&mut cur),
                             width: cur_w,
@@ -2502,7 +2520,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     }
                     let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
                     lines.push(PendingLine {
-                        height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
+                        vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
                         baseline: cur_ascent,
                         pieces: std::mem::take(&mut cur),
                         width: cur_w,
@@ -2559,7 +2577,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 cur_natural_fine = self.metrics.natural_height_fine("", font);
             }
             lines.push(PendingLine {
-                height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
+                vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
                 baseline: cur_ascent,
                 pieces: cur,
                 width: cur_w,
@@ -3066,10 +3084,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             .unwrap_or(full)
     }
 
-    /// 按 `w:spacing` 规则算行高的**精确值**，单位 1/7200 英寸。
-    ///
-    /// 与 [`Engine::line_height`] 同一套规则，只是全程不落到整 twips——
-    /// 纵向游标靠它避免逐行漂移。
+    /// The legacy line box has equal advance and required extent. Grid policies
+    /// can later change these independently without replacing pagination math.
+    fn line_vertical(&self, para: &Para, content: Twips, natural_fine: i64) -> VerticalExtent {
+        VerticalExtent::uniform(self.line_height_fine(para, content, natural_fine))
+    }
+
+    /// 按 `w:spacing` 规则算行高的精确值，单位 1/7200 英寸。
+    /// 与 `line_height` 同一套规则，不落到整 twips，避免逐行漂移。
     fn line_height_fine(&self, para: &Para, content: Twips, natural_fine: i64) -> i64 {
         let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
         let height = match para.line_rule {

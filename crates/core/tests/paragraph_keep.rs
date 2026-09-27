@@ -103,6 +103,22 @@ fn assumed_widow_control_keeps_two_lines_together() {
 }
 
 #[test]
+fn negative_spacing_cannot_hide_an_intermediate_keep_paragraphs_bottom() {
+    let lead = Para {
+        keep_next: true,
+        ..para(1)
+    };
+    let middle = Para {
+        keep_next: true,
+        space_after: -2 * LINE,
+        ..para(2)
+    };
+    // The chain's final cursor is only two lines below its start, but its
+    // middle paragraph reaches three. With two slots left, the chain must move.
+    assert_counts(&[para(2), lead, middle, para(1)], 4 * LINE, &[2, 4]);
+}
+
+#[test]
 fn assumed_three_line_paragraph_cannot_split_one_two_or_two_one() {
     for prefix in [2, 3] {
         let block = Para {
