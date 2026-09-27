@@ -37,19 +37,21 @@ cargo run --bin render -- fixtures/sample.docx fixtures/sample.html
 ## 状态
 
 共享 PTS/LS 内核的后续开发顺序、证据和验收条件见
-[开发路线](docs/SHARED-PTS-LS-DEVELOPMENT-2026-09-27.md)。直接声明的 `w:vanish`
-已在共用行布局中处理：隐藏内容不排版，但保留 UTF-16 源位置。
+[开发路线](docs/SHARED-PTS-LS-DEVELOPMENT-2026-09-27.md)。正式 DOCX 入口使用
+`load_document(...).layout_document()`：样式继承后的属性与文档节几何一起传给共用排版器。
+`w:vanish` 隐藏内容不排版，但保留 UTF-16 源位置。
 
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
-y 游标分页、`keepNext` / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、SVG 后端。
+y 游标分页、`keepNext` / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、
+节页面尺寸与边距、换页后重新断行和环绕查询、SVG 后端。
 
 **已知缺口**（代码注释里逐条标注）：
 
 - `SimpleMetrics` 是**近似度量桩**，按字符类别给固定宽度，不读字体文件、不做 shaping。
-  真实排版需实现 `FontMetrics` 接 HarfBuzz。
-- `bridge.rs` 按 `styleId` 做最小样式映射；有效属性应走 `rsword::resolve::Resolver`
-  （`document()` 的 JSON 给的是声明值）。
-- 未实现：表格、浮动与文字环绕、分栏、页眉页脚、编号列表。
+  真实字体路径使用 `fontenv` 特性下的 `RealMetrics` 与 rustybuzz。
+- 裸 JSON 的 `paras_from_document` 保留历史样式近似；`LoadedDocument` 已通过
+  钉住版本的 `rsword::resolve::Resolver` 合成有效属性。Android 的复杂 toggle 继承仍需实测。
+- 未实现：表格、分栏、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
 
 ## 许可
 

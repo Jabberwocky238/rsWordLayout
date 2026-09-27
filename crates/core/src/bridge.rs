@@ -1,14 +1,15 @@
 //! rsword 模型 JSON → 布局引擎输入。
 //!
-//! **当前是最小桥接，有意留了缺口**：`document()` 给的 `props` 是*声明值*，样式链的有效属性
-//! 要走 `rsword::resolve` 或有效属性查询；当前装载入口尚未接入。这里按 `styleId` 做最小映射，
-//! 只够把链路跑通；接 `Resolver` 后应当替换掉 [`style_defaults`]。
+//! [`crate::LoadedDocument::paragraphs`] 使用解析器 `Resolver` 的有效属性。
+//! [`paras_from_document`] 保留声明值 JSON 的兼容入口及历史样式近似；正式 DOCX 入口应使用前者。
 //!
 //! 已知不覆盖：表格、绘图、页眉页脚、分节、编号、字段结果的复杂形态。
 //!
 //! 取 JSON 之前还有一步：同一 `w:r` 里并排多个 `w:rPr` 时，解析器只留**最后一个**，
 //! 手机 Word 却用上了第一个。入口应走 [`crate::load_document`]，它先把并排的 `w:rPr`
 //! 并成一个再取 JSON；直接 `SessionTable::document()` 拿到的 JSON 会丢属性。
+
+use std::collections::BTreeMap;
 
 use serde_json::Value;
 
@@ -21,6 +22,21 @@ use crate::font::{Caps, FINE_PER_TWIP, FontHint, FontSlots, FontSpec};
 /// 文档默认正文字体与字号（对应 fixture 的 `docDefaults`）。
 const BODY_FAMILY: &str = "Times New Roman, SimSun, serif";
 const BODY_SIZE_HALF_POINTS: u32 = 24;
+
+/// 与 JSON 同一次解析所得的有效属性；节点号只在该主 part 中有效。
+#[derive(Debug, Clone, Default)]
+pub(crate) struct EffectiveProperties {
+    pub runs: BTreeMap<u32, Value>,
+    pub paras: BTreeMap<u32, Value>,
+    pub marks: BTreeMap<u32, Value>,
+    pub tabs: BTreeMap<u32, Vec<TabStop>>,
+    pub recovered_blocks: BTreeMap<u32, Value>,
+}
+
+fn node_props<'a>(node: &Value, props: &'a BTreeMap<u32, Value>) -> Option<&'a Value> {
+    let id = u32::try_from(node.get("node")?.as_u64()?).ok()?;
+    props.get(&id)
+}
 
 /// 按样式 id 给的近似有效属性。接 `resolve` 后删除。
 fn style_defaults(style_id: Option<&str>, level: Option<u64>) -> (u32, bool, Twips, Twips, bool) {
@@ -166,10 +182,9 @@ fn run_scale_pct(props: &Value) -> u32 {
 /// `w:caps` / `w:smallCaps` → [`Caps`]。
 ///
 /// 两者都是 `ST_OnOff`：解析器把 `w:val="0"` / `"false"` 读成 `false`，这里照读，
-/// 所以直接格式上的 `caps=false` 关得掉。**样式链上的 caps 不在这里**：
-/// `document()` 给的是声明值，与粗体斜体同一个缺口（见本文件开头）；
-/// 接 `rsword::resolve` 时它是 toggle 属性，按解析器的 `ToggleRule::WordDesktop` 合成
-/// ——那条规则是在桌面 Word 上量的，手机 Word 的 toggle 行为**未测**。
+/// 所以直接格式上的 `caps=false` 关得掉。有效文档入口已按解析器的
+/// `ToggleRule::WordDesktop` 合成样式层；那条规则是在桌面 Word 上量的，
+/// 手机 Word 的 toggle 行为**未测**。裸 JSON 兼容入口仍只读声明值。
 ///
 /// 两个同时为真时取全大写：**假定**。OOXML 说两者互斥、不该同时出现；
 /// 解析器的兼容层（`compat_ts/decl.rs`）也是 `caps` 优先。那是解析器的代码，不是 Word 的行为，
@@ -190,9 +205,8 @@ fn read_caps(props: &Value) -> Caps {
 /// **这是 Word 选字体的真实规则**：同一 run 里每个字符按所属区查对应的槽，
 /// 而不是整个 run 用一个字体再靠 fallback 补。JSON 里的键名与 OOXML 一致。
 ///
-/// 主题字体（`asciiTheme` 等，值形如 `minorHAnsi`）需要查 theme part 解析，
-/// 尚未实现——此时该槽留空，由继承或 `family` 兜底，而不是把 `minorHAnsi`
-/// 当成字体名去找。
+/// 有效文档入口已把主题字体解析为实际槽位。裸 JSON 入口不解析主题，
+/// 不把 `minorHAnsi` 这类引用当成字体名。
 fn read_slots(fonts: Option<&Value>) -> FontSlots {
     let Some(f) = fonts else {
         return FontSlots::default();
@@ -375,11 +389,17 @@ fn placeholders_by_order(segments: &[Value], text: &str) -> Vec<PlaceholderKind>
 }
 
 /// 递归收集一个块里的所有 run 文本。
-fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<Run>) {
+fn collect_runs(
+    inlines: &Value,
+    base_size: u32,
+    base_bold: bool,
+    effective: Option<&EffectiveProperties>,
+    out: &mut Vec<Run>,
+) {
     match inlines {
         Value::Array(items) => {
             for it in items {
-                collect_runs(it, base_size, base_bold, out);
+                collect_runs(it, base_size, base_bold, effective, out);
             }
         }
         Value::Object(_) => {
@@ -388,15 +408,18 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
                 if let Some(t) = inlines.get("text").and_then(Value::as_str)
                     && !t.is_empty()
                 {
-                    let props = inlines.get("props").cloned().unwrap_or(Value::Null);
+                    let props = effective
+                        .and_then(|e| node_props(inlines, &e.runs))
+                        .or_else(|| inlines.get("props"))
+                        .unwrap_or(&Value::Null);
                     // 与 `run_font` 取同一个字号——见 `run_size` 的说明。
-                    let rise_fine = vertical_run_shape(&props, run_size(&props, base_size)).1;
+                    let rise_fine = vertical_run_shape(props, run_size(props, base_size)).1;
                     let hidden = props.get("vanish").map(as_bool).unwrap_or(false);
                     let (text, placeholders) = run_text_and_placeholders(inlines, t, !hidden);
                     out.push(Run {
                         text,
                         hidden,
-                        font: run_font(&props, base_size, base_bold),
+                        font: run_font(props, base_size, base_bold),
                         color: Color::BLACK,
                         placeholders,
                         rise: (rise_fine / FINE_PER_TWIP) as Twips,
@@ -405,10 +428,10 @@ fn collect_runs(inlines: &Value, base_size: u32, base_bold: bool, out: &mut Vec<
                 }
             } else if kind == "field" {
                 if let Some(r) = inlines.get("result") {
-                    collect_runs(r, base_size, base_bold, out);
+                    collect_runs(r, base_size, base_bold, effective, out);
                 }
             } else if let Some(inner) = inlines.get("inlines") {
-                collect_runs(inner, base_size, base_bold, out);
+                collect_runs(inner, base_size, base_bold, effective, out);
             }
         }
         _ => {}
@@ -489,6 +512,16 @@ fn apply_tabs(stops: &mut Vec<TabStop>, tabs: Option<&Value>) {
     }
 }
 
+/// 解析器的 Tabs 合并覆盖整个数组，布局按位置合并并执行 clear。
+pub(crate) fn merge_layout_tabs(layers: impl IntoIterator<Item = Value>) -> Vec<TabStop> {
+    let mut stops = Vec::new();
+    for tabs in layers {
+        apply_tabs(&mut stops, Some(&tabs));
+    }
+    stops.sort_by_key(|s| s.pos);
+    stops
+}
+
 /// 段落的有效制表位：段落样式链（从根到叶）再叠直接格式。
 ///
 /// 这是 [`style_defaults`] 之外**唯一**读样式表的地方：制表位常写在样式里
@@ -502,7 +535,11 @@ fn apply_tabs(stops: &mut Vec<TabStop>, tabs: Option<&Value>) {
 /// `w:ptab`（绝对位置制表符）在 run 文本里与普通制表符同是 `'\t'`，解析器的 `pTab`
 /// 段带着它的对齐方式与参照（页边距 / 缩进），这里**没读**：它按普通制表符去找制表位，
 /// 右对齐的 ptab 于是可能停到一个居中制表位上，而不是右页边距。
-fn read_tabs(doc: &Value, style_id: Option<&str>, props: &Value) -> Vec<TabStop> {
+fn read_tabs(
+    doc: &Value,
+    style_id: Option<&str>,
+    props: &Value,
+) -> Vec<TabStop> {
     let styles: &[Value] = doc
         .get("styles")
         .and_then(|s| s.get("styles"))
@@ -622,6 +659,13 @@ fn section_page_starts(doc: &Value) -> std::collections::BTreeSet<usize> {
 /// 只处理 `main` 里 `kind == "text"` 的块；表格与绘图块被跳过（会在返回的第二项里计数，
 /// 调用方应当把它报告出来，而不是假装文档已经排完）。
 pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
+    project_paragraphs(doc, None)
+}
+
+pub(crate) fn project_paragraphs(
+    doc: &Value,
+    effective: Option<&EffectiveProperties>,
+) -> (Vec<Para>, usize) {
     let mut paras = Vec::new();
     let mut skipped = 0usize;
 
@@ -648,7 +692,11 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             .get("textKind")
             .and_then(|t| t.get("level"))
             .and_then(Value::as_u64);
-        let (size, bold, before, after, keep_next) = style_defaults(style_id, level);
+        let (size, bold, before, after, keep_next) = if effective.is_some() {
+            (BODY_SIZE_HALF_POINTS, false, 0, 0, false)
+        } else {
+            style_defaults(style_id, level)
+        };
         let has_sect_pr = block
             .get("facts")
             .and_then(|f| f.get("hasSectPr"))
@@ -657,33 +705,40 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
 
         let mut runs = Vec::new();
         if let Some(inlines) = block.get("inlines") {
-            collect_runs(inlines, size, bold, &mut runs);
+            collect_runs(inlines, size, bold, effective, &mut runs);
         }
 
         // 空段落也要占一行高度。
         if runs.is_empty() {
+            let mark_props = effective
+                .and_then(|e| node_props(block, &e.marks))
+                .unwrap_or(&Value::Null);
+            let rise_fine = vertical_run_shape(mark_props, run_size(mark_props, size)).1;
             runs.push(Run {
                 text: String::new(),
                 hidden: false,
-                font: FontSpec::new(BODY_FAMILY, size),
+                font: if effective.is_some() { run_font(mark_props, size, bold) } else { FontSpec::new(BODY_FAMILY, size) },
                 color: Color::BLACK,
                 placeholders: Vec::new(),
-                rise: 0,
-                rise_fine: None,
+                rise: (rise_fine / FINE_PER_TWIP) as Twips,
+                rise_fine: effective.map(|_| rise_fine),
             });
         }
 
-        let props = block.get("props").cloned().unwrap_or(Value::Null);
-        let (indent_left, indent_right, indent_first_line) = read_indent(&props);
+        let direct_props = block.get("props").unwrap_or(&Value::Null);
+        let props = effective
+            .and_then(|e| node_props(block, &e.paras))
+            .unwrap_or(direct_props);
+        let (indent_left, indent_right, indent_first_line) = read_indent(props);
         let (line_rule, line_value, space_before, space_after) =
-            read_spacing(&props, before, after);
+            read_spacing(props, before, after);
 
         // 必须在 runs 被 move 进 Para 之前算好。
         let terminator = pick_terminator(has_sect_pr);
 
         paras.push(Para {
             runs,
-            align: read_align(&props),
+            align: read_align(props),
             indent_left,
             indent_right,
             indent_first_line,
@@ -698,7 +753,12 @@ pub fn paras_from_document(doc: &Value) -> (Vec<Para>, usize) {
             page_break_before: starts_section_page
                 || props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
             overflow_punct: props.get("overflowPunct").map(as_bool).unwrap_or(true),
-            tabs: read_tabs(doc, style_id, &props),
+            tabs: effective
+                .and_then(|e| block.get("node").and_then(Value::as_u64)
+                    .and_then(|node| u32::try_from(node).ok())
+                    .and_then(|node| e.tabs.get(&node)))
+                .cloned()
+                .unwrap_or_else(|| read_tabs(doc, style_id, direct_props)),
             default_tab_stop,
             source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
             terminator,

@@ -8,7 +8,7 @@
 use rsword::model::Document;
 use rsword::package::Package;
 use rsword_layout_core::{
-    AnchorScan, Engine, SimpleMetrics, document_from_json, load_document, paint_document,
+    AnchorScan, Engine, SimpleMetrics, load_document, paint_document,
 };
 use rsword_layout_svg::render_html;
 
@@ -25,10 +25,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(error) = &loaded.merge_error {
         eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
     }
-    let doc = loaded.json;
-
     // 2. 桥接。
-    let document = document_from_json(&doc);
+    let document = loaded.layout_document();
     for diagnostic in &document.diagnostics {
         eprintln!("layout: {diagnostic}");
     }

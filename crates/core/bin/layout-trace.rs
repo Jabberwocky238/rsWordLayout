@@ -566,9 +566,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(error) = &loaded.merge_error {
         eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
     }
-    let doc = loaded.json;
-
-    let mut document = rsword_layout_core::document_from_json(&doc);
+    let mut document = loaded.layout_document();
     document.apply_page_overrides(rsword_layout_core::PageOverrides {
         margin: args.margin,
         page_width: args.page_width,

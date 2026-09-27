@@ -1,4 +1,13 @@
-//! 打开 docx，取 rsword 的模型 JSON——之前先补解析器的一处缺口。
+//! 打开 docx，保留声明值 JSON，并为共用布局生成有效属性。
+//!
+//! [`LoadedDocument::layout_document`] 使用 pinned 解析器的 typed `Resolver`，
+//! 合成 docDefaults、默认段落样式、basedOn、字符样式与直接属性，并解析主题字体。
+//! 原始 `json` 不被改写。制表位额外按位置合并，因为解析器的通用数组合并会整表覆盖。
+//!
+//! 解析器的编辑模型会把段落样式隐藏的整段归为 `protected/invisible`。
+//! 布局使用同一 DOM 与仅清除分类阶段 vanish 的样式副本恢复这些段，随后用原始
+//! 样式表计算有效属性，保留隐藏文字的源位置，也支持 toggle 合成后重新可见的文字。
+//! 这不是完整文档布局：表格等保护块仍报告为不支持，复杂文种度量尚未接入。
 //!
 //! # 缺口：同一 `w:r` 里并排多个 `w:rPr`
 //!
@@ -38,11 +47,11 @@
 //! - cffi 动态库：2,864,832 → 7,953,504 → 2,905,856；
 //! - layout-trace（`fontenv`）：4,172,000 → 9,329,968 → 4,211,088。
 //!
-//! 现在的差额（约 36–41KB）包括字符间距的全部新代码，不只本模块。换主 part 的做法见
+//! 上述历史差额（约 36–41KB）包括字符间距的全部新代码，未计入后续有效属性接入。换主 part 的做法见
 //! [`document_with_main_part`]。
 //!
 //! 这是垫片，不是正解：正解在解析器（`build_run` 合并而不是覆盖，并报诊断）。
-//! 解析器修好、rev 升上来之后，[`load_document`] 退化成直通，本模块可以删掉
+//! 解析器修好、rev 升上来之后，可以删除并排属性合并垫片，保留有效属性装载
 //! （`tests/letter_spacing.rs` 的 `parser_alone_keeps_only_the_last_run_props` 届时会失败，提醒这件事）。
 //!
 //! # 实际改到的范围
@@ -65,9 +74,18 @@
 //! 本来打得开的文档变成打不开。
 
 use rsword::EditSession;
-use rsword::bind::native::{DocumentOpts, SessionTable, document_json};
+use rsword::bind::native::{DocumentOpts, ProjCx, SessionTable, ToJson, document_json};
+use std::borrow::Cow;
+use std::collections::BTreeMap;
+
+use rsword::model::{Block, Document, Inline, ProtectedKind, TextKind};
 use rsword::package::Package;
+use rsword::resolve::{EffectiveRunProps, Resolver};
+use rsword::semantic::props::{RunProps, StyleType};
 use serde_json::Value;
+
+use crate::bridge::{EffectiveProperties, merge_layout_tabs, project_paragraphs};
+use crate::layout::Para;
 
 /// [`load_document`] 的产物。
 #[derive(Debug, Clone)]
@@ -78,11 +96,57 @@ pub struct LoadedDocument {
     pub merged_run_props: usize,
     /// 合并那一步失败的原因。`Some` 时 `json` 是未合并的原样结果，调用方应当报出来。
     pub merge_error: Option<String>,
+    effective: EffectiveProperties,
+}
+
+impl LoadedDocument {
+    /// 共用页面格式器的输入，包含有效段落属性与文档声明的节几何。
+    pub fn layout_document(&self) -> crate::LayoutDocument {
+        let json = self.layout_json();
+        let mut document = crate::document_from_json(&json);
+        let (mut paras, _) = project_paragraphs(&json, Some(&self.effective));
+        // 分节的起页由文档格式器处理；这里只保留继承或直接声明的段落起页。
+        for para in &mut paras {
+            para.page_break_before = para.source_node
+                .and_then(|node| self.effective.paras.get(&node))
+                .and_then(|props| props.get("pageBreakBefore"))
+                .and_then(Value::as_bool)
+                .unwrap_or(false);
+        }
+        document.paras = paras;
+        document
+    }
+
+    /// 带样式继承、文档默认值与主题字体的布局段落。
+    ///
+    /// `json` 仍是解析器的声明值投影；有效属性由同一次解析的 typed 模型生成，
+    /// 不靠样式名称推测。第二项计数不支持的主流块，与 `paras_from_document` 相同。
+    pub fn paragraphs(&self) -> (Vec<Para>, usize) {
+        project_paragraphs(&self.layout_json(), Some(&self.effective))
+    }
+
+    fn layout_json(&self) -> Cow<'_, Value> {
+        if self.effective.recovered_blocks.is_empty() {
+            return Cow::Borrowed(&self.json);
+        }
+        let mut json = self.json.clone();
+        if let Some(main) = json.get_mut("main").and_then(Value::as_array_mut) {
+            for block in main {
+                if let Some(recovered) = block.get("node").and_then(Value::as_u64)
+                    .and_then(|node| u32::try_from(node).ok())
+                    .and_then(|node| self.effective.recovered_blocks.get(&node))
+                {
+                    *block = recovered.clone();
+                }
+            }
+        }
+        Cow::Owned(json)
+    }
 }
 
 /// 打开一份 docx，返回模型 JSON。见模块文档。
 ///
-/// 常见情形（没有并排的 `w:rPr`）只多扫一遍会话里主 part 的源文本，JSON 不变，也不再开第二遍包。
+/// 常见情形不再开第二遍包：扫描主 part 并从同一 typed 模型计算有效属性，声明值 JSON 不变。
 /// 只有打不开、或第一次取 JSON 就失败时才返回 `Err`；之后的失败见 [`LoadedDocument::merge_error`]。
 pub fn load_document(bytes: &[u8]) -> Result<LoadedDocument, Box<dyn std::error::Error>> {
     let mut sessions = SessionTable::default();
@@ -98,22 +162,27 @@ fn load_open(
     bytes: &[u8],
 ) -> Result<LoadedDocument, Box<dyn std::error::Error>> {
     let json: Value = serde_json::from_str(&sessions.document(id, None)?)?;
-    Ok(best_effort(json, |json| merge_open(sessions, id, bytes, json)))
+    let effective = sessions.inspect(id, |session, _| effective_properties(session))?;
+    Ok(best_effort(json, effective, |json| merge_open(sessions, id, bytes, json)))
 }
 
-/// 合并一步的结果：`Ok(None)` 是没有可合并的（或不改写），`Ok(Some)` 是合并后的 JSON 与处数。
-type MergeResult = Result<Option<(Value, usize)>, Box<dyn std::error::Error>>;
+/// 合并一步的结果：`Ok(None)` 无改写；`Ok(Some)` 带重建后的 JSON、有效属性与合并处数。
+type MergeResult = Result<Option<(Value, EffectiveProperties, usize)>, Box<dyn std::error::Error>>;
 
 /// 合并失败就退回 `json` 原样，并记下原因。单独拆出来是为了能测失败那一支——
 /// 真实文件里合并后的 XML 总是良构的（拼接的是良构文档里相邻的一对兄弟），很难让解析器在这里失手。
-fn best_effort(json: Value, merge: impl FnOnce(&Value) -> MergeResult) -> LoadedDocument {
+fn best_effort(
+    json: Value,
+    effective: EffectiveProperties,
+    merge: impl FnOnce(&Value) -> MergeResult,
+) -> LoadedDocument {
     match merge(&json) {
-        Ok(Some((merged, n))) => {
-            LoadedDocument { json: merged, merged_run_props: n, merge_error: None }
+        Ok(Some((merged, effective, n))) => {
+            LoadedDocument { json: merged, merged_run_props: n, merge_error: None, effective }
         }
-        Ok(None) => LoadedDocument { json, merged_run_props: 0, merge_error: None },
+        Ok(None) => LoadedDocument { json, merged_run_props: 0, merge_error: None, effective },
         Err(error) => {
-            LoadedDocument { json, merged_run_props: 0, merge_error: Some(error.to_string()) }
+            LoadedDocument { json, merged_run_props: 0, merge_error: Some(error.to_string()), effective }
         }
     }
 }
@@ -135,7 +204,8 @@ fn merge_open(sessions: &SessionTable, id: &str, bytes: &[u8], json: &Value) -> 
     let Some((merged_xml, merged)) = merged else {
         return Ok(None);
     };
-    Ok(Some((document_with_main_part(bytes, &merged_xml, json)?, merged)))
+    let (json, effective) = document_with_main_part(bytes, &merged_xml, json)?;
+    Ok(Some((json, effective, merged)))
 }
 
 /// 把 `bytes` 的主 part 换成 `xml` 之后的模型 JSON，与 `SessionTable::document()` 同形。
@@ -160,7 +230,7 @@ fn document_with_main_part(
     bytes: &[u8],
     xml: &str,
     session_json: &Value,
-) -> Result<Value, Box<dyn std::error::Error>> {
+) -> Result<(Value, EffectiveProperties), Box<dyn std::error::Error>> {
     let mut pkg = Package::open(bytes)?;
     let main = pkg.main_part();
     pkg.replace_part_xml(main, xml)?;
@@ -174,7 +244,105 @@ fn document_with_main_part(
             }
         }
     }
-    Ok(json)
+    Ok((json, effective_properties(&session)))
+}
+
+fn effective_properties(session: &EditSession) -> EffectiveProperties {
+    let document = session.document();
+    let resolver = Resolver::new(document);
+    let cx = ProjCx { pkg: session.package(), display: false };
+    let default_style = resolver.default_style(StyleType::Paragraph).and_then(|s| s.id());
+    let mut effective = EffectiveProperties::default();
+    // 399e36a 的编辑模型会把段落样式 vanish 的整段归为 protected/invisible，
+    // 连字符样式或 toggle 合成后可见的 run 也不保留。仅为布局重建这些段的 typed IR：
+    // 分类阶段屏蔽样式 vanish，实际属性仍由未改动的原始 Resolver 计算。
+    let recovered = recover_style_hidden_paragraphs(session);
+    for original in &document.main {
+        let block = recovered.get(&original.node()).unwrap_or(original);
+        let Block::Text(para) = block else { continue };
+        if !matches!(original, Block::Text(_)) {
+            effective.recovered_blocks.insert(para.node.0, block.to_json(&cx));
+        }
+        let style = para.style_id.as_deref().or(default_style);
+        let list = match &para.kind {
+            TextKind::ListItem { list } => Some(list),
+            _ => None,
+        };
+        effective.paras.insert(para.node.0, resolver.para(style, list, &para.props).props.to_json(&cx));
+        let chain = style.map(|id| resolver.chain(id, StyleType::Paragraph)).unwrap_or_default();
+        let tabs = document.styles.as_ref().and_then(|styles| styles.doc_default_ppr())
+            .into_iter()
+            .chain(chain.iter().rev().filter_map(|style| style.ppr.as_ref()))
+            .chain(std::iter::once(&para.props))
+            .filter_map(|props| props.tabs.as_ref())
+            .map(|tabs| tabs.to_json(&cx));
+        effective.tabs.insert(para.node.0, merge_layout_tabs(tabs));
+        let empty_props = RunProps::default();
+        let mark_props = para.para_mark_props().unwrap_or(&empty_props);
+        let mark = resolver.run(style, mark_props.style.as_deref(), mark_props);
+        effective.marks.insert(para.node.0, layout_run_props(&resolver, &mark, &cx));
+        let mut pending: Vec<&Inline> = para.inlines.iter().collect();
+        while let Some(inline) = pending.pop() {
+            match inline {
+                Inline::Run(run) => {
+                    let props = resolver.run(style, run.props.style.as_deref(), &run.props);
+                    effective.runs.insert(run.node.0, layout_run_props(&resolver, &props, &cx));
+                }
+                Inline::Field { result, .. } => pending.extend(result),
+                Inline::Atom(_) => {}
+            }
+        }
+    }
+    effective
+}
+
+fn recover_style_hidden_paragraphs(session: &EditSession) -> BTreeMap<rsword::xml::NodeId, Block> {
+    let document = session.document();
+    let candidates = document.main.iter().filter_map(|block| match block {
+        Block::Protected(block) if block.kind == ProtectedKind::Invisible => Some(block.node),
+        _ => None,
+    }).collect::<std::collections::BTreeSet<_>>();
+    if candidates.is_empty() {
+        return BTreeMap::new();
+    }
+    let mut styles = document.styles.clone();
+    if let Some(styles) = &mut styles {
+        for style in &mut styles.styles {
+            if let Some(props) = &mut style.rpr {
+                props.vanish = None;
+            }
+        }
+    }
+    let (blocks, _) = Document::build_main(
+        session.dom(), styles.as_ref(), &session.package().part(document.main_part).rels,
+    );
+    blocks.into_iter()
+        .filter(|block| matches!(block, Block::Text(_)) && candidates.contains(&block.node()))
+        .map(|block| (block.node(), block))
+        .collect()
+}
+
+/// 保持 run JSON 字段形状，主题引用另解析为布局实际读取的四个字体槽。
+fn layout_run_props(resolver: &Resolver<'_>, props: &EffectiveRunProps, cx: &ProjCx<'_>) -> Value {
+    let mut json = props.props.to_json(cx);
+    let fonts = resolver.fonts(&props.props);
+    let default_fonts = resolver.doc_default_fonts();
+    if let Some(out) = json.as_object_mut() {
+        let slots = out.entry("fonts").or_insert_with(|| serde_json::json!({}));
+        if let Some(slots) = slots.as_object_mut() {
+            for (key, value) in [
+                ("ascii", fonts.ascii),
+                ("hAnsi", fonts.h_ansi),
+                ("eastAsia", fonts.east_asia.or(default_fonts.east_asia)),
+                ("cs", fonts.cs),
+            ] {
+                if let Some(value) = value {
+                    slots.insert(key.to_string(), Value::String(value));
+                }
+            }
+        }
+    }
+    json
 }
 
 /// 把**紧挨着的兄弟** `rPr` 拼成一个：返回（新 XML，合并处数）；没有可合并的就 `None`。
@@ -279,21 +447,22 @@ fn skip_ws(xml: &str, at: usize) -> usize {
 #[cfg(test)]
 mod tests {
     use super::{LoadedDocument, best_effort};
+    use crate::bridge::EffectiveProperties;
 
     #[test]
     fn a_failed_merge_falls_back_to_the_unmerged_json() {
         let json = serde_json::json!({"mainPart": 3, "main": []});
-        let LoadedDocument { json: got, merged_run_props, merge_error } =
-            best_effort(json.clone(), |_| Err("replacePartXml 失败".into()));
+        let LoadedDocument { json: got, merged_run_props, merge_error, .. } =
+            best_effort(json.clone(), EffectiveProperties::default(), |_| Err("replacePartXml 失败".into()));
         assert_eq!(got, json, "合并失败时交回原样的 JSON");
         assert_eq!(merged_run_props, 0);
         assert_eq!(merge_error.as_deref(), Some("replacePartXml 失败"));
 
         // 对照：没有可合并的，原样且不报错；合并成功，换成合并后的。
-        let none = best_effort(json.clone(), |_| Ok(None));
+        let none = best_effort(json.clone(), EffectiveProperties::default(), |_| Ok(None));
         assert_eq!((none.json, none.merged_run_props, none.merge_error), (json.clone(), 0, None));
         let merged = serde_json::json!({"mainPart": 3, "main": [1]});
-        let some = best_effort(json, |_| Ok(Some((merged.clone(), 2))));
+        let some = best_effort(json, EffectiveProperties::default(), |_| Ok(Some((merged.clone(), EffectiveProperties::default(), 2))));
         assert_eq!((some.json, some.merged_run_props, some.merge_error), (merged, 2, None));
     }
 }

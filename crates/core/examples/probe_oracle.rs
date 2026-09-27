@@ -2,7 +2,7 @@
 
 use rsword_layout_core::{
     Engine, LayoutRecord, LineTerminator, PageSetup, SimpleMetrics, load_document,
-    paint_document, paras_from_document,
+    paint_document,
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -12,12 +12,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(error) = &loaded.merge_error {
         eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
     }
-    let doc = loaded.json;
-
-    let (paras, _) = paras_from_document(&doc);
+    let document = loaded.layout_document();
+    for diagnostic in &document.diagnostics {
+        eprintln!("layout: {diagnostic}");
+    }
     let metrics = SimpleMetrics;
     let engine = Engine::new(&metrics, PageSetup::a4());
-    let pages = engine.layout(&paras);
+    let pages = engine.layout_document(&document);
     // 不传 shaper：SVG 类后端直接排文字，字形序列为空，
     // 故字形级字段只在接了 shaper 时才有值。
     let rec = LayoutRecord::from_paint(&paint_document(&pages, None, &[]));
