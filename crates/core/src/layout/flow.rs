@@ -5,8 +5,11 @@ use crate::ColumnLayout;
 
 #[derive(Clone)]
 pub(super) struct FlowRegions {
+    // Pending section geometry takes effect on the next physical page.
     setup: PageSetup,
     columns: ColumnLayout,
+    // The current physical body remains authoritative for fit and oversize checks.
+    body: Rect,
     areas: Vec<Rect>,
     column: usize,
     first_line: u32,
@@ -19,6 +22,7 @@ impl FlowRegions {
         let mut flow = Self {
             setup,
             columns,
+            body: setup.content_area(),
             areas: Vec::new(),
             column: 0,
             first_line: 0,
@@ -78,7 +82,15 @@ impl FlowRegions {
     }
 
     pub(super) fn full_height_fine(&self) -> i64 {
-        i64::from(self.setup.content_area().height) * FINE_PER_TWIP
+        i64::from(self.body.height) * FINE_PER_TWIP
+    }
+
+    pub(super) fn next_full_height_fine(&self) -> i64 {
+        if self.ends_page(false) {
+            i64::from(self.setup.content_area().height) * FINE_PER_TWIP
+        } else {
+            self.full_height_fine()
+        }
     }
 
     pub(super) fn ends_page(&self, force_page: bool) -> bool {
@@ -86,7 +98,7 @@ impl FlowRegions {
     }
 
     pub(super) fn is_partial(&self) -> bool {
-        self.top_fine > i64::from(self.setup.content_area().y) * FINE_PER_TWIP
+        self.top_fine > i64::from(self.body.y) * FINE_PER_TWIP
     }
 
     pub(super) fn close_band(&self, page: &mut Page, bottom_fine: i64) {
@@ -121,6 +133,7 @@ impl FlowRegions {
     }
 
     pub(super) fn reset_empty_page(&mut self, page: &mut Page, line_index: &mut u32) -> Rect {
+        self.body = self.setup.content_area();
         self.areas = self.pending_areas();
         self.column = 0;
         self.first_line = 0;
@@ -139,6 +152,7 @@ impl FlowRegions {
         force_page: bool,
     ) -> Rect {
         if self.ends_page(force_page) {
+            self.body = self.setup.content_area();
             self.areas = self.pending_areas();
             self.column = 0;
             self.region_base = 0;

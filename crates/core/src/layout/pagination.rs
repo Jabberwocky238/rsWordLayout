@@ -83,9 +83,11 @@ impl Flow {
             .max(self.cursor_fine)
     }
 
-    fn keep_capacity(&self) -> i64 {
+    fn keep_capacity(&self, next: bool) -> i64 {
         if self.trial_bottom.is_some() {
             i64::MAX
+        } else if next {
+            self.regions.next_full_height_fine()
         } else {
             self.regions.full_height_fine()
         }
@@ -342,7 +344,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                     source.end,
                     next_area,
                 ),
-                flow.keep_capacity(),
+                flow.keep_capacity(false),
             )
         } else {
             None
@@ -426,7 +428,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                 .position(|line| line.flow_break.is_hard())
                 .map_or(next_lines.len(), |i| i + 1);
             let next = lines_extent(next_lines.iter().take(next_segment));
-            if next.required_fine <= flow.regions.full_height_fine() {
+            if next.required_fine <= flow.regions.next_full_height_fine() {
                 if !flow.regions.is_empty(flow.line_index) || flow.regions.is_partial() {
                     flow.advance(false)?;
                     area = flow.regions.area();
@@ -455,7 +457,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                     source_end,
                     flow.regions.next_area(),
                 ),
-                flow.keep_capacity(),
+                flow.keep_capacity(false),
             );
             if let Some(after) = after
                 && flow.cursor_fine + current.then(after).required_fine > flow.bottom()
@@ -475,12 +477,12 @@ impl<M: FontMetrics> Engine<'_, M> {
                         source_end,
                         flow.regions.area_after_next(),
                     ),
-                    flow.keep_capacity(),
+                    flow.keep_capacity(true),
                 );
                 let needed = next_after
                     .map_or(next_extent, |after| next_extent.then(after))
                     .required_fine;
-                if needed <= flow.regions.full_height_fine() {
+                if needed <= flow.regions.next_full_height_fine() {
                     flow.advance(false)?;
                     lines = next_lines;
                 }
