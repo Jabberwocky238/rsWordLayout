@@ -250,6 +250,24 @@ python3 tools/measure/font_adjustment.py \
 键和多余字段被拒绝，已有输出（包括悬空符号链接）不会覆盖。输入与源码哈希随报告保存。
 合同与手算样例见[字体调整参考模型](../../docs/FONT-ADJUSTMENT-REFERENCE-2026-09-27.md)。
 
+### 从实测字体记录连接纵向调整
+
+`font_vertical.py` 重新校验既有 Face1 测量和字体字节，计算 T，再用显式属性字与
+mode 2 参数计算五个纵向字段、h2、缩放、补偿和默认 M 的前三项。调用方无需手填
+T 或 preScale；不支持的替代调整尾会明确拒绝。
+
+```sh
+python3 tools/measure/font_vertical.py \
+  --measurements artifacts/dwrite-metrics-cli-2026-09-27/tnr-final.json \
+  --input tools/measure/examples/font-vertical-explicit.json \
+  --out artifacts/font-vertical-new.json
+```
+
+示例的内部字号、尺度和 flags 都是显式条件，未从 Word 文档推断。两个 P0 读取点
+分别提供，同一字内的 gate 按位计算，避免不可达组合。输出 `ARITHMETIC_REFERENCE`
+保留完整来源与各阶段数值，只给出三项纵向更新量，不伪造水平字段或完整 M，也不
+代表 LS 最终高度。合同见[字体纵向连接参考](../../docs/FONT-VERTICAL-REFERENCE-2026-09-27.md)。
+
 ### PTS Simple 容纳与末行裁减参考
 
 `simple_fit.py` 用显式原生整数重放 Simple 分支的容纳检查。输入 `fit` 必须包含

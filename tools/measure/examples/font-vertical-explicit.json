@@ -1,0 +1,14 @@
+{
+  "schema": "rsword-font-vertical-input/1",
+  "font": {"lf_height": -2048, "width_scale": 1.0, "escapement": 0},
+  "vertical": {
+    "tail_p0": 0,
+    "tail_p13": 8,
+    "metric_byte38": 0,
+    "input_size": 24,
+    "dy": 2048,
+    "scale_y": 294912,
+    "correction_p0": 0,
+    "metric_byte37": 0
+  }
+}

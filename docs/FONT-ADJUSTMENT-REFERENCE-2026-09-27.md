@@ -34,6 +34,9 @@ raw0/raw_c 来自 V。后续[提供者身份调查](DOCGRID-FONT-COMPONENTS-2026
 已证明选定 RTARC/RTDWRITEFONT 路径的输出调用把 V 直接交给此前
 [font_record](FONT-RECORD-REFERENCE-2026-09-27.md) 的 T 构造器。但回退、V 后处理、
 简单/替代调整尾路径及真实 flags 仍需明确，工具没有自动把 T 变成 pre_scale。
+新增的 [font_vertical](FONT-VERTICAL-REFERENCE-2026-09-27.md) 提供显式简单尾的纵向
+连接：它重新校验原始测量并计算 T，再根据原始 flags 生成五个 preScale 字段与
+三项 M 更新量。水平字段、F184 和其余 M word 不在该接口中自动补全。
 
 ## 合成样例与验证
 

@@ -208,6 +208,10 @@ pitch275 到 276 从约双步长变为约单步长，276 的完整原点向量�
 后处理和实际 flags 仍独立保留，工具不自动选择生产文档的分支。LS 内容高度的
 启用位也已追到宿主 CP 与 paragraph client getter 的比较和实际 setter；尚未得到
 探针最终 gate 值，见[字体分量证据](DOCGRID-FONT-COMPONENTS-2026-09-27.md)。
+新增 `font_vertical.py` 将成功 Face1 测量经 T/V、显式简单尾、mode 2 缩放与补偿
+连接到三项纵向 M 更新量，见[纵向连接参考](FONT-VERTICAL-REFERENCE-2026-09-27.md)。
+它从原始属性字计算有关 gate，拒绝替代尾，不再要求手填五项 preScale；文档到实际
+运行参数的映射及后续 LS/PTS 处理仍待接入。
 续查确认普通矩形的 Story 分派选择 SimpleW：可抑制底部空间独立查询，拒绝
 overhang 时会将最终推进裁到剩余量。生产接入还需表示该条件修改，不能只保存
 两个固定的固有高度，见 [Simple 容纳与末行裁减](DOCGRID-SIMPLE-FIT-2026-09-27.md)。
