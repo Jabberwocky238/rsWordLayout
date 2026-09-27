@@ -8,9 +8,11 @@ import sys
 import zipfile
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from wordmeasure import OK, UNDECIDABLE, counting, docxtext, pairing
+from wordmeasure import OK, UNDECIDABLE, counting, docxtext, pairing, wordmodel
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 
@@ -139,3 +141,43 @@ def test_glyph_rules_are_attached_for_scope_exclusion():
     result = pairing.pair_line(0, 0, text, 0, glyphs, marks={2: "PARAGRAPH_MARK"})
     assert result.state == OK
     assert result.glyph_rules == ["LITERAL", "LITERAL", "PARAGRAPH_MARK"]
+
+
+def test_column_source_annotation_is_distinct_from_measured_controls(tmp_path):
+    """Source identity regression, not a Word column-break glyph measurement."""
+    path = tmp_path / "controls.docx"
+    xml = ('<w:document xmlns:w="%s"><w:body><w:p><w:r>'
+           '<w:t>A</w:t><w:br w:type="column"/><w:br w:type="page"/><w:br/>'
+           '</w:r></w:p></w:body></w:document>' % W)
+    with zipfile.ZipFile(path, "w") as archive:
+        archive.writestr("word/document.xml", xml)
+    derived = docxtext.content_text(path)
+    assert derived["text"] == "A\x0c\x0c\x0b\r"
+    assert derived["marks"] == {
+        1: "COLUMN_BREAK", 2: "PAGE_BREAK", 3: "SOFT_RETURN", 4: "PARAGRAPH_MARK"}
+
+
+@pytest.mark.parametrize("text,mark_at,line_end", [
+    ("\x0c\r", 0, 1),
+    ("\x0c\r", 0, 2),
+    ("A\x0cB\r", 1, 3),
+])
+@pytest.mark.parametrize("glyph_count", [0, 1])
+def test_column_break_never_borrows_page_break_counting(text, mark_at, line_end, glyph_count):
+    """Unknown counts stay unknown in each formerly borrowed page-break context."""
+    sweep = {
+        "contentText": text,
+        "marks": {str(mark_at): "COLUMN_BREAK", str(len(text) - 1): "PARAGRAPH_MARK"},
+        "paragraphs": [{"start": 0, "end": len(text)}],
+    }
+    line = {"start": 0, "end": line_end}
+    marks = wordmodel.line_marks(sweep, line)
+    assert marks[mark_at] == "COLUMN_BREAK"
+    predicted = counting.expected_glyphs(text[:line_end], marks=marks)
+    assert predicted.state == UNDECIDABLE
+    assert predicted.expected is None
+    assert "UNKNOWN_MARK: COLUMN_BREAK" in predicted.reasons
+    paired = pairing.pair_line(0, 0, text[:line_end], 0, [{}] * glyph_count, marks=marks)
+    assert paired.state == UNDECIDABLE
+    assert paired.expected is None
+    assert paired.pairs == []

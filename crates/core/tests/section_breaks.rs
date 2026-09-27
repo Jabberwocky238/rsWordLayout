@@ -73,8 +73,8 @@ fn first_section_does_not_add_a_blank_page() {
 
 #[test]
 fn next_column_is_not_a_page_break() {
-    // 换栏不是换页。本版不实现分栏，当成换页会**凭空多出页**——
-    // 而凭空多出的页在比较器里只会报结构失败，查起来比少一页更费事。
+    // The legacy paragraph-only bridge cannot represent region transitions.
+    // Real column transitions use layout_document and are tested in column_flow.
     let d = doc(2, vec![(0, 1, "nextPage"), (1, 2, "nextColumn")]);
     assert_eq!(pages(&d), 1, "nextColumn 被当成了换页");
 }

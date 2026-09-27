@@ -42,6 +42,7 @@ fn record_with(line: LineRecord) -> LayoutRecord {
             index: 0,
             width: 11906,
             height: 16838,
+            columns: Vec::new(),
             lines: vec![line],
         }],
         unassigned_glyphs: 0,
@@ -54,6 +55,7 @@ fn twips_become_points() {
     let json = to_trace_json(&record_with(LineRecord {
         glyphs: vec![glyph(1440, 1660)],
         source: Some(SourceRange::new(0, 5)),
+        column: None,
         terminator: LineTerminator::ParagraphMark,
         box_top: 0,
         box_height: 0,
@@ -74,6 +76,7 @@ fn missing_source_stays_null_not_zero() {
     let json = to_trace_json(&record_with(LineRecord {
         glyphs: vec![GlyphRecord { source: None, ..glyph(0, 0) }],
         source: None,
+        column: None,
         terminator: LineTerminator::Wrapped,
         box_top: 0,
         box_height: 0,
@@ -116,6 +119,7 @@ fn terminator_names_match_the_counting_table() {
         let json = to_trace_json(&record_with(LineRecord {
             glyphs: vec![glyph(0, 0)],
             source: None,
+            column: None,
             terminator,
             box_top: 0,
             box_height: 0,
@@ -136,6 +140,7 @@ fn line_box_is_labelled_diagnostic() {
     let json = to_trace_json(&record_with(LineRecord {
         glyphs: vec![glyph(0, 0)],
         source: None,
+        column: None,
         terminator: LineTerminator::Wrapped,
         box_top: 100,
         box_height: 200,
@@ -152,6 +157,7 @@ fn empty_glyph_line_is_still_well_formed() {
     let json = to_trace_json(&record_with(LineRecord {
         glyphs: Vec::new(),
         source: Some(SourceRange::new(0, 1)),
+        column: None,
         terminator: LineTerminator::ParagraphMark,
         box_top: 0,
         box_height: 0,
@@ -168,6 +174,7 @@ fn output_is_ascii_and_stable() {
     let record = record_with(LineRecord {
         glyphs: vec![glyph(0, 0)],
         source: None,
+        column: None,
         terminator: LineTerminator::Wrapped,
         box_top: 0,
         box_height: 0,

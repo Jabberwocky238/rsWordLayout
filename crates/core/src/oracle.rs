@@ -20,7 +20,7 @@
 //! 源字符按顺序编号，同序号相配。引擎因此必须报出每个字形对应源文本的哪一段，
 //! 否则配对无从校验。
 
-use crate::layout::{PositionedGlyph, Twips};
+use crate::layout::{PositionedGlyph, Rect, Twips};
 
 /// 行终止符类型。
 ///
@@ -32,6 +32,10 @@ pub enum LineTerminator {
     ParagraphMark,
     /// 软回车（`w:br type="textWrapping"`，`\x0b`）。画 **1 个**字形。
     LineBreak,
+    /// Column break, with its paragraph mark continuing in the next column.
+    /// One control glyph preserves the former LineBreak counting convention;
+    /// this count has not been measured in Word and is an explicit assumption.
+    ColumnBreak,
     /// 手动分页符（`w:br type="page"`）。画几个取决于它在行里的位置，
     /// 见 [`PageBreakPosition`]。
     PageBreak(PageBreakPosition),
@@ -60,11 +64,12 @@ pub enum PageBreakPosition {
 impl LineTerminator {
     /// 本终止符按计数约定应当产生几个字形。
     ///
-    /// 这些数字来自实测而非规范推导，各自的检验范围见量具方法 §4。
+    /// 除 ColumnBreak 沿用旧计数假设外，这些数字来自实测而非规范推导，
+    /// 各自的检验范围见量具方法 §4；分栏符的一个控制字形尚未实测。
     /// **仍在范围外**：制表符、跨页表格行、自动编号、行内对象、合成字体与 CJK。
     pub fn expected_glyphs(&self) -> usize {
         match self {
-            LineTerminator::ParagraphMark | LineTerminator::LineBreak => 1,
+            LineTerminator::ParagraphMark | LineTerminator::LineBreak | LineTerminator::ColumnBreak => 1,
             LineTerminator::PageBreak(PageBreakPosition::BeforeMark) => 1,
             LineTerminator::PageBreak(_) | LineTerminator::SectionBreak => 0,
             LineTerminator::Wrapped => 0,
@@ -144,6 +149,9 @@ pub struct LineRecord {
     pub glyphs: Vec<GlyphRecord>,
     /// 本行覆盖的源字符区间。
     pub source: Option<SourceRange>,
+    /// Index into the page's column frames, from explicit layout bookkeeping.
+    /// Missing or invalid ownership remains unknown, including for empty lines.
+    pub column: Option<usize>,
     /// 行终止符。
     pub terminator: LineTerminator,
     /// 行盒。**仅供诊断，不参与验收**——行盒与行基线在现有通道上不可测
@@ -167,6 +175,9 @@ pub struct PageRecord {
     /// 页面尺寸，twips。
     pub width: Twips,
     pub height: Twips,
+    /// Column frames in page coordinates, in reading order. These describe the
+    /// engine layout and do not establish matching Word column geometry.
+    pub columns: Vec<Rect>,
     pub lines: Vec<LineRecord>,
 }
 
@@ -231,6 +242,7 @@ impl LayoutRecord {
                 index,
                 width: page.width,
                 height: page.height,
+                columns: page.columns.clone(),
                 lines: Vec::new(),
             };
             let mut current: Option<u32> = None;
@@ -267,6 +279,8 @@ impl LayoutRecord {
                         // 取片段自己的区间，而不是从字形序列反推——后者在没接
                         // shaper 时会丢，而源区间与是否栅格化无关。
                         source: piece_source,
+                        column: page.line_columns.get(*line as usize).copied()
+                            .filter(|column| *column < page.columns.len()),
                         // 终止符由 paint 层随指令带下来；缺失时保持 Wrapped
                         // （自动换行），不猜。
                         terminator: *terminator,

@@ -19,6 +19,7 @@
 | `<w:t>` 文本 | 原样 |
 | `<w:tab/>` | `\\t` |
 | `<w:br w:type="page"/>` | `\\x0c` |
+| `<w:br w:type="column"/>` | `\\x0c`，独立标注 `COLUMN_BREAK`，字形数未测 |
 | `<w:br/>`、`<w:br w:type="textWrapping"/>` | `\\x0b` |
 | 段末（`</w:p>`） | `\\r` |
 | `<w:drawing>` / `<w:object>` | `\\x01`（行内对象占位符） |
@@ -44,6 +45,7 @@ W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 MARK_PARAGRAPH = "PARAGRAPH_MARK"
 MARK_SECTION = "SECTION_BREAK"
 MARK_PAGE_BREAK = "PAGE_BREAK"
+MARK_COLUMN_BREAK = "COLUMN_BREAK"
 MARK_SOFT_RETURN = "SOFT_RETURN"
 MARK_TAB = "TAB"
 MARK_INLINE_OBJECT = "INLINE_OBJECT"
@@ -70,8 +72,10 @@ def _paragraph_text(para: ET.Element) -> tuple[str, dict[int, str]]:
             push("\t", MARK_TAB)
         elif tag == W + "br":
             kind = node.get(W + "type")
-            if kind in ("page", "column"):
+            if kind == "page":
                 push("\x0c", MARK_PAGE_BREAK)
+            elif kind == "column":
+                push("\x0c", MARK_COLUMN_BREAK)
             else:
                 push("\x0b", MARK_SOFT_RETURN)
         elif tag in (W + "drawing", W + "object", W + "pict"):

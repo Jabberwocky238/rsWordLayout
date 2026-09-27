@@ -4,7 +4,148 @@ use std::ops::Range;
 
 use serde_json::{Value, json};
 
-use crate::{Margins, PageSetup, Para, Twips, paras_from_document};
+use crate::{Margins, PageSetup, Para, Rect, Twips, paras_from_document};
+
+// Pinned rsword schema/props/section.toml, CT_Columns: at most 45 columns.
+const MAX_COLUMNS: usize = 45;
+
+/// One explicit column; the last column's trailing gap does not consume body width.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ColumnSpec {
+    pub width: Twips,
+    pub gap_after: Twips,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+enum ColumnKind {
+    #[default]
+    Single,
+    Equal { count: usize, gap: Twips },
+    Explicit(Vec<ColumnSpec>),
+}
+
+/// Left-to-right column geometry, independent of the current page's vertical flow.
+/// Raw DOCX input is retained for trace provenance, including invalid declarations
+/// that fell back to one column. Equality compares effective geometry settings.
+#[derive(Debug, Clone, Default)]
+pub struct ColumnLayout {
+    kind: ColumnKind,
+    declared: Option<Value>,
+}
+
+impl PartialEq for ColumnLayout {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
+}
+
+impl Eq for ColumnLayout {}
+
+impl ColumnLayout {
+    pub fn equal(count: usize, gap: Twips) -> Result<Self, String> {
+        validate_column_count(count)?;
+        if gap < 0 {
+            return Err("column gap must be nonnegative".into());
+        }
+        Ok(Self {
+            kind: if count == 1 { ColumnKind::Single } else { ColumnKind::Equal { count, gap } },
+            declared: None,
+        })
+    }
+
+    pub fn explicit(mut columns: Vec<ColumnSpec>) -> Result<Self, String> {
+        validate_column_count(columns.len())?;
+        if columns.iter().any(|column| column.width <= 0 || column.gap_after < 0) {
+            return Err("explicit column widths must be positive and gaps nonnegative".into());
+        }
+        columns.last_mut().expect("validated nonempty columns").gap_after = 0;
+        Ok(Self { kind: ColumnKind::Explicit(columns), declared: None })
+    }
+
+    pub fn count(&self) -> usize {
+        match &self.kind {
+            ColumnKind::Single => 1,
+            ColumnKind::Equal { count, .. } => *count,
+            ColumnKind::Explicit(columns) => columns.len(),
+        }
+    }
+
+    /// Derive body-height column rectangles. Equal-column remainder twips are
+    /// distributed left to right; this host rounding policy is not Word-measured.
+    /// Explicit widths are never rescaled to fill unused space on the right.
+    pub fn areas(&self, body: Rect) -> Result<Vec<Rect>, String> {
+        let right = i64::from(body.x) + i64::from(body.width);
+        let bottom = i64::from(body.y) + i64::from(body.height);
+        if body.width <= 0 || body.height <= 0
+            || Twips::try_from(right).is_err() || Twips::try_from(bottom).is_err()
+        {
+            return Err("columns require a positive, representable body rectangle".into());
+        }
+        let specs = match &self.kind {
+            ColumnKind::Single => return Ok(vec![body]),
+            ColumnKind::Equal { count, gap } => {
+                let count = *count as i64;
+                let available = i64::from(body.width) - (count - 1) * i64::from(*gap);
+                if available < count {
+                    return Err("column gaps leave no positive width for every column".into());
+                }
+                let base = available / count;
+                let remainder = available % count;
+                (0..count).map(|index| ColumnSpec {
+                    width: (base + i64::from(index < remainder)) as Twips,
+                    gap_after: if index + 1 < count { *gap } else { 0 },
+                }).collect::<Vec<_>>()
+            }
+            ColumnKind::Explicit(columns) => columns.clone(),
+        };
+        let mut x = i64::from(body.x);
+        let mut areas = Vec::with_capacity(specs.len());
+        for column in specs {
+            if x + i64::from(column.width) > right {
+                return Err("explicit column widths and gaps exceed the body width".into());
+            }
+            areas.push(Rect::new(x as Twips, body.y, column.width, body.height));
+            x += i64::from(column.width) + i64::from(column.gap_after);
+        }
+        Ok(areas)
+    }
+
+    fn trace_metadata(&self, body: Rect) -> Value {
+        let effective = match &self.kind {
+            ColumnKind::Single => json!({"kind": "single"}),
+            ColumnKind::Equal { count, gap } => json!({"kind": "equal", "count": count, "gap": gap}),
+            ColumnKind::Explicit(columns) => json!({
+                "kind": "explicit",
+                "columns": columns.iter().map(|column| json!({
+                    "width": column.width, "gapAfter": column.gap_after,
+                })).collect::<Vec<_>>(),
+            }),
+        };
+        let (areas, error) = match self.areas(body) {
+            Ok(areas) => (areas, None),
+            Err(error) => (Vec::new(), Some(error)),
+        };
+        let unused_right = areas.last().map(|last| body.right() - last.right());
+        json!({
+            "declared": self.declared,
+            "effective": effective,
+            "flow": "left-to-right sequential; final-page balancing not implemented",
+            "rounding": "equal widths distribute remainder twips from left to right (host policy)",
+            "areas": areas.iter().map(|area| json!({
+                "x": area.x, "y": area.y, "width": area.width, "height": area.height,
+            })).collect::<Vec<_>>(),
+            "areaError": error,
+            "unusedRightTwips": unused_right,
+        })
+    }
+}
+
+fn validate_column_count(count: usize) -> Result<(), String> {
+    if !(1..=MAX_COLUMNS).contains(&count) {
+        return Err(format!("column count must be between 1 and {MAX_COLUMNS}"));
+    }
+    Ok(())
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SectionStart {
@@ -34,6 +175,7 @@ pub struct LayoutSection {
     pub para_range: Range<usize>,
     pub setup: PageSetup,
     pub kind: SectionStart,
+    pub columns: ColumnLayout,
     /// Missing or invalid values use the host's A4 / one-inch defaults.
     pub fallback_fields: Vec<&'static str>,
 }
@@ -102,6 +244,7 @@ impl LayoutDocument {
                         "page geometry must leave a positive, representable content area".into(),
                     );
                 }
+                section.columns.areas(setup.content_area())?;
                 Ok(setup)
             })
             .collect::<Result<Vec<_>, String>>()?;
@@ -135,6 +278,7 @@ impl LayoutDocument {
                 "pageSize": {"width": s.setup.size.width, "height": s.setup.size.height},
                 "margins": {"top": s.setup.margins.top, "right": s.setup.margins.right,
                     "bottom": s.setup.margins.bottom, "left": s.setup.margins.left},
+                "columns": s.columns.trace_metadata(s.setup.content_area()),
                 "fallbackFields": s.fallback_fields,
             })).collect::<Vec<_>>(),
         })
@@ -205,6 +349,102 @@ fn section_setup(props: &Value, settings: &Value) -> (PageSetup, Vec<&'static st
     (setup, fallback)
 }
 
+fn column_integer(value: &Value, field: &str, fallback: Option<Twips>) -> Result<Twips, String> {
+    match value.get(field) {
+        None => fallback.ok_or_else(|| format!("column {field} is missing")),
+        Some(value) => value.as_i64().and_then(|n| Twips::try_from(n).ok())
+            .ok_or_else(|| format!("column {field} is not a representable integer: {value}")),
+    }
+}
+
+fn column_boolean(value: &Value, field: &str, fallback: bool) -> Result<bool, String> {
+    match value.get(field) {
+        None => Ok(fallback),
+        Some(value) => value.as_bool()
+            .ok_or_else(|| format!("column {field} is not a boolean: {value}")),
+    }
+}
+
+fn section_columns(props: &Value, body: Rect, section: usize, diagnostics: &mut Vec<String>) -> ColumnLayout {
+    let Some(raw) = props.get("columns") else { return ColumnLayout::default() };
+    let parse = |notes: &mut Vec<String>| -> Result<ColumnLayout, String> {
+        if !raw.is_object() {
+            return Err("columns must be an object".into());
+        }
+        let equal = column_boolean(raw, "equalWidth", true)?;
+        let separator = column_boolean(raw, "sep", false)?;
+        let explicit = match raw.get("col") {
+            None => &[][..],
+            Some(value) => value.as_array().map(Vec::as_slice)
+                .ok_or_else(|| "columns.col must be an array".to_owned())?,
+        };
+        let columns = if equal {
+            if !explicit.is_empty() {
+                notes.push("explicit column entries are ignored because equalWidth is true or absent".into());
+            }
+            let count = column_integer(raw, "num", Some(1))?;
+            let count = usize::try_from(count).map_err(|_| "column count must be positive".to_owned())?;
+            ColumnLayout::equal(count, column_integer(raw, "space", Some(720))?)?
+        } else {
+            validate_column_count(explicit.len())?;
+            if let Some(count) = raw.get("num")
+                && count.as_u64() != Some(explicit.len() as u64)
+            {
+                notes.push(format!("column num={count} ignored for explicit columns; using {} entries", explicit.len()));
+            }
+            let columns = explicit.iter().map(|entry| {
+                if !entry.is_object() {
+                    return Err("each explicit column must be an object".into());
+                }
+                Ok(ColumnSpec {
+                    width: column_integer(entry, "w", None)?,
+                    // Container space belongs to equal columns. An omitted
+                    // explicit gap is zero; no gap follows the final column.
+                    gap_after: column_integer(entry, "space", Some(0))?,
+                })
+            }).collect::<Result<Vec<_>, String>>()?;
+            ColumnLayout::explicit(columns)?
+        };
+        let areas = columns.areas(body)?;
+        if let ColumnKind::Explicit(_) = &columns.kind
+            && let Some(last) = areas.last()
+            && last.right() < body.right()
+        {
+            notes.push(format!("explicit columns leave {} twips unused in the declared body; widths are not rescaled by page overrides", body.right() - last.right()));
+        }
+        if separator {
+            notes.push("column separator lines (sep) are not rendered".into());
+        }
+        if columns.count() > 1 {
+            notes.push("sequential column flow: final-page column balancing is not implemented".into());
+            if let Some(bidi) = props.get("bidi") {
+                match bidi.as_bool() {
+                    Some(true) => notes.push("right-to-left column order (bidi) is not implemented; using left-to-right order".into()),
+                    Some(false) => {},
+                    None => notes.push(format!("invalid column direction bidi={bidi}; using left-to-right order")),
+                }
+            }
+            if let Some(direction) = props.get("textDirection")
+                && direction != "lrTb"
+            {
+                notes.push(format!("column textDirection={direction} is not implemented; using horizontal left-to-right flow"));
+            }
+        }
+        Ok(columns)
+    };
+    let mut notes = Vec::new();
+    let mut columns = match parse(&mut notes) {
+        Ok(columns) => columns,
+        Err(error) => {
+            notes.push(format!("invalid columns: {error}; using a single body column"));
+            ColumnLayout::default()
+        }
+    };
+    columns.declared = Some(raw.clone());
+    diagnostics.extend(notes.into_iter().map(|note| format!("section {section}: {note}")));
+    columns
+}
+
 /// Project text and section geometry without losing original block ownership.
 /// Unsupported blocks are counted; they do not have full-story CP coverage.
 /// The pinned parser omits boolean compatibility flags from native JSON. Use
@@ -262,27 +502,13 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
                 "width", "height", "top", "right", "bottom", "left", "gutter",
             ];
         }
-        if props["columns"]["num"].as_i64().unwrap_or(1) > 1
-            || props["columns"]["col"]
-                .as_array()
-                .is_some_and(|v| v.len() > 1)
-        {
-            diagnostics.push(format!(
-                "section {}: multiple columns are not yet laid out",
-                sections.len()
-            ));
-        }
-        if kind == SectionStart::NextColumn {
-            diagnostics.push(format!(
-                "section {}: nextColumn is retained as continuous until column flow is implemented",
-                sections.len()
-            ));
-        }
+        let columns = section_columns(props, setup.content_area(), sections.len(), &mut diagnostics);
         sections.push(LayoutSection {
             block_range: start..end,
             para_range: prefix[start]..prefix[end],
             setup,
             kind,
+            columns,
             fallback_fields,
         });
         covered = end;
@@ -299,6 +525,7 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             para_range: 0..paras.len(),
             setup,
             kind: SectionStart::NextPage,
+            columns: ColumnLayout::default(),
             fallback_fields,
         }];
     }
@@ -313,6 +540,11 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
         ) && pair[0].setup != pair[1].setup
         {
             diagnostics.push(format!("section at block {} changes continuous geometry: current page retained; new geometry starts on the next page", pair[1].block_range.start));
+        }
+        if matches!(pair[1].kind, SectionStart::Continuous | SectionStart::NextColumn)
+            && pair[0].columns != pair[1].columns
+        {
+            diagnostics.push(format!("section at block {} changes continuous columns: current page retains its columns; new columns start on the next page; balancing and mixed column regions are not implemented", pair[1].block_range.start));
         }
     }
     // The page formatter handles section starts separately; keep only the explicit

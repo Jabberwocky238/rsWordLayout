@@ -288,6 +288,7 @@ fn assumed_widow_rechecks_the_tail_at_the_successor_sections_page_width() {
                     margins: Margins::uniform(0),
                 },
                 kind: SectionStart::NextPage,
+                columns: Default::default(),
                 fallback_fields: vec![],
             },
             LayoutSection {
@@ -298,6 +299,7 @@ fn assumed_widow_rechecks_the_tail_at_the_successor_sections_page_width() {
                     margins: Margins::uniform(0),
                 },
                 kind: SectionStart::Continuous,
+                columns: Default::default(),
                 fallback_fields: vec![],
             },
         ];
@@ -376,6 +378,7 @@ fn assumed_next_page_section_stops_keep_chain() {
             para_range: 0..2,
             setup: setup(4 * LINE),
             kind: SectionStart::NextPage,
+            columns: Default::default(),
             fallback_fields: vec![],
         },
         LayoutSection {
@@ -383,6 +386,7 @@ fn assumed_next_page_section_stops_keep_chain() {
             para_range: 2..3,
             setup: setup(4 * LINE),
             kind: SectionStart::NextPage,
+            columns: Default::default(),
             fallback_fields: vec![],
         },
     ];

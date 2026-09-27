@@ -61,9 +61,10 @@ def check_source_offsets(trace: dict) -> dict:
 def check_terminator_glyphs(trace: dict) -> dict:
     """引擎自报的终止符应产出字形数，要和它自己画出来的对得上。
 
-    轨迹里每行既有 `terminatorExpectedGlyphs`（按 §4 约定该画几个），
+    轨迹里每行既有 `terminatorExpectedGlyphs`（引擎自报该画几个），
     又有实际画出来的字形。**这两个数出自同一份记录**，对不上就是引擎自相矛盾，
-    不必等 Word 来判。
+    不必等 Word 来判。`COLUMN_BREAK` 的自报数尚无 Word 实测支持；
+    本项只检查内部一致性，不会把该数加入 §4 的计数规则。
 
     只查终止符**独占一行**的情形——那时该行的字形应当恰好等于终止符该产出的数目。
     行里还有正文时分不出哪个字形属于终止符，跳过。
@@ -126,6 +127,17 @@ def _baseline(line: dict):
     return origin[1] if origin else None
 
 
+def _line_column(page: dict, line: dict) -> int | None:
+    """Only declared multiple-column pages require explicit line ownership."""
+    columns = page.get("columns")
+    if not isinstance(columns, list) or len(columns) <= 1:
+        return 0
+    column = line.get("column")
+    if type(column) is int and 0 <= column < len(columns):
+        return column
+    return None
+
+
 def check_line_granularity(trace: dict) -> dict:
     """一行只能有一条记录。
 
@@ -134,7 +146,10 @@ def check_line_granularity(trace: dict) -> dict:
     于是「行」这一层被 run 切碎，比较器的行层配对必然对不上，
     而且失败看起来像「引擎少排了行」，其实是记账粒度错了。
 
-    判据：同页内**源区间接续**、且**基线相同**的连排记录。
+    判据：同页同栏内**源区间接续**、且**基线相同**的连排记录。
+    多栏页只使用明确有效的 `line.column`；归属未知时判不了，不从坐标猜。
+    不同栏之间不适用此判据；本项不检查栏的流动顺序，也不要求栏号递增或连续。
+    没有多栏声明的旧轨迹保留单栏判据。
 
     **两个条件缺一不可。** 只看接续会把每一次自动换行都判成缺陷：换行处被
     trim 的空格仍留在上一行的源区间里（引擎与 Word 的逐页字形数逐份相等，
@@ -159,10 +174,17 @@ def check_line_granularity(trace: dict) -> dict:
     runs = []
     wraps = 0
     unknown = []
+    column_unknown = []
+    column_unknown_pairs = 0
+    column_changes = 0
     previous = None
     for page, line in _lines(trace):
         start, end = line.get("sourceStart"), line.get("sourceEnd")
         baseline = _baseline(line)
+        column = _line_column(page, line)
+        if column is None:
+            column_unknown.append({"page": page["index"], "line": line["index"],
+                                   "column": line.get("column")})
         if start is None or end is None:
             previous = None
             continue
@@ -173,18 +195,28 @@ def check_line_granularity(trace: dict) -> dict:
                 "continuesFrom": start,
                 "baseline": baseline,
             }
-            if baseline is None or previous[2] is None:
+            if column is None or previous[3] is None:
+                column_unknown_pairs += 1
+            elif column != previous[3]:
+                column_changes += 1
+            elif baseline is None or previous[2] is None:
                 unknown.append(entry)
             elif baseline == previous[2]:
                 runs.append(entry)
             else:
                 wraps += 1
-        previous = (page["index"], end, baseline)
+        previous = (page["index"], end, baseline, column)
 
     if runs:
         state = FAIL
         reason = (
-            "%d 条记录既接续上一条、又与它同基线——那是按 run 出的记录被当成了行。" % len(runs)
+            "%d 条记录在同栏内既接续上一条、又与它同基线——那是按 run 出的记录被当成了行。" % len(runs)
+        )
+    elif column_unknown:
+        state = UNDECIDABLE
+        reason = (
+            "COLUMN_OWNERSHIP_UNKNOWN: 多栏页中 %d 条记录缺少有效栏归属，"
+            "无法使用同栏行粒度判据。" % len(column_unknown)
         )
     elif unknown:
         state = UNDECIDABLE
@@ -199,11 +231,13 @@ def check_line_granularity(trace: dict) -> dict:
     return {
         "check": "一行一条记录",
         "state": state,
-        "contiguousRecords": len(runs) + wraps + len(unknown),
+        "contiguousRecords": len(runs) + wraps + len(unknown) + column_changes + column_unknown_pairs,
         "sameBaseline": len(runs),
         "differentBaseline": wraps,
         "baselineUnknown": len(unknown),
-        "sample": (runs or unknown)[:6],
+        "differentColumn": column_changes,
+        "columnUnknown": len(column_unknown),
+        "sample": (runs or column_unknown or unknown)[:6],
         "reason": reason,
     }
 

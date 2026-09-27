@@ -44,6 +44,8 @@ cargo run --bin render -- fixtures/sample.docx fixtures/sample.html
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
 y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、
 节页面尺寸与边距、换页后重新断行和环绕查询、SVG 后端。
+等宽与显式不等宽栏共用断行器，支持自动换栏和独立栏断，
+详见 [多栏进展](docs/COLUMN-FLOW-2026-09-27.md)。
 文档兼容项 `splitPgBreakAndParaMark` 独立于平台和视图输入；
 实现与验收范围见 [段落保留进展](docs/PARAGRAPH-FLOW-2026-09-27.md)。
 
@@ -53,7 +55,7 @@ y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefor
   真实字体路径使用 `fontenv` 特性下的 `RealMetrics` 与 rustybuzz。
 - 裸 JSON 的 `paras_from_document` 保留历史样式近似；`LoadedDocument` 已通过
   钉住版本的 `rsword::resolve::Resolver` 合成有效属性。Android 的复杂 toggle 继承仍需实测。
-- 未实现：docGrid、表格、分栏、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
+- 未实现：docGrid、表格、栏平衡与同页混合栏组、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
 
 ## 许可
 

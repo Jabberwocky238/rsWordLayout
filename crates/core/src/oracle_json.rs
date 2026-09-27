@@ -16,6 +16,10 @@
 //! **偏移空间**：`sourceStart` / `sourceEnd` 用 **UTF-16 单位**，与 rsword 的坐标流
 //! 以及 Word 的 `Range.Start/End` 一致。段落标记各占 1 个单位。
 //!
+//! Multiple-column pages additionally expose `columns` frames in points and
+//! each line's explicit `column` index (or null). Single-column page payloads
+//! remain unchanged; column frames describe the engine, not Word measurements.
+//!
 //! # 手写而不引 serde
 //!
 //! 这个契约只有一个消费者，为它给整个 core 加一条 derive 依赖不划算。
@@ -90,6 +94,7 @@ fn terminator_name(t: LineTerminator) -> &'static str {
     match t {
         LineTerminator::ParagraphMark => "PARAGRAPH_MARK",
         LineTerminator::LineBreak => "SOFT_RETURN",
+        LineTerminator::ColumnBreak => "COLUMN_BREAK",
         LineTerminator::PageBreak(PageBreakPosition::OwnLine) => "PAGE_BREAK_OWN_LINE",
         LineTerminator::PageBreak(PageBreakPosition::BeforeMark) => "PAGE_BREAK_BEFORE_MARK",
         LineTerminator::PageBreak(PageBreakPosition::MidParagraph) => "PAGE_BREAK_MID_PARAGRAPH",
@@ -141,10 +146,29 @@ pub fn to_trace_json(record: &LayoutRecord, meta: &TraceMeta) -> String {
         out.push_str(&format!("      \"index\": {},\n", page.index));
         out.push_str(&format!("      \"width\": {},\n", num(pt(page.width))));
         out.push_str(&format!("      \"height\": {},\n", num(pt(page.height))));
+        let multiple_columns = page.columns.len() > 1;
+        if multiple_columns {
+            out.push_str("      \"columns\": [\n");
+            for (ci, column) in page.columns.iter().enumerate() {
+                out.push_str(&format!(
+                    "        {{\"index\": {ci}, \"x\": {}, \"y\": {}, \"width\": {}, \"height\": {}}}",
+                    num(pt(column.x)), num(pt(column.y)),
+                    num(pt(column.width)), num(pt(column.height)),
+                ));
+                out.push_str(if ci + 1 == page.columns.len() { "\n" } else { ",\n" });
+            }
+            out.push_str("      ],\n");
+        }
         out.push_str("      \"lines\": [\n");
         for (li, line) in page.lines.iter().enumerate() {
             out.push_str("        {\n");
             out.push_str(&format!("          \"index\": {li},\n"));
+            if multiple_columns {
+                match line.column {
+                    Some(column) => out.push_str(&format!("          \"column\": {column},\n")),
+                    None => out.push_str("          \"column\": null,\n"),
+                }
+            }
             // 行盒**仅供诊断，不参与验收**——行盒与行基线在现有通道上不可测。
             out.push_str(&format!(
                 "          \"boxTopDiagnostic\": {},\n",

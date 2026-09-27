@@ -7,6 +7,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from wordmeasure import FAIL, OK, UNDECIDABLE, selfcheck
@@ -142,6 +144,87 @@ def test_line_granularity_undecidable_when_offsets_are_broken():
     """源区间本身就不对时，接续关系无从判断——先修那条，不要连带乱报。"""
     t = trace([line(0, 0, 10, glyphs=10), line(1, 0, 8, glyphs=8)])
     assert selfcheck.check_line_granularity(t)["state"] == UNDECIDABLE
+
+
+def column_trace(ownership, *, baseline=84.96, glyphs=1, column_count=2):
+    lines = []
+    for index, column in enumerate(ownership):
+        record = line(index, index, index + 1, glyphs=glyphs, baseline=baseline)
+        record["column"] = column
+        lines.append(record)
+    result = trace(lines)
+    result["pages"][0]["columns"] = [{"index": index} for index in range(column_count)]
+    return result
+
+
+@pytest.mark.parametrize("ownership", [(0, 1), (1, 0), (0, 2)])
+def test_different_columns_do_not_imply_split_runs_or_column_order(ownership):
+    result = selfcheck.check_line_granularity(column_trace(ownership, column_count=3))
+    assert result["state"] == OK
+    assert result["contiguousRecords"] == 1
+    assert result["differentColumn"] == 1
+    assert result["sameBaseline"] == 0
+
+
+def test_same_column_still_detects_split_runs():
+    result = selfcheck.check_line_granularity(column_trace([1, 1]))
+    assert result["state"] == FAIL
+    assert result["sameBaseline"] == 1
+    assert result["differentColumn"] == 0
+
+
+@pytest.mark.parametrize("invalid", [None, -1, 2, True, 0.0, "0"])
+def test_multiple_column_pages_require_valid_ownership(invalid):
+    result = selfcheck.check_line_granularity(column_trace([0, invalid]))
+    assert result["state"] == UNDECIDABLE
+    assert result["columnUnknown"] == 1
+    assert result["sameBaseline"] == 0
+    assert "COLUMN_OWNERSHIP_UNKNOWN" in result["reason"]
+
+
+def test_missing_column_is_unknown_even_without_a_contiguous_pair():
+    data = column_trace([0])
+    del data["pages"][0]["lines"][0]["column"]
+    result = selfcheck.check_line_granularity(data)
+    assert result["state"] == UNDECIDABLE
+    assert result["columnUnknown"] == 1
+    assert result["contiguousRecords"] == 0
+
+
+def test_unknown_previous_column_does_not_turn_next_line_into_a_split_run():
+    result = selfcheck.check_line_granularity(column_trace([None, 1]))
+    assert result["state"] == UNDECIDABLE
+    assert result["columnUnknown"] == 1
+    assert result["sameBaseline"] == 0
+
+
+def test_known_cross_column_connection_does_not_need_a_baseline():
+    result = selfcheck.check_line_granularity(column_trace([0, 1], glyphs=0))
+    assert result["state"] == OK
+    assert result["differentColumn"] == 1
+    assert result["baselineUnknown"] == 0
+
+
+def test_known_same_column_split_takes_precedence_over_other_unknown_ownership():
+    result = selfcheck.check_line_granularity(column_trace([1, 1, None]))
+    assert result["state"] == FAIL
+    assert result["sameBaseline"] == 1
+    assert result["columnUnknown"] == 1
+
+
+def test_single_column_declaration_preserves_legacy_granularity():
+    data = column_trace([None, None], column_count=1)
+    declared = selfcheck.check_line_granularity(data)
+    del data["pages"][0]["columns"]
+    assert selfcheck.check_line_granularity(data) == declared
+    assert declared["state"] == FAIL
+
+
+def test_column_terminator_count_only_checks_engine_internal_consistency():
+    data = trace([line(0, 0, 1, terminator="COLUMN_BREAK", expected=1, glyphs=1)])
+    assert selfcheck.check_terminator_glyphs(data)["state"] == OK
+    data["pages"][0]["lines"][0]["glyphs"] = []
+    assert selfcheck.check_terminator_glyphs(data)["state"] == FAIL
 
 
 # ---- 字形层覆盖 ----

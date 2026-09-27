@@ -307,7 +307,7 @@ fn diagnostic_overrides_apply_to_all_sections_and_invalid_override_is_atomic() {
 }
 
 #[test]
-fn explicit_column_list_without_num_is_reported_as_unsupported() {
+fn explicit_column_list_without_num_is_projected_and_reports_unbalanced_flow() {
     let geometry = uniform_section(10000, 12000, 720, "nextPage").replace(
         "</w:sectPr>",
         r#"<w:cols w:equalWidth="0"><w:col w:w="3000" w:space="720"/><w:col w:w="4840"/></w:cols></w:sectPr>"#,
@@ -321,11 +321,17 @@ fn explicit_column_list_without_num_is_reported_as_unsupported() {
         2
     );
     let doc = document_from_json(&json);
+    assert_eq!(doc.sections[0].columns.count(), 2);
+    assert_eq!(
+        doc.sections[0].columns.areas(doc.sections[0].setup.content_area()).unwrap(),
+        vec![Rect::new(720, 720, 3000, 10560), Rect::new(4440, 720, 4840, 10560)],
+    );
     assert!(
         doc.diagnostics
             .iter()
-            .any(|message| message.contains("columns"))
+            .any(|message| message.contains("final-page column balancing is not implemented"))
     );
+    assert!(!doc.diagnostics.iter().any(|message| message.contains("invalid columns")));
 }
 
 fn top_left_wrap() -> WrapContext {

@@ -195,7 +195,7 @@ fn explicit_page_break_ends_the_group_even_when_later_lines_fit() {
     };
     para.runs[0].placeholders[0] = PlaceholderKind::PageBreak;
     let lines = candidates(&engine, &para, &[(1000, 400); 3]);
-    assert!(lines[0].page_break_after);
+    assert!(lines[0].flow_break.is_hard());
     assert_eq!(quota(&engine, &para, &lines, 5000, None), 1);
     assert_eq!(quota(&engine, &para, &lines, 400, None), 1);
 }
@@ -207,7 +207,7 @@ fn explicit_final_page_break_overrides_keep_reservation() {
     para.runs[0].text.push(OBJECT_PLACEHOLDER);
     para.runs[0].placeholders.push(PlaceholderKind::PageBreak);
     let lines = candidates(&engine, &para, &[(1000, 400)]);
-    assert!(lines[0].page_break_after);
+    assert!(lines[0].flow_break.is_hard());
     assert_eq!(
         quota(&engine, &para, &lines, 400, Some(extent(5000, 5000))),
         1

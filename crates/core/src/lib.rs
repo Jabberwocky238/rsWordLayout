@@ -59,7 +59,7 @@ pub use font::{
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
 pub use document::{
-    DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
+    ColumnLayout, ColumnSpec, DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
     document_from_json,
 };
 pub use load::{LoadedDocument, load_document, merge_sibling_run_props};

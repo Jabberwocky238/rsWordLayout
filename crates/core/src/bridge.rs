@@ -602,7 +602,8 @@ fn read_spacing(props: &Value, def_before: Twips, def_after: Twips)
 /// 段落标记画 1 个空格、软回车画 1 个、分节符画 0 个、
 /// 手动分页符按在行里的位置画 0 或 1 个。
 ///
-/// **分栏符（`column`）未测**，按软回车同级处理并留待实测。
+/// Inline column breaks are preserved separately for the region formatter.
+/// Their diagnostic glyph count remains an unmeasured convention.
 fn pick_terminator(has_sect_pr: bool) -> crate::oracle::LineTerminator {
     // Inline breaks terminate the line where they occur, not the paragraph.
     if has_sect_pr {
@@ -629,8 +630,9 @@ fn pick_terminator(has_sect_pr: bool) -> crate::oracle::LineTerminator {
 /// **`evenPage` / `oddPage` 只当成「起新页」**：它们还要求落在偶／奇页上，
 /// 必要时补一张空页——那一层**未实现也未测**，这里不猜。
 ///
-/// `nextColumn` 是换栏不是换页，本版不实现分栏，故**不当成换页**——
-/// 当成换页会凭空多出页来，而凭空多出的页在比较器里只会报结构失败。
+/// This paragraph-only projection cannot describe column regions. `nextColumn`
+/// is retained by `LayoutDocument` and handled by `Engine::layout_document`;
+/// it must not be flattened into `page_break_before` here.
 fn section_page_starts(doc: &Value) -> std::collections::BTreeSet<usize> {
     let mut out = std::collections::BTreeSet::new();
     let Some(Value::Array(sections)) = doc.get("sections") else {
