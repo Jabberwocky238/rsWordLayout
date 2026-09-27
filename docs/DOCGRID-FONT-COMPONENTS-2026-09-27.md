@@ -278,11 +278,26 @@ feature 替换、初始化 fallback 和 adjusted-wrapper 后续变更仍须保�
 
 `word_analyse` 的 Android 字符串索引帮助定位了两种宿主诊断。`fcidRequest_hps`
 对应后选择 context 前缀的 +6；`fcid.hps` 的真实 caller 先加 +190，再把 +6
-交给诊断，所以它命名的是 getter 返回记录的 +196。该 getter 与实际 F 的身份
-仍须补证，不能把这个名称直接贴给原始 C4 或 R6。请求 serializer 本身确实写 R6
+交给诊断，所以它命名的是 getter 返回记录的 +196。后续已确认两个 getter 的
+正常非空路径均返回尺度上下文的 ptr260；选中 F 的指针确实发布到该槽，因此这里
+对应 F 的 h2，而不是原始 C4 或 R6。跨调用重选及 alias 修改仍须独立考虑。
+请求 serializer 本身确实写 R6
 两字节，但没有字段名。hps 拼写与换算系数都不能替代 `w:sz -> L98` 的生产者证据。
 完整 source、诊断读取点与单位边界见
 [字号来源 README](../artifacts/docgrid-font-size-source-2026-09-27/README.md)。
+
+请求身份续查还补齐 `0x100342b04`：它将局部 P 的前 188 字节复制到 F，
+包含字号 F6；随后从另一个局部 Q 覆写的只是 F4 和 F14。副本 Q6 在
+`0x10034069c..6a8` 已钳到至少 1，再复制到 P。h2 的生产者却在
+`0x100341be4` 读取原 incoming 指针 I+6，未改读 P6；两者不能合并成同一输入。
+例如 I6 保持为零且中间没有修改时，P6 为 1，而 h2 计算仍读取零，之后才应用
+自己的无符号钳制。实际复制点、发布及清理回调限定见
+[请求身份 README](../artifacts/docgrid-font-request-identity-2026-09-27/README.md)。
+
+继续向上检查仅找到反向属性适配：`0x100061834 -> 0x1000637d4 -> 0x10006383c`
+将 legacy C4 原值写回 L98。三条上游入口只是把已有属性交给通用调整函数，没有
+建立 `w:sz` 或单位转换身份。这一[单位调查](../artifacts/docgrid-font-size-unit-2026-09-27/README.md)
+明确未闭合单位；双向复制不能据此升级为半点输入合同。
 
 令 h=P.u16[6]、p=P.u16[8]，N 为已恢复的最近整数乘除 helper，Z 为截断/饱和
 helper。在普通正数且不溢出的范围内，初始垂直尺度为：
@@ -398,6 +413,8 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 | docgrid-content-enable-input-2026-09-27/ | 13 | `0ca964f079a180be6af64b43ea0992ea158078550d26d61e9c66a6098203d910` |
 | docgrid-font-raw-provider-2026-09-27/ | 52 | `8de482d8a316622f3d20b2b1c71494089a1996d9e5ae907a975a785d46a7425f` |
 | docgrid-font-size-source-2026-09-27/ | 30 | `4794f276e8a23fc7b952e553c26cb81b6b30e0de59383c58ecbdb2c9b7f9214a` |
+| docgrid-font-request-identity-2026-09-27/ | 13 | `473923a80e8f2a64011046afacfd93ec309802a9e90e0aa1c7c32bd327712ffa` |
+| docgrid-font-size-unit-2026-09-27/ | 23 | `79df6faec277858ee342bde74655f05504a44b10b184c71fd49cfb47933f48c8` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -431,6 +448,11 @@ V 提供者续查核对 17 个完整函数、13 个真实 fixup 和 195 个旧�
 字号来源续查核对 12 个完整函数、五个宿主诊断字符串及 93 个旧成员；30 文件清单
 逐项通过。独立复核确认实际 source copy、同一 R 的序列化和两处 hps 的不同读取
 对象；中间 opaque 调用、getter 身份及半点单位仍保留为未闭合边界。
+请求身份续查继而核对四个完整函数共 352 字节及 123 个旧成员；13 文件清单逐项
+通过。独立复核闭合了 initializer、指针发布和两个 getter 的正常路径，区分了
+局部钳制字号与 h2 读取的 incoming 半字；清理回调的别名副作用仍未排除。
+单位续查保存八个完整函数的采集及收据，23 文件清单逐项通过，旧来源包 30 个
+成员未变。独立复核确认原值回写和调查未闭合的结论；没有新增单位或运行时证据。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
