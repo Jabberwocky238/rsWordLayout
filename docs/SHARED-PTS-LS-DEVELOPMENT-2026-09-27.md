@@ -204,7 +204,10 @@ pitch275 到 276 从约双步长变为约单步长，276 的完整原点向量�
 后构造链又接到实际 F→C 复制与默认 M 覆盖。新增 `font_adjustment.py` 可用明确
 检查点输入重放 mode 2 的横纵缩放、字号因子与条件补偿，见
 [字体调整参考模型](FONT-ADJUSTMENT-REFERENCE-2026-09-27.md)。它保留初始/更新后 M
-的区别，尚未假定原始 V 与此前 T 相同，也不自动选择生产文档的分支。
+的区别。随后已将选定 RTARC/RTDWRITEFONT 路径的 V 输出地址绑定到此前 T 构造器；
+后处理和实际 flags 仍独立保留，工具不自动选择生产文档的分支。LS 内容高度的
+启用位也已追到宿主 CP 与 paragraph client getter 的比较和实际 setter；尚未得到
+探针最终 gate 值，见[字体分量证据](DOCGRID-FONT-COMPONENTS-2026-09-27.md)。
 续查确认普通矩形的 Story 分派选择 SimpleW：可抑制底部空间独立查询，拒绝
 overhang 时会将最终推进裁到剩余量。生产接入还需表示该条件修改，不能只保存
 两个固定的固有高度，见 [Simple 容纳与末行裁减](DOCGRID-SIMPLE-FIT-2026-09-27.md)。

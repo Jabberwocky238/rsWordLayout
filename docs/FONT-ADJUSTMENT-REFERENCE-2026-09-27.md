@@ -30,8 +30,10 @@ F184 不参与十项缩放，M+c/+14 由更新前记录保留。输出只表示�
 可选 `h2Source` 独立模拟模式 2 因子生产：
 `n=N(wrap32(raw0-raw_c),input_size,denominator)`，然后将 n 当作无符号数钳到
 1..3276，负数因而钳到 3276。其 h2 必须与 `project.h2` 相等，不能静默替换输入。
-raw0/raw_c 来自 V，尚未绑定为此前 [font_record](FONT-RECORD-REFERENCE-2026-09-27.md)
-模型的 T。工具不自动连接这两份记录。
+raw0/raw_c 来自 V。后续[提供者身份调查](DOCGRID-FONT-COMPONENTS-2026-09-27.md#原始-v-与提供者-t-的身份)
+已证明选定 RTARC/RTDWRITEFONT 路径的输出调用把 V 直接交给此前
+[font_record](FONT-RECORD-REFERENCE-2026-09-27.md) 的 T 构造器。但回退、V 后处理、
+简单/替代调整尾路径及真实 flags 仍需明确，工具没有自动把 T 变成 pre_scale。
 
 ## 合成样例与验证
 
