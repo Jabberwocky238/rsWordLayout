@@ -1,0 +1,3440 @@
+{
+  "schema": "rsword-keep-chain-canonical-source/1",
+  "captureStatus": "UNMEASURED",
+  "generator": "tools/measure/make_keep_chain_fixture.py",
+  "generatorSha256": "b427a23d7f6923f9e2db52b6d93d0410388ea980b1a5b4e9557bcdc89a389169",
+  "fontFamily": "Times New Roman",
+  "fontSizeHalfPoints": 24,
+  "fontIdentityNote": "Declared four-slot font family only; bind actual font bytes during capture.",
+  "pPrPropertyOrder": [
+    "keepNext",
+    "keepLines",
+    "pageBreakBefore",
+    "widowControl",
+    "spacing",
+    "jc",
+    "rPr"
+  ],
+  "rPrPropertyOrder": [
+    "rFonts",
+    "vanish",
+    "sz",
+    "szCs"
+  ],
+  "sectPrPropertyOrder": [
+    "type",
+    "pgSz",
+    "pgMar",
+    "cols"
+  ],
+  "pageTwips": [
+    11906,
+    3360
+  ],
+  "bodyHeightTwips": 1920,
+  "nominalLineCapacity": 4,
+  "capacityStatus": "UNMEASURED; 1920 / declared exact480, not a Word page-fit observation",
+  "marginsTwips": {
+    "top": 720,
+    "right": 720,
+    "bottom": 720,
+    "left": 720,
+    "header": 360,
+    "footer": 360,
+    "gutter": 0
+  },
+  "lineRule": "exact",
+  "lineValue": 480,
+  "lineValueUnit": "twips",
+  "paragraphBeforeTwips": 0,
+  "paragraphAfterTwips": 0,
+  "compatibilityMode": 15,
+  "columns": 1,
+  "docGrid": false,
+  "stylesPart": false,
+  "docDefaults": false,
+  "hardBreaks": false,
+  "headerFooterContent": false,
+  "sourceUnit": "UTF-16 code units; half-open ranges include CR paragraph marks and VT soft returns.",
+  "sourceStatus": "Input-derived; native Word content/paragraph ranges/dual CP scans must verify identity.",
+  "hypothesisStatus": "UNMEASURED; competing cuts are nonexhaustive, not expected Word results or engine predictions.",
+  "zipProfile": {
+    "timestamp": [
+      2026,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    "compression": "deflate",
+    "createSystem": 3,
+    "permissionsOctal": "644"
+  },
+  "cases": [
+    {
+      "name": "f1-a1-b3",
+      "file": "f1-a1-b3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Whole A+B fits a fresh nominal page; contrast whole-terminal reservation with a legal terminal prefix.",
+      "paragraphCount": 3,
+      "inputLineCount": 5,
+      "sourceText": "F000\rA000\rB000\u000bB001\u000bB002\r",
+      "visibleText": "F000\nA000\nB000\nB001\nB002",
+      "sourceLengthUtf16": 25,
+      "sourceTextUtf16LeSha256": "86a62e4c6e9d13f8067a16f97f1aebdce2d8e37c425d4137de6e27d1a2665a65",
+      "anchors": [
+        {
+          "label": "F000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "A000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "F",
+          "lineCount": 1,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "F000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "F000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "B",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 10,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffsets": [
+            14,
+            19
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "whole-terminal",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000"
+            ],
+            [
+              "A000",
+              "B000",
+              "B001",
+              "B002"
+            ]
+          ]
+        },
+        {
+          "id": "terminal-prefix",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000",
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "148a9988c7bd8c3dc161e711e0e4f16e2d8a30f9e5c13be7d41d593c5848b950",
+      "documentXmlSha256": "98f1e9685b9fe306475236f46a25fc45227131dd172df35e58f54518fe8174dd",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "98f1e9685b9fe306475236f46a25fc45227131dd172df35e58f54518fe8174dd",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "f1-a2-b3",
+      "file": "f1-a2-b3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "A+B exceeds a fresh nominal page; distinguish prefix reservation from moving an oversized group first.",
+      "paragraphCount": 3,
+      "inputLineCount": 6,
+      "sourceText": "F000\rA000\u000bA001\rB000\u000bB001\u000bB002\r",
+      "visibleText": "F000\nA000\nA001\nB000\nB001\nB002",
+      "sourceLengthUtf16": 30,
+      "sourceTextUtf16LeSha256": "7ff66f3ef3ef1e0d910d364e934184a32f65c8b00d1b55f67fe243bce3035006",
+      "anchors": [
+        {
+          "label": "F000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "A000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "A001",
+          "paragraphIndex": 1,
+          "lineInParagraph": 1,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "F",
+          "lineCount": 1,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "F000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "F000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "A",
+          "lineCount": 2,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [
+            9
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "A001",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000",
+            "A001"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "B",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 15,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffsets": [
+            19,
+            24
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "terminal-prefix",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000",
+              "A000",
+              "A001",
+              "B000"
+            ],
+            [
+              "B001",
+              "B002"
+            ]
+          ]
+        },
+        {
+          "id": "move-before-relaxing",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000"
+            ],
+            [
+              "A000",
+              "A001",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "5eef629ee2a4224c810d2fcd1c36375749b86fdc6d1b7cb0c12d113669b012c8",
+      "documentXmlSha256": "290114ce5810c76365ddc330776b49c677b7664b72d8780bfb2681775631d0ae",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "290114ce5810c76365ddc330776b49c677b7664b72d8780bfb2681775631d0ae",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "a1-b3-c3",
+      "file": "a1-b3-c3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "An oversized chain starts at page top; inspect whether B's final line remains with C's first line.",
+      "paragraphCount": 3,
+      "inputLineCount": 7,
+      "sourceText": "A000\rB000\u000bB001\u000bB002\rC000\u000bC001\u000bC002\r",
+      "visibleText": "A000\nB000\nB001\nB002\nC000\nC001\nC002",
+      "sourceLengthUtf16": 35,
+      "sourceTextUtf16LeSha256": "8e2e984c281ab4f096ca74f9467a640eb5f647a8e1d99d8defa7bf9448c5fa3e",
+      "anchors": [
+        {
+          "label": "A000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 1,
+          "lineInParagraph": 1,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 1,
+          "lineInParagraph": 2,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "B",
+          "lineCount": 3,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffsets": [
+            9,
+            14
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "C",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 20,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffsets": [
+            24,
+            29
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 29,
+              "sourceEnd": 30,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C002",
+              "sourceStart": 30,
+              "sourceEnd": 34,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 34,
+              "sourceEnd": 35
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "C000",
+            "C001",
+            "C002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "tail-link-preserved",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "middle-link-relaxed",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "B001",
+              "B002"
+            ],
+            [
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "whole-middle-reserved",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000"
+            ],
+            [
+              "B000",
+              "B001",
+              "B002",
+              "C000"
+            ],
+            [
+              "C001",
+              "C002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "1a88158b0b34cf4fd45915987885dd96719635e2ee1138c51b7dfa92a17c6936",
+      "documentXmlSha256": "3940bcc4ce58f68436957dfa123ad13c407b31a9abd1977a83b181852fbb5b77",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "3940bcc4ce58f68436957dfa123ad13c407b31a9abd1977a83b181852fbb5b77",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "f1-a1-b3-c3",
+      "file": "f1-a1-b3-c3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "A filler reduces initial capacity; compare partial middle-paragraph continuation and group movement.",
+      "paragraphCount": 4,
+      "inputLineCount": 8,
+      "sourceText": "F000\rA000\rB000\u000bB001\u000bB002\rC000\u000bC001\u000bC002\r",
+      "visibleText": "F000\nA000\nB000\nB001\nB002\nC000\nC001\nC002",
+      "sourceLengthUtf16": 40,
+      "sourceTextUtf16LeSha256": "90965659460df28d53147e51cc6937c56715ed7f96997d67132e28d707116d02",
+      "anchors": [
+        {
+          "label": "F000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "A000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C000",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 3,
+          "lineInParagraph": 1,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C002",
+          "paragraphIndex": 3,
+          "lineInParagraph": 2,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "F",
+          "lineCount": 1,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "F000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "F000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "B",
+          "lineCount": 3,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 10,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffsets": [
+            14,
+            19
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002"
+          ]
+        },
+        {
+          "index": 3,
+          "role": "C",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 25,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffsets": [
+            29,
+            34
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 29,
+              "sourceEnd": 30,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 30,
+              "sourceEnd": 34,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 34,
+              "sourceEnd": 35,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C002",
+              "sourceStart": 35,
+              "sourceEnd": 39,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 34,
+              "sourceEnd": 35
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 39,
+              "sourceEnd": 40
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "C000",
+            "C001",
+            "C002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "prefix-and-tail-link",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000",
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "whole-middle-reserved",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000",
+              "A000"
+            ],
+            [
+              "B000",
+              "B001",
+              "B002",
+              "C000"
+            ],
+            [
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "move-chain-first",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000"
+            ],
+            [
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "31b76b588bf3313cfb1a5f2ffdfa4868e4574a8680003763ba9e35c73e5a27ed",
+      "documentXmlSha256": "f2a0a9fde074260aaba00d537834b161894bd90752566ad896aaf7e51e72eea1",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "f2a0a9fde074260aaba00d537834b161894bd90752566ad896aaf7e51e72eea1",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "a1-b1-c2-d3",
+      "file": "a1-b1-c2-d3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Three keep links test whether continuation keeps the final linked paragraph adjacent to D.",
+      "paragraphCount": 4,
+      "inputLineCount": 7,
+      "sourceText": "A000\rB000\rC000\u000bC001\rD000\u000bD001\u000bD002\r",
+      "visibleText": "A000\nB000\nC000\nC001\nD000\nD001\nD002",
+      "sourceLengthUtf16": 35,
+      "sourceTextUtf16LeSha256": "c9495ff2c98248793e6a36a1f4d030e9321ed6321e94f2a4b7a72c58c4c5e563",
+      "anchors": [
+        {
+          "label": "A000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "D000",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "D001",
+          "paragraphIndex": 3,
+          "lineInParagraph": 1,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "D002",
+          "paragraphIndex": 3,
+          "lineInParagraph": 2,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "B",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "C",
+          "lineCount": 2,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 10,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffsets": [
+            14
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "C000",
+            "C001"
+          ]
+        },
+        {
+          "index": 3,
+          "role": "D",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 20,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffsets": [
+            24,
+            29
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "D000",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "D001",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 29,
+              "sourceEnd": 30,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "D002",
+              "sourceStart": 30,
+              "sourceEnd": 34,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 34,
+              "sourceEnd": 35
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "D000",
+            "D001",
+            "D002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "tail-link-preserved",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "C000"
+            ],
+            [
+              "C001",
+              "D000",
+              "D001",
+              "D002"
+            ]
+          ]
+        },
+        {
+          "id": "last-link-relaxed",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "C000",
+              "C001"
+            ],
+            [
+              "D000",
+              "D001",
+              "D002"
+            ]
+          ]
+        },
+        {
+          "id": "whole-middle-reserved",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000"
+            ],
+            [
+              "C000",
+              "C001",
+              "D000",
+              "D001"
+            ],
+            [
+              "D002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "5b9b97db98017cd375625166ee5a90aa3835a76c162c99ed4a58a842de685270",
+      "documentXmlSha256": "81334cce60cf67a73343724ff764d2f9d882cd3d64c5683846a89bf9c21cecd3",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "81334cce60cf67a73343724ff764d2f9d882cd3d64c5683846a89bf9c21cecd3",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "a1-b3-keepLines-c3",
+      "file": "a1-b3-keepLines-c3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "B has keepLines; distinguish moving intact B plus a C prefix from relaxing either B constraint.",
+      "paragraphCount": 3,
+      "inputLineCount": 7,
+      "sourceText": "A000\rB000\u000bB001\u000bB002\rC000\u000bC001\u000bC002\r",
+      "visibleText": "A000\nB000\nB001\nB002\nC000\nC001\nC002",
+      "sourceLengthUtf16": 35,
+      "sourceTextUtf16LeSha256": "8e2e984c281ab4f096ca74f9467a640eb5f647a8e1d99d8defa7bf9448c5fa3e",
+      "anchors": [
+        {
+          "label": "A000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 1,
+          "lineInParagraph": 1,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 1,
+          "lineInParagraph": 2,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "B",
+          "lineCount": 3,
+          "keepNext": true,
+          "keepLines": true,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffsets": [
+            9,
+            14
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "C",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 20,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffsets": [
+            24,
+            29
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 29,
+              "sourceEnd": 30,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C002",
+              "sourceStart": 30,
+              "sourceEnd": 34,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 34,
+              "sourceEnd": 35
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "C000",
+            "C001",
+            "C002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "middle-kept-with-prefix",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000"
+            ],
+            [
+              "B000",
+              "B001",
+              "B002",
+              "C000"
+            ],
+            [
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "middle-link-relaxed",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "B001",
+              "B002"
+            ],
+            [
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "keepLines-relaxed",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "8d8f2a44c053a1d3580fa760ceba7b9a611f3c763fbc53e53f354c42d83bc386",
+      "documentXmlSha256": "aed6e422a7b3e45c1096368623bc3a7494e715dbb15185961f684f4c4da7d5a8",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "aed6e422a7b3e45c1096368623bc3a7494e715dbb15185961f684f4c4da7d5a8",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "a1-b3-widow-c3",
+      "file": "a1-b3-widow-c3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "B has widowControl; inspect the interaction between its legal split and the following keep link.",
+      "paragraphCount": 3,
+      "inputLineCount": 7,
+      "sourceText": "A000\rB000\u000bB001\u000bB002\rC000\u000bC001\u000bC002\r",
+      "visibleText": "A000\nB000\nB001\nB002\nC000\nC001\nC002",
+      "sourceLengthUtf16": 35,
+      "sourceTextUtf16LeSha256": "8e2e984c281ab4f096ca74f9467a640eb5f647a8e1d99d8defa7bf9448c5fa3e",
+      "anchors": [
+        {
+          "label": "A000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 1,
+          "lineInParagraph": 1,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 1,
+          "lineInParagraph": 2,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "B",
+          "lineCount": 3,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": true,
+          "sourceStart": 5,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffsets": [
+            9,
+            14
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "C",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 20,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffsets": [
+            24,
+            29
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 29,
+              "sourceEnd": 30,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C002",
+              "sourceStart": 30,
+              "sourceEnd": 34,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 34,
+              "sourceEnd": 35
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "C000",
+            "C001",
+            "C002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "middle-kept-with-prefix",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000"
+            ],
+            [
+              "B000",
+              "B001",
+              "B002",
+              "C000"
+            ],
+            [
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "middle-link-relaxed",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "B001",
+              "B002"
+            ],
+            [
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "widow-relaxed",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "8193a7300d92303a910ea3f627b30cf2209235d19645fba796a79cadccbce296",
+      "documentXmlSha256": "8277ddf435ab24716fcd89aeb786e2fb77f27b9bdfe2eee066d99ff36e20dc86",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "8277ddf435ab24716fcd89aeb786e2fb77f27b9bdfe2eee066d99ff36e20dc86",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "f1-a1-b4-c3",
+      "file": "f1-a1-b4-c3.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Four-line B tests continuation when the remaining B and C prefix fit on a later page.",
+      "paragraphCount": 4,
+      "inputLineCount": 9,
+      "sourceText": "F000\rA000\rB000\u000bB001\u000bB002\u000bB003\rC000\u000bC001\u000bC002\r",
+      "visibleText": "F000\nA000\nB000\nB001\nB002\nB003\nC000\nC001\nC002",
+      "sourceLengthUtf16": 45,
+      "sourceTextUtf16LeSha256": "5eb46169d33e319ad86a6ecd760ba5acc1ab4742908470e4b42592aeb3ac39e6",
+      "anchors": [
+        {
+          "label": "F000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "A000",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "B000",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B001",
+          "paragraphIndex": 2,
+          "lineInParagraph": 1,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 2,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "B003",
+          "paragraphIndex": 2,
+          "lineInParagraph": 3,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C000",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 3,
+          "lineInParagraph": 1,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "C002",
+          "paragraphIndex": 3,
+          "lineInParagraph": 2,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "F",
+          "lineCount": 1,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "F000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "F000"
+          ]
+        },
+        {
+          "index": 1,
+          "role": "A",
+          "lineCount": 1,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "A000",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "A000"
+          ]
+        },
+        {
+          "index": 2,
+          "role": "B",
+          "lineCount": 4,
+          "keepNext": true,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 10,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffsets": [
+            14,
+            19,
+            24
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "B000",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B002",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "B003",
+              "sourceStart": 25,
+              "sourceEnd": 29,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 24,
+              "sourceEnd": 25
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 29,
+              "sourceEnd": 30
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "B000",
+            "B001",
+            "B002",
+            "B003"
+          ]
+        },
+        {
+          "index": 3,
+          "role": "C",
+          "lineCount": 3,
+          "keepNext": false,
+          "keepLines": false,
+          "widowControl": false,
+          "sourceStart": 30,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffsets": [
+            34,
+            39
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 30,
+              "sourceEnd": 34,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 34,
+              "sourceEnd": 35,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 35,
+              "sourceEnd": 39,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 39,
+              "sourceEnd": 40,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "label": "C002",
+              "sourceStart": 40,
+              "sourceEnd": 44,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 34,
+              "sourceEnd": 35
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 39,
+              "sourceEnd": 40
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 44,
+              "sourceEnd": 45
+            }
+          ],
+          "pageBreakBefore": false,
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "visibleLabels": [
+            "C000",
+            "C001",
+            "C002"
+          ]
+        }
+      ],
+      "competingCandidates": [
+        {
+          "id": "prefix-and-tail-link",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000",
+              "A000",
+              "B000",
+              "B001"
+            ],
+            [
+              "B002",
+              "B003",
+              "C000",
+              "C001"
+            ],
+            [
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "whole-middle-reserved",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000",
+              "A000"
+            ],
+            [
+              "B000",
+              "B001",
+              "B002"
+            ],
+            [
+              "B003",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        },
+        {
+          "id": "move-chain-first",
+          "status": "UNMEASURED",
+          "hypotheticalLabelPages": [
+            [
+              "F000"
+            ],
+            [
+              "A000",
+              "B000",
+              "B001",
+              "B002"
+            ],
+            [
+              "B003",
+              "C000",
+              "C001",
+              "C002"
+            ]
+          ]
+        }
+      ],
+      "candidateScope": "Nonexhaustive hypothetical page cuts under a nominal four-line budget; not Word observations, engine output, or expectedLayout.",
+      "sha256": "a85b014ae6887e58e133737b1534598a0c49ed4a9f1639e03adec346faacc342",
+      "documentXmlSha256": "93593de1082f19cfba2992634dfb02600db81ef2fce1c7bb27642eb867fd9d2d",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "93593de1082f19cfba2992634dfb02600db81ef2fce1c7bb27642eb867fd9d2d",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    }
+  ]
+}
