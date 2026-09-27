@@ -58,7 +58,7 @@ fn observed_two_column_width_uses_missing_equal_width_as_equal() {
     assert!(
         doc.diagnostics
             .iter()
-            .any(|note| note.contains("final-page column balancing"))
+            .any(|note| note.contains("continuous-section column balancing"))
     );
     let meta = doc.trace_metadata();
     assert_eq!(meta["sections"][0]["columns"]["declared"]["num"], 2);
@@ -377,7 +377,7 @@ fn unsupported_separator_rtl_and_vertical_flow_are_explicit_diagnostics() {
         "separator lines",
         "right-to-left column order",
         "textDirection",
-        "final-page column balancing",
+        "continuous-section column balancing",
     ] {
         assert!(
             doc.diagnostics.iter().any(|note| note.contains(phrase)),
@@ -406,6 +406,6 @@ fn continuous_column_changes_retain_both_inputs_and_report_missing_mixed_regions
     assert!(
         doc.diagnostics
             .iter()
-            .any(|note| note.contains("mixed column regions on one page"))
+            .any(|note| note.contains("current page retains its columns; new columns start on the next page"))
     );
 }

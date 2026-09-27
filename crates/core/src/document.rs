@@ -129,7 +129,7 @@ impl ColumnLayout {
         json!({
             "declared": self.declared,
             "effective": effective,
-            "flow": "left-to-right sequential; final-page balancing not implemented",
+            "flow": "left-to-right sequential; continuous-section balancing not implemented",
             "rounding": "equal widths distribute remainder twips from left to right (host policy)",
             "areas": areas.iter().map(|area| json!({
                 "x": area.x, "y": area.y, "width": area.width, "height": area.height,
@@ -430,7 +430,7 @@ fn section_columns(props: &Value, body: Rect, section: usize, diagnostics: &mut 
             notes.push("column separator lines (sep) are not rendered".into());
         }
         if columns.count() > 1 {
-            notes.push("sequential column flow: final-page column balancing is not implemented".into());
+            notes.push("sequential column flow: continuous-section column balancing is not implemented".into());
             if let Some(bidi) = props.get("bidi") {
                 match bidi.as_bool() {
                     Some(true) => notes.push("right-to-left column order (bidi) is not implemented; using left-to-right order".into()),

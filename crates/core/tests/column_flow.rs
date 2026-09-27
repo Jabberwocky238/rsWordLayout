@@ -3,7 +3,8 @@
 //! Android Word reports establish the 32-lines-per-column capacity, the 64/65
 //! physical-page boundary, and distinct column/page breaks. Synthetic metrics
 //! below test source accounting and inferred flow constraints, not new Word
-//! captures. Final-page balancing is deliberately outside these expectations.
+//! captures. One separately gated Mac capture checks terminal 40-line sequential
+//! flow with Times New Roman; continuous-section balancing remains unmeasured.
 
 use std::collections::BTreeSet;
 
@@ -388,5 +389,63 @@ fn reported_android_calibri_column_page_counts() {
             .layout_document(&document);
         assert_eq!(column_counts(&pages), expected, "{name}");
         assert_sources_and_page_line_ids(&pages, &document);
+    }
+}
+
+#[cfg(feature = "fontenv")]
+#[test]
+#[ignore = "needs RSWORD_TEST_TIMES_NEW_ROMAN"]
+fn reported_mac_times_new_roman_terminal_columns_and_source_anchors() {
+    use rsword_layout_core::{LineRule, RealMetrics, font::FontRegistry, load_document};
+
+    // Word for Mac 16.112.3: docs/COLUMN-BALANCE-MAC-2026-09-27.md.
+    // This capture establishes page/column assignment and source anchors only.
+    // It does not establish glyph coordinates or any other balance fixture.
+    let font = std::env::var_os("RSWORD_TEST_TIMES_NEW_ROMAN")
+        .expect("set RSWORD_TEST_TIMES_NEW_ROMAN to Times New Roman.ttf");
+    let mut registry = FontRegistry::new();
+    registry.add(std::fs::read(font).unwrap(), 0).unwrap();
+    assert!(registry.covers_family("Times New Roman"));
+    let metrics = RealMetrics::new(&registry);
+    let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../fixtures/column-balance-2026-09-27/terminal40-noBalance0.docx");
+    let document = load_document(&std::fs::read(fixture).unwrap())
+        .unwrap()
+        .layout_document();
+    assert_eq!(document.compatibility.no_column_balance, Some(false));
+    assert_eq!(document.paras.len(), 40);
+    for (index, para) in document.paras.iter().enumerate() {
+        assert_eq!((para.line_rule, para.line_value), (LineRule::Exact, 480));
+        assert_eq!((para.space_before, para.space_after), (0, 0));
+        assert_eq!(
+            para.runs
+                .iter()
+                .map(|run| run.text.as_str())
+                .collect::<String>(),
+            format!("C{index:03}"),
+        );
+        for run in &para.runs {
+            assert_eq!(run.font.family, "Times New Roman");
+            assert_eq!(run.font.size_half_points, 24);
+        }
+    }
+
+    let pages = Engine::new(&metrics, PageSetup::a4())
+        .with_platform(Platform::Desktop, View::Print)
+        .layout_document(&document);
+    assert_eq!(pages.len(), 1);
+    assert_eq!(column_counts(&pages), [vec![32, 8]]);
+    assert_sources_and_page_line_ids(&pages, &document);
+    let captured = record(&pages);
+    assert_eq!(captured.pages[0].lines.len(), 40);
+    for (index, line) in captured.pages[0].lines.iter().enumerate() {
+        let column = usize::from(index >= 32);
+        assert_eq!(pages[0].line_columns[index], column);
+        assert_eq!(line.column, Some(column));
+        let source = line.source.unwrap();
+        assert_eq!(
+            (source.start, source.end),
+            (index as u32 * 5, (index as u32 + 1) * 5)
+        );
     }
 }

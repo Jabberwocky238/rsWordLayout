@@ -329,7 +329,7 @@ fn explicit_column_list_without_num_is_projected_and_reports_unbalanced_flow() {
     assert!(
         doc.diagnostics
             .iter()
-            .any(|message| message.contains("final-page column balancing is not implemented"))
+            .any(|message| message.contains("continuous-section column balancing is not implemented"))
     );
     assert!(!doc.diagnostics.iter().any(|message| message.contains("invalid columns")));
 }

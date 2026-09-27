@@ -1,0 +1,328 @@
+{
+  "schema": "rsword-column-balance-source/2",
+  "pPrPropertyOrder": [
+    "widowControl",
+    "spacing",
+    "jc",
+    "rPr",
+    "sectPr"
+  ],
+  "fontFamily": "Times New Roman",
+  "fontSizeHalfPoints": 24,
+  "lineRule": "exact",
+  "lineTwips": 480,
+  "pageTwips": [
+    11906,
+    16838
+  ],
+  "marginTwips": 720,
+  "columnGapTwips": 720,
+  "columnWidthsTwips": [
+    4873,
+    4873
+  ],
+  "expectedLayout": null,
+  "purpose": "Distinguish sequential fill, terminal balancing, continuous-section balancing, compatibility flag and explicit column boundaries using new Word evidence.",
+  "cases": [
+    {
+      "name": "continuous40-sameCols-noBalance0",
+      "file": "continuous40-sameCols-noBalance0.docx",
+      "sha256": "705c10db39d5ebc7302758278a0355c39dbe9565c47a137c9514ce8be06ba619",
+      "documentXmlSha256": "e965c40bde4bf186b5f4cefba2cecf9c7f7605c7ef3dffa80383439e57d89ed0",
+      "settingsXmlSha256": "390dde78fa0c82c964a29cc847edac94bc5502716b03dcb71ab191586474ba69",
+      "continuousSingleColumnSuccessor": false,
+      "successorColumns": 2,
+      "columnBreakAfterLabel": null,
+      "noColumnBalance": false,
+      "anchors": [
+        {
+          "label": "C000",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C001",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C002",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C003",
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C004",
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C005",
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C006",
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C007",
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C008",
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C009",
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C010",
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C011",
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C012",
+          "sourceStart": 60,
+          "sourceEnd": 65,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C013",
+          "sourceStart": 65,
+          "sourceEnd": 70,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C014",
+          "sourceStart": 70,
+          "sourceEnd": 75,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C015",
+          "sourceStart": 75,
+          "sourceEnd": 80,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C016",
+          "sourceStart": 80,
+          "sourceEnd": 85,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C017",
+          "sourceStart": 85,
+          "sourceEnd": 90,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C018",
+          "sourceStart": 90,
+          "sourceEnd": 95,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C019",
+          "sourceStart": 95,
+          "sourceEnd": 100,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C020",
+          "sourceStart": 100,
+          "sourceEnd": 105,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C021",
+          "sourceStart": 105,
+          "sourceEnd": 110,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C022",
+          "sourceStart": 110,
+          "sourceEnd": 115,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C023",
+          "sourceStart": 115,
+          "sourceEnd": 120,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C024",
+          "sourceStart": 120,
+          "sourceEnd": 125,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C025",
+          "sourceStart": 125,
+          "sourceEnd": 130,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C026",
+          "sourceStart": 130,
+          "sourceEnd": 135,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C027",
+          "sourceStart": 135,
+          "sourceEnd": 140,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C028",
+          "sourceStart": 140,
+          "sourceEnd": 145,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C029",
+          "sourceStart": 145,
+          "sourceEnd": 150,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C030",
+          "sourceStart": 150,
+          "sourceEnd": 155,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C031",
+          "sourceStart": 155,
+          "sourceEnd": 160,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C032",
+          "sourceStart": 160,
+          "sourceEnd": 165,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C033",
+          "sourceStart": 165,
+          "sourceEnd": 170,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C034",
+          "sourceStart": 170,
+          "sourceEnd": 175,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C035",
+          "sourceStart": 175,
+          "sourceEnd": 180,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C036",
+          "sourceStart": 180,
+          "sourceEnd": 185,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C037",
+          "sourceStart": 185,
+          "sourceEnd": 190,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C038",
+          "sourceStart": 190,
+          "sourceEnd": 195,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C039",
+          "sourceStart": 195,
+          "sourceEnd": 200,
+          "columnBreakOffset": null,
+          "terminator": "SECTION_BREAK"
+        },
+        {
+          "label": "END",
+          "sourceStart": 200,
+          "sourceEnd": 204,
+          "columnBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ]
+    }
+  ]
+}
