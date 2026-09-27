@@ -51,6 +51,8 @@ cargo run -p rsword-layout-svg --features fontenv --bin render -- \
 
 ## 状态
 
+项目的长期目标、阶段出口和近期任务见
+[北极星与开发规划](docs/NORTH-STAR-AND-ROADMAP.md)。
 共享 PTS/LS 内核的后续开发顺序、证据和验收条件见
 [开发路线](docs/SHARED-PTS-LS-DEVELOPMENT-2026-09-27.md)。正式 DOCX 入口使用
 `load_document(...).layout_document()`：样式继承后的属性与文档节几何一起传给共用排版器。
@@ -71,7 +73,11 @@ y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefor
   真实字体路径使用 `fontenv` 特性下的 `RealMetrics` 与 rustybuzz。
 - 裸 JSON 的 `paras_from_document` 保留历史样式近似；`LoadedDocument` 已通过
   钉住版本的 `rsword::resolve::Resolver` 合成有效属性。Android 的复杂 toggle 继承仍需实测。
-- 未实现：docGrid、表格、跨多栏组 keepNext、连续节页面几何切换、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
+- 表格已支持单格、显式 exact 行高、零左右 cell margin 和无可见边框的受限形状，
+  包含真实 cell 正文和行边界续排；多格、内容行高、样式及复杂续排仍待实现，见
+  [表格进展](docs/TABLE-FLOW-2026-09-27.md)。
+- C ABI 与 WASM 会话当前仍使用 `SimpleMetrics`；真实字体排版贯穿各宿主入口是近期目标。
+- 未实现：docGrid、脚注、跨多栏组 keepNext、连续节页面几何切换、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
 
 ## 许可
 
