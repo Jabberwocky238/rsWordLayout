@@ -1,0 +1,1138 @@
+{
+  "schema": "rsword-paragraph-mark-source/1",
+  "generator": "tools/measure/make_paragraph_mark_fixture.py",
+  "generatorSha256": "9cae4bdb38970f3fea74e8746c6853f8ebe95066e37b7e26df4f22976a6a51e4",
+  "captureStatus": "UNMEASURED",
+  "purpose": "Observe paragraph-mark font contributions and subsequent paragraph advancement.",
+  "pPrPropertyOrder": [
+    "widowControl",
+    "spacing",
+    "jc",
+    "rPr"
+  ],
+  "rPrPropertyOrder": [
+    "rFonts",
+    "vanish",
+    "sz",
+    "szCs"
+  ],
+  "sectPrPropertyOrder": [
+    "type",
+    "pgSz",
+    "pgMar",
+    "cols"
+  ],
+  "fontApplication": "Explicit ascii, hAnsi, eastAsia, cs, sz, szCs and vanish on every run and paragraph mark.",
+  "fontIdentityNote": "Input family declarations only; actual font files must be bound during capture.",
+  "lineRule": "auto",
+  "lineValue": 240,
+  "lineValueUnit": "240ths-of-line",
+  "paragraphBeforeTwips": 0,
+  "paragraphAfterTwips": 0,
+  "widowControl": false,
+  "alignment": "left",
+  "compatibilityMode": 15,
+  "pageTwips": [
+    11906,
+    16838
+  ],
+  "marginTwips": 720,
+  "columns": 1,
+  "docGrid": false,
+  "stylesPart": false,
+  "docDefaults": false,
+  "sourceUnit": "UTF-16 code units; all ranges are half-open, paragraphs include CR and soft returns use VT.",
+  "sourceStatus": "Derived from input OOXML, including hidden text; native source must independently verify offsets and endOfContent.",
+  "cases": [
+    {
+      "name": "body12-mark12",
+      "file": "body12-mark12.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "a000380688b04ae9c8b2a5f5daf64fdc15cfb82079718e647c5685adfa30423e",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "3c5bc66c075b286e40cd8fdffcf4a03ff4a8ebe02dcbddbd244dceccd55e7403",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "481f3d31921cbfe5b0c77e11a271f8868d37a926aa8f78be6778f900e9d6f9a3",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "body12-mark24",
+      "file": "body12-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "a000380688b04ae9c8b2a5f5daf64fdc15cfb82079718e647c5685adfa30423e",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "5a141977a88fd534a9463999ea9e1efcffa2f1af70f0ca68d5bdd2f3e8f171b5",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "07aff60d329b4480b849896c1117ea3af42f12c9c8264b1685e1078bd9128e6b",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "body12-mark8",
+      "file": "body12-mark8.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "a000380688b04ae9c8b2a5f5daf64fdc15cfb82079718e647c5685adfa30423e",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 16,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "0216af83c60584b75a662be93303494e7708d0eeefb21d52643396811d6e16c2",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "40d5591d51d3794644f77c7db25d6055f44cc7c59377490a3c17d6e68bd5632b",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "body24-mark12",
+      "file": "body24-mark12.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "a000380688b04ae9c8b2a5f5daf64fdc15cfb82079718e647c5685adfa30423e",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 48,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "32f1b9a974e106fb28285e7b822f5ec10b0a5734085b589c8e699e0a60be8c38",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "842c88c726f8775e60295d9874a69832554c9d1561e90a690bb21f2f0f3421d6",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "body12Arial-mark12TNR",
+      "file": "body12Arial-mark12TNR.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "a000380688b04ae9c8b2a5f5daf64fdc15cfb82079718e647c5685adfa30423e",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Arial",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Arial",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "f455892eb69e33391dcda889f77c864e45d2a870f8f68da0aa4bb50a406735db",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "14f178fb06dd413e01cb6ecd51093bfe3eeb60df80f7018b58d16973cdad5c00",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "empty-mark24",
+      "file": "empty-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "\rR001\rR002\r",
+      "sourceLengthUtf16": 11,
+      "sourceTextUtf16LeSha256": "392e6d3d3a1322ba2b331e49044706b9b9c72d33013a11461398944b9a10e644",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 1,
+          "paragraphMarkOffset": 0,
+          "softBreakOffsets": [],
+          "bodyFont": null,
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 0,
+              "sourceEnd": 1,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 1,
+          "sourceEnd": 6,
+          "paragraphMarkOffset": 5,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 1,
+              "sourceEnd": 5,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 5,
+              "sourceEnd": 6,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 6,
+          "sourceEnd": 11,
+          "paragraphMarkOffset": 10,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 6,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 10,
+              "sourceEnd": 11,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "761feafb28d1fa2545507cbd770ec81c4d5c5caae82e341f64a73476d5b5dff6",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "061574c01825d62053d9306d32191deafd34566050319d9eba2af4a19609022e",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "hiddenBody12-mark24",
+      "file": "hiddenBody12-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "a000380688b04ae9c8b2a5f5daf64fdc15cfb82079718e647c5685adfa30423e",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": true
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": true
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "b7c4d3ecd783175ae284fe07ea39b5317834e418d61af452562e9ed1bbaf5cc1",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "0f550128e10ea3f8e2cd5f80d5d90b12ee5840c2314fea961e62b2cb56988233",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "body12-softReturn-emptyTail-mark24",
+      "file": "body12-softReturn-emptyTail-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "paragraphCount": 3,
+      "sourceText": "M000\u000b\rR001\rR002\r",
+      "sourceLengthUtf16": 16,
+      "sourceTextUtf16LeSha256": "2f0808266d7968785eed598a05a41bf7557be16f58315d3789da7951a66d74c7",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 6,
+          "paragraphMarkOffset": 5,
+          "softBreakOffsets": [
+            4
+          ],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "M000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "<w:br w:type=\"textWrapping\"/>"
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 5,
+              "sourceEnd": 6,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 6,
+          "sourceEnd": 11,
+          "paragraphMarkOffset": 10,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R001",
+              "sourceStart": 6,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 10,
+              "sourceEnd": 11,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 11,
+          "sourceEnd": 16,
+          "paragraphMarkOffset": 15,
+          "softBreakOffsets": [],
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "label": "R002",
+              "sourceStart": 11,
+              "sourceEnd": 15,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 15,
+              "sourceEnd": 16,
+              "inputXml": "implicit end of w:p"
+            }
+          ]
+        }
+      ],
+      "sha256": "263ee6ebdc44cba9d355710d097915cc691ba7305815d15f1bdae5b18629946f",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "3d7ff0de8dc582b0263dfde782beaec849c80835f2fcb6f010ef42105914e7f1",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    }
+  ]
+}
