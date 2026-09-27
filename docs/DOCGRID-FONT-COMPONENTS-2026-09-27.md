@@ -270,6 +270,20 @@ feature 替换、初始化 fallback 和 adjusted-wrapper 后续变更仍须保�
 进入 builder 前的局部副本也先钳到至少 1。因此下式以真正到达 builder 的 P 为输入，
 并未证明 C+4 的 OOXML 字号身份或每条分支都保持它不变。
 
+沿旧 LS callback 的续查已找到更上游的实际赋值：`0x1003667d4(L)` 调用
+`0x1000619a8(B+8,L+20,...)`，后者在 `0x100061e00..04` 将源 +78 的无符号
+半字原样写到输出 +4。因此来源是 run 的 L+98，随后经 callback 的 1704 字节复制
+和 `C4 -> R6` 进入请求。中间 `0x100370f50` 在 selector.bit0 置位时直接返回；
+其它路径可能把 C 交给未展开 helper，不能据其直接 store 不覆盖 C4 就宣称不变。
+
+`word_analyse` 的 Android 字符串索引帮助定位了两种宿主诊断。`fcidRequest_hps`
+对应后选择 context 前缀的 +6；`fcid.hps` 的真实 caller 先加 +190，再把 +6
+交给诊断，所以它命名的是 getter 返回记录的 +196。该 getter 与实际 F 的身份
+仍须补证，不能把这个名称直接贴给原始 C4 或 R6。请求 serializer 本身确实写 R6
+两字节，但没有字段名。hps 拼写与换算系数都不能替代 `w:sz -> L98` 的生产者证据。
+完整 source、诊断读取点与单位边界见
+[字号来源 README](../artifacts/docgrid-font-size-source-2026-09-27/README.md)。
+
 令 h=P.u16[6]、p=P.u16[8]，N 为已恢复的最近整数乘除 helper，Z 为截断/饱和
 helper。在普通正数且不溢出的范围内，初始垂直尺度为：
 
@@ -360,6 +374,9 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 条件合同；工具目前仍要求显式检查点，不自动选择实际文档的模式、字体和 flags。
 完整身份链、回退公式和限定见
 [raw-provider README](../artifacts/docgrid-font-raw-provider-2026-09-27/README.md)。
+上述简单纵向路线现有 [font_vertical 可执行连接](FONT-VERTICAL-REFERENCE-2026-09-27.md)，
+用重新校验的 Face1 原始测量计算 T，再根据显式属性位派生五项 preScale、h2 和
+三项更新量；不要求手工搬运 T，也不把初始 M 误作更新后的 M。
 
 ## 冻结与验证
 
@@ -380,6 +397,7 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 | docgrid-content-info-inputs-2026-09-27/ | 50 | `973a180874eb1a527adad68e94617b7ec1aba0ebc0c0e5b473f42fbf5968b724` |
 | docgrid-content-enable-input-2026-09-27/ | 13 | `0ca964f079a180be6af64b43ea0992ea158078550d26d61e9c66a6098203d910` |
 | docgrid-font-raw-provider-2026-09-27/ | 52 | `8de482d8a316622f3d20b2b1c71494089a1996d9e5ae907a975a785d46a7425f` |
+| docgrid-font-size-source-2026-09-27/ | 30 | `4794f276e8a23fc7b952e553c26cb81b6b30e0de59383c58ecbdb2c9b7f9214a` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -410,6 +428,9 @@ content-info 续查核对十份采集、16 个完整函数、八条直接引用�
 V 提供者续查核对 17 个完整函数、13 个真实 fixup 和 195 个旧成员；52 文件清单
 逐项通过。独立复核发现两处基类构造器返回指针的身份缺口，补捕 32 字节与 88 字节
 完整体后证明返回原对象，再闭合最终虚表安装。回退、重试及后处理条件保持显式。
+字号来源续查核对 12 个完整函数、五个宿主诊断字符串及 93 个旧成员；30 文件清单
+逐项通过。独立复核确认实际 source copy、同一 R 的序列化和两处 hps 的不同读取
+对象；中间 opaque 调用、getter 身份及半点单位仍保留为未闭合边界。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
