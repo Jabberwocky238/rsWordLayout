@@ -1,0 +1,13 @@
+{
+  "schema": "rsword-font-tail-input/1",
+  "project": {
+    "v_prefix_words": [1000, 800, 200, 0, 75, 500, 500],
+    "tail_p0": 0,
+    "tail_p8": 100,
+    "tail_p13": 8,
+    "metric_byte38": 134,
+    "mode": 2,
+    "incoming_scale": 1440,
+    "dy": 2048
+  }
+}

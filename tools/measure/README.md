@@ -268,6 +268,22 @@ python3 tools/measure/font_vertical.py \
 保留完整来源与各阶段数值，只给出三项纵向更新量，不伪造水平字段或完整 M，也不
 代表 LS 最终高度。合同见[字体纵向连接参考](../../docs/FONT-VERTICAL-REFERENCE-2026-09-27.md)。
 
+### 字体高度替代分支参考
+
+`font_tail.py` 重放已定位的 selector 与替代尾整数步骤，输入为当前 V、属性字、
+mode 和尺度，全部显式提供。simple tail 输入会拒绝；原有 `font_vertical.py` 不变。
+
+```sh
+python3 tools/measure/font_tail.py \
+  --input tools/measure/examples/font-tail-special.json \
+  --out artifacts/font-tail-new.json
+```
+
+输出 `ARITHMETIC_REFERENCE`，保留分量重新分配、两次 15% 整数加量、最小值和独立
+stackResult。它不填写 F.cc 或最终 M，不推断 DOCX 字号或活动分支，也不调用 Word。
+严格整数检查与禁止覆盖输出沿用其它参考工具；完整合同见
+[字体替代尾模型](../../docs/FONT-TAIL-REFERENCE-2026-09-27.md)。
+
 ### PTS Simple 容纳与末行裁减参考
 
 `simple_fit.py` 用显式原生整数重放 Simple 分支的容纳检查。输入 `fit` 必须包含
