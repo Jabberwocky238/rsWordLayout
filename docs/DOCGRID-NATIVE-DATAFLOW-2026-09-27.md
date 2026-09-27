@@ -98,3 +98,26 @@ Word 输出反推的公式。
 [原生算法证据](DOCGRID-ALGORITHM-EVIDENCE-2026-09-27.md)，观测约束见
 [网格原点](DOCGRID-WORD-EVIDENCE-2026-09-27.md) 与
 [页面容纳边界](DOCGRID-PAGE-FIT-2026-09-27.md)。
+
+## 布局尺度与显示尺度的条件反例
+
+后续复核将 pitch275/276 两个真实输入与纯整数 helper 绑定：解包后仅一个
+`linePitch` 值不同，字体、双 CP 扫描及 24 个唯一标签的 96 个正文 PDF 字形均可复查。
+若两例都把源 pitch 送入 helper 且 S=300，则 `trunc(pitch*S/1440)` 都是 57。
+在 tuple、tag、参数、bypass、调用路径和其他流水线输入相同，且 pitch 没有独立的
+上游或下游用途的条件下，结果必须相同；实测相邻字形原点差分别约 27.5pt 和 13.8pt。
+因此该简化候选被排除。相同 XML 不能证明内部输入相同，这也不排除混合尺度系统，
+更不能在 S=1440 和 S=294912 之间作选择。12 个纯模型向量只是补充依赖关系核查。
+
+完整离线捕获的两个短 wrapper 共 81 条指令补齐了矩形 Q 的实参身份：
+`0x142f4` 将 incoming x7 经 x19 写到 outgoing SP+0；具名
+`FsFormatShortcutTextPara` (`0x187fe8`) 将类型为 `tagFSRECT*` 的 incoming x5
+写到同一栈位置，均转发到 `0x143f8` 的 FP+10。两者均不生成矩形或转换单位。
+新增类型身份仍不足以将 Q 命名为页高减边距，本片在此停止扩展调用树。
+
+冻结包 `artifacts/docgrid-layout-scale-boundary-2026-09-27/` 的 10 个成员已逐项核验，
+`SHA256SUMS` SHA-256 为
+`3b1a8bd35cf3f23dea7ec86cff2f767f70741337c724b9241eb14d6e46dc920a`；
+`boundary-check-final.json` SHA-256 为
+`7ea62ead91582584c886a336e83210f7b6dfe0ce164ec872f7db22a37605116f`。
+主代理另核 408 个来源绑定。没有新的 Word 操作或生产公式改动。
