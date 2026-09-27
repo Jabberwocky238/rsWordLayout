@@ -1124,7 +1124,7 @@ impl PlaceholderKind {
 }
 
 /// 页面设置（来自 `rsword::resolve::section::SectionGeom`）。
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PageSetup {
     pub size: Size,
     pub margins: Margins,
@@ -1366,6 +1366,14 @@ struct PendingLine {
     source_end: u32,
 }
 
+/// State at a committed line boundary. Run/control positions are reconstructed
+/// from the original UTF-16 stream; paragraph identity never changes on resume.
+#[derive(Clone, Copy)]
+struct LineCursor {
+    source: u32,
+    first: bool,
+}
+
 /// 模拟哪个平台上的 Word。
 ///
 /// 同一份文档在 Mac Word 与 Android Word 上有几条规则实测相反，而两边的夹具形状一样
@@ -1538,9 +1546,20 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
     /// 把段落序列排成页面。
     pub fn layout(&self, paras: &[Para]) -> Vec<Page> {
-        let area = self.setup.content_area();
+        self.layout_sections(paras, &[])
+    }
+
+    /// Format the projected main story using each section's page geometry.
+    /// See `document.diagnostics` for unsupported or approximate inputs.
+    pub fn layout_document(&self, document: &crate::LayoutDocument) -> Vec<Page> {
+        self.layout_sections(&document.paras, &document.sections)
+    }
+
+    fn layout_sections(&self, paras: &[Para], sections: &[crate::LayoutSection]) -> Vec<Page> {
+        let mut setup = sections.first().map_or(self.setup, |s| s.setup);
+        let mut area = setup.content_area();
         let mut pages: Vec<Page> = Vec::new();
-        let mut page = Page::new(self.setup.size, area);
+        let mut page = Page::new(setup.size, area);
         // 纵向游标走**精细单位**（1/7200 英寸），只在落位与判断时换回 twips。
         // 按整 twips 累加会逐行漂移：栅格上的 273.6 twips 落成 274，每行多 0.4 twip。
         let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
@@ -1556,8 +1575,40 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 都占 1 个 UTF-16 单位）。段内的软回车与分页符已经以 U+FFFC 占位符
         // 落在 run 文本里，所以逐 run 数就够，不必另加。
         let mut source_cursor: u32 = 0;
+        let mut active_section = None;
 
         for (idx, para) in paras.iter().enumerate() {
+            if let Some((si, section)) = sections.iter().enumerate().find(|(_, s)| s.para_range.contains(&idx))
+                && active_section != Some(si)
+            {
+                use crate::SectionStart;
+                let first_section = active_section.is_none();
+                active_section = Some(si);
+                setup = section.setup;
+                let new_page = !matches!(section.kind, SectionStart::Continuous | SectionStart::NextColumn);
+                if !first_section && new_page && !page.fragments.is_empty() {
+                    pages.push(std::mem::replace(&mut page, Page::new(setup.size, setup.content_area())));
+                }
+                if page.fragments.is_empty() {
+                    // An explicit break can already have opened the next page.
+                    // Replace its geometry rather than inserting a second blank page.
+                    area = setup.content_area();
+                    page = Page::new(setup.size, area);
+                    cursor_fine = fine(area.y);
+                    line_index = 0;
+                    if !first_section {
+                        let physical_page = pages.len() + 1;
+                        let wrong_parity = match section.kind {
+                            SectionStart::EvenPage => !physical_page.is_multiple_of(2),
+                            SectionStart::OddPage => physical_page.is_multiple_of(2),
+                            _ => false,
+                        };
+                        if wrong_parity {
+                            pages.push(Page::new(setup.size, area));
+                        }
+                    }
+                }
+            }
             let para_base = source_cursor;
             let para_units: u32 = para
                 .runs
@@ -1567,25 +1618,27 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             // +1 是段落终止符本身。
             source_cursor = para_base + para_units + 1;
 
-            let lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
-            let block_height_fine: i64 = lines.iter().map(|l| l.height_fine).sum();
-
             if para.page_break_before && !page.fragments.is_empty() {
-                pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
+                area = setup.content_area();
+                pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                 cursor_fine = fine(area.y);
                 line_index = 0;
             }
 
             cursor_fine += fine(para.space_before);
+            let mut lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
+            let block_height_fine: i64 = lines.iter().map(|l| l.height_fine).sum();
 
             // keepLines：整段放不下就先翻页（除非本页是空的，那样翻了也没用）。
             if para.keep_lines
                 && cursor_fine + block_height_fine > fine(area.bottom())
                 && !page.fragments.is_empty()
             {
-                pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
+                area = setup.content_area();
+                pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                 cursor_fine = fine(area.y);
                 line_index = 0;
+                lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
             }
 
             // keepNext：本段是最后一段时无意义；否则要保证下一段至少第一行同页。
@@ -1600,17 +1653,26 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 0
             };
 
-            let total_lines = lines.len();
-            for (li, line) in lines.into_iter().enumerate() {
+            let mut pending: std::collections::VecDeque<_> = lines.into();
+            while let Some(mut line) = pending.pop_front() {
                 let mut needed_fine = line.height_fine;
                 // 最后一行还要替下一段的首行占位。
-                if para.keep_next && li + 1 == total_lines {
+                if para.keep_next && pending.is_empty() {
                     needed_fine += next_first_line_fine;
                 }
                 if cursor_fine + needed_fine > fine(area.bottom()) && !page.fragments.is_empty() {
-                    pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
+                    let previous_area = area;
+                    area = setup.content_area();
+                    pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                     cursor_fine = fine(area.y);
                     line_index = 0;
+                    if !self.wrap.is_empty() || area != previous_area {
+                        pending = self.break_paragraph_at(
+                            para, area, coarse(cursor_fine), para_base,
+                            LineCursor { source: line.source_start, first: line.is_first },
+                        ).into();
+                        line = pending.pop_front().expect("a remaining source line must advance");
+                    }
                 }
                 self.place_line(&mut page, &line, para, cursor_fine, line_index);
                 line_index += 1;
@@ -1622,9 +1684,19 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 // 与「放不下就翻页」不同，这一条**不看还剩多少空间**——源里写了分页就是分页。
                 // 实测夹具里有连续两个分页符的情形，那确实产生一张只有一条行记录的页。
                 if line.page_break_after {
-                    pages.push(std::mem::replace(&mut page, Page::new(self.setup.size, area)));
+                    let previous_area = area;
+                    area = setup.content_area();
+                    pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                     cursor_fine = fine(area.y);
                     line_index = 0;
+                    if (!self.wrap.is_empty() || area != previous_area)
+                        && let Some(next) = pending.front()
+                    {
+                        pending = self.break_paragraph_at(
+                            para, area, coarse(cursor_fine), para_base,
+                            LineCursor { source: next.source_start, first: next.is_first },
+                        ).into();
+                    }
                 }
             }
 
@@ -1840,6 +1912,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         y: Twips,
         source_base: u32,
     ) -> Vec<PendingLine> {
+        self.break_paragraph_at(para, area, y, source_base, LineCursor { source: source_base, first: true })
+    }
+
+    fn break_paragraph_at(
+        &self,
+        para: &Para,
+        area: Rect,
+        y: Twips,
+        source_base: u32,
+        resume: LineCursor,
+    ) -> Vec<PendingLine> {
         use crate::oracle::{LineTerminator as T, PageBreakPosition as B};
         let mut lines: Vec<PendingLine> = Vec::new();
         let paragraph_end = source_base
@@ -1882,10 +1965,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 end_font: font,
                 end_color: mark_run.map_or(Color::BLACK, |r| r.color),
                 end_rise_fine: mark_run.map_or(0, Run::effective_rise_fine),
-                is_first: true,
+                is_first: resume.first,
                 span,
                 page_break_after: false,
-                source_start: source_base,
+                source_start: resume.source,
                 source_end: paragraph_end + 1,
             });
             return lines;
@@ -1896,9 +1979,24 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 游标：第几截，以及该截所在 run 文本里的字节偏移。
         let mut at: usize = 0;
         let mut byte: usize = segs.first().map_or(0, |s| s.start);
+        if resume.source > source_base {
+            at = segs.iter().position(|seg| {
+                seg.source + utf16_len(&para.runs[seg.run_index].text[seg.start..seg.end]) > resume.source
+            }).unwrap_or(segs.len());
+            if let Some(seg) = segs.get(at) {
+                let text = &para.runs[seg.run_index].text[seg.start..seg.end];
+                let mut units = seg.source;
+                byte = seg.start;
+                for ch in text.chars() {
+                    if units >= resume.source { break; }
+                    units += ch.len_utf16() as u32;
+                    byte += ch.len_utf8();
+                }
+            }
+        }
         let mut cur: Vec<LinePiece> = Vec::new();
         // 当前行起点，供空行用（空行没有片段可推）。
-        let mut line_start: u32 = source_base;
+        let mut line_start: u32 = resume.source;
         let mut cur_w: Twips = 0;
         // 与 `cur_w` 并行的精确值，单位点。断行判断仍走 `cur_w`（整 twips 够用），
         // 只有**落位**读这一个——横向取整的残差同样沿行累加。
@@ -1908,7 +2006,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut cur_natural: Twips = 0;
         // 与 `cur_natural` 并行的精确值，单位 1/7200 英寸。
         let mut cur_natural_fine: i64 = 0;
-        let mut first_line = true;
+        let mut first_line = resume.first;
         // 本行上一个片段（或行首）之后刚跨过一个行内对象占位符：下一个片段与它之间的交界
         // 是断点。见 `LinePiece::after_object`。每推一个片段、每收一行都清掉。
         let mut object_join = false;

@@ -103,8 +103,8 @@ use std::path::PathBuf;
 
 use rsword_layout_core::font::FontRegistry;
 use rsword_layout_core::{
-    Engine, LayoutRecord, PageSetup, Para, Platform, RealMetrics, SimpleMetrics, TextShaper,
-    TraceMeta, VerticalGrid, View, load_document, paint_document, paras_from_document,
+    Engine, LayoutRecord, Para, Platform, RealMetrics, SimpleMetrics, TextShaper,
+    TraceMeta, VerticalGrid, View, load_document, paint_document,
     to_trace_json,
 };
 use skrifa::MetadataProvider;
@@ -568,7 +568,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let doc = loaded.json;
 
-    let (paras, skipped) = paras_from_document(&doc);
+    let mut document = rsword_layout_core::document_from_json(&doc);
+    document.apply_page_overrides(rsword_layout_core::PageOverrides {
+        margin: args.margin,
+        page_width: args.page_width,
+        content_width: args.content_width,
+    })?;
+    for diagnostic in &document.diagnostics {
+        eprintln!("layout: {diagnostic}");
+    }
+    let paras = &document.paras;
+    let skipped = document.skipped_blocks;
     if paras.is_empty() {
         return Err("没有可排版的段落".into());
     }
@@ -593,7 +603,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     // 回退链排在 `--font` 之后：它只补 `--font` 盖不住的字。
-    let fallback_note = load_fallback(&mut registry, &paras, &chain)?;
+    let fallback_note = load_fallback(&mut registry, paras, &chain)?;
     if !fallback_note.is_empty() {
         eprintln!("{}", fallback_note.trim_start_matches('；'));
     }
@@ -629,21 +639,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // `Engine<M: FontMetrics>` 是泛型（度量在断行热路径上，不该走动态分发），
     // 所以这里分两支实例化，而不是传 trait object。
-    let mut setup = PageSetup::a4();
-    if let Some(margin) = args.margin {
-        setup.margins = rsword_layout_core::Margins::uniform(margin);
-    }
-    if let Some(width) = args.page_width {
-        setup.size.width = width;
-    }
-    if let Some(width) = args.content_width {
-        let slack = setup.size.width - width;
-        if slack < 0 {
-            return Err(format!("版心宽 {width} 大于页宽 {}", setup.size.width).into());
-        }
-        setup.margins.left = slack / 2;
-        setup.margins.right = slack - setup.margins.left;
-    }
+    let setup = document.sections[0].setup;
     eprintln!(
         "版心 {} twips（页 {}，左右边距 {} / {}）",
         setup.content_area().width,
@@ -655,12 +651,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pages = if use_stub {
         Engine::new(&SimpleMetrics, setup)
             .with_platform(args.platform, args.view)
-            .layout(&paras)
+            .layout_document(&document)
     } else {
         let real = RealMetrics::new(&registry).with_vertical_grid(grid);
         Engine::new(&real, setup)
             .with_platform(args.platform, args.view)
-            .layout(&paras)
+            .layout_document(&document)
     };
 
     let shaper: Option<&dyn TextShaper> =
@@ -679,7 +675,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         font_fingerprint: registry.fingerprint().map(str::to_string),
     };
 
-    std::fs::write(&output, to_trace_json(&record, &meta))?;
+    let mut trace: serde_json::Value = serde_json::from_str(&to_trace_json(&record, &meta))?;
+    trace["layoutInput"] = document.trace_metadata();
+    std::fs::write(&output, serde_json::to_string_pretty(&trace)?)?;
 
     let lines: usize = record.pages.iter().map(|p| p.lines.len()).sum();
     println!(
@@ -702,6 +700,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rsword_layout_core::PageSetup;
 
     fn parse(argv: &[&str]) -> Result<Args, String> {
         parse_args(argv.iter().map(|s| s.to_string()))

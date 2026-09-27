@@ -8,8 +8,7 @@
 use rsword::model::Document;
 use rsword::package::Package;
 use rsword_layout_core::{
-    AnchorScan, Engine, PageSetup, SimpleMetrics, load_document, paint_document,
-    paras_from_document,
+    AnchorScan, Engine, SimpleMetrics, document_from_json, load_document, paint_document,
 };
 use rsword_layout_svg::render_html;
 
@@ -29,13 +28,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let doc = loaded.json;
 
     // 2. 桥接。
-    let (paras, skipped) = paras_from_document(&doc);
-    if paras.is_empty() {
+    let document = document_from_json(&doc);
+    for diagnostic in &document.diagnostics {
+        eprintln!("layout: {diagnostic}");
+    }
+    if document.paras.is_empty() {
         return Err("没有可排版的段落".into());
     }
 
     // 3. 提取文字环绕区。
-    let setup = PageSetup::a4();
+    let setup = document.sections[0].setup;
     let content = setup.content_area();
     let mut pkg = Package::open(&bytes)?;
     let model = Document::rebuild(&mut pkg)?;
@@ -48,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let scan_len = scan.wrap.len();
     let metrics = SimpleMetrics;
     let engine = Engine::with_wrap(&metrics, setup, scan.wrap);
-    let laid = engine.layout(&paras);
+    let laid = engine.layout_document(&document);
 
     // 5. 转矢量绘制指令。不传 shaper：SVG 后端直接排文字，不需要字形序列。
     let list = paint_document(&laid, None, &[]);
@@ -60,7 +62,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     std::fs::write(&output, render_html(&list, &title))?;
 
     let cmds: usize = list.pages.iter().map(|p| p.cmds.len()).sum();
-    println!("段落 {} · 页 {} · 绘制指令 {}", paras.len(), list.page_count(), cmds);
+    println!("段落 {} · 页 {} · 绘制指令 {}", document.paras.len(), list.page_count(), cmds);
+    let skipped = document.skipped_blocks;
     if skipped > 0 {
         println!("跳过非文本块 {skipped}（表格 / 绘图等，本版未实现）");
     }

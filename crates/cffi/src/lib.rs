@@ -98,7 +98,7 @@ pub unsafe extern "C" fn rsl_session_new(
 }
 
 fn build_session(docx: &[u8], dpi: f32) -> Result<RslSession, String> {
-    use rsword_layout_core::{load_document, paras_from_document};
+    use rsword_layout_core::load_document;
     use rsword_layout_core::{Engine, PageSetup};
     use rsword_layout_core::SimpleMetrics;
 
@@ -106,15 +106,15 @@ fn build_session(docx: &[u8], dpi: f32) -> Result<RslSession, String> {
     // 并起来。直接 `SessionTable::document()` 的话，同一份 docx 换个入口就排得不一样。
     // 合并失败时它交回原样的 JSON（`merge_error`），这里没有告警通道，照原样排。
     let value = load_document(docx).map_err(|e| format!("解析失败：{e}"))?.json;
-    let (paras, _skipped) = paras_from_document(&value);
-    if paras.is_empty() {
+    let document = rsword_layout_core::document_from_json(&value);
+    if document.paras.is_empty() {
         return Err("文档里没有可排版的段落".into());
     }
 
     let metrics = SimpleMetrics;
     let engine = Engine::new(&metrics, PageSetup::a4());
     Ok(RslSession {
-        doc: engine.layout(&paras),
+        doc: engine.layout_document(&document),
         dpi: if dpi > 0.0 { dpi } else { 96.0 },
     })
 }

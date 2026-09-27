@@ -8,6 +8,7 @@
 
 mod anchor;
 mod bridge;
+mod document;
 mod layout;
 mod load;
 pub mod font;
@@ -57,6 +58,7 @@ pub use font::{
 // ---- rsword 桥接 ----
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
+pub use document::{LayoutDocument, LayoutSection, PageOverrides, SectionStart, document_from_json};
 pub use load::{LoadedDocument, load_document, merge_sibling_run_props};
 
 // ---- 近似度量桩，**不可用于真实排版** ----

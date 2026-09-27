@@ -14,7 +14,7 @@
 //!
 //! 构建见仓库 `scripts/prepare-webgl.sh`。
 
-use rsword_layout_core::{load_document, paras_from_document};
+use rsword_layout_core::load_document;
 use rsword_layout_core::{Engine, PageSetup};
 use rsword_layout_core::Page;
 use rsword_layout_core::{PaintList, PaintPage, TextShaper, paint_document, paint_page};
@@ -80,15 +80,15 @@ impl LayoutSession {
         // 与 layout-trace 同一个入口：并排的 `w:rPr` 解析器只留最后一个，`load_document`
         // 先把它们并起来。合并失败时它交回原样的 JSON（`merge_error`），这里照原样排。
         let value = load_document(docx).map_err(|e| format!("解析失败：{e}"))?.json;
-        let (paras, _skipped) = paras_from_document(&value);
-        if paras.is_empty() {
+        let document = rsword_layout_core::document_from_json(&value);
+        if document.paras.is_empty() {
             return Err("文档里没有可排版的段落".into());
         }
 
         let metrics = SimpleMetrics;
         let engine = Engine::new(&metrics, PageSetup::a4());
         Ok(LayoutSession {
-            doc: engine.layout(&paras),
+            doc: engine.layout_document(&document),
             dpi: if dpi > 0.0 { dpi } else { 96.0 },
         })
     }
