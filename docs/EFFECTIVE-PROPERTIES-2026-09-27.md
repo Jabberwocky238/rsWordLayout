@@ -65,3 +65,21 @@ JSON 类型和缺失分别保留；有效结果即使只有空的 `fonts` 对象
 属性被保留就已经实现。原始 `LoadedDocument.json` 不被写成有效值。
 手动完整构造 `Para` 的 Rust 调用方需新增 `mark: Default::default()`；使用结构更新
 `..Para::default()` 的调用方保持可用。
+
+输入接入提交为 `1ebd1f5`，规范探针及旧采集复核为 `75de561`。
+`paragraph_mark_props.rs` 的 10 项专项验证上述状态、真实 DOCX 继承/主题、隐藏恢复及修复映射；
+workspace/fontenv 共 75 组、580 项通过、12 项忽略，全目标 Clippy `-D warnings` 通过。
+8 份规范输入及清单逐字节可重现；实际 CLI 验证 24 个标记的直接/有效字体槽、字号、
+可见性及有序源区间，解析警告为零。这些是输入验收，8 份仍没有 Word 测量结果。
+
+Android 旧采集保持 186/186 条件源行区间匹配；Mac 保持 25 FAIL / 5 UNDECIDABLE，
+25 份有效轨迹的完整页面及比较统计与上一轮精细环绕产物逐项相同。
+记录位于 `artifacts/paragraph-mark-inputs-2026-09-27/`，`baseline-diff.json` SHA-256 为
+`8fecad5c77f878572dfd0a50783a27da6e56e6da15b8676234f2a86d0cbbffd8`；
+356 文件清单 `durable-hashes.json` SHA-256 为
+`01b0ca9ab3b627b3f0d9bfdd7e79d535869890f337a1f5c6b1dca9b3f100c944`。
+
+下一片的具体反例见 [段落标记证据](PARAGRAPH-MARK-EVIDENCE-2026-09-27.md)：
+旧 vmisc2 段尾字号不同于末 run，上/下标及 position 样本的段尾回到普通基线。
+应继续分开处理 mark 与行内控制符的绘制样式和源位置；这些观察还不能决定独立 mark
+如何贡献末行高度、页面占高或全隐藏段落行为。
