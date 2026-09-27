@@ -213,3 +213,29 @@ auto 的 line=240 是 240 分之一行单位，不称作 240 twips。
 `durable-hashes.json` SHA-256 为
 `80efaa7a184bc4f9812ad9d82a9492c5870f65c35c376fb0f422cc9ab6303ada`。
 这次尝试不提供网格公式或默认值证据。
+
+## 解锁后的独立恢复采集
+
+2026-09-27 04:44:53 UTC 的只读检查发现桌面已经解锁，授权窗口消失，待打开的
+`auto240-no-grid-snapAbsent` 出现为 Word 文档。没有将外部授权动作归因于采集器。
+04:47:27 UTC 的新查询确认完整路径、唯一文档、已保存状态、相同 Word PID/启动时间，
+且源文件前后哈希与 manifest 一致。旧超时事件保持终态，没有等待或重新执行旧打开。
+
+独立恢复控制器随后完成 print view/repaginate、源内容和段范围、字体预检、新路径的
+实际 PDF 及两轮 CP 扫描，最后仅关闭这份文档、不保存，确认 documents=0/windows=0。
+所有新事件返回零，双扫描源区间完全一致，60 个 UTF-16 单位与 manifest 相等。
+12 个标签均在同一页，PDF 字体为 Times New Roman 12pt，所有 glyph rise=0。
+
+无网格的 G000 首字形位于 (36,47.04) pt；后续 11 个相邻原点差交替为
+13.68 和 13.92 pt，首尾差均为 13.68 pt。这里记录的是 PDF 字形原点，不是 Word 行盒、
+页面所需占高或未量化的自然高度。该例没有 docGrid，不能据此验收网格算法；其余
+20 份网格/字号对照尚待采集。一次 PDF 导出配两轮扫描也不称作重复导出验证。
+
+新产物位于 `artifacts/docgrid-recovery-live-2026-09-27/`，原失败目录保持冻结。
+源 DOCX SHA-256 为 `acb2dcf39aafff8e14c3546f55d11e3d05dd4c7a7e8ada54372b902ecf06675e`；
+实际 PDF SHA-256 为 `2036b537b8e20802b6a7e53586852a5162b51990b443e726a012e2daeec40504`。
+55 文件的 `durable-hashes.json` SHA-256 为
+`e4e3baf2fe7c841f8e5673ece75620b906c816060564a1d4cd1020528c31fcf3`；
+`offline-audit.json` SHA-256 为
+`13f8687bb0d0f6c60814d174ab109043e79e4b6b6b315da63561d8190cf2b789`。
+旧失败采集、双栏基础采集和追加采集的全部冻结文件也已重核哈希一致。
