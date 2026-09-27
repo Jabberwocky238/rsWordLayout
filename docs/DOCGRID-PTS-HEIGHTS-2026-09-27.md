@@ -181,6 +181,11 @@ rect = [textfi[0x20], v, textfi[0x28], textfi[0x24]+textfi[0x2c]-v]
 的条件，以及障碍物局部状态的生产者。前述 U 的修正、提前成功、清零和列表级
 检查全部保留，不能由这条简单矩形路径消去。
 
+后续已证明普通矩形进入 Story 分派后选择 SimpleW，而非 Chain；其独立 S 查询、
+overhang 决策和依赖剩余量的推进裁减见
+[普通区间容纳](DOCGRID-SIMPLE-FIT-2026-09-27.md)。本节的 Chain 输入关系仍成立，
+但不能将其比较式当成上述普通分支的最终规则。
+
 ## 冻结与修正记录
 
 原始材料 `artifacts/docgrid-pts-fit-consumers-2026-09-27/` 共 42 文件，清单
