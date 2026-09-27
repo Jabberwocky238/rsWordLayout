@@ -183,8 +183,9 @@ fn split_runs_in(text: &str, kinds: &[PlaceholderKind], cuts: &[usize], font: &F
 
 #[test]
 fn assumed_random_text_split_into_runs_lays_out_like_one_run() {
-    // 字表里没有数字：汉字挨着数字时桩度量加 autoSpaceDN 的四分之一 em，拆开量与合起来量不等宽，
-    // 那是度量的事，不是断行的事。也没有组合字符：近似簇表不跨 run。
+    // This legacy comparator reconstructs glyph origins from measured prefixes;
+    // numeric/CJK spacing is checked against actual painting in autospace_consistency.
+    // Combining clusters are excluded because the approximation does not cross runs.
     let tokens = [
         "a", "b", "ab", "abc ", " ", "  ", ".", "\u{6c49}", "\u{6c49}\u{6c49}", "\u{ff08}",
         "\u{ff09}", "\u{3002}", "\u{ff0c}", "\u{ff05}", "\u{3009}", "\u{2026}", "(", ")", "$",
@@ -260,7 +261,8 @@ fn assumed_split_runs_with_caps_spacing_and_scale_lay_out_like_one_run() {
     // run 断得与一个 run 不同。桩度量下这几样都可加——间距按源字符簇数（`linebreak::cluster_boundaries`），
     // 小型大写 12pt 缩到 9.5pt，拉丁字 95 twips，缩放取 200% 不截断——所以要求逐字相同。
     // 正文有大小写字母（小型大写只缩有大写形式的）、空格、汉字与禁则标点、制表符、对象占位符。
-    // 没有数字（autoSpaceDN 不可加，见上一条），也没有组合字符。
+    // Numeric/CJK painting uses the source-aware comparator in autospace_consistency;
+    // this legacy measured-prefix comparator also excludes combining characters.
     let tokens = [
         "a", "B", "ab", "Abc ", " ", "  ", ".", "\u{6c49}", "\u{6c49}\u{6c49}", "\u{ff08}",
         "\u{ff09}", "\u{3002}", "\u{ff0c}", "\u{2026}", "(", ")", "\t", "\u{fffc}",

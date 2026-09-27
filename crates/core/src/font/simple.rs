@@ -68,6 +68,11 @@ impl SimpleMetrics {
 }
 
 impl FontMetrics for SimpleMetrics {
+    fn boundary_spacing(
+        &self, left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
+    ) -> super::SpacingAdvance {
+        super::linebreak::autospace_dn_boundary(left, left_font, right, right_font)
+    }
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
         let em = i128::from(font.effective_size_centipoints());
         let small = i128::from(super::caps::small_caps_size_centipoints(font.effective_size_centipoints()));
@@ -79,9 +84,7 @@ impl FontMetrics for SimpleMetrics {
             advance = ((i64::from(advance) * i64::from(font.scale_pct)) / 100) as Twips;
         }
         advance += (slots as Twips) * font.letter_spacing;
-        if font.auto_space_dn {
-            advance += super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints());
-        }
+        advance += super::linebreak::autospace_dn(text, font).fit_twips;
 
         TextMetrics {
             advance,
@@ -102,9 +105,7 @@ impl FontMetrics for SimpleMetrics {
             advance *= f64::from(font.scale_pct) / 100.0;
         }
         advance += slots as f64 * f64::from(font.letter_spacing) / 20.0;
-        if font.auto_space_dn {
-            advance += super::linebreak::autospace_dn_pt(text, font.size_pt());
-        }
+        advance += super::linebreak::autospace_dn(text, font).paint_pt;
         advance
     }
 

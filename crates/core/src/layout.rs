@@ -19,7 +19,7 @@
 
 use crate::font::{
     FINE_PER_TWIP, FontMetrics, FontSpec, LineFontMetrics, MeasuredFontSpan,
-    OverflowPunctuationContext, TextMetrics,
+    OverflowPunctuationContext, SpacingAdvance, TextMetrics,
 };
 
 
@@ -757,6 +757,18 @@ pub enum Fragment {
     Image { id: String, rect: Rect },
 }
 
+/// Retained spacing after a source character, owned by the fragment on its left.
+/// `source_end` is the exclusive global UTF-16 endpoint of that character, even
+/// when hidden source separates it from the next visible fragment. Painting
+/// applies it once at an exact cluster end in a fully sourced, ordered glyph
+/// stream. Unknown, invalid or reordered source streams are left unchanged;
+/// endpoints inside merged clusters remain unapplied. No ordinal is inferred.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SpacingEvent {
+    pub source_end: u32,
+    pub advance_pt: f64,
+}
+
 #[derive(Debug, Clone)]
 pub struct TextFragment {
     pub x: Twips,
@@ -803,6 +815,7 @@ pub struct TextFragment {
     /// 落到 glyph 0，12pt 下 121.6 twips）。绘制时画成**一个空格字形**，推进量取这个值——
     /// 「制表符画 1 个空格」是量具方法 §4 的 Windows 计数约定，Mac 与 Android 上**未测**。
     pub tab_advance_pt: Option<f64>,
+    pub spacing: Vec<SpacingEvent>,
 }
 
 /// 一行。保留行信息而不直接摊平成 Fragment，是因为对齐、两端对齐的空白分配、
@@ -1305,6 +1318,9 @@ struct LinePiece {
     dx: Twips,
     /// 相对行首的 x 的**精确值**，单位点。见 [`crate::font::FontMetrics::advance_pt`]。
     dx_pt: f64,
+    /// Already admitted spacing from the previous visible piece. Removing this
+    /// entire piece must also remove this contribution from the retained line.
+    leading_spacing: SpacingAdvance,
     text: String,
     font: FontSpec,
     /// Preserve the accepted measurement, including a provider's fit result.
@@ -1312,7 +1328,7 @@ struct LinePiece {
     color: Color,
     /// 基线抬升，1/7200 英寸，正值向上。
     rise_fine: i64,
-    /// 源字符区间，UTF-16 单位、相对所在段落。
+    /// Source interval in global UTF-16 units.
     ///
     /// 断行是唯一知道「切在第几个字符」的地方，所以必须在这里记下；
     /// 事后从文字反推会在重复文本上出错。
@@ -2052,6 +2068,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 rise_fine: 0,
                 line: line_index,
                 tab_advance_pt: None,
+                spacing: Vec::new(),
             }));
         }
         // 本片段之前（含本片段左侧那条交界）摊到了几份空隙。
@@ -2099,6 +2116,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 rise_fine: p.rise_fine,
                 line: line_index,
                 tab_advance_pt: p.tab.map(|t| t.advance_pt),
+                spacing: self.piece_spacing(&line.pieces, i),
             }));
         }
 
@@ -2138,6 +2156,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 rise_fine: tail.rise_fine,
                 line: line_index,
                 tab_advance_pt: None,
+                spacing: Vec::new(),
             }));
             // Tail paint advances do not contribute to line width or alignment.
             advance_pt += next_advance_pt;
@@ -2400,6 +2419,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     cur.push(LinePiece {
                         dx: cur_w,
                         dx_pt: cur_w_pt,
+                        leading_spacing: SpacingAdvance::default(),
                         text: "\t".to_string(),
                         font: run.font.clone(),
                         measured: m,
@@ -2427,14 +2447,22 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         (at, byte) = next_segment(&segs, at);
                         continue;
                     }
-                    let remain = (line_avail - cur_w).max(0);
+                    let leading_spacing = self.spacing_before(
+                        cur.last().filter(|p| !object_join && p.tab.is_none())
+                            .and_then(|p| p.text.chars().last().map(|ch| (ch, &p.font))),
+                        rest, &run.font,
+                    );
+                    // Keep negative debt: clamping after the subtraction could
+                    // admit a zero-width prefix without room for its boundary.
+                    let remain = (line_avail - cur_w).max(0) - leading_spacing.fit_twips;
                     let m_all = self.metrics.measure(rest, &run.font);
 
                     if m_all.advance <= remain {
                         // 整截放得下。
                         cur.push(LinePiece {
-                            dx: cur_w,
-                            dx_pt: cur_w_pt,
+                            dx: cur_w + leading_spacing.fit_twips,
+                            dx_pt: cur_w_pt + leading_spacing.paint_pt,
+                            leading_spacing,
                             text: rest.to_string(),
                             font: run.font.clone(),
                             measured: m_all,
@@ -2446,8 +2474,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             seg: at,
                             byte,
                         });
-                        cur_w += m_all.advance;
-                        cur_w_pt += self.metrics.advance_pt(rest, &run.font);
+                        cur_w += leading_spacing.fit_twips + m_all.advance;
+                        cur_w_pt += leading_spacing.paint_pt + self.metrics.advance_pt(rest, &run.font);
                         (at, byte) = next_segment(&segs, at);
                         continue;
                     }
@@ -2478,6 +2506,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         rest, &run.font, remain, hang,
                         context,
                     ) {
+                        // The fitter validates the signed budget: a negative
+                        // advance may cover incoming-spacing debt, and a valid
+                        // punctuation overflow may exceed that budget afterward.
                         Some((cut, m)) if cut > 0 => Shortfall::Place(cut, m),
                         // 一个断点都塞不下。
                         _ => self.shortfall(para, area, span, remain, &cur, object_join, &segs, at, byte),
@@ -2486,8 +2517,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         Shortfall::Place(cut, m) => {
                             let piece = &rest[..cut];
                             cur.push(LinePiece {
-                                dx: cur_w,
-                                dx_pt: cur_w_pt,
+                                dx: cur_w + leading_spacing.fit_twips,
+                                dx_pt: cur_w_pt + leading_spacing.paint_pt,
+                                leading_spacing,
                                 text: piece.to_string(),
                                 font: run.font.clone(),
                                 measured: m,
@@ -2499,8 +2531,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 seg: at,
                                 byte,
                             });
-                            cur_w += m.advance;
-                            cur_w_pt += self.metrics.advance_pt(piece, &run.font);
+                            cur_w += leading_spacing.fit_twips + m.advance;
+                            cur_w_pt += leading_spacing.paint_pt + self.metrics.advance_pt(piece, &run.font);
                             byte += cut;
                             (true, seg.run_index)
                         }
@@ -2517,8 +2549,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                     cur_w_pt = p.dx_pt + self.metrics.advance_pt(&p.text, &p.font);
                                     cur.truncate(piece + 1);
                                 } else {
-                                    cur_w = p.dx;
-                                    cur_w_pt = p.dx_pt;
+                                    cur_w = p.dx - p.leading_spacing.fit_twips;
+                                    cur_w_pt = p.dx_pt - p.leading_spacing.paint_pt;
                                     cur.truncate(piece);
                                 }
                             }
@@ -2768,7 +2800,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             cur[t + 1..].iter().map(|p| (p.text.as_str(), &p.font)).collect();
         word.extend(self.word_ahead(para, segs, at, byte));
         let width = |parts: &[(&str, &FontSpec)]| -> Twips {
-            parts.iter().map(|&(text, font)| self.metrics.measure(text, font).advance).sum()
+            let mut previous = None;
+            let mut width = 0;
+            for &(text, font) in parts {
+                width += self.spacing_before(previous, text, font).fit_twips
+                    + self.metrics.measure(text, font).advance;
+                if let Some(last) = text.chars().last() {
+                    previous = Some((last, font));
+                }
+            }
+            width
         };
         let spaced = width(&word);
         // 「空行上放得下」照空行实际的排法判断：空行上 `fit` 放不下时走紧急断行，`fit_clusters`
@@ -2818,6 +2859,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let carries = (!tab.past_line_end || (piece, offset) < (t, 0)) && {
             let origin = f64::from(span.start - area.x);
             let (mut w, mut w_pt, mut past) = (0, 0.0, false);
+            let mut previous = None;
             for (index, p) in cur.iter().enumerate().take(t + 1).skip(piece) {
                 match p.tab {
                     Some(info) => {
@@ -2826,11 +2868,19 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         w = w.max(landed_w);
                         w_pt += advance / 20.0;
                         past = past_here;
+                        previous = None;
                     }
                     None => {
                         let text = if index == piece { &p.text[offset..] } else { p.text.as_str() };
-                        w += self.metrics.measure(text, &p.font).advance;
-                        w_pt += self.metrics.advance_pt(text, &p.font);
+                        if p.after_object {
+                            previous = None;
+                        }
+                        let spacing = self.spacing_before(previous, text, &p.font);
+                        w += spacing.fit_twips + self.metrics.measure(text, &p.font).advance;
+                        w_pt += spacing.paint_pt + self.metrics.advance_pt(text, &p.font);
+                        if let Some(last) = text.chars().last() {
+                            previous = Some((last, &p.font));
+                        }
                     }
                 }
             }
@@ -3037,8 +3087,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     /// 它落不落在本行不改变结论。只在那段在制表位之前就换行时才有差别——未实测，
     /// 这里不做 Line Services 那种行末回填。小数点只认 `.`，不看语言的小数分隔符。
     ///
-    /// 各 run 的切片与断行循环里逐片问度量的那些片段是同一批（都切在制表符与占位符上），
-    /// 所以 `whole_twips` 与断行侧逐片 `measure` 的整 twips 之和相等。
+    /// The slices match the line breaker's tab/control boundaries. Their fit
+    /// widths and cross-run boundary contributions use the same provider hooks.
     ///
     /// 代价：每落位一次（被挪到下一行时再落一次，判断挪不挪时再试一次）就把那段整形一次，
     /// 不缓存；左对齐制表符不走这里。
@@ -3046,6 +3096,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut whole = 0.0;
         let mut whole_twips: Twips = 0;
         let mut before_point = None;
+        let mut previous = None;
         for (index, run) in para.runs.iter().enumerate().skip(run_index) {
             if run.hidden {
                 continue;
@@ -3053,6 +3104,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let text = if index == run_index { &run.text[after..] } else { run.text.as_str() };
             let end = text.find(['\t', OBJECT_PLACEHOLDER]).unwrap_or(text.len());
             let slice = &text[..end];
+            let spacing = self.spacing_before(previous, slice, &run.font);
+            whole += spacing.paint_pt * 20.0;
+            whole_twips += spacing.fit_twips;
             if before_point.is_none()
                 && let Some(point) = slice.find('.')
             {
@@ -3061,11 +3115,49 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             }
             whole += self.metrics.advance_pt(slice, &run.font) * 20.0;
             whole_twips += self.metrics.measure(slice, &run.font).advance;
+            if let Some(last) = slice.chars().last() {
+                previous = Some((last, &run.font));
+            }
             if end < text.len() {
                 break;
             }
         }
         TabSegment { whole, whole_twips, before_point: before_point.unwrap_or(whole) }
+    }
+
+    fn spacing_before(
+        &self, previous: Option<(char, &FontSpec)>, text: &str, font: &FontSpec,
+    ) -> SpacingAdvance {
+        match (previous, text.chars().next()) {
+            (Some((left, left_font)), Some(right)) =>
+                self.metrics.boundary_spacing(left, left_font, right, font),
+            _ => SpacingAdvance::default(),
+        }
+    }
+
+    fn piece_spacing(&self, pieces: &[LinePiece], index: usize) -> Vec<SpacingEvent> {
+        let p = &pieces[index];
+        let mut events = Vec::new();
+        let mut chars = p.text.chars();
+        if let Some(mut left) = chars.next() {
+            let mut end = p.source.0 + left.len_utf16() as u32;
+            for right in chars {
+                let spacing = self.metrics.boundary_spacing(left, &p.font, right, &p.font);
+                if spacing.paint_pt != 0.0 {
+                    events.push(SpacingEvent { source_end: end, advance_pt: spacing.paint_pt });
+                }
+                end += right.len_utf16() as u32;
+                left = right;
+            }
+        }
+        if let Some(next) = pieces.get(index + 1)
+            && next.leading_spacing.paint_pt != 0.0
+        {
+            events.push(SpacingEvent {
+                source_end: p.source.1, advance_pt: next.leading_spacing.paint_pt,
+            });
+        }
+        events
     }
 
     /// Finalize only retained pieces. Empty/object-only lines keep their
@@ -3262,6 +3354,56 @@ pub(crate) fn apply_char_spacing(runs: &mut [ShapedRun], font: &FontSpec) {
     }
 }
 
+/// Consume retained source endpoints, without re-deciding spacing policy.
+/// Supported clusters are valid, non-overlapping UTF-16 ranges in source order
+/// (a cluster may produce several glyphs). Events inside merged clusters, or
+/// without a known cluster endpoint, remain unapplied in `TextFragment::spacing`.
+fn apply_boundary_spacing(runs: &mut [ShapedRun], fragment: &TextFragment) {
+    if fragment.spacing.is_empty() {
+        return;
+    }
+    let Some((base, end)) = fragment.source else { return };
+    let len = utf16_len(&fragment.text);
+    if end.checked_sub(base) != Some(len) {
+        return;
+    }
+    let mut cluster_ends = std::collections::HashMap::new();
+    let mut previous = None;
+    for (index, glyph) in runs.iter().enumerate() {
+        let Some((start, end)) = glyph.source.filter(|&(s, e)| s < e && e <= len) else {
+            // An unknown glyph may be another part of the preceding cluster;
+            // its endpoint cannot safely be assigned to an earlier known glyph.
+            return;
+        };
+        if previous.is_some_and(|range: (u32, u32)| range != (start, end) && start < range.1) {
+            return;
+        }
+        previous = Some((start, end));
+        // Repeated glyphs in a cluster update the same endpoint, so only its
+        // final glyph receives the contribution.
+        cluster_ends.insert(end, index);
+    }
+    let mut applied = false;
+    for event in &fragment.spacing {
+        if let Some(local_end) = event.source_end.checked_sub(base)
+            && let Some(&index) = cluster_ends.get(&local_end)
+        {
+            runs[index].x_advance_pt += event.advance_pt;
+            applied = true;
+        }
+    }
+    if !applied {
+        return;
+    }
+    let (mut points, mut twips) = (0.0, 0);
+    for glyph in runs {
+        points += glyph.x_advance_pt;
+        let next = (points * f64::from(TWIPS_PER_POINT)).round() as Twips;
+        glyph.x_advance = next - twips;
+        twips = next;
+    }
+}
+
 /// 一页的绘制指令。
 #[derive(Debug, Clone, PartialEq)]
 pub struct PaintPage {
@@ -3380,6 +3522,7 @@ fn position_glyphs(
     // 顺序在制表符改宽之前：制表符那个空格字形的推进量随后整个换成制表位定下的宽度，
     // 缩放与间距都不作用在它身上（断行里的制表符宽也不含它们，两边一致）。
     apply_char_spacing(&mut runs, &t.font);
+    apply_boundary_spacing(&mut runs, t);
 
     // Shaper clusters remain meaningful for ligatures, combining marks and RTL.
     // A fragment containing omitted source characters still needs a conservative

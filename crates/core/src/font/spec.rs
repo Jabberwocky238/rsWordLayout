@@ -311,6 +311,14 @@ pub struct OverflowPunctuationContext {
     pub next: Option<char>,
 }
 
+/// A boundary's independent fit and paint contributions. Fit providers may
+/// truncate each boundary while painting retains the fractional point value.
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub struct SpacingAdvance {
+    pub fit_twips: Twips,
+    pub paint_pt: f64,
+}
+
 /// 度量提供者。
 ///
 /// 实现者需保证**同一输入给出同一输出**：布局会对同一段文字反复试宽（断行二分），
@@ -318,6 +326,17 @@ pub struct OverflowPunctuationContext {
 pub trait FontMetrics {
     /// 整段文字的推进宽度与纵向度量。
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics;
+
+    /// Spacing between adjacent visible characters, including across font runs.
+    /// Implementations opting in must include the same spacing inside `measure`
+    /// and `advance_pt`. Layout adds it across runs and retains paint events;
+    /// shapers must return glyph advances before this spacing is applied.
+    /// The default leaves an opaque provider's measurement policy unchanged.
+    fn boundary_spacing(
+        &self, _left: char, _left_font: &FontSpec, _right: char, _right_font: &FontSpec,
+    ) -> SpacingAdvance {
+        SpacingAdvance::default()
+    }
 
     /// Font ascent in 1/7200-inch units, before line placement and run shifts.
     ///

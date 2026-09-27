@@ -35,7 +35,7 @@ pub use layout::{Span, WrapContext, WrapRegion, WrapSide};
 // ---- 布局引擎 ----
 pub use layout::{
     Align, Engine, Fragment, Line, LinePlacement, LineRule, Page, PageSetup, Para, PlaceholderKind, Platform, Run,
-    TabAlign, TabLeader, TabStop, TextFragment, View,
+    TabAlign, TabLeader, TabStop, TextFragment, SpacingEvent, View,
 };
 
 // ---- 绘制指令：布局产物 → 画布 ----
@@ -54,7 +54,7 @@ pub use oracle_json::{TraceMeta, to_trace_json};
 // ---- 度量契约 ----
 pub use font::{
     BreakOpportunity, Caps, FontHint, FontMetrics, FontSlots, FontSpec, SimpleMetrics, SlotKind,
-    LineFontMetrics, MeasuredFontSpan, TextMetrics,
+    LineFontMetrics, MeasuredFontSpan, SpacingAdvance, TextMetrics,
 };
 
 // ---- rsword 桥接 ----

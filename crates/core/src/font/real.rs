@@ -257,14 +257,15 @@ impl<'r> RealMetrics<'r> {
 }
 
 impl FontMetrics for RealMetrics<'_> {
+    fn boundary_spacing(
+        &self, left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
+    ) -> super::SpacingAdvance {
+        super::linebreak::autospace_dn_boundary(left, left_font, right, right_font)
+    }
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
         let shaped = self.registry.shape_text(text, font);
         let advance: i64 = shaped.iter().map(|g| i64::from(g.x_advance)).sum();
-        let autospace = if font.auto_space_dn {
-            super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints())
-        } else {
-            0
-        };
+        let autospace = super::linebreak::autospace_dn(text, font).fit_twips;
         TextMetrics {
             advance: self.apply_spacing(advance, spacing_slots(&shaped), font) + autospace,
             ..self.vertical_for(text, font)
@@ -346,11 +347,7 @@ impl FontMetrics for RealMetrics<'_> {
     fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
         let shaped = self.registry.shape_text(text, font);
         let advance: f64 = shaped.iter().map(|g| g.x_advance_pt).sum();
-        let autospace = if font.auto_space_dn {
-            super::linebreak::autospace_dn_pt(text, font.size_pt())
-        } else {
-            0.0
-        };
+        let autospace = super::linebreak::autospace_dn(text, font).paint_pt;
         self.apply_spacing_pt(advance, spacing_slots(&shaped), font) + autospace
     }
 

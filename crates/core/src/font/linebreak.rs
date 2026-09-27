@@ -6,7 +6,7 @@
 //! 这不是洁癖：换度量之后如果差值里混进了断行策略的变化，就分不出是哪一边错了。
 //! 量具方法 §9.6 的三层配对里，行数一旦不同就是结构失败，连几何都量不到。
 
-use super::spec::{BreakOpportunity, OverflowPunctuationContext};
+use super::spec::{BreakOpportunity, FontSpec, OverflowPunctuationContext, SpacingAdvance};
 
 /// 判断是否是「可在其后断行」的 CJK 字符（不含行首禁则处理）。
 pub fn is_cjk(c: char) -> bool {
@@ -28,6 +28,26 @@ fn is_ideograph(c: char) -> bool {
     matches!(c as u32, 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xF900..=0xFAFF | 0x20000..=0x2FA1F)
 }
 
+fn ideographic_side(left: char, right: char) -> Option<bool> {
+    if is_ideograph(left) && right.is_ascii_digit() {
+        Some(true)
+    } else if left.is_ascii_digit() && is_ideograph(right) {
+        Some(false)
+    } else {
+        None
+    }
+}
+
+fn spacing_for_boundaries(count: u32, size_centipoints: u64) -> SpacingAdvance {
+    SpacingAdvance {
+        // Truncate each fit boundary before accumulating; painting keeps the
+        // fraction. Keep the multiply wide for the existing saturation rule.
+        fit_twips: (u128::from(count) * (u128::from(size_centipoints) / 20))
+            .min(i32::MAX as u128) as i32,
+        paint_pt: f64::from(count) * (size_centipoints as f64 / 100.0 / 4.0),
+    }
+}
+
 /// `autoSpaceDN` boundaries: an ideograph next to an ASCII digit, either order.
 ///
 /// CJK punctuation is not an ideograph. Including it moves the observed
@@ -36,32 +56,44 @@ pub fn ideograph_numeric_boundaries(text: &str) -> u32 {
     let mut count = 0u32;
     let mut prev = None;
     for ch in text.chars() {
-        if let Some(p) = prev {
-            let boundary = (is_ideograph(p) && ch.is_ascii_digit())
-                || (p.is_ascii_digit() && is_ideograph(ch));
-            if boundary {
-                count += 1;
-            }
+        if let Some(p) = prev
+            && ideographic_side(p, ch).is_some()
+        {
+            count += 1;
         }
         prev = Some(ch);
     }
     count
 }
 
-/// Quarter em, in twips. CSS `text-autospace: ideograph-numeric` and Word's
-/// default `autoSpaceDN` both use a quarter of the ideographic em.
+/// The engine's existing quarter-em policy, in twips. The limited `breakme`
+/// evidence does not establish a universal Word amount or mixed-size rule.
+#[cfg(test)]
 pub fn autospace_dn_twips(text: &str, size_centipoints: u64) -> i32 {
-    let n = ideograph_numeric_boundaries(text);
-    if n == 0 {
-        return 0;
-    }
-    // Keep the existing per-boundary truncation, using the authoritative size.
-    let quarter = u128::from(size_centipoints) / 20;
-    (u128::from(n) * quarter).min(i32::MAX as u128) as i32
+    spacing_for_boundaries(ideograph_numeric_boundaries(text), size_centipoints).fit_twips
 }
 
-pub fn autospace_dn_pt(text: &str, size_pt: f64) -> f64 {
-    ideograph_numeric_boundaries(text) as f64 * size_pt / 4.0
+pub(crate) fn autospace_dn(text: &str, font: &FontSpec) -> SpacingAdvance {
+    if !font.auto_space_dn {
+        return SpacingAdvance::default();
+    }
+    spacing_for_boundaries(ideograph_numeric_boundaries(text), font.effective_size_centipoints())
+}
+
+pub(crate) fn autospace_dn_boundary(
+    left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
+) -> SpacingAdvance {
+    if !left_font.auto_space_dn || !right_font.auto_space_dn {
+        return SpacingAdvance::default();
+    }
+    // Mixed sizes use the ideographic side as an explicit engine policy;
+    // this extrapolation has not been measured against Word.
+    let font = match ideographic_side(left, right) {
+        Some(true) => left_font,
+        Some(false) => right_font,
+        None => return SpacingAdvance::default(),
+    };
+    spacing_for_boundaries(1, font.effective_size_centipoints())
 }
 
 #[cfg(test)]
