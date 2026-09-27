@@ -1332,10 +1332,18 @@ struct TabSegment {
 mod vertical;
 use vertical::VerticalExtent;
 mod flow;
-use flow::FlowRegions;
+use flow::{FlowRegion, FlowRegions};
 mod pagination;
 #[cfg(test)]
 mod flow_tests;
+
+fn fine(value: Twips) -> i64 {
+    i64::from(value) * FINE_PER_TWIP
+}
+
+fn coarse(value: i64) -> Twips {
+    (value as f64 / FINE_PER_TWIP as f64).round() as Twips
+}
 
 /// 排好的一行，尚未定位到页面。
 struct PendingLine {
@@ -1400,7 +1408,7 @@ impl FlowBreak {
 #[derive(Clone, Copy)]
 struct PageFit {
     area: Rect,
-    next_area: Rect,
+    next_region: FlowRegion,
     top_fine: i64,
     bottom_fine: i64,
     source_base: u32,
@@ -1613,10 +1621,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         sections: &[crate::LayoutSection],
         index: usize,
         area: Rect,
-        position: (i64, u32, Rect),
+        position: (i64, u32, FlowRegion),
         capacity: i64,
     ) -> Option<VerticalExtent> {
-        let (origin, mut source, next_area) = position;
+        let (origin, mut source, next_region) = position;
         let mut extent: Option<VerticalExtent> = None;
         let mut minimum = None;
         let mut index = index;
@@ -1624,16 +1632,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let next = &paras[index + 1];
             let gap = (i64::from(paras[index].space_after) + i64::from(next.space_before)) * FINE_PER_TWIP;
             let advance = extent.map_or(0, |extent| extent.advance_fine) + gap;
-            let y = ((origin + advance) as f64 / FINE_PER_TWIP as f64).round() as Twips;
-            let lines = self.break_paragraph(next, area, y, source);
+            let lines = self.break_paragraph(next, area, origin + advance, source);
             let segment_len = lines.iter().position(|l| l.flow_break.is_hard()).map_or(lines.len(), |i| i + 1);
             let whole = lines_extent(lines.iter().take(segment_len));
             let mut prefix = if next.keep_lines || (next.widow_control && segment_len == 3) {
                 segment_len
             } else if next.widow_control { 2.min(segment_len) } else { 1.min(segment_len) };
-            if next.widow_control && prefix < segment_len && (area != next_area || !self.wrap.is_empty()) {
+            if next.widow_control && prefix < segment_len && (area != next_region.area || !self.wrap.is_empty()) {
                 let tail = &lines[prefix];
-                let reflow = self.break_paragraph_at(next, next_area, next_area.y, source,
+                let reflow = self.break_paragraph_at(next, next_region.area, next_region.top_fine, source,
                     LineCursor { source: tail.source_start, first: tail.is_first });
                 if reflow.len() < 2 || reflow[0].flow_break.is_hard() {
                     // A cached two-line prefix is not legal when its remainder
@@ -1705,12 +1712,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             // A changed area can turn two cached tail lines into one real line.
             // Query the successor page before accepting a boundary in that case.
             while count >= 2 {
-                let has_two_remaining = if fit.area == fit.next_area && self.wrap.is_empty() {
+                let has_two_remaining = if fit.area == fit.next_region.area && self.wrap.is_empty() {
                     count + 1 < lines.len() && !lines[count].flow_break.is_hard()
                 } else {
                     let next = &lines[count];
                     let reflow = self.break_paragraph_at(
-                        para, fit.next_area, fit.next_area.y, fit.source_base,
+                        para, fit.next_region.area, fit.next_region.top_fine, fit.source_base,
                         LineCursor { source: next.source_start, first: next.is_first },
                     );
                     reflow.len() >= 2 && !reflow[0].flow_break.is_hard()
@@ -1937,7 +1944,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
     /// 段落断行。
     ///
-    /// `y` 是本段起始的纵向位置——**有环绕时每行可用区间取决于它**，所以不能像
+    /// `y_fine` 是本段起始的精细纵向位置——**有环绕时每行可用区间取决于它**，所以不能像
     /// 改造前那样只传一个标量宽度。无环绕时退化为整段用同一个满宽区间。
     ///
     /// `source_base` 是本段首字符在**全篇** UTF-16 偏移空间里的下标。
@@ -1948,17 +1955,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         &self,
         para: &Para,
         area: Rect,
-        y: Twips,
+        y_fine: i64,
         source_base: u32,
     ) -> Vec<PendingLine> {
-        self.break_paragraph_at(para, area, y, source_base, LineCursor { source: source_base, first: true })
+        self.break_paragraph_at(para, area, y_fine, source_base, LineCursor { source: source_base, first: true })
     }
 
     fn break_paragraph_at(
         &self,
         para: &Para,
         area: Rect,
-        y: Twips,
+        y_fine: i64,
         source_base: u32,
         resume: LineCursor,
     ) -> Vec<PendingLine> {
@@ -1983,7 +1990,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let m = self.metrics.empty_line_metrics(&font);
             let h = self.line_height(para, m.ascent + m.descent, m.natural_height());
             let span = self
-                .line_spans(para, area, y, h)
+                .line_spans(para, area, coarse(y_fine), h)
                 .into_iter()
                 .max_by_key(|s| s.width())
                 .unwrap_or_else(|| Span::new(area.x, area.right()));
@@ -2055,12 +2062,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             .measure("", &para.runs[segs[0].run_index].font)
             .natural_height()
             .max(1);
-        let mut cur_y = y;
+        let mut cur_y_fine = y_fine;
 
         // 本行可用区间：有环绕时按 y 查，可能被劈成多段，这里取最宽的一段。
         // 取最宽而非逐段填充，是因为把一行拆到不连续区间里需要把行再切分，
         // 那是后续的事；取最宽段保证不与图片重叠，且是保守的正确方向。
-        let mut span = self.pick_span(para, area, cur_y, probe_h);
+        let mut span = self.pick_span(para, area, coarse(cur_y_fine), probe_h);
         // 首行缩进吃掉的宽度。
         let mut line_avail = (span.width() - if first_line { para.indent_first_line } else { 0 }).max(1);
 
@@ -2143,8 +2150,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         } else {
                             h
                         };
+                        let vertical = self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine);
                         lines.push(PendingLine {
-                            vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
+                            vertical,
                             baseline: cur_ascent,
                             pieces: std::mem::take(&mut cur),
                             width: cur_w,
@@ -2176,8 +2184,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_natural = 0;
                         cur_natural_fine = 0;
                         first_line = false;
-                        cur_y += h;
-                        span = self.pick_span(para, area, cur_y, h.max(probe_h));
+                        cur_y_fine += vertical.advance_fine;
+                        span = self.pick_span(para, area, coarse(cur_y_fine), h.max(probe_h));
                         line_avail = span.width().max(1);
                         object_join = false;
                     } else {
@@ -2366,8 +2374,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_natural_fine = self.metrics.natural_height_fine("", &run.font);
                     }
                     let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
+                    let vertical = self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine);
                     lines.push(PendingLine {
-                        vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
+                        vertical,
                         baseline: cur_ascent,
                         pieces: std::mem::take(&mut cur),
                         width: cur_w,
@@ -2395,8 +2404,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     first_line = false;
                     object_join = false;
                     // 换行：y 推进一行高，可用区间随之可能变化。
-                    cur_y += h;
-                    span = self.pick_span(para, area, cur_y, h.max(probe_h));
+                    cur_y_fine += vertical.advance_fine;
+                    span = self.pick_span(para, area, coarse(cur_y_fine), h.max(probe_h));
                     line_avail = span.width().max(1);
                 }
             }

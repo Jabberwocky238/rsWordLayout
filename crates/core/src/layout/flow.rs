@@ -3,6 +3,13 @@
 use super::{FINE_PER_TWIP, Page, PageSetup, Rect, Twips};
 use crate::ColumnLayout;
 
+#[derive(Clone, Copy)]
+pub(super) struct FlowRegion {
+    pub area: Rect,
+    // A continuous-section band can begin between integer twips.
+    pub top_fine: i64,
+}
+
 #[derive(Clone)]
 pub(super) struct FlowRegions {
     // Pending section geometry takes effect on the next physical page.
@@ -49,22 +56,27 @@ impl FlowRegions {
         self.areas[self.column]
     }
 
-    pub(super) fn next_area(&self) -> Rect {
-        self.areas
-            .get(self.column + 1)
-            .copied()
-            .unwrap_or_else(|| self.pending_areas()[0])
+    pub(super) fn next_region(&self) -> FlowRegion {
+        self.region_ahead(1)
     }
 
-    pub(super) fn area_after_next(&self) -> Rect {
-        if let Some(area) = self.areas.get(self.column + 2) {
-            *area
+    pub(super) fn region_after_next(&self) -> FlowRegion {
+        self.region_ahead(2)
+    }
+
+    fn region_ahead(&self, offset: usize) -> FlowRegion {
+        if let Some(&area) = self.areas.get(self.column + offset) {
+            FlowRegion {
+                area,
+                top_fine: self.top_fine,
+            }
         } else {
             let next_page = self.pending_areas();
-            if self.column + 1 < self.areas.len() {
-                next_page[0]
-            } else {
-                next_page.get(1).copied().unwrap_or(next_page[0])
+            let index = (self.column + offset - self.areas.len()) % next_page.len();
+            let area = next_page[index];
+            FlowRegion {
+                area,
+                top_fine: i64::from(area.y) * FINE_PER_TWIP,
             }
         }
     }

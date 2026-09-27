@@ -46,7 +46,7 @@ fn candidates(
     vertical: &[(i64, i64)],
 ) -> VecDeque<PendingLine> {
     let area = engine.setup.content_area();
-    let mut lines = engine.break_paragraph(para, area, area.y, 0);
+    let mut lines = engine.break_paragraph(para, area, fine(area.y), 0);
     assert_eq!(lines.len(), vertical.len());
     for (line, &(advance, required)) in lines.iter_mut().zip(vertical) {
         line.vertical = extent(advance, required);
@@ -68,7 +68,7 @@ fn quota(
             lines,
             PageFit {
                 area,
-                next_area: area,
+                next_region: FlowRegion { area, top_fine: fine(area.y) },
                 top_fine: i64::from(area.bottom()) * FINE_PER_TWIP - remaining_fine,
                 bottom_fine: i64::from(area.bottom()) * FINE_PER_TWIP,
                 source_base: 0,
@@ -154,7 +154,7 @@ fn missing_keep_successor_does_not_reserve_an_empty_cursor_position() {
         &[],
         0,
         area,
-        (1000, 2, area),
+        (1000, 2, FlowRegion { area, top_fine: fine(area.y) }),
         i64::from(area.height) * FINE_PER_TWIP,
     );
     assert_eq!(after, None);
@@ -192,7 +192,7 @@ fn negative_paragraph_gap_does_not_create_occupied_space_at_the_unshifted_origin
         &[],
         0,
         area,
-        (1000, 2, area),
+        (1000, 2, FlowRegion { area, top_fine: fine(area.y) }),
         i64::from(area.height) * FINE_PER_TWIP,
     );
     // The gap is -1000 fine; the real successor occupies [-1000, -900]

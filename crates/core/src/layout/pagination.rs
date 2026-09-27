@@ -3,14 +3,6 @@
 use super::*;
 use std::collections::VecDeque;
 
-fn fine(value: Twips) -> i64 {
-    i64::from(value) * FINE_PER_TWIP
-}
-
-fn coarse(value: i64) -> Twips {
-    (value as f64 / FINE_PER_TWIP as f64).round() as Twips
-}
-
 #[derive(Clone)]
 struct ReplayStart {
     para: usize,
@@ -331,7 +323,7 @@ impl<M: FontMetrics> Engine<'_, M> {
         flow: &mut Flow,
     ) -> usize {
         let area = flow.regions.area();
-        let next_area = flow.regions.next_area();
+        let next_region = flow.regions.next_region();
         let keep_after = if Self::keep_link(paras, sections, index) {
             let current = lines_extent(pending.iter());
             self.keep_after_extent(
@@ -342,7 +334,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                 (
                     flow.cursor_fine + current.advance_fine,
                     source.end,
-                    next_area,
+                    next_region,
                 ),
                 flow.keep_capacity(false),
             )
@@ -354,7 +346,7 @@ impl<M: FontMetrics> Engine<'_, M> {
             pending,
             PageFit {
                 area,
-                next_area,
+                next_region,
                 top_fine: flow.cursor_fine,
                 bottom_fine: flow.bottom(),
                 source_base: source.start,
@@ -411,7 +403,7 @@ impl<M: FontMetrics> Engine<'_, M> {
             first: true,
         });
         let mut lines =
-            self.break_paragraph_at(para, area, coarse(flow.cursor_fine), source_base, start);
+            self.break_paragraph_at(para, area, flow.cursor_fine, source_base, start);
         let segment = lines
             .iter()
             .position(|line| line.flow_break.is_hard())
@@ -420,9 +412,9 @@ impl<M: FontMetrics> Engine<'_, M> {
         if para.keep_lines && start.first && flow.cursor_fine + block.required_fine > flow.bottom()
         {
             flow.consider(flow.cursor_fine + block.required_fine);
-            let next_area = flow.regions.next_area();
+            let next_region = flow.regions.next_region();
             let next_lines =
-                self.break_paragraph_at(para, next_area, next_area.y, source_base, start);
+                self.break_paragraph_at(para, next_region.area, next_region.top_fine, source_base, start);
             let next_segment = next_lines
                 .iter()
                 .position(|line| line.flow_break.is_hard())
@@ -455,7 +447,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                 (
                     flow.cursor_fine + current.advance_fine,
                     source_end,
-                    flow.regions.next_area(),
+                    flow.regions.next_region(),
                 ),
                 flow.keep_capacity(false),
             );
@@ -463,19 +455,19 @@ impl<M: FontMetrics> Engine<'_, M> {
                 && flow.cursor_fine + current.then(after).required_fine > flow.bottom()
             {
                 flow.consider(flow.cursor_fine + current.then(after).required_fine);
-                let next_area = flow.regions.next_area();
+                let next_region = flow.regions.next_region();
                 let next_lines =
-                    self.break_paragraph_at(para, next_area, next_area.y, source_base, start);
+                    self.break_paragraph_at(para, next_region.area, next_region.top_fine, source_base, start);
                 let next_extent = lines_extent(next_lines.iter());
                 let next_after = self.keep_after_extent(
                     paras,
                     sections,
                     index,
-                    next_area,
+                    next_region.area,
                     (
-                        fine(next_area.y) + next_extent.advance_fine,
+                        next_region.top_fine + next_extent.advance_fine,
                         source_end,
-                        flow.regions.area_after_next(),
+                        flow.regions.region_after_next(),
                     ),
                     flow.keep_capacity(true),
                 );
@@ -508,7 +500,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                     .break_paragraph_at(
                         para,
                         area,
-                        coarse(flow.cursor_fine),
+                        flow.cursor_fine,
                         source_base,
                         LineCursor {
                             source: line.source_start,
@@ -557,7 +549,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                         .break_paragraph_at(
                             para,
                             area,
-                            coarse(flow.cursor_fine),
+                            flow.cursor_fine,
                             source_base,
                             LineCursor {
                                 source: line.source_start,
