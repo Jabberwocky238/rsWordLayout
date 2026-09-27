@@ -1,7 +1,7 @@
 # 段落标记：已有 Word capture 的证据边界
 
 本轮仅复核已有 DOCX ZIP、META、原始 glyph 提取和源扫描，没有操作 Word、重采或修改引擎。
-具体旧文件的实际输出仍可用于回归，但不等于规范输入的普遍规则。
+未作废旧文件的具体输出仍可用于限定回归，但不等于规范输入的普遍规则；作废包仅留探索线索。
 以下 CP 为 UTF-16 半开区间；PDF page/glyph index 为零基，Word scan page/Ln 为一基。
 字号使用 `effectiveSizePt`，y 使用 `glyphOrigin[1]`，单位 pt、页面向下为正。
 旧包的 `lineBaseline` 为 null、`boxAvailable=false`；这里不把 glyph 原点当成行盒占高。
@@ -30,6 +30,10 @@ PDF 哈希也匹配，两遍原始扫描一致。相关原包分别位于
 
 ### vmisc2 的独立段尾字号
 
+本节使用第二次采集：[VERDICT.json](../captures/vmisc2-2026-09-17/VERDICT.json) 为
+`EVALUATED`、`falsifiers=[]`，不同于第一次 `-void` 包；其整体 `bundleState` 仍为
+`UNDECIDABLE`，不能称全包通过。下列段尾字号是源区间与原始 glyph 限定的可用观察。
+
 原 ZIP 中 `fssbbtt`、`hssbbtt` 的 mark 均声明 Luminari 13pt；最后正文 run 分别为
 10pt、8pt，中间 `bb` 分别为 20pt、30pt；行距均为 `exact320`。
 
@@ -47,7 +51,15 @@ PDF 哈希也匹配，两遍原始扫描一致。相关原包分别位于
 上述八个 glyph 也位于同一 y。该页另有 CP `[54,56)` 的分页控制段；整页配对不可判
 不能作为这七个可见字符换行的证据。此处纠正解释，不修改历史文件或追认其旧判据。
 
-### probe-metrics 的段尾字号与纵向位置
+### 作废包 probe-metrics：仅保留探索线索
+
+**以下三例不能作为 Word 验收依据。** [VERDICT.json](../captures/probe-metrics-2026-09-17/VERDICT.json)
+为 `VOID`、`predictions={}`；[README:6](../captures/probe-metrics-2026-09-17/README.md:6)
+明确整批作废。F-E 在 A16/A22/A24/A32/B0/B1/B2/F0 八组触发，例如 A16 的两次行距为
+9.12/9.36pt，A24 为 13.68/13.92pt。判据见 [预注册:143](PREREG-2026-09-17-probe-metrics.md:143)，
+[prereg_probe.py:218](../tools/measure/prereg_probe.py:218) 记录不等读数，447 行将整批判为 VOID。
+既有 [replay result](../artifacts/paragraph-mark-inputs-2026-09-27/mac-replay/probe-metrics-2026-09-17/result.json)
+也以 `CAPTURE_VOID` 跳过，未生成旧 trace。源哈希匹配不能取消作废状态。
 
 原 ZIP 的下列段落均为 `auto240`。正文和 mark 同为 Liberation Serif；mark 未声明
 `vertAlign` 或 `position`，最后 run 则声明上标、下标或抬升。
@@ -59,8 +71,9 @@ PDF 哈希也匹配，两遍原始扫描一致。相关原包分别位于
 | `D02bUp`，CP `[356,363)`，mark CP362；page20/Ln2 | PDF page19：`Up` 为 glyph9/10，12pt、y=96.96；尾空格 glyph11 为 12pt、y=97.92，与正常文字同 y |
 
 最后一例源 `position=2` 半点，实际原点差为 0.96pt。前两例 mark 声明 10pt，
-末例声明 12pt。观察支持这几份段尾绘制没有继承最后 run 的上/下标缩放和纵向位移。
-段中已有正常字号文字，故不能隔离 mark 对自然行高、最后一行 advance 或 required extent 的贡献。
+末例声明 12pt。这些作废读数仅提示后续探针可以区分段尾和最后 run 的缩放、纵向位移，
+不能据此验证“不继承位移”的规则，也不能转成三项有效样本或精度验收。
+段中还已有正常字号文字，不能隔离 mark 对自然行高、最后一行 advance 或 required extent 的贡献。
 
 ## break 与 mark 仍须分开取证
 
@@ -85,7 +98,9 @@ CP50 是 mark，Ln11 为 `[50,51)`；C010 位于 Ln12 `[51,56)`，均为 Word pa
 
 ## 尚缺的鉴别输入
 
-本轮逐份核对的 26 个非作废 `captures/` 包，其源文件均匹配 META，全部没有 `vanish`。
+本轮逐份核对的是 26 个名字不带 `-void` 的 `captures/` 目录，并非 26 个有效包：
+其中 `probe-metrics` 已整批 VOID。各源文件均匹配 META，正文 XML 均没有 `vanish`；
+这些输入事实不等于采集有效性，不能按目录名省略 VERDICT/README 状态检查。
 21 份规范 docGrid 加 7 份规范 columns 源也没有 `vanish`，每个正文 run 与 mark 的
 `rPr` 相同；其 `pPr` 为 `widowControl → [snapToGrid →] spacing → jc → rPr [→ sectPr]`。
 这些规范输入可验证别的行为，不能区分独立 mark 字体与沿用正文的模型。
