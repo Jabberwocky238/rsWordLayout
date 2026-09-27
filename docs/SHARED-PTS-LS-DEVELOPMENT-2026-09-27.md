@@ -190,9 +190,13 @@ pitch275 到 276 从约双步长变为约单步长，276 的完整原点向量�
 不能直接取现有 `RealMetrics` 的自然高度，见
 [字体分量与提供者](DOCGRID-FONT-COMPONENTS-2026-09-27.md)。下游已确认普通保留行
 实际推进为独立 `max(U)+max(V)`；两项容纳上限来自区间记录，后续可以分离，见
-[PTS 高度与区间输入](DOCGRID-PTS-HEIGHTS-2026-09-27.md)。下一步仍需闭合具体字体
-接口与运行尺度、条件 content-info、宿主高度修正，以及区间矩形的页面/栏来源。
+[PTS 高度与区间输入](DOCGRID-PTS-HEIGHTS-2026-09-27.md)。下一步仍需闭合实际字体
+请求与运行尺度、条件 content-info、宿主高度修正，以及区间矩形的页面/栏来源。
 这些边界尚不足以将静态 helper 直接接入生产网格算法。
+字体接口现已绑定 `IDWriteFontFace1`，新增 `tools/measure/dwrite_metrics.py` 可在
+独立子进程中读取固定库、显式字体文件和字号的指标；TNR 三字号已实测，完整量具
+测试 375 项通过，见[原生字体指标测量](DWRITE-METRICS-2026-09-27.md)。这些显式
+请求尚未绑定 Word 文档的实际 lfHeight，不能据此省掉宿主缩放和后处理。
 续查确认普通矩形的 Story 分派选择 SimpleW：可抑制底部空间独立查询，拒绝
 overhang 时会将最终推进裁到剩余量。生产接入还需表示该条件修改，不能只保存
 两个固定的固有高度，见 [Simple 容纳与末行裁减](DOCGRID-SIMPLE-FIT-2026-09-27.md)。

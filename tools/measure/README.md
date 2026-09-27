@@ -184,6 +184,33 @@ artifact 运行依赖。报告中的 Word 哈希用于标识推导来源，不�
 Word 对齐。其用途是复现整数步骤并为后续实现提供对照，证据边界见
 [原生算法分析](../../docs/DOCGRID-ALGORITHM-EVIDENCE-2026-09-27.md)。
 
+### 原生 DirectWrite 字体指标
+
+`dwrite_metrics.py` 在独立子进程中调用本机 Word 随附的 `dwrite10`，测量指定字体文件的
+`IDWriteFontFace1::GetMetrics` 和 `GetGdiCompatibleMetrics`。只支持 Darwin arm64，
+并核对已验证的整个库文件 SHA256；父进程不加载原生库。
+
+```sh
+python3 tools/measure/dwrite_metrics.py \
+  --font "/System/Library/Fonts/Supplemental/Times New Roman.ttf" \
+  --em-size 16 --em-size 50 \
+  --out artifacts/dwrite-metrics-new.json
+
+tools/measure/.venv/bin/python -m pytest -q tools/measure/tests/test_dwrite_metrics.py
+```
+
+`--em-size` 可重复，必须能转换为正有限 binary32。参数单位为 DIP，输出指标保留 API
+定义的设计单位；报告保存实际 binary32 数值。固定 `pixelsPerDip=1`、空 transform、
+face index 0、无 simulations；先由 `Analyze` 获取 face type，再查询 Face1。
+工具使用 isolated factory（类型 1），已有宿主静态调用证据使用 shared factory（类型 0）。
+这些测量不等于 Word 排版，也不建立 DOCX 字号、Word `lfHeight` 与 `emSize` 的映射。
+
+`--out` 必须是新文件，已有文件、目录及符号链接均拒绝覆盖；报告完整写好后原子发布。
+报告含 UTC、平台、工具和输入前后哈希、原生命令、逐阶段 stdout/stderr（另附原始字节的
+Base64）。子进程默认限时 45 秒；超时会终止并回收该子进程。HRESULT 失败、崩溃、超时、
+协议缺失或哈希变化均输出 `FAILED` 收据并返回 1；只有完整指标和 Release 序列才输出
+`MEASURED` 并返回 0。参数或输出路径错误返回 2。固定库哈希不代表所有动态依赖都已固定。
+
 ### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：
