@@ -110,6 +110,33 @@ GetDvrAdvanceWord 在相同假设下也得到结构 `[B,H]`，独立印证了输
 参数 8/9 和 bit0 的生产者由后续输入片进一步追到区间记录；物理页面/栏边界、
 宿主 U 的 delta 调整及运行分支仍未全部闭合。
 
+## delta 的后续分解
+
+`0x1034b3ca8` 的两层续查表明，delta 并非单一字体量。其外层条件仍是 writer
+w4 非零、cookie 指向对象的 c5.bit0 清零，以及 client+18 非正；writer w4 已经
+追到格式化回调的入栈 FP+48，尚未给该输入赋公开名称。条件不满足才直接取零。
+
+进入后，cookie 对象 c6 等于 1 的路径使用缓存位置比较、合并分量及条件负项；
+另一条路径还可能加入行记录的正残余。基础分量的生产函数 `0x100334c8c` 在自身
+诊断字符串中具名为 `DyaFetchCoalesced`，本 delta 调用传入 selector=1。
+该函数包含缓存、相邻范围及列表相关路径，不能简化为单个缓存字段或 XML 段距。
+其返回值经原生整数 helper 按 cookie 尺度和 1440 换算，没有假定 DPI。
+
+令 base 为换算后的基础量。部分条件可将 delta 清零，但后续正残余仍使用原 base：
+
+```text
+residual = Rb4 - optional(R168) - (base + Rd4 + Rcc + optional(Rec))
+if residual >= 1: delta += residual
+```
+
+该块受独立 cookie/cache 条件控制，两个 optional 字段也各有标记。另一负项 helper
+先在缓存 u16+3a 非零时返回零，其余分支读取有符号 +38，保留条件转换和 192 阈值；
+这里的阈值不是根据字号或探针拟合的常量。完整门控与调用顺序保存在下列冻结材料中。
+
+因此 `U=H+B−A−delta+alpha` 仍须保留两项修正。TNR12、auto 及 XML 段前后距零
+尚未绑定这些实际缓存和回调输入，不能据此删去 delta。负项 helper 读的缓存 P+e4
+也不是 alpha 所读的行记录 R+e4，不能因相同偏移而合并。
+
 ## 区间输入与实际推进
 
 `FsFormatLineChainW` 的唯一直接调用者位于 `0x19d504..0x19e7c0`，该函数
@@ -174,6 +201,11 @@ rect = [textfi[0x20], v, textfi[0x28], textfi[0x24]+textfi[0x2c]-v]
 主代理逐项校验通过；区间限值、Dvr 推进、条件矩形输出和 J/K getter 已独立复核。
 未命名障碍物 helper 的参数只记录已证明的栈位置，没有推定参数序号或公开含义。
 旧 42 文件及修正补充均未改写。
+
+宿主 delta 材料 `artifacts/docgrid-host-height-adjustment-2026-09-27/` 共 17 文件，
+清单 SHA-256 为 `621fb9f1239ac63ae0d6066170dd7e0ca57447998c14ad682e875320ad0d5466`。
+六个完整函数的边界、指令覆盖、前置材料哈希和 Python 语法均验证通过；主代理另核对
+分派、两条数值路径、条件负项和回调输入链，未发现实质问题。
 
 本片只验证静态证据与文档，没有运行 Cargo 或 Word 回归；不宣称已修复生产引擎
 的网格分页差异。
