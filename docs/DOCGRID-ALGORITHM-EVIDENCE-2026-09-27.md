@@ -488,3 +488,6 @@ output = [H, A, B+hi+max(outer-chosen,0), C+lo, D+lo]
 后续 [原生数据流映射](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md) 已把两条路径的周期和
 尺度接到共同生产者，并闭合普通同尺度分支到 LS 四参数的存储关系。运行模式、
 字体分量及最终分页/绘制消费仍按各自证据边界保留，不由 helper 的简式代替。
+[字体回调与聚合](DOCGRID-FONT-COMPONENTS-2026-09-27.md) 和
+[PTS 行高返回](DOCGRID-PTS-HEIGHTS-2026-09-27.md) 已补齐更多静态读写边；它们
+明确保留字体提供者、运行尺度、特殊节点及页面边界语义的未决项。
