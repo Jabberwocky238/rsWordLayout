@@ -692,6 +692,25 @@ pub(crate) fn document_from_json_with(
             diagnostics.push(format!("section at block {}: keepNext across same-setup continuous column groups involving multiple columns is not implemented; links within a group and single-column continuous flow retain their existing behavior", pair[1].block_range.start));
         }
     }
+    // Notes and headers/footers are separate stories that are not formatted yet.
+    // Reference marks keep their main-story source unit; the story text and any
+    // page reservation are omitted, so report them instead of dropping silently.
+    for (key, what) in [("footnotes", "footnotes"), ("endnotes", "endnotes")] {
+        let count = doc[key].as_array().map_or(0, |notes| notes.iter().filter(|note| {
+            !matches!(note["kind"]["kind"].as_str(),
+                Some("separator" | "continuationSeparator" | "continuationNotice"))
+        }).count());
+        if count > 0 {
+            diagnostics.push(format!("{count} {what} are not laid out: note text and its page space are omitted; reference marks keep their source unit"));
+        }
+    }
+    for (si, raw) in raw_sections.iter().enumerate() {
+        let count = |field: &str| raw["props"][field].as_array().map_or(0, Vec::len);
+        let (headers, footers) = (count("headerReferences"), count("footerReferences"));
+        if headers + footers > 0 {
+            diagnostics.push(format!("section {si}: {headers} header and {footers} footer references are not laid out"));
+        }
+    }
     for (si, section) in sections.iter().enumerate() {
         if section.columns.count() > 1
             && tables.iter().any(|table| section.block_range.contains(&table.block_index))

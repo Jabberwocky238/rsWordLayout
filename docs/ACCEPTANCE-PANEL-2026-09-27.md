@@ -142,8 +142,17 @@ table32-tail、twocol64、widow-split、widow-on、keep-next、keep-lines 与报
 
 ## 由面板得出的下一步
 
-1. 引擎诊断：主文之外的 story（脚注、页眉页脚、drawing）应在 `layoutInput` 里明确
-   报告为未排，不能只靠面板的包清点来发现。这是小片，直接消除“静默丢失”。
+1. 引擎诊断（**已完成**）：用户脚注/尾注（不含分隔符）和节的页眉页脚引用现在进入
+   `layoutInput.diagnostics`，明确报告为未排；引用标记仍保留其源单位。
+   drawing 已经走锚定/占位路径，本片没有另加诊断。
+   回归见 `crates/core/tests/story_diagnostics.rs`，共 3 项，其中真实 footnote32 一项默认 ignored，已运行。
+   护栏结果：
+   - workspace fontenv 测试 743 passed / 0 failed / 14 ignored；Clippy `-D warnings` 通过；
+   - Mac 25 份 trace 与基线逐字节相同（二进制
+     `d0593c5c82e63dd9570d85bef2e47074ebde80799b6369bf781a2d05fec90239`）；
+   - Android 186/186。
+   以 `--previous` 重建的面板（`artifacts/acceptance-panel-story-diagnostics-2026-09-27`）
+   没有新增退化，严格计数不变；footnote32 的引擎诊断与包清点现在一致。
 2. R04：纵向误差主要是基线位置，继续 exact 候选合同的单一缺口。
 3. 横向 141pt：先在 breaks-sections / vmisc2 的最差字形上做诊断，确认它来自制表、
    分节还是配对。
