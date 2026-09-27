@@ -204,3 +204,12 @@ auto 的 line=240 是 240 分之一行单位，不称作 240 twips。
 新的静态证据复核见 [DOCGRID-ALGORITHM-EVIDENCE](DOCGRID-ALGORITHM-EVIDENCE-2026-09-27.md)。
 其中纠正了旧 `LineGapMutator` 报告的三段度量求和解释；当前保存的原生和 Web 材料
 仍未给出可直接移植的 docGrid 公式。
+
+首次 Mac 实测停在首份文件的授权窗口，没有产生 PDF、源扫描或布局读数。
+打开事件在 2026-09-27 03:03:23 至 03:06:23 UTC 后返回 `-1712`；只读窗口检查确认
+前台为 `com.apple.loginwindow`，Word 授权窗口被锁屏遮挡。没有重复打开、点击授权、
+操作登录窗口或改写旧采集。解锁后应先识别既有窗口/文档，再用独立恢复记录继续。
+失败历史保存在 `artifacts/docgrid-canonical-capture-2026-09-27/`，17 个文件的清单
+`durable-hashes.json` SHA-256 为
+`80efaa7a184bc4f9812ad9d82a9492c5870f65c35c376fb0f422cc9ab6303ada`。
+这次尝试不提供网格公式或默认值证据。

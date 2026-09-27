@@ -1,7 +1,8 @@
 # docGrid 算法的本地静态证据复核
 
-日期：2026-09-27。本次只读 `../word_analyse` 的本地报告、Android 原生库和保存的
-Web 脚本，没有启动 Word、连接设备、请求网络或采集新布局读数。
+日期：2026-09-27。先只读 `../word_analyse` 的本地报告、Android 原生库和保存的
+Web 脚本，末节补记本机 macOS 框架的窄查。没有启动 Word、连接设备、请求网络或
+采集新布局读数。
 
 **尚未找到足以实现 Word docGrid 的静态公式。** 可以确认字体度量有条件覆盖路径，
 Web 有普通行距的转换和行高/基线消费路径；不能从这些代码推出自然高度如何取
@@ -207,3 +208,77 @@ CP 序列本身不包含基线或行高，不能单独证明高度被哪条公�
 真实度量进入哪个测行回调；再沿节网格输入的消费点找取整和基线分配，或取得能同时
 绑定输入、字体、模式及完成状态的逐行原点/基线读数。仅记录 `0xb45168` 的命中或
 最终页数，都不能补齐该链路。本次没有据此修改现有自然高度、网格默认值或布局算法。
+
+## 补查：本机 macOS PTLS7 导出与网格接口
+
+同日对本机已安装框架做了一次窄查，没有启动或控制 Word。
+`Info.plist` 当前仍为 `16.112.3` / `16.112.26083020`，与
+[macos-word-layout.md:3](../../word_analyse/findings/macos-word-layout.md:3) 相同。
+材料是
+[MicrosoftPTLS7](</Applications/Microsoft Word.app/Contents/Frameworks/MicrosoftPTLS7.framework/Versions/A/MicrosoftPTLS7>)，
+完整 universal 文件 SHA-256 为
+`cf7699ab47748bdf16ad1a5e8ba06803d99f7e4c4533bd57974ba9bbf2c89492`。
+以下地址来自其中 **arm64** 的导出符号表，与前面的 Android 地址无对应偏移关系。
+
+`nm -arch arm64 -gU -C` 确实提供了比 Android 已剥离符号更直接的接口名和参数类型：
+
+| arm64 地址 | 导出名及参数类型 |
+| --- | --- |
+| `0x16b094` | `PTLS7::FsSnapGridVertical(PTLS7::fscontext*, unsigned int, int, int, int*)` |
+| `0x18ad24` | `PTLS7::FscbkSnapGridVertical(PTLS7::_fstext*, unsigned int, int, int, int*)` |
+| `0x113948` | `PTLS7::ApplySnapGridReal(PTLS7::lschnke*, int, int)` |
+| `0x30b64` | `PTLS7::LsModifyLineHeight(PTLS7::lscontext*, PTLS7::CLsLine*, int, int, int, int)` |
+| `0x8d9d4` | `PTLS7::LsModifyDisplayLineHeight(PTLS7::lscontext*, PTLS7::CLsDisplayLine*, int, int, int, int)` |
+| `0x3beac` | `PTLS7::FsValidateBlinfo(PTLS7::fsbaselineinfo*)` |
+| `0x3c1f4` | `PTLS7::FsShiftBlinfo(PTLS7::fsbaselineinfo*, int)` |
+| `0x3c208` | `PTLS7::FsCombineBlinfo(PTLS7::fsbaselineinfo*, PTLS7::fsbaselineinfo*)` |
+
+另有 `FsFormatLineChainW`（`0x192398`）的长签名带
+`PTLS7::tagLineHeightsWord*`，`CLsSpanNode::GetBaselineOffset`（`0xe4b64`）带两个
+`int*`。这些是真实符号与类型名；C++ 符号不保留参数变量名，不能把某个 `int`
+直接标注成 `linePitch`，也没有由这些签名取得结构体字段布局。
+
+**两个名字最直接的垂直网格函数在此版本中并未暴露算法。** 本次只展开了这两个短函数：
+
+```text
+FsSnapGridVertical, 0x16b094..0x16b0b8:
+    ReportErrorTag(context, 0, 0x1e022723)
+    return -10000
+
+FscbkSnapGridVertical, 0x18ad24..0x18ad70:
+    context = load_pointer(fstext + 8)
+    result = FsSnapGridVertical(context, arg1, arg2, arg3, output)
+    if result != 0:
+        return result
+    validate_range(*output)
+```
+
+第一函数在 `0x16b09c` 覆写 `w1=0`，在 `0x16b0a0`/`0x16b0a4` 装入错误 tag，
+`0x16b0a8` 调 `ReportErrorTag`，`0x16b0ac` 装入 `-0x2710` 并返回。
+没有消费其他网格参数，也没有写输出指针。第二函数在 `0x18ad38` 调它，
+`0x18ad3c` 检查返回值，非零直接退出；输出范围检查只位于成功分支。
+这里不为 `-10000` 补造未取得的枚举名。
+
+所以此导出是一个可复核的错误返回桩，不能作为 pitch 取整公式或 Word 正文实际
+调用路径的证据。它也不能证明 Word 不支持 docGrid：客户端或其他路径仍可能处理。
+Word 主程序的 `nm -arch arm64 -u -C` 筛选结果包含两个 `LsModify*LineHeight`
+导入，没有包含上述两个 `SnapGridVertical` 导入。这只限定直接导入面，不排除
+框架内部调用或间接调用。`ApplySnapGridReal` 本次只记录候选符号，没有展开其长体，
+也没有根据名字将它归为正文纵向网格。
+
+本机两个 PTLS 框架目录没有 `Headers/` 或 `.h/.hpp`。对 Word 应用包、当前本地代码
+目录、Homebrew include 与 CommandLineTools SDK 的相关头文件名窄查，未找到 Microsoft
+PTS/LS 头文件；匹配到的 Apple `LaunchServices/LSInfo.h` 属于应用启动服务，与此无关。
+这不是对整台机器所有路径的不存在证明。
+
+可复核的窄命令如下；Mach-O 使用 `--dis-symname` 限定函数，避免将全框架反汇编误当作
+指定地址区间的输出：
+
+```sh
+nm -arch arm64 -gU -C '/Applications/Microsoft Word.app/Contents/Frameworks/MicrosoftPTLS7.framework/Versions/A/MicrosoftPTLS7' | rg 'SnapGrid|ApplySnapGridReal|ModifyLineHeight|Blinfo'
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS718FsSnapGridVerticalEPNS_9fscontextEjiiPi' '/Applications/Microsoft Word.app/Contents/Frameworks/MicrosoftPTLS7.framework/Versions/A/MicrosoftPTLS7'
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS721FscbkSnapGridVerticalEPNS_7_fstextEjiiPi' '/Applications/Microsoft Word.app/Contents/Frameworks/MicrosoftPTLS7.framework/Versions/A/MicrosoftPTLS7'
+```
+
+该窄查增加了可定位接口，也排除了直接照搬 `FsSnapGridVertical` 的路线，仍没有补齐
+字体自然高度到 pitch 倍数、基线相位或 exact/atLeast 与网格组合的规则。
