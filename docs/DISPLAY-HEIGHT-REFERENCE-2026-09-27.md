@@ -73,6 +73,13 @@ tools/measure/.venv/bin/python tools/measure/display_height.py \
 `f75a9ed882dbb9a0ec3eb3aac0a2be6cfcc8512602f747ff46ceb90dfe5b089a`。
 本片没有运行 Word、操作桌面、附加进程或重新执行 Cargo。
 
+另一个独立的 W 寄存器/NZV 解释器对照了 33,614 组边界组合、7 个固定向量及
+3 个相位例，全部通过。可重放脚本与两次执行记录见
+[指令对照包](../artifacts/display-height-instruction-check-2026-09-27/README.md)，
+10 成员清单 SHA-256 为
+`f7cfed4a28f4dabd559530e64307613aa25f27f078261a073f45ed7cff7e8174`。
+该有限矩阵检查算术一致性，不声称覆盖所有 i32 输入或 Word 实际运行参数。
+
 新增静态证据保存于
 [显示点来源](../artifacts/docgrid-display-point-source-2026-09-27/README.md)，
 含 17 个完整函数，已独立复核并冻结，42 成员清单 SHA-256：
