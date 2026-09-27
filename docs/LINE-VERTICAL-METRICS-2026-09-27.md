@@ -119,3 +119,36 @@ Android 11 份旧采集仍为 186/186 条件源区间匹配。25 份 Mac 轨迹�
 `602d459ecc5a96984233cbffcbc27974a9a78351ede3126c02485282079ff796`；
 Mac 完整旧字段比较报告 SHA-256 为
 `731e2705e9494ede5fbe71e1ae2dea204c7d0d4db4336261ba36677583c3eddf`。
+
+## 后续：基线偏移保留精细字体度量
+
+`FontMetrics::ascent_fine(text, font, measured)` 新增可覆盖的字体 ascent 出口，单位为
+1/7200 英寸。调用方传入已经取得的 measure、fit 或 empty_line_metrics 结果；默认仅把
+该 ascent 乘以 5，不增加一次度量或整形，也不改变 `TextMetrics` 的 C ABI。
+它描述字体贡献，不承载段落 exact/docGrid 策略。RealMetrics 与 SimpleMetrics 暂用默认值。
+
+`PendingLine` 改存 `baseline_offset_fine: i64`，按实际接受的正文片段和 tab 累计最大值。
+空段、全隐藏段、显式控制符、宽度收行和段末收行全部接入；跨 run 回退或截短片段时，
+重新计算剩余贡献，每次收行清零。独立段落标记仍按既有合同参与绘制，不因这次接口
+增加而进入行高度量。原整数 ascent/descent/content 继续供行高与环绕使用。
+
+落位直接计算 `quantize(top_fine + baseline_offset_fine)`，之后才应用 run/mark 位移；
+`LinePlacement` 保留同一个未量化偏移。不能先把偏移舍入回 twips，也不能分别量化
+行顶和偏移后相加。公开的粗粒度 `Line.baseline` 未改。这一步消除传递精度限制，
+没有选定新的 exact 或网格公式，也没有修复已记录的 Word 几何反例。
+
+新增 11 项定向测试覆盖四种收行、空行/tab、回退移走最大贡献、mark 位移、量化顺序，
+以及 auto/atLeast/exact 下仅改变 fine ascent 时推进/占高/分页/源区间不变。
+计数型度量验证默认出口复用已有空行结果，不额外 measure。首轮一项手算预期错误的
+失败日志保留；修正测试选值后 11 项通过，生产代码未因该算术错误调整。
+
+workspace/fontenv 回归 79 组、616 项通过、12 项忽略，workspace 全目标 Clippy 通过。
+25 份旧 Mac、12 份新 exact 输入及无网格输入的两种字体量化模式共 39 份轨迹、3900 行，
+完整 JSON 与改造前逐项相同，包括纵向诊断，没有删字段再比较。Android 旧窄路径仍为
+11 份、186/186 条件源区间匹配。上述兼容验证不升级已有 Word 几何判定。
+
+产物在 `artifacts/fine-baseline-2026-09-27/`；146 文件冻结清单 SHA-256 为
+`c91a3ced65e577769329d264cd45f3824ac8d9ae5da6ac8e84dc562ddde25185`。
+完整轨迹比较摘要 SHA-256 为
+`13663b8a190429339fcc8627e22d291e2f930f3beeb98583041d40d823f05d43`；
+新 CLI 二进制 SHA-256 为 `cab09884fc04db2599edc93c4b95b2b2dab4696943e50ede62d3354daae3fe66`。

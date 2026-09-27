@@ -1427,7 +1427,8 @@ impl LineTail {
 
 /// 排好的一行，尚未定位到页面。
 struct PendingLine {
-    baseline: Twips,
+    /// Baseline offset before placement quantization and individual run shifts.
+    baseline_offset_fine: i64,
     pieces: Vec<LinePiece>,
     width: Twips,
     /// 行宽的**精确值**，单位点。对齐（居中 / 右对齐 / 两端对齐）算的是
@@ -1935,17 +1936,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
         // 基线落位：在 1/7200 英寸上加好再交给度量量化到它的栅格。
         // 先取整到 twips 再量化是不行的——0.24pt = 4.8 twips，取整就把栅格点碾碎了。
-        let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
         let coarse = |f: i64| ((f as f64) / FINE_PER_TWIP as f64).round() as Twips;
         let baseline_fine = self
             .metrics
-            .quantize_baseline_fine(top_fine + fine(line.baseline));
+            .quantize_baseline_fine(top_fine + line.baseline_offset_fine);
         page.line_placements.resize(line_index as usize + 1, None);
         page.line_placements[line_index as usize] = Some(LinePlacement {
             top_fine,
             advance_fine: line.vertical.advance_fine,
             required_fine: line.vertical.required_fine,
-            baseline_offset_fine: fine(line.baseline),
+            baseline_offset_fine: line.baseline_offset_fine,
             baseline_fine,
         });
         let baseline_y = coarse(baseline_fine);
@@ -2127,7 +2127,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     m.ascent + m.descent,
                     self.metrics.natural_height_fine("", &font),
                 ),
-                baseline: m.ascent,
+                baseline_offset_fine: self.metrics.ascent_fine("", &font, &m),
                 pieces: Vec::new(),
                 width: 0,
                 width_pt: 0.0,
@@ -2178,6 +2178,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 只有**落位**读这一个——横向取整的残差同样沿行累加。
         let mut cur_w_pt: f64 = 0.0;
         let mut cur_ascent: Twips = 0;
+        let mut cur_ascent_fine: i64 = 0;
         let mut cur_descent: Twips = 0;
         let mut cur_natural: Twips = 0;
         // 与 `cur_natural` 并行的精确值，单位 1/7200 英寸。
@@ -2272,6 +2273,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             // 空行高度由该 run 的字体定，不能取 0——否则后面的行会叠上来。
                             let m = self.metrics.empty_line_metrics(&run.font);
                             cur_ascent = m.ascent;
+                            cur_ascent_fine = self.metrics.ascent_fine("", &run.font, &m);
                             cur_descent = m.descent;
                             cur_natural_fine = self.metrics.natural_height_fine("", &run.font);
                             self.line_height(para, m.ascent + m.descent, m.natural_height())
@@ -2287,7 +2289,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         }
                         lines.push(PendingLine {
                             vertical,
-                            baseline: cur_ascent,
+                            baseline_offset_fine: cur_ascent_fine,
                             pieces: std::mem::take(&mut cur),
                             width: cur_w,
                             width_pt: cur_w_pt,
@@ -2310,6 +2312,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_w = 0;
                         cur_w_pt = 0.0;
                         cur_ascent = 0;
+                        cur_ascent_fine = 0;
                         cur_descent = 0;
                         cur_natural = 0;
                         cur_natural_fine = 0;
@@ -2358,6 +2361,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     cur_w = cur_w.max(landed_w);
                     cur_w_pt += advance / 20.0;
                     cur_ascent = cur_ascent.max(m.ascent);
+                    cur_ascent_fine =
+                        cur_ascent_fine.max(self.metrics.ascent_fine(" ", &run.font, &m));
                     cur_descent = cur_descent.max(m.descent);
                     cur_natural = cur_natural.max(m.natural_height());
                     cur_natural_fine =
@@ -2395,6 +2400,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_w += m_all.advance;
                         cur_w_pt += self.metrics.advance_pt(rest, &run.font);
                         cur_ascent = cur_ascent.max(m_all.ascent);
+                        cur_ascent_fine =
+                            cur_ascent_fine.max(self.metrics.ascent_fine(rest, &run.font, &m_all));
                         cur_descent = cur_descent.max(m_all.descent);
                         cur_natural = cur_natural.max(m_all.natural_height());
                         cur_natural_fine =
@@ -2452,6 +2459,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             cur_w += m.advance;
                             cur_w_pt += self.metrics.advance_pt(piece, &run.font);
                             cur_ascent = cur_ascent.max(m.ascent);
+                            cur_ascent_fine =
+                                cur_ascent_fine.max(self.metrics.ascent_fine(piece, &run.font, &m));
                             cur_descent = cur_descent.max(m.descent);
                             cur_natural = cur_natural.max(m.natural_height());
                             cur_natural_fine = cur_natural_fine
@@ -2476,8 +2485,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                     cur.truncate(piece);
                                 }
                                 // 行高按剩下的片段重算：切走的那部分字体未必与前文相同。
-                                (cur_ascent, cur_descent, cur_natural, cur_natural_fine) =
-                                    self.pieces_vertical(&cur);
+                                (
+                                    cur_ascent,
+                                    cur_descent,
+                                    cur_natural,
+                                    cur_natural_fine,
+                                    cur_ascent_fine,
+                                ) = self.pieces_vertical(&cur);
                             }
                             (eat, segs[at].run_index)
                         }
@@ -2499,6 +2513,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         // 对象本身不占宽也不占高，行高按该 run 的字体取，与空行同一口径。
                         let m = self.metrics.empty_line_metrics(&run.font);
                         cur_ascent = m.ascent;
+                        cur_ascent_fine = self.metrics.ascent_fine("", &run.font, &m);
                         cur_descent = m.descent;
                         cur_natural = m.natural_height();
                         cur_natural_fine = self.metrics.natural_height_fine("", &run.font);
@@ -2507,7 +2522,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     let vertical = self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine);
                     lines.push(PendingLine {
                         vertical,
-                        baseline: cur_ascent,
+                        baseline_offset_fine: cur_ascent_fine,
                         pieces: std::mem::take(&mut cur),
                         width: cur_w,
                         width_pt: cur_w_pt,
@@ -2525,6 +2540,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     cur_w = 0;
                     cur_w_pt = 0.0;
                     cur_ascent = 0;
+                    cur_ascent_fine = 0;
                     cur_descent = 0;
                     cur_natural = 0;
                     cur_natural_fine = 0;
@@ -2556,12 +2572,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 let font = &mark_run.font;
                 let m = self.metrics.empty_line_metrics(font);
                 cur_ascent = m.ascent;
+                cur_ascent_fine = self.metrics.ascent_fine("", font, &m);
                 cur_descent = m.descent;
                 cur_natural_fine = self.metrics.natural_height_fine("", font);
             }
             lines.push(PendingLine {
                 vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
-                baseline: cur_ascent,
+                baseline_offset_fine: cur_ascent_fine,
                 pieces: cur,
                 width: cur_w,
                 width_pt: cur_w_pt,
@@ -3043,9 +3060,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         TabSegment { whole, whole_twips, before_point: before_point.unwrap_or(whole) }
     }
 
-    /// 按片段重算一行的纵向量：(ascent, descent, natural, natural_fine)。
-    fn pieces_vertical(&self, pieces: &[LinePiece]) -> (Twips, Twips, Twips, i64) {
-        pieces.iter().fold((0, 0, 0, 0), |(a, d, n, nf), p| {
+    /// 按片段重算一行的纵向量：(ascent, descent, natural, natural_fine, ascent_fine)。
+    fn pieces_vertical(&self, pieces: &[LinePiece]) -> (Twips, Twips, Twips, i64, i64) {
+        pieces.iter().fold((0, 0, 0, 0, 0), |(a, d, n, nf, af), p| {
             // 制表符按空格量纵向：U+0009 在不少字体里没有字形，选不到 face。
             let text = if p.tab.is_some() { " " } else { p.text.as_str() };
             let m = self.metrics.measure(text, &p.font);
@@ -3054,6 +3071,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 d.max(m.descent),
                 n.max(m.natural_height()),
                 nf.max(self.metrics.natural_height_fine(text, &p.font)),
+                af.max(self.metrics.ascent_fine(text, &p.font, &m)),
             )
         })
     }

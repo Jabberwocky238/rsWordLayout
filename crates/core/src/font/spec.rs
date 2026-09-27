@@ -293,6 +293,16 @@ pub trait FontMetrics {
     /// 整段文字的推进宽度与纵向度量。
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics;
 
+    /// Font ascent in 1/7200-inch units, before line placement and run shifts.
+    ///
+    /// `measured` is the existing result for this exact text and font, including
+    /// a result from fitting or `empty_line_metrics`. The default preserves its
+    /// coarse ascent without measuring or shaping again. Overrides may retain
+    /// finer font metrics; this is not a paragraph line-spacing policy.
+    fn ascent_fine(&self, _text: &str, _font: &FontSpec, measured: &TextMetrics) -> i64 {
+        i64::from(measured.ascent) * FINE_PER_TWIP
+    }
+
     /// 在给定宽度内最多能放下多少字节，返回该前缀的字节长度与其度量。
     ///
     /// **只在断点上切**（[`Self::break_opportunities`]，串尾那个也算）。返回 `None` 表示
