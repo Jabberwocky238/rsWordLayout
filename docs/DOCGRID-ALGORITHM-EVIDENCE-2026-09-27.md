@@ -484,3 +484,7 @@ output = [H, A, B+hi+max(outer-chosen,0), C+lo, D+lo]
 `63aaf75f8c4b37a9b423881857a0be359f5f8fee885dfa91b460c2daa5170d3b`，目录
 `artifacts/docgrid-pitch-threshold-source-2026-09-27/`。这些是根据既有证据选择的新输入，
 不称为盲测，不预置 Word 的页数或步长结果。
+
+后续 [原生数据流映射](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md) 已把两条路径的周期和
+尺度接到共同生产者，并闭合普通同尺度分支到 LS 四参数的存储关系。运行模式、
+字体分量及最终分页/绘制消费仍按各自证据边界保留，不由 helper 的简式代替。
