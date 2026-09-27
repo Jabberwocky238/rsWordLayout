@@ -320,3 +320,57 @@ not an original property setter. No OOXML enum or default is inferred.
 SHA-256 `1aac3f2449fe05a65bb2bc38e6615b8551d1494cdc27ffd7355e327f4b2980ea`.
 Its README records the bounded lookup and the next concrete context-population
 entry, `0x100353de4`, rather than assigning names from historical offsets.
+
+Following that entry in one further bounded slice finds parameter forwarding,
+property-block lookup/validation and cache copies. It still supplies no named
+public property, enum or default. The observed 696-byte copy from context+0x28
+to +0x1078 saves the current block; it is not an original property setter.
+Unrelated accesses at the same numeric object offset cannot establish type
+identity. This query stops without expanding more unnamed calls.
+`artifacts/exact-property-map-native-2026-09-27/SHA256SUMS` binds five files,
+SHA-256 `73cf11777906fdf745c0fc1d36a1f06e2b8a2acb00c64d62959c2a9307d5dea6`.
+
+## Two higher-scale scalar hypotheses also fail
+
+The explicit native initialization values allow two fixed follow-up
+hypotheses, S=1440 and S=294912. Their formulas were recorded before the new
+evaluator ran, with no scale search or per-input adjustment:
+
+```text
+L = R(lineTwips * S / 1440)
+C = R(L * 4 / 5)
+O = R(topTwips * S / 1440)
+predicted_y = R((O + C) * 300 / S) * 72 / 300
+```
+
+R is nearest integer, ties away from zero. The final 300-unit lattice is
+still a hypothesis from PDF observations, not a measured runtime scale.
+The component-to-origin mapping, reconciliation and hook effects remain
+unproven. Historical observations had already been read; this evaluation is
+retrospective. It does not consume any new canonical exact capture.
+
+Both candidates match 87 of the same 110 eligible historical origins and
+fail 23; the other three rows remain out of scope. Their predictions coincide
+on this input set. Both match the previously known canonical column point.
+
+| Exact line (twips) | Count | Predicted y (pt) | Word y (pt) |
+| ---: | ---: | ---: | ---: |
+| 248 | 4 | 81.84 | 82.08 |
+| 272 | 1 | 82.80 | 83.04 |
+| 296 | 1 | 83.76 | 84.00 |
+| 320 | 17 | 84.72 | 84.96 |
+
+Delaying scale conversion resolves the preceding fixed-300 candidate's 12
+failures but introduces these 23. The complete scalar explanation remains
+rejected. Choosing a different candidate per row or adding a one-cell bias
+after seeing the results would be fitting, not recovered behavior.
+
+`artifacts/exact-native-scale-candidates-2026-09-27/` retains the fixed
+assumptions, exclusive-output evaluator and all row results. Its four-file
+`SHA256SUMS` has SHA-256
+`7def15e7de2be3682835616a269307ba6893f58c3c15b03b4ef5070deda79b1b`;
+`results.json` has SHA-256
+`60d8c4db7624cf21c93741c046de8f513d815d5afe30cc17a6bded8a192953e5`.
+The first reader invocation stopped before output on a misspelled JSON key;
+fixing it did not alter either declared formula. Source and prior frozen
+capture bindings were rechecked. No production rule changed.
