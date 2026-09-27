@@ -102,7 +102,7 @@ vertAlign，必须为 baseline/superscript/subscript。字体槽选择顺序与�
 缺省。`paintStyleAvailable` 单独报告能否投影，不能代替 `effectiveAvailable`。
 
 有效 position/vertAlign 缺省时使用现有 run 投影的正常基线；其余字体字段也复用既有 run
-投影，包括其中未完成的上下标、缩放、字距近似。颜色、隐藏标记、空行度量、行高、页底
+投影，包括其中未完成的上下标、缩放、字距近似。此绘制片当时保留颜色旧规则；隐藏标记、空行度量、行高、页底
 容量及对齐宽度维持原规则；正式 DOCX 空段落已有的标记字体度量路径继续保留。这一片不把
 “mark 不贡献行高”定为 Word 规则，也未验证 Android/Windows 的独立标记几何。
 
@@ -133,3 +133,21 @@ vmisc2 的 CP37/53 分别从沿用正文的 10pt/8pt 改为标记自身的名义
 `6d9733c284ab70dec13090f91f84fffe932664ce4e37e36ffc796a530d166f89`；
 实际回放二进制 SHA-256 为
 `5b2c76367e726ce34cc51d35d5b3fc16f14b0a25d421c8cc509154a105856483`。
+
+## 显式 RGB 颜色
+
+正文有效 `color.val` 原先已被 parser 保留，但桥接固定输出黑色。现正文、空段落的
+合成 run 和真正的段落标记都消费六位 ASCII 十六进制 RGB。标记颜色只读取有效属性，
+独立于字体/字号的可用条件；`paintColorAvailable` 与 `paintStyleAvailable` 分别报告。
+显式 `auto` 使用已有的宿主黑色，防止误继承前一个彩色 run；这不是 Word 自动颜色
+在所有背景下的定义。主题颜色、tint/shade、非法值或缺失值仍回退，尚未解析主题色。
+
+标记颜色不会覆盖软回车、分页符、栏断或分节源项；隐藏文字仍只保留源范围。颜色不同
+可以拆分绘制片段，但源行区间、断行位置和行推进保持原有规则。这是属性到绘制命令的
+传递修复，不是新增的 Word 几何规则。9 项公开入口测试覆盖原生 JSON、真实 DOCX
+样式继承和 auto 覆盖、稀疏有效标记、空/全隐藏段、控制字符及 Print/Mobile 行几何。
+专项日志保留在 `artifacts/explicit-rgb-color-2026-09-27/`；没有新的 Word 采集。
+
+最终 workspace/fontenv 675 项通过、12 项忽略，默认特性 550 项通过；全目标 Clippy
+`-D warnings` 通过。Android 的 11 份历史输入仍为 186/186 源行边界；除新颜色诊断
+字段和说明文字外，完整 trace 与前一 keep-chain 基线逐项相同。本片未重跑 Mac sweep。

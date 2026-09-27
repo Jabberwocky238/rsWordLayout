@@ -199,7 +199,7 @@ fn resolved_plain_mark_does_not_inherit_body_position_or_superscript() {
 }
 
 #[test]
-fn mark_size_and_position_change_only_suffix_style_not_color_visibility_or_flow_height() {
+fn mark_size_position_and_color_change_only_suffix_paint_not_visibility_or_flow_height() {
     let input = vec![para("ab"), para("N")];
     let before = layout(&input);
     let mut changed = input.clone();
@@ -214,7 +214,7 @@ fn mark_size_and_position_change_only_suffix_style_not_color_visibility_or_flow_
     assert_eq!(mark.font.size_half_points, 48);
     assert_eq!(mark.rise_fine, -300);
     assert_eq!(mark.baseline_fine, body.baseline_fine + 300);
-    assert_eq!(mark.color, input[0].runs[0].color);
+    assert_eq!(mark.color, Color::rgb(255, 0, 0));
     assert_eq!(mark.x_pt, SimpleMetrics.advance_pt("ab", &body.font));
     assert_eq!(body.font, containing(&before, 0).font);
     assert_eq!(body.baseline_fine, containing(&before, 0).baseline_fine);

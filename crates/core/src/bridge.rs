@@ -162,6 +162,27 @@ pub(crate) fn paragraph_mark_paint_style(
     })
 }
 
+/// Project an explicit RGB value without resolving theme colors. `auto` uses
+/// the existing black host fallback, independently of a preceding run's color.
+pub(crate) fn run_color(props: &Value) -> Option<Color> {
+    let color = props.get("color")?.as_object()?;
+    if ["themeColor", "themeTint", "themeShade"]
+        .iter()
+        .any(|key| color.contains_key(*key))
+    {
+        return None;
+    }
+    let value = color.get("val")?.as_str()?;
+    if value == "auto" {
+        return Some(Color::BLACK);
+    }
+    if value.len() != 6 || !value.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return None;
+    }
+    let rgb = u32::from_str_radix(value, 16).ok()?;
+    Some(Color::rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8))
+}
+
 /// `w:spacing`（run 级，**不是**段落的 `w:spacing`）：字符间距，twips，可负。
 ///
 /// 解析器的键名是 `spacing`，与段落属性里行距的 `spacing` 同名但不同物——
@@ -448,7 +469,7 @@ fn collect_runs(
                         text,
                         hidden,
                         font: run_font(props, base_size, base_bold),
-                        color: Color::BLACK,
+                        color: run_color(props).unwrap_or(Color::BLACK),
                         placeholders,
                         rise: (rise_fine / FINE_PER_TWIP) as Twips,
                         rise_fine: Some(rise_fine),
@@ -751,7 +772,7 @@ pub(crate) fn project_paragraphs(
                 text: String::new(),
                 hidden: false,
                 font: if effective.is_some() { run_font(mark_props, size, bold) } else { FontSpec::new(BODY_FAMILY, size) },
-                color: Color::BLACK,
+                color: run_color(mark_props).unwrap_or(Color::BLACK),
                 placeholders: Vec::new(),
                 rise: (rise_fine / FINE_PER_TWIP) as Twips,
                 rise_fine: effective.map(|_| rise_fine),

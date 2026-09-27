@@ -1412,6 +1412,11 @@ impl LineTail {
         } else {
             (font.clone(), rise_fine)
         };
+        let color = if para.terminator == crate::oracle::LineTerminator::ParagraphMark {
+            para.mark.paint_color().unwrap_or(color)
+        } else {
+            color
+        };
         Self {
             source: (source, source + 1),
             spaces: para.terminator.expected_glyphs(),

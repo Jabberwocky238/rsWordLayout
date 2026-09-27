@@ -21,7 +21,9 @@ pub(crate) struct ParagraphMarkStyle {
 /// when a Latin font, a valid size and valid position/vertical alignment are
 /// available. Missing or invalid required fields retain the legacy paint
 /// fallback; other font fields use the existing run projection. Mark metrics
-/// and visibility remain unresolved.
+/// and visibility remain unresolved. Explicit effective RGB color is applied
+/// independently of the font/size gate; automatic color uses the black host
+/// fallback. Theme colors remain unresolved.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ParagraphMarkProperties {
     declared: Option<Value>,
@@ -47,5 +49,9 @@ impl ParagraphMarkProperties {
 
     pub(crate) fn paint_style(&self) -> Option<ParagraphMarkStyle> {
         crate::bridge::paragraph_mark_paint_style(self.effective.as_ref()?)
+    }
+
+    pub(crate) fn paint_color(&self) -> Option<crate::Color> {
+        crate::bridge::run_color(self.effective.as_ref()?)
     }
 }
