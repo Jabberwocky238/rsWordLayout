@@ -60,6 +60,9 @@ Release 返回非零计数不表示探针仍持有自身引用。清单校验通
 崩溃、超时、失败 HRESULT、损坏协议和输入变化都不能生成 MEASURED 状态。
 后续已新增[字体记录转换参考](FONT-RECORD-REFERENCE-2026-09-27.md)，可在显式宿主
 参数下复用这些 API 结果计算初始记录；模型输出与原生测量保持不同状态。
+进一步测量了 [page-start 的六组字体](PAGE-START-FONT-INPUTS-2026-09-27.md)：
+其中 Lao 的 API 总高度与 hhea 不同，另六字体的显式 face 转 LOGFONT 均返回
+DEFAULT_CHARSET。指标来源和实际活动 charset 不能直接由这两组 API 结果替换。
 
 最终源码 SHA-256 为 `f952f4ce292e72d56230a787451f2d461a5ba0fc8d655eb425e8c3fb264b5e5e`。
 新增 53 项测试通过，完整量具 Python 套件 **375 passed**。独立审查发现的非对象
