@@ -1340,6 +1340,8 @@ use flow::{FlowRegion, FlowRegions};
 mod pagination;
 #[cfg(test)]
 mod flow_tests;
+#[cfg(test)]
+mod tail_tests;
 
 fn fine(value: Twips) -> i64 {
     i64::from(value) * FINE_PER_TWIP
@@ -1347,6 +1349,53 @@ fn fine(value: Twips) -> i64 {
 
 fn coarse(value: i64) -> Twips {
     (value as f64 / FINE_PER_TWIP as f64).round() as Twips
+}
+
+/// Source ownership is independent of the spaces used to paint a control.
+/// A wrapped boundary has an empty source range; a nonpainting control does not.
+#[derive(Clone)]
+struct LineTail {
+    source: (u32, u32),
+    spaces: usize,
+    font: FontSpec,
+    color: Color,
+    rise_fine: i64,
+}
+
+impl LineTail {
+    fn from_run(source: (u32, u32), terminator: crate::oracle::LineTerminator, run: &Run) -> Self {
+        Self {
+            source,
+            spaces: terminator.expected_glyphs(),
+            font: run.font.clone(),
+            color: run.color,
+            rise_fine: run.effective_rise_fine(),
+        }
+    }
+
+    fn paragraph_end(
+        para: &Para,
+        source: u32,
+        font: &FontSpec,
+        color: Color,
+        rise_fine: i64,
+    ) -> Self {
+        Self {
+            source: (source, source + 1),
+            spaces: para.terminator.expected_glyphs(),
+            font: font.clone(),
+            color,
+            rise_fine,
+        }
+    }
+
+    fn same_style(&self, other: &Self) -> bool {
+        self.font == other.font && self.color == other.color && self.rise_fine == other.rise_fine
+    }
+
+    fn maps_spaces_to_source(&self) -> bool {
+        self.source.1 - self.source.0 == self.spaces as u32
+    }
 }
 
 /// 排好的一行，尚未定位到页面。
@@ -1366,12 +1415,9 @@ struct PendingLine {
     /// 这是**假设**：Android 的窄路径读数只有码元区间，没有横向位置。
     last_content: bool,
     terminator: crate::oracle::LineTerminator,
-    /// Visible spaces for the control characters at this line's end.
-    /// A trailing page break and paragraph mark can contribute two together.
-    trailing_glyphs: usize,
-    end_font: FontSpec,
-    end_color: Color,
-    end_rise_fine: i64,
+    /// Ordered controls and paragraph end, each with its own source and style.
+    /// Wrapped lines retain a zero-length boundary for empty/source-only tails.
+    tails: Vec<LineTail>,
     /// 首行要额外吃 `indent_first_line`（可负，即悬挂缩进）。
     is_first: bool,
     /// 本行实际落在哪个横向区间。无环绕时就是整个正文宽度；
@@ -1392,6 +1438,41 @@ struct PendingLine {
     /// 不能拿「最后一个片段的终点 +1」代替：片段之间可能有**不产生片段**的源字符
     /// （对象占位符就是），那时片段终点比行的真实终点小，终止符会被记到错的位置上。
     source_end: u32,
+}
+
+impl PendingLine {
+    fn paint_tails(&self) -> Vec<LineTail> {
+        fn append(tails: &mut Vec<LineTail>, next: LineTail) {
+            if let Some(last) = tails.last_mut()
+                && last.source.1 == next.source.0
+                && last.same_style(&next)
+                && ((last.spaces == 0 && next.spaces == 0)
+                    || (last.maps_spaces_to_source() && next.maps_spaces_to_source()))
+            {
+                last.source.1 = next.source.1;
+                last.spaces += next.spaces;
+            } else {
+                tails.push(next);
+            }
+        }
+
+        let mut tails = Vec::new();
+        let mut cursor = self.pieces.last().map_or(self.source_start, |piece| piece.source.1);
+        for tail in &self.tails {
+            debug_assert!(cursor <= tail.source.0);
+            if cursor < tail.source.0 {
+                append(&mut tails, LineTail {
+                    source: (cursor, tail.source.0),
+                    spaces: 0,
+                    ..tail.clone()
+                });
+            }
+            append(&mut tails, tail.clone());
+            cursor = tail.source.1;
+        }
+        debug_assert_eq!(cursor, self.source_end);
+        tails
+    }
 }
 
 /// State at a committed line boundary. Run/control positions are reconstructed
@@ -1834,12 +1915,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             .quantize_baseline_fine(top_fine + fine(line.baseline));
         let baseline_y = coarse(baseline_fine);
         let last = line.pieces.len().saturating_sub(1);
-        let suffix_start = line.source_end - line.trailing_glyphs as u32;
-        let append_suffix = line.pieces.last().is_some_and(|p| {
-            p.source.1 == suffix_start
-                && p.font == line.end_font
-                && p.color == line.end_color
-                && p.rise_fine == line.end_rise_fine
+        let tails = line.paint_tails();
+        let append_suffix = line.pieces.last().zip(tails.first()).is_some_and(|(p, tail)| {
+            p.source.1 == tail.source.0
+                && tail.maps_spaces_to_source()
+                && (p.tab.is_none() || tails.len() == 1)
+                && p.font == tail.font
+                && p.color == tail.color
+                && p.rise_fine == tail.rise_fine
         });
         if let Some(first_piece) = line.pieces.first()
             && line.source_start < first_piece.source.0
@@ -1863,6 +1946,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         }
         // 本片段之前（含本片段左侧那条交界）摊到了几份空隙。
         let mut gaps_before = 0usize;
+        let mut appended_tail_end = None;
         for (i, p) in line.pieces.iter().enumerate() {
             if word_join[i] {
                 gaps_before += 1;
@@ -1870,16 +1954,25 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let x = base_x + offset + p.dx + justify_gap * (gaps_before as Twips);
             let x_pt = base_x_pt + offset_pt + p.dx_pt + justify_gap_pt * (gaps_before as f64);
             // Only the final fragment carries the line's terminator.
-            let terminator = if i == last && append_suffix {
+            let terminator = if i == last && append_suffix && tails.len() == 1 {
                 line.terminator
             } else {
                 crate::oracle::LineTerminator::Wrapped
             };
             let (text, source) = if i == last && append_suffix {
-                with_terminator_glyphs(&p.text, p.source, line.source_end, line.trailing_glyphs)
+                let tail = &tails[0];
+                let mut text = p.text.clone();
+                text.extend(std::iter::repeat_n(' ', tail.spaces));
+                (text, (p.source.0, tail.source.1))
             } else {
                 (p.text.clone(), p.source)
             };
+            if i == last && append_suffix && tails.len() > 1 {
+                // The first tail shares the body's shaping context. Its end
+                // cannot be recovered by adding an isolated space advance.
+                let advance_pt = self.metrics.advance_pt(&text, &p.font);
+                appended_tail_end = Some((x + (advance_pt * 20.0).round() as Twips, x_pt + advance_pt));
+            }
             page.fragments.push(Fragment::Text(TextFragment {
                 x,
                 x_pt,
@@ -1904,45 +1997,40 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 没有它，空行就**没有任何绘制指令**，于是下游根本看不到这一行——
         // 而 Word 是给空行一条行记录的（实测：独占一行的分页符、空段落都有）。
         // 那种缺失在比较器里表现为「引擎少排了行」，查起来像分页错，其实是这里漏了。
-        if !append_suffix {
-            let terminator = line.terminator;
-            let tail_start = line.pieces.last().map_or(line.source_start, |p| p.source.1);
-            // Keep nonpainting controls separate, so glyph source spans do not
-            // absorb a page/section break or an omitted object placeholder.
-            let mut tails = Vec::new();
-            if tail_start < suffix_start && line.trailing_glyphs > 0 {
-                tails.push((
-                    String::new(),
-                    (tail_start, suffix_start),
-                    crate::oracle::LineTerminator::Wrapped,
-                ));
-            }
-            tails.push((
-                " ".repeat(line.trailing_glyphs),
-                (
-                    if line.trailing_glyphs > 0 { suffix_start } else { tail_start },
-                    line.source_end,
-                ),
-                terminator,
-            ));
-            for (text, source, terminator) in tails {
-                page.fragments.push(Fragment::Text(TextFragment {
-                    x: base_x + offset + line.width + justify_gap * gaps as Twips,
-                    x_pt: base_x_pt + offset_pt + line.width_pt + justify_gap_pt * gaps as f64,
-                    baseline_y: coarse(baseline_fine - line.end_rise_fine),
-                    baseline_fine: baseline_fine - line.end_rise_fine,
-                    text,
-                    font: line.end_font.clone(),
-                    color: line.end_color,
-                    source_node: para.source_node,
-                    source: Some(source),
-                    terminator,
-                    rise: (line.end_rise_fine / FINE_PER_TWIP) as Twips,
-                    rise_fine: line.end_rise_fine,
-                    line: line_index,
-                    tab_advance_pt: None,
-                }));
-            }
+        let (tail_x, tail_x_pt) = appended_tail_end.unwrap_or((
+            base_x + offset + line.width + justify_gap * gaps as Twips,
+            base_x_pt + offset_pt + line.width_pt + justify_gap_pt * gaps as f64,
+        ));
+        let mut advance_pt: f64 = 0.0;
+        for (index, tail) in tails.iter().enumerate().skip(usize::from(append_suffix)) {
+            let text = " ".repeat(tail.spaces);
+            let next_advance_pt = if index + 1 < tails.len() && !text.is_empty() {
+                self.metrics.advance_pt(&text, &tail.font)
+            } else {
+                0.0
+            };
+            page.fragments.push(Fragment::Text(TextFragment {
+                x: tail_x + (advance_pt * 20.0).round() as Twips,
+                x_pt: tail_x_pt + advance_pt,
+                baseline_y: coarse(baseline_fine - tail.rise_fine),
+                baseline_fine: baseline_fine - tail.rise_fine,
+                text,
+                font: tail.font.clone(),
+                color: tail.color,
+                source_node: para.source_node,
+                source: Some(tail.source),
+                terminator: if index + 1 == tails.len() {
+                    line.terminator
+                } else {
+                    crate::oracle::LineTerminator::Wrapped
+                },
+                rise: (tail.rise_fine / FINE_PER_TWIP) as Twips,
+                rise_fine: tail.rise_fine,
+                line: line_index,
+                tab_advance_pt: None,
+            }));
+            // Tail paint advances do not contribute to line width or alignment.
+            advance_pt += next_advance_pt;
         }
     }
 
@@ -2011,10 +2099,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 is_last: true,
                 last_content: true,
                 terminator: para.terminator,
-                trailing_glyphs: para.terminator.expected_glyphs(),
-                end_font: font,
-                end_color: mark_run.map_or(Color::BLACK, |r| r.color),
-                end_rise_fine: mark_run.map_or(0, Run::effective_rise_fine),
+                tails: vec![LineTail::paragraph_end(
+                    para,
+                    paragraph_end,
+                    &font,
+                    mark_run.map_or(Color::BLACK, |r| r.color),
+                    mark_run.map_or(0, Run::effective_rise_fine),
+                )],
                 is_first: resume.first,
                 span,
                 flow_break: FlowBreak::None,
@@ -2081,8 +2172,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 SegmentKind::Placeholder(kind) => {
                     // 每个 `w:br` / `w:cr` 在 run 文本里是一个 U+FFFC（对象替换符）：分页、分栏是
                     // 解析器放的，软回车是桥接层把解析器的 `'\n'` 换成的（`bridge::run_text_and_placeholders`）。
-                    // 它是**控制字符，不是文字**：占 1 个源字符位（Word 的 `Range` 数它），
-                    // 但既不成字形也不占宽度——Word 导出的 PDF 里一个都没有。
+                    // U+FFFC 本身不作为普通正文量宽、整形；它仍占 1 个 UTF-16 源位置。
+                    // 行尾控制是否画替代空格沿用 `expected_glyphs` 的现有计数策略，
+                    // 不把该策略当成所有分页、分栏场景的 Word glyph 实测。
                     //
                     // 不切掉的后果是实测过的：它会被整形器当普通字符画出来，
                     // 12pt 字号下 advance 12.0pt，其后整行字形集体右移；
@@ -2092,7 +2184,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     // 只在绘制层滤，行宽照样是错的，而那种错在轨迹里看不出来。
                     // 占位符可能夹在文字中间（实测 `'分页符之前￼分页符之后'`），所以它自成一截。
                     //
-                    // 源游标走 1 个 UTF-16 单位，但不产生片段、不占宽度。
+                    // 源游标走 1 个 UTF-16 单位，控制的源归属由独立尾项保留。
                     let consumed = seg.source + 1;
                     (at, byte) = next_segment(&segs, at);
 
@@ -2108,11 +2200,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         && last.source_end == seg.source
                     {
                         last.terminator = T::LineBreak;
-                        last.trailing_glyphs += T::LineBreak.expected_glyphs();
+                        last.tails = vec![LineTail::from_run((seg.source, consumed), T::LineBreak, run)];
                         last.source_end = consumed;
-                        last.end_font = run.font.clone();
-                        last.end_color = run.color;
-                        last.end_rise_fine = run.effective_rise_fine();
                         line_start = consumed;
                         object_join = false;
                         continue;
@@ -2155,6 +2244,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             h
                         };
                         let vertical = self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine);
+                        let mut tails = vec![LineTail::from_run((seg.source, consumed), terminator, run)];
+                        if ends_paragraph {
+                            tails.push(LineTail::paragraph_end(
+                                para, paragraph_end, &run.font, run.color, run.effective_rise_fine(),
+                            ));
+                        }
                         lines.push(PendingLine {
                             vertical,
                             baseline: cur_ascent,
@@ -2165,11 +2260,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             // 拆开时这行仍是本段最后一行内容（见 `PendingLine::last_content`）。
                             last_content: kind.breaks_page() && at_end,
                             terminator,
-                            trailing_glyphs: terminator.expected_glyphs()
-                                + if ends_paragraph { para.terminator.expected_glyphs() } else { 0 },
-                            end_font: run.font.clone(),
-                            end_color: run.color,
-                            end_rise_fine: run.effective_rise_fine(),
+                            tails,
                             is_first: first_line,
                             span,
                             flow_break: match kind {
@@ -2388,10 +2479,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         is_last: false,
                         last_content: false,
                         terminator: T::Wrapped,
-                        trailing_glyphs: 0,
-                        end_font: run.font.clone(),
-                        end_color: run.color,
-                        end_rise_fine: run.effective_rise_fine(),
+                        tails: vec![LineTail::from_run((consumed, consumed), T::Wrapped, run)],
                         is_first: first_line,
                         span,
                         flow_break: FlowBreak::None,
@@ -2445,10 +2533,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 is_last: true,
                 last_content: true,
                 terminator: para.terminator,
-                trailing_glyphs: para.terminator.expected_glyphs(),
-                end_font: mark_run.font.clone(),
-                end_color: mark_run.color,
-                end_rise_fine: mark_run.effective_rise_fine(),
+                tails: vec![LineTail::paragraph_end(
+                    para, paragraph_end, &mark_run.font, mark_run.color, mark_run.effective_rise_fine(),
+                )],
                 is_first: first_line,
                 span,
                 flow_break: FlowBreak::None,
@@ -2461,8 +2548,11 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             last.is_last = true;
             last.last_content = true;
             last.terminator = para.terminator;
-            last.trailing_glyphs = para.terminator.expected_glyphs();
-            last.source_end += 1;
+            let fallback = last.tails.last().expect("wrapped line retains its boundary style");
+            last.tails = vec![LineTail::paragraph_end(
+                para, paragraph_end, &fallback.font, fallback.color, fallback.rise_fine,
+            )];
+            last.source_end = paragraph_end + 1;
         }
 
         lines
@@ -3193,32 +3283,6 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
         }
     }
     out
-}
-
-/// 终止符自己也要画出来——把它的字符接到片段末尾，并把源区间覆盖到它。
-///
-/// Word **为段落标记画一个空格**（量具方法 §4，`LineTerminator::expected_glyphs`
-/// 就是那张表）。引擎原来只在契约里报「应画 1 个」，实际一个也没画：
-/// 每行的字形数比 Word 少 1，比较器一上来就 `GLYPH_COUNT_MISMATCH`，
-/// **结构对不上，几何一条都比不了**。
-///
-/// 接在末尾而不是参与断行，是因为它本来就不参与：行宽、对齐用的都是
-/// `line.width`，那是断行时算好的，这里是落位之后再补。Word 也是这样——
-/// 行尾那个空格不撑开行，也不影响居中与右对齐。
-fn with_terminator_glyphs(
-    text: &str,
-    source: (u32, u32),
-    line_source_end: u32,
-    extra: usize,
-) -> (String, (u32, u32)) {
-    let mut out = String::with_capacity(text.len() + extra);
-    out.push_str(text);
-    for _ in 0..extra {
-        out.push(' ');
-    }
-    // The line range already includes every control character it consumed.
-    let end = line_source_end.max(source.1);
-    (out, (source.0, end))
 }
 
 /// 把整形结果摊成绝对坐标的字形。
