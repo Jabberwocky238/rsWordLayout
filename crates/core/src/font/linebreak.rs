@@ -50,13 +50,14 @@ pub fn ideograph_numeric_boundaries(text: &str) -> u32 {
 
 /// Quarter em, in twips. CSS `text-autospace: ideograph-numeric` and Word's
 /// default `autoSpaceDN` both use a quarter of the ideographic em.
-pub fn autospace_dn_twips(text: &str, size_half_points: u32) -> i32 {
+pub fn autospace_dn_twips(text: &str, size_centipoints: u64) -> i32 {
     let n = ideograph_numeric_boundaries(text);
     if n == 0 {
         return 0;
     }
-    let quarter = (size_half_points as i32) * 10 / 4;
-    n as i32 * quarter
+    // Keep the existing per-boundary truncation, using the authoritative size.
+    let quarter = u128::from(size_centipoints) / 20;
+    (u128::from(n) * quarter).min(i32::MAX as u128) as i32
 }
 
 pub fn autospace_dn_pt(text: &str, size_pt: f64) -> f64 {
@@ -65,7 +66,7 @@ pub fn autospace_dn_pt(text: &str, size_pt: f64) -> f64 {
 
 #[cfg(test)]
 mod autospace_dn_tests {
-    use super::ideograph_numeric_boundaries;
+    use super::{autospace_dn_twips, ideograph_numeric_boundaries};
 
     #[test]
     fn counts_ideograph_digit_pairs_only() {
@@ -74,6 +75,19 @@ mod autospace_dn_tests {
         assert_eq!(ideograph_numeric_boundaries("2、汉3。"), 1);
         assert_eq!(ideograph_numeric_boundaries("5（汉"), 0);
         assert_eq!(ideograph_numeric_boundaries("A0 B0"), 0);
+    }
+
+    #[test]
+    fn autospace_retains_each_boundary_truncation_at_exact_and_legacy_sizes() {
+        assert_eq!(autospace_dn_twips("\u{4e2d}0\u{4e2d}", 792), 2 * 39);
+        assert_eq!(autospace_dn_twips("\u{4e2d}0\u{4e2d}", 850), 2 * 42);
+        assert_eq!(autospace_dn_twips("\u{4e2d}0\u{4e2d}", 0), 0);
+    }
+
+    #[test]
+    fn autospace_large_sizes_do_not_wrap_or_overflow_before_the_twip_boundary() {
+        assert_eq!(autospace_dn_twips("\u{4e2d}0\u{4e2d}", u64::MAX), i32::MAX);
+        assert_eq!(autospace_dn_twips("A0", u64::MAX), 0);
     }
 }
 

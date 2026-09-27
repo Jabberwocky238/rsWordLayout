@@ -256,7 +256,7 @@ impl FontMetrics for RealMetrics<'_> {
         let advance: i64 = shaped.iter().map(|g| i64::from(g.x_advance)).sum();
         TextMetrics {
             advance: self.apply_spacing(advance, spacing_slots(&shaped), font)
-                + super::linebreak::autospace_dn_twips(text, font.size_half_points),
+                + super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints()),
             ..self.vertical_for(text, font)
         }
     }

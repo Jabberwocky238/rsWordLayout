@@ -1,4 +1,34 @@
-use rsword_layout_core::{FontMetrics, FontSpec, SimpleMetrics};
+use rsword_layout_core::{
+    Color, Engine, FontMetrics, FontSpec, LayoutRecord, Margins, PageSetup, Para, Run,
+    SimpleMetrics, Size, paint_document,
+};
+
+fn exact_autospace_line_ranges<M: FontMetrics>(metrics: &M, font: FontSpec, width: i32) -> Vec<(u32, u32)> {
+    let para = Para {
+        runs: vec![Run {
+            text: "\u{4e2d}0\u{4e2d}".into(),
+            font,
+            color: Color::BLACK,
+            placeholders: Vec::new(),
+            rise: 0,
+            rise_fine: None,
+            hidden: false,
+        }],
+        ..Para::default()
+    };
+    let setup = PageSetup {
+        size: Size::new(width, 2000),
+        margins: Margins::new(0, 0, 0, 0),
+    };
+    let pages = Engine::new(metrics, setup).layout(&[para]);
+    LayoutRecord::from_paint(&paint_document(&pages, None, &[]))
+        .pages.iter().flat_map(|page| &page.lines)
+        .map(|line| {
+            let source = line.source.unwrap();
+            (source.start, source.end)
+        })
+        .collect()
+}
 
 #[test]
 fn exact_size_overrides_the_rounded_legacy_size() {
@@ -66,6 +96,37 @@ fn equivalent_size_representations_have_identical_metrics() {
     }
 }
 
+#[test]
+fn autospace_uses_exact_size_with_the_existing_per_boundary_truncation() {
+    let font = FontSpec::new("Test", 24).with_size_centipoints(792);
+    // The stub's text width is 396 twips; each 1/4 em gap truncates 39.6 to 39.
+    assert_eq!(SimpleMetrics.measure("\u{4e2d}0\u{4e2d}", &font).advance, 474);
+    assert!((SimpleMetrics.advance_pt("\u{4e2d}0\u{4e2d}", &font) - 23.76).abs() < 1e-12);
+    // Keep the same truncation for ordinary half-point sizes, too: 42.5 per gap.
+    let legacy = FontSpec::new("Test", 17);
+    assert_eq!(SimpleMetrics.measure("\u{4e2d}0\u{4e2d}", &legacy).advance, 425 + 2 * 42);
+}
+
+#[test]
+fn autospace_ignores_the_legacy_size_when_an_exact_size_is_present() {
+    let font = FontSpec::new("Test", 24).with_size_centipoints(792);
+    for legacy_size in [1, 16, 24, 100] {
+        let mut equivalent = font.clone();
+        equivalent.size_half_points = legacy_size;
+        assert_eq!(
+            SimpleMetrics.measure("\u{4e2d}0\u{4e2d}", &equivalent),
+            SimpleMetrics.measure("\u{4e2d}0\u{4e2d}", &font),
+        );
+    }
+}
+
+#[test]
+fn autospace_exact_size_changes_the_actual_engine_break_threshold() {
+    let font = FontSpec::new("Test", 24).with_size_centipoints(792);
+    assert_eq!(exact_autospace_line_ranges(&SimpleMetrics, font.clone(), 474), [(0, 4)]);
+    assert_eq!(exact_autospace_line_ranges(&SimpleMetrics, font, 473), [(0, 2), (2, 4)]);
+}
+
 #[cfg(feature = "shape")]
 mod shape {
     use super::*;
@@ -115,6 +176,40 @@ mod real {
 
     const LATIN: &[u8] = include_bytes!("../../../fixtures/fonts/LiberationSerif-Regular.ttf");
     const CJK: &[u8] = include_bytes!("../../../fixtures/fonts/DroidSansFallbackFull.ttf");
+
+    #[test]
+    fn autospace_matches_independent_font_tables_at_the_exact_size_and_break_limit() {
+        let mut registry = FontRegistry::new();
+        registry.add(LATIN.to_vec(), 0).unwrap();
+        registry.add(CJK.to_vec(), 0).unwrap();
+        let metrics = RealMetrics::new(&registry);
+        let mut font = FontSpec::new("Liberation Serif", 24).with_size_centipoints(792);
+        font.slots = FontSlots {
+            ascii: Some("Liberation Serif".into()),
+            east_asia: Some("Droid Sans Fallback".into()),
+            ..FontSlots::default()
+        };
+        // Each character is a separate face run, so each table advance rounds once.
+        let table_width: i32 = [('\u{4e2d}', CJK), ('0', LATIN), ('\u{4e2d}', CJK)]
+            .into_iter()
+            .map(|(ch, bytes)| {
+                let face = FontRef::new(bytes).unwrap();
+                let gid = face.charmap().map(ch).unwrap();
+                let advance = face.glyph_metrics(Size::unscaled(), LocationRef::default())
+                    .advance_width(gid).unwrap();
+                let upem = face.metrics(Size::unscaled(), LocationRef::default()).units_per_em;
+                (f64::from(advance) / f64::from(upem) * 7.92 * 20.0).round() as i32
+            })
+            .sum();
+        let expected = table_width + 2 * 39;
+        assert_eq!(metrics.measure("\u{4e2d}0\u{4e2d}", &font).advance, expected);
+        let mut equivalent = font.clone();
+        equivalent.size_half_points = 24;
+        assert_eq!(metrics.measure("\u{4e2d}0\u{4e2d}", &equivalent),
+                   metrics.measure("\u{4e2d}0\u{4e2d}", &font));
+        assert_eq!(exact_autospace_line_ranges(&metrics, font.clone(), expected), [(0, 4)]);
+        assert_eq!(exact_autospace_line_ranges(&metrics, font, expected - 1), [(0, 2), (2, 4)]);
+    }
 
     #[test]
     fn registry_metrics_preserve_exact_size_across_face_boundaries_and_vertical_cache() {

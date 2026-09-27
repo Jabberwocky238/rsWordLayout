@@ -79,7 +79,7 @@ impl FontMetrics for SimpleMetrics {
             advance = ((i64::from(advance) * i64::from(font.scale_pct)) / 100) as Twips;
         }
         advance += (slots as Twips) * font.letter_spacing;
-        advance += super::linebreak::autospace_dn_twips(text, font.size_half_points);
+        advance += super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints());
 
         TextMetrics {
             advance,
