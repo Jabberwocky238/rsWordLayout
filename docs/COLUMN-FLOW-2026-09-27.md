@@ -138,3 +138,11 @@ Word 环绕实测。候选无法容纳真实超高内容时保留原正常分页
 7 份 trace 的栏数与实测匹配，源区间和区域归属通过结构检查。selfcheck 为 2 OK、
 5 UNDECIDABLE，后者缺少终止符独占行，计数项不可判；selfcheck 的 OK 也不认证 Word
 控制字形数量或绝对坐标。
+
+旧采集离线回放也已复核：Android 的 11 份窄路径输入仍为 186/186 有序源区间匹配，
+保留历史 CP 空间与移动视图假设，不能扩大到几何或打印分页。Mac 30 包仍为 25 FAIL、
+5 UNDECIDABLE，比较字段和误差没有变化；25 份有效 trace 中 23 份页面逐字段相同，
+`breaks-sections` 与 `vmisc3` 仅新增 `page.columns` / `line.column`。仅去掉这两类元数据后，
+25/25 的源行与 glyph 页面数据精确相同。对照基线是 `artifacts/columns-2026-09-27/mac`，
+本轮结果见产物目录下 `android-replay/summary.md` 和 `mac-replay/baseline-diff.json`；
+没有重新操作 Word，也没有将原有 FAIL 或不可判改称通过。
