@@ -15,6 +15,10 @@ pub(super) struct FlowRegions {
     // Pending section geometry takes effect on the next physical page.
     setup: PageSetup,
     columns: ColumnLayout,
+    mirror_margins: bool,
+    // Document physical ordinal, independent of section page-number labels.
+    // This travels with a replay checkpoint even when its trial has no pages Vec.
+    page_index: usize,
     // The current physical body remains authoritative for fit and oversize checks.
     body: Rect,
     areas: Vec<Rect>,
@@ -25,10 +29,12 @@ pub(super) struct FlowRegions {
 }
 
 impl FlowRegions {
-    pub(super) fn new(setup: PageSetup, columns: ColumnLayout) -> Self {
+    pub(super) fn new(setup: PageSetup, columns: ColumnLayout, mirror_margins: bool) -> Self {
         let mut flow = Self {
             setup,
             columns,
+            mirror_margins,
+            page_index: 0,
             body: setup.content_area(),
             areas: Vec::new(),
             column: 0,
@@ -36,12 +42,27 @@ impl FlowRegions {
             region_base: 0,
             top_fine: i64::from(setup.content_area().y) * FINE_PER_TWIP,
         };
-        flow.areas = flow.pending_areas();
+        flow.areas = flow.pending_areas(0);
         flow
     }
 
-    fn pending_areas(&self) -> Vec<Rect> {
-        let body = self.setup.content_area();
+    fn body_at(&self, mut setup: PageSetup, page_index: usize) -> Rect {
+        if self.mirror_margins && !page_index.is_multiple_of(2) {
+            std::mem::swap(&mut setup.margins.left, &mut setup.margins.right);
+        }
+        setup.content_area()
+    }
+
+    pub(super) fn section_body(&self, setup: PageSetup) -> Rect {
+        self.body_at(setup, self.page_index)
+    }
+
+    pub(super) fn physical_page_index(&self) -> usize {
+        self.page_index
+    }
+
+    fn pending_areas(&self, page_index: usize) -> Vec<Rect> {
+        let body = self.body_at(self.setup, page_index);
         // DOCX projection and overrides validate geometry. A manually edited
         // LayoutDocument can still be invalid; retain a usable body region.
         self.columns.areas(body).unwrap_or_else(|_| vec![body])
@@ -71,8 +92,17 @@ impl FlowRegions {
                 top_fine: self.top_fine,
             }
         } else {
-            let next_page = self.pending_areas();
-            let index = (self.column + offset - self.areas.len()) % next_page.len();
+            let next_page = self.pending_areas(self.page_index + 1);
+            let remaining = self.column + offset - self.areas.len();
+            let pages_ahead = 1 + remaining / next_page.len();
+            let index = remaining % next_page.len();
+            // A two-region lookahead can span two physical pages in one-column
+            // flow. Pending columns may also differ from the current page's.
+            let next_page = if pages_ahead == 1 {
+                next_page
+            } else {
+                self.pending_areas(self.page_index + pages_ahead)
+            };
             let area = next_page[index];
             FlowRegion {
                 area,
@@ -99,7 +129,7 @@ impl FlowRegions {
 
     pub(super) fn next_full_height_fine(&self) -> i64 {
         if self.ends_page(false) {
-            i64::from(self.setup.content_area().height) * FINE_PER_TWIP
+            i64::from(self.body_at(self.setup, self.page_index + 1).height) * FINE_PER_TWIP
         } else {
             self.full_height_fine()
         }
@@ -121,7 +151,7 @@ impl FlowRegions {
     }
 
     pub(super) fn start_band(&mut self, page: &mut Page, line_index: u32, top_fine: i64) {
-        self.areas = self.pending_areas();
+        self.areas = self.pending_areas(self.page_index);
         let top = (top_fine as f64 / FINE_PER_TWIP as f64).round() as Twips;
         for area in &mut self.areas {
             area.height = (area.bottom() - top).max(0);
@@ -139,14 +169,14 @@ impl FlowRegions {
     }
 
     fn fresh_page(&self) -> Page {
-        let mut page = Page::new(self.setup.size, self.setup.content_area());
+        let mut page = Page::new(self.setup.size, self.body);
         page.columns = self.areas.clone();
         page
     }
 
     pub(super) fn reset_empty_page(&mut self, page: &mut Page, line_index: &mut u32) -> Rect {
-        self.body = self.setup.content_area();
-        self.areas = self.pending_areas();
+        self.body = self.section_body(self.setup);
+        self.areas = self.pending_areas(self.page_index);
         self.column = 0;
         self.first_line = 0;
         self.region_base = 0;
@@ -164,8 +194,9 @@ impl FlowRegions {
         force_page: bool,
     ) -> Rect {
         if self.ends_page(force_page) {
-            self.body = self.setup.content_area();
-            self.areas = self.pending_areas();
+            self.page_index += 1;
+            self.body = self.section_body(self.setup);
+            self.areas = self.pending_areas(self.page_index);
             self.column = 0;
             self.region_base = 0;
             self.top_fine = i64::from(self.area().y) * FINE_PER_TWIP;

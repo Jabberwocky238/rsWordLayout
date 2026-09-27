@@ -7,6 +7,70 @@ use super::*;
 use crate::SimpleMetrics;
 use std::collections::VecDeque;
 
+#[test]
+fn mirrored_region_previews_match_actual_advances_with_pending_columns() {
+    let setup = PageSetup {
+        size: Size::new(4000, 2000),
+        margins: Margins::new(100, 700, 100, 300),
+    };
+    let pending = PageSetup {
+        size: Size::new(5000, 3000),
+        margins: Margins::new(200, 900, 200, 400),
+    };
+    for mirrored in [false, true] {
+        for current_count in [1, 2, 3] {
+            for pending_count in [1, 2, 3] {
+                let mut regions = FlowRegions::new(
+                    setup, crate::ColumnLayout::equal(current_count, 100).unwrap(), mirrored,
+                );
+                let mut page = Page::new(setup.size, setup.content_area());
+                let mut line_index = 0;
+                let mut pages = Vec::new();
+                regions.reset_empty_page(&mut page, &mut line_index);
+                regions.set_section(pending, crate::ColumnLayout::equal(pending_count, 100).unwrap());
+                for _ in 0..8 {
+                    for (distance, preview) in [(1, regions.next_region()), (2, regions.region_after_next())] {
+                        let mut actual = regions.clone();
+                        let mut next_page = page.clone();
+                        let mut next_line = line_index;
+                        for _ in 0..distance {
+                            actual.advance(&mut Vec::new(), &mut next_page, &mut next_line, false);
+                        }
+                        assert_eq!(preview.area, actual.area(), "mirror={mirrored}, {current_count}->{pending_count}, distance={distance}");
+                        assert_eq!(preview.top_fine, actual.top_fine());
+                    }
+                    regions.advance(&mut pages, &mut page, &mut line_index, false);
+                }
+            }
+        }
+    }
+    let regions = FlowRegions::new(setup, crate::ColumnLayout::default(), true);
+    assert_eq!(regions.next_region().area.x, 700);
+    assert_eq!(regions.region_after_next().area.x, 300);
+}
+
+#[test]
+fn mirrored_empty_page_reset_and_new_band_keep_the_physical_ordinal() {
+    let setup = PageSetup {
+        size: Size::new(4000, 2000),
+        margins: Margins::new(100, 700, 100, 300),
+    };
+    let mut regions = FlowRegions::new(setup, crate::ColumnLayout::equal(2, 200).unwrap(), true);
+    let mut page = Page::new(setup.size, setup.content_area());
+    let mut line_index = 0;
+    let mut pages = Vec::new();
+    regions.reset_empty_page(&mut page, &mut line_index);
+    regions.advance(&mut pages, &mut page, &mut line_index, true);
+    assert_eq!(regions.physical_page_index(), 1);
+    regions.reset_empty_page(&mut page, &mut line_index);
+    assert_eq!(regions.physical_page_index(), 1);
+    assert_eq!(page.content_area.x, 700);
+    regions.start_band(&mut page, line_index, fine(600));
+    assert_eq!(regions.area(), Rect::new(700, 600, 1400, 1300));
+    assert_eq!(regions.next_region().area, Rect::new(2300, 600, 1400, 1300));
+    assert_eq!(regions.region_after_next().area, Rect::new(300, 100, 1400, 1800));
+}
+
 fn engine() -> Engine<'static, SimpleMetrics> {
     Engine::new(
         &SimpleMetrics,

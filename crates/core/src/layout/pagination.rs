@@ -49,8 +49,8 @@ struct Flow {
 }
 
 impl Flow {
-    fn new(setup: PageSetup, columns: crate::ColumnLayout) -> Self {
-        let mut regions = FlowRegions::new(setup, columns);
+    fn new(setup: PageSetup, columns: crate::ColumnLayout, mirror_margins: bool) -> Self {
+        let mut regions = FlowRegions::new(setup, columns, mirror_margins);
         let mut page = Page::new(setup.size, setup.content_area());
         let mut line_index = 0;
         regions.reset_empty_page(&mut page, &mut line_index);
@@ -204,12 +204,13 @@ impl<M: FontMetrics> Engine<'_, M> {
         &self,
         paras: &[Para],
         sections: &[crate::LayoutSection],
+        mirror_margins: bool,
     ) -> Vec<Page> {
         let setup = sections.first().map_or(self.setup, |s| s.setup);
         let columns = sections
             .first()
             .map_or_else(crate::ColumnLayout::default, |s| s.columns.clone());
-        let mut flow = Flow::new(setup, columns);
+        let mut flow = Flow::new(setup, columns, mirror_margins);
         let mut source = 0;
         let mut active_section: Option<usize> = None;
         for (index, para) in paras.iter().enumerate() {
@@ -224,7 +225,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                 let same_page = previous.is_some_and(|previous| previous.setup == section.setup)
                     && section.kind == SectionStart::Continuous
                     && flow.page.size == section.setup.size
-                    && flow.page.content_area == section.setup.content_area();
+                    && flow.page.content_area == flow.regions.section_body(section.setup);
                 if same_page && !flow.page.fragments.is_empty() {
                     self.balance_band(paras, sections, index, &mut flow);
                     let bottom = flow.used_bottom();
@@ -256,14 +257,14 @@ impl<M: FontMetrics> Engine<'_, M> {
                     if flow.page.fragments.is_empty() {
                         flow.reset_empty_page();
                         if previous.is_some() {
-                            let physical_page = flow.pages.len() + 1;
+                            let physical_page = flow.regions.physical_page_index() + 1;
                             let wrong_parity = match section.kind {
                                 SectionStart::EvenPage => !physical_page.is_multiple_of(2),
                                 SectionStart::OddPage => physical_page.is_multiple_of(2),
                                 _ => false,
                             };
                             if wrong_parity {
-                                flow.pages.push(flow.page.clone());
+                                flow.advance(true).expect("normal blank page flow");
                             }
                         }
                     }

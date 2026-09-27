@@ -132,7 +132,7 @@ impl ColumnLayout {
             "flow": "left-to-right; sequential document end; same-setup continuous sections close column groups and balance preceding multi-column content by source replay",
             "flowEvidence": "Mac Word 16.112.3 print, compatibility mode 15, controlled Times New Roman probes; shared behavior on other platforms and views is inferred",
             "rounding": "equal widths distribute remainder twips from left to right (host policy)",
-            "areasScope": "section body templates; actual page column-group regions are recorded on each page",
+            "areasScope": "section body templates before physical-page mirroring; actual regions are stored in Page.columns and emitted in JSON for pages with multiple regions",
             "areas": areas.iter().map(|area| json!({
                 "x": area.x, "y": area.y, "width": area.width, "height": area.height,
             })).collect::<Vec<_>>(),
@@ -212,10 +212,17 @@ pub struct LayoutDocument {
     pub diagnostics: Vec<String>,
     /// Original parser diagnostics, separate from layout diagnostics and unchanged.
     pub source_warnings: Vec<Value>,
+    mirror_margins: Option<bool>,
     overrides: PageOverrides,
 }
 
 impl LayoutDocument {
+    /// Declared document switch. Missing or invalid input is `None`; only an
+    /// explicit true swaps the template's side margins on physical pages 2, 4, ...
+    pub fn mirror_margins(&self) -> Option<bool> {
+        self.mirror_margins
+    }
+
     /// Apply diagnostic overrides to every section, atomically. Unspecified
     /// fields retain earlier overrides; content width wins over side margins.
     pub fn apply_page_overrides(&mut self, overrides: PageOverrides) -> Result<(), String> {
@@ -274,6 +281,14 @@ impl LayoutDocument {
             "skippedBlocks": self.skipped_blocks,
             "diagnostics": self.diagnostics,
             "sourceWarnings": self.source_warnings,
+            "mirrorMargins": {
+                "declared": self.mirror_margins,
+                "enabled": self.mirror_margins == Some(true),
+                "policy": "swap template left/right margins on physical pages 2, 4, ... after geometry overrides; blank pages count; page-number labels do not control mirroring",
+                "geometryScope": "section margins and column areas are templates; actual geometry is stored in Page.content_area and Page.columns; JSON exposes glyph positions and column rectangles for pages with multiple regions",
+                "gutterPolicy": "mirrorMargins suppresses gutterAtTop; retain existing side-gutter composition before swapping; rtlGutter with nonzero gutter is an unmeasured combination, not a verified Word precedence rule",
+                "evidence": "OOXML physical-page contract; synthetic integration tests, not a Word capture",
+            },
             "paragraphMarks": {
                 "layoutPolicy": "independent font/rise painting requires resolved Latin font, positive u32 size and valid position/vertAlign; effective six-digit RGB and auto color apply independently (auto uses the black host fallback); missing, invalid or theme colors use legacy paint fallback; visibility and vertical metrics retain legacy behavior",
                 "paragraphs": self.paras.iter().enumerate().map(|(index, para)| json!({
@@ -370,7 +385,7 @@ fn section_setup(props: &Value, settings: &Value) -> (PageSetup, Vec<&'static st
         *target = dimension(&value, *target, field, false, &mut fallback);
     }
     let gutter = dimension(&margins["gutter"], 0, "gutter", false, &mut fallback);
-    let target = if settings["gutterAtTop"] == true {
+    let target = if settings["gutterAtTop"] == true && settings["mirrorMargins"] != true {
         &mut setup.margins.top
     } else if props["rtlGutter"] == true {
         &mut setup.margins.right
@@ -496,6 +511,12 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
         prefix.push(prefix.last().copied().unwrap_or(0) + usize::from(block["kind"] == "text"));
     }
     let mut diagnostics = Vec::new();
+    let mirror_margins = doc["settings"].get("mirrorMargins").and_then(|value| {
+        if !value.is_boolean() {
+            diagnostics.push(format!("mirrorMargins requires a boolean; cannot interpret {value}; mirroring is inactive"));
+        }
+        value.as_bool()
+    });
     let mut sections = Vec::new();
     let raw_sections = doc["sections"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let mut covered = 0usize;
@@ -515,6 +536,12 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             break;
         }
         let props = &raw["props"];
+        if mirror_margins == Some(true)
+            && props["rtlGutter"] == true
+            && props["pageMargins"]["gutter"].as_i64().is_some_and(|gutter| gutter > 0)
+        {
+            diagnostics.push(format!("section {}: mirrorMargins with rtlGutter and nonzero gutter retains existing side-gutter composition before mirroring; this combination is not Word-measured and its precedence is unresolved", sections.len()));
+        }
         let kind = match props["kind"].as_str().unwrap_or("nextPage") {
             "continuous" => SectionStart::Continuous,
             "evenPage" => SectionStart::EvenPage,
@@ -564,10 +591,6 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             grid: DocumentGrid::default(),
             fallback_fields,
         }];
-    }
-    if doc["settings"]["mirrorMargins"] == true {
-        diagnostics
-            .push("mirrorMargins: alternating inner/outer margins are not yet implemented".into());
     }
     for pair in sections.windows(2) {
         if matches!(
@@ -621,6 +644,7 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
         skipped_blocks,
         diagnostics,
         source_warnings: doc["warnings"].as_array().cloned().unwrap_or_default(),
+        mirror_margins,
         overrides: PageOverrides::default(),
     }
 }

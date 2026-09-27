@@ -1922,7 +1922,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
     /// 把段落序列排成页面。
     pub fn layout(&self, paras: &[Para]) -> Vec<Page> {
-        self.layout_sections(paras, &[])
+        self.layout_sections(paras, &[], false)
     }
 
     /// Format the projected main story using each section's page geometry.
@@ -1936,7 +1936,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             view: self.view,
             compatibility: document.compatibility,
         }
-        .layout_sections(&document.paras, &document.sections)
+        .layout_sections(&document.paras, &document.sections, document.mirror_margins() == Some(true))
     }
 
     /// 把一行放到页面上，处理水平对齐。
