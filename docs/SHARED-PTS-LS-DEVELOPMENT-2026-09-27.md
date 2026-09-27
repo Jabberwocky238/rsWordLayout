@@ -283,6 +283,8 @@ LOGFONT 原始输出；Lao 的度量反例及六字体相同的默认 charset �
 
 **状态：有效 widowControl、keepNext 链和硬分页优先已实现。**
 实现与证据范围见 [段落保留进展](PARAGRAPH-FLOW-2026-09-27.md)。
+同节同区域相邻段的非负段距已改为取较大值，实际推进、keep 预留和栏平衡试排保持一致；
+负段距与分节边界保留旧行为，见[段距折叠](PARAGRAPH-SPACING-2026-09-27.md)。
 原 DOCX 配本机 Calibri 复现报告 CP，但缺少原始 widow/keep 采集日志；
 复杂链和环绕组合按合成回归标注，不能宣称所有 Word 保留约束已对齐。
 

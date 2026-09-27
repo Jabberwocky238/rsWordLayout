@@ -1537,6 +1537,16 @@ fn lines_extent<'a>(lines: impl Iterator<Item = &'a PendingLine>) -> VerticalExt
     lines.fold(VerticalExtent::default(), |extent, line| extent.then(line.vertical))
 }
 
+/// Adjacent nonnegative paragraph spaces overlap. Preserve the existing signed
+/// displacement when either value is negative; it is not a collapsible gap.
+fn paragraph_gap_fine(after: Twips, before: Twips) -> i64 {
+    if after >= 0 && before >= 0 {
+        fine(after.max(before))
+    } else {
+        fine(after) + fine(before)
+    }
+}
+
 /// 模拟哪个平台上的 Word。
 ///
 /// 同一份文档在 Mac Word 与 Android Word 上有几条规则实测相反，而两边的夹具形状一样
@@ -1748,7 +1758,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut index = index;
         while Self::keep_link(paras, sections, index) {
             let next = &paras[index + 1];
-            let gap = (i64::from(paras[index].space_after) + i64::from(next.space_before)) * FINE_PER_TWIP;
+            // Section transitions can open a new band or defer new geometry.
+            // Keep their existing additive spacing even when keepNext crosses.
+            let gap = if sections.iter().any(|s| s.para_range.start == index + 1) {
+                fine(paras[index].space_after) + fine(next.space_before)
+            } else {
+                paragraph_gap_fine(paras[index].space_after, next.space_before)
+            };
             let advance = extent.map_or(0, |extent| extent.advance_fine) + gap;
             let lines = self.break_paragraph(next, area, origin + advance, source);
             let segment_len = lines.iter().position(|l| l.flow_break.is_hard()).map_or(lines.len(), |i| i + 1);

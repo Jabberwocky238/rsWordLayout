@@ -22,6 +22,10 @@ struct Flow {
     cursor_fine: i64,
     required_bottom: i64,
     previous_bottom: i64,
+    // Already consumed after-space of the paragraph completed in this section
+    // and region.
+    // A document predecessor alone cannot establish adjacency after a flow break.
+    paragraph_after: Option<Twips>,
     replay: Option<ReplayStart>,
     trial_bottom: Option<i64>,
     next_bottom: Option<i64>,
@@ -42,6 +46,7 @@ impl Flow {
             cursor_fine: top,
             required_bottom: top,
             previous_bottom: top,
+            paragraph_after: None,
             replay: None,
             trial_bottom: None,
             next_bottom: None,
@@ -58,6 +63,9 @@ impl Flow {
             cursor_fine: start.top_fine,
             required_bottom: top,
             previous_bottom: top,
+            // The replay origin already includes the first paragraph's before
+            // space. Its resumed formatter must not consume that space again.
+            paragraph_after: None,
             replay: None,
             trial_bottom: Some(bottom),
             next_bottom: None,
@@ -104,6 +112,7 @@ impl Flow {
         self.cursor_fine = top;
         self.required_bottom = top;
         self.previous_bottom = top;
+        self.paragraph_after = None;
         self.replay = None;
     }
 
@@ -118,6 +127,7 @@ impl Flow {
         if new_page && self.trial_bottom.is_some() {
             return Err(());
         }
+        self.paragraph_after = None;
         self.previous_bottom = self.previous_bottom.max(self.cursor_fine);
         self.regions.advance(
             &mut self.pages,
@@ -301,6 +311,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                 flow.cursor_fine = trial.cursor_fine;
                 flow.required_bottom = trial.required_bottom;
                 flow.previous_bottom = trial.previous_bottom;
+                flow.paragraph_after = trial.paragraph_after;
                 return;
             }
             let Some(next) = trial.next_bottom else {
@@ -392,10 +403,18 @@ impl<M: FontMetrics> Engine<'_, M> {
                 .sum::<u32>()
             + 1;
         if resume.is_none() {
+            // Preserve section-boundary spacing, including continuous sections
+            // whose geometry is deferred until a later physical page.
+            if sections.iter().any(|s| s.para_range.start == index) {
+                flow.paragraph_after = None;
+            }
             if para.page_break_before && !flow.page.fragments.is_empty() {
                 flow.advance(true)?;
             }
-            flow.cursor_fine += fine(para.space_before);
+            flow.cursor_fine += flow.paragraph_after.take().map_or(
+                fine(para.space_before),
+                |after| paragraph_gap_fine(after, para.space_before) - fine(after),
+            );
         }
         let mut area = flow.regions.area();
         let start = resume.unwrap_or(LineCursor {
@@ -569,6 +588,10 @@ impl<M: FontMetrics> Engine<'_, M> {
             }
         }
         flow.cursor_fine += fine(para.space_after);
+        // A final hard break may have opened an empty region. Its paragraph did
+        // not finish there, so the following before-space cannot collapse here.
+        flow.paragraph_after = (!flow.regions.is_empty(flow.line_index))
+            .then_some(para.space_after);
         Ok(())
     }
 }
