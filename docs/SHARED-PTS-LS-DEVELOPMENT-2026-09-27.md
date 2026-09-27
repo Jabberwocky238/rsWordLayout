@@ -52,6 +52,8 @@ Android 的 `ptls7/ls`、`ptls7/pts` 字符串、回调族，以及 LS 产行、
 3. `PendingLine.vertical` 已区分游标推进与最大占高，分页和保留约束共用组合规则。
    现有无网格行仍产生相等数值，尚未引入网格阈值，见 [纵向度量](LINE-VERTICAL-METRICS-2026-09-27.md)。
    段内环绕查询已统一使用实际精细推进；连续栏组预排保留精细顶部，避免逐行或栏顶舍入改变断行。
+   最终行顶、推进、占高和量化前后基线也已保留到诊断轨迹；exact 的旧 ascent 定位仍有明确反例，
+   见 [证据边界与后续探针](EXACT-VERTICAL-EVIDENCE-2026-09-27.md)。
 
 先修改现有模块。到第 3 片确实需要续排状态时，再将相关私有实现提取到
 `crates/core/src/layout/line.rs` 和 `layout/flow.rs`；保留 `Engine` 及 `lib.rs` 的公开出口。

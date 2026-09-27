@@ -95,3 +95,27 @@ Android 11 份旧采集仍为 186/186 条件源行区间匹配。Mac 仍为 25 F
 `5c294f208de42846b75cfe61e6681f526fca0d09048c633efda378d807e2fc22`。
 328 个文件的清单 `durable-hashes.json` SHA-256 为
 `6953b3fdcc701a8245f432be583113c5b39d4b95d8d592673bd244c52d4acd62`。
+
+## 后续：保留最终纵向落位诊断
+
+提交 `2e8e088` 将最终行顶、推进、占高、量化前基线偏移及量化后绝对基线，以整数
+1/7200 英寸保存在 `LinePlacement`。它按页内行号穿过布局、绘制与轨迹层，输出为
+`engineVerticalDiagnostic`；手工页面缺少这些记录时输出 null，不从字形坐标反推。
+值在 run/mark 位移及整形偏移之前记录，试排随整个页面克隆并在失败时丢弃。
+这为后续 exact/docGrid 修正提供可核对输入，没有修改现行行度量公式。
+
+公开 `Page` / `PaintPage` 字面量需提供 `line_placements`，手工构造可用空 Vec；
+`LineRecord` 新增可空 `placement`。既有构造函数及 `LineRecord::default()` 会保留未知状态。
+`required` 是引擎用于放置判断的预留量，不是实测 Word 行盒或字形墨迹边界。
+新字段不参与 Word 验收；具体反例与证据限制见
+[exact 纵向复核](EXACT-VERTICAL-EVIDENCE-2026-09-27.md)。
+
+workspace/fontenv 回归 78 组、605 项通过、12 项忽略，Clippy 全目标通过。
+随后加强同页已有单栏前缀、后组双栏平衡及再转单栏的测试，5 项定向测试全部通过。
+Android 11 份旧采集仍为 186/186 条件源区间匹配。25 份 Mac 轨迹的 3834 行均带完整
+精细诊断；只移除该新增字段后，旧完整页面内容逐项相同。没有新增 Word 读数，也没有
+把既有几何失败改成通过。验证产物位于 `artifacts/line-placement-2026-09-27/`。
+118 个文件的冻结清单 SHA-256 为
+`602d459ecc5a96984233cbffcbc27974a9a78351ede3126c02485282079ff796`；
+Mac 完整旧字段比较报告 SHA-256 为
+`731e2705e9494ede5fbe71e1ae2dea204c7d0d4db4336261ba36677583c3eddf`。
