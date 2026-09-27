@@ -90,6 +90,20 @@ grid H = V[1] + max(V[0], conditional content-info+40)
 的生产者仍未闭合。`LsCreateLine` 直接填充 R+48 的调用以及两处
 `LsGetLineBreaks` 后复制完整 88 字节的路径，独立支持这一记录身份。
 
+续查把该 content-info 对象具体绑定到 `LsCreateLineCore` 的局部 I=SP+124，
+format context X=SP+e8 的首个指针指向 I。调用 `LsFillLineInfoFromLine` 时 x4
+仍来自这个局部地址。`LsFormatMainLine` 的 `0x1ce28..3c` 通过 X[0] 清零
+I+0..6b，因此包含 I40；此后 I 随格式化与断行调用继续传递，清零不代表最终值。
+普通文本、定位及三条断行路径的已查函数尚未提供有实际 I 别名支持的非零 I40
+生产者。候选扫描只按指令寻址生成线索，不证明全部别名或调用树均无写入。
+
+还找到了条件启用位的来源入口：已冻结 `LsSetLineProperties` 在 `0x9c00c`
+读取输入 lslinerestr.byte20 的 bit7，置位时在 `0x9c018..1c` 设置
+formatprop+58 的 bit12。Core 随后在 `0x1b418..434` 将这个 bit 作为 content
+enabled 参数传入填充函数。下一步可沿宿主实际 lslinerestr 输入追该标志，
+尚未证明样本文档启用或关闭它。完整对象链与调查边界见
+[content-info README](../artifacts/docgrid-content-info-inputs-2026-09-27/README.md)。
+
 ## Mac 字体 API 的独立证据
 
 WLM 的 `GetTextMetricsW` 填充阶段可以具名确认：+4 为 ascent、+8 为 descent、
@@ -331,6 +345,7 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 | docgrid-font-face-inputs-2026-09-27/ | 37 | `3b3c4a2e298786e456c640edb31818a2acf13216c1d4bf9cd916fb11b800a3b5` |
 | docgrid-font-request-size-2026-09-27/ | 31 | `78a5e6eec51a8875e50ae64280c9eeccae68421424eaa167785694f037a5b3da` |
 | docgrid-adjusted-font-metrics-2026-09-27/ | 33 | `3fd1611a399f9a2e4fda5f3167b56d1e1c0e437b21c1f30c1fc10bddaed90ed2` |
+| docgrid-content-info-inputs-2026-09-27/ | 50 | `973a180874eb1a527adad68e94617b7ec1aba0ebc0c0e5b473f42fbf5968b724` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -353,6 +368,9 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 尚未等同的限定已在冻结前补齐。旧 176 个证据文件保持原哈希。
 构造后调整片核对 20 个完整函数、21 个既有 fixup 与 172 个旧证据文件；33 文件
 清单通过。独立复核纠正了 F/C 对象身份和补偿 gate 的寄存器来源，冻结前均已补齐。
+content-info 续查核对十份采集、16 个完整函数、八条直接引用及两类有界候选查询；
+旧两包 112 个成员未改变，50 文件清单通过。对象地址、初始清零、读取 gate 和
+后续待查边已经复核；候选数量不作为最终值为零或完整调用树无写入的证据。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
