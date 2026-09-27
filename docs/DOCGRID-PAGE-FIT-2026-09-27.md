@@ -29,7 +29,7 @@ keepNext、keepLines、widowControl 均显式 false。单栏，兼容模式 15�
 ```sh
 python3 -B tools/measure/make_docgrid_page_fit_fixture.py --out NEW_DIRECTORY
 python3 -B tools/measure/make_docgrid_page_fit_fixture.py --check EXISTING_DIRECTORY
-PYTHONPATH=tools/measure python3 -m pytest -q tools/measure/tests/test_docgrid_page_fit_fixture.py
+PYTHONPATH=tools/measure tools/measure/.venv/bin/python -m pytest -q tools/measure/tests/test_docgrid_page_fit_fixture.py
 ```
 
 生成拒绝已有目录；检查仅只读核验确定性包字节、XML 属性顺序、字体、页几何、源 CP
@@ -50,3 +50,47 @@ PDF 字形原点仍不代表行盒顶、底或占高；步长、首行位置和�
 
 本片与 [网格原点证据](DOCGRID-WORD-EVIDENCE-2026-09-27.md) 共同约束后续算法。
 原生分量的单位、首末行裁剪与实际行高仍需逐项映射，不把取整步长自动复制到占高。
+
+## 采集结果与自适应细化
+
+11 份初始输入已在 Mac Word 16.112.3 / 16.112.26083020 完成采集，实际 PDF 共 16 页。
+全部 660 源 CP、132 段落和标记、实际字体/字号、所有 PDF 页与双次原生扫描核验通过。
+表中两页的分配均为 G000..G010 / G011，对应 CP `[0,55)` / `[55,60)`；一页则为
+全部 G000..G011、CP `[0,60)`。
+
+| 网格 | 正文高度（twips） | 实际页数 | 标签分配 |
+| --- | --- | --- | --- |
+| pitch 360 | 4200、4240、4260 | 2 | 11+1 |
+| pitch 360 | 4280、4300、4320、4360 | 1 | 12 |
+| 未声明 | 3300、3310 | 2 | 11+1 |
+| 未声明 | 3320、3340 | 1 | 12 |
+
+初始结果夹住网格组 `(4260,4280]` 与无网格组 `(3310,3320]` 的本组容纳变化。
+在看到这个结果后，又选择了同一网格源契约的 4267、4268、4277、4278、4279 五点。
+这是自适应细化，不称为原始盲测。它没有修改初始生成器、输入、结果或公式预期。
+追加源 manifest SHA-256：
+`7cb9c117065469dd229cd4496526ab5d29c349359bc4dcb4456d54b5c0416e84`，目录
+`artifacts/docgrid-page-fit-refine-source-2026-09-27/`。
+
+追加结果：4267、4268、4277 均为两页 11+1；4278、4279 均为一页 12。
+因此 **本组相邻观测边界缩至 `(4277,4278]` twips**。追加的 300 源 CP、60 段落和
+标记、8 个实际 PDF 页全部核验通过。4277 中末段 G011 位于第二页，4278 中该段位于
+第一页；其源 CP `[55,60)` 在两种情况都完整保留。网格首原点仍约 49.44 pt，
+一页容纳时第 12 行原点约 247.44 pt，原始浮点坐标未调相或改写。
+
+这些数据已排除“本组必须有 12 个完整 360-twip 步长，即 4320 twips 才能容纳”的
+判断。它们没有单独证明每行 required 的公式、内部尺度、末行被减去哪个分量或
+其它字体的行为。必须继续与原生整数分量及更多 pitch 控制共同检验。
+
+冻结材料：
+
+| 批次 | 目录（均在 artifacts/） | durable-hashes.json SHA-256 |
+| --- | --- | --- |
+| 初始 11 份，600 文件 | docgrid-page-fit-word-2026-09-27/ | `5069ab27b3c38881233b560046e268d53102b93906f4e90cf7508c5a866f325d` |
+| 细化 5 份，270 文件 | docgrid-page-fit-refine-word-2026-09-27/ | `91a829f68d62f2f7b01c3d94f06b56aeeb7c3f215fcd51108543cc9e967d9dca` |
+
+每份文档在采集后均无保存关闭，并确认 Word 文档/窗口清单为 0/0。两批共 176 个
+Word 事件退出码均为 0；实际文件授权只授予对应的完整单文件路径。初始采集前遇到
+再次锁屏，用户明确回复“已解锁，继续采集”后才重新核对并开始操作。后续另批采集
+不改变以上冻结集。原始 PDF 提取器仍标为 UNCALIBRATED，lineBaseline 为空；
+这里报告的字形原点不能冒充原生行盒边界。
