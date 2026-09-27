@@ -129,6 +129,7 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         italic,
         letter_spacing: run_letter_spacing(props),
         scale_pct: run_scale_pct(props),
+        auto_space_dn: true,
         caps: read_caps(props),
         kerning: kern_threshold > 0 && size_centipoints >= kern_threshold.saturating_mul(50),
     }.with_size_centipoints(size_centipoints)
@@ -783,6 +784,12 @@ pub(crate) fn project_paragraphs(
         let props = effective
             .and_then(|e| node_props(block, &e.paras))
             .unwrap_or(direct_props);
+        // Native JSON uses camelCase Rust field names, not the XML acronym.
+        // Resolve at paragraph scope, including the synthesized empty run.
+        let auto_space_dn = props.get("autoSpaceDn").and_then(Value::as_bool).unwrap_or(true);
+        for run in &mut runs {
+            run.font.auto_space_dn = auto_space_dn;
+        }
         let (indent_left, indent_right, indent_first_line) = read_indent(props);
         let (line_rule, line_value, space_before, space_after) =
             read_spacing(props, before, after);

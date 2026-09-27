@@ -79,7 +79,9 @@ impl FontMetrics for SimpleMetrics {
             advance = ((i64::from(advance) * i64::from(font.scale_pct)) / 100) as Twips;
         }
         advance += (slots as Twips) * font.letter_spacing;
-        advance += super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints());
+        if font.auto_space_dn {
+            advance += super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints());
+        }
 
         TextMetrics {
             advance,
@@ -99,8 +101,11 @@ impl FontMetrics for SimpleMetrics {
         if font.scale_pct != 100 && font.scale_pct > 0 {
             advance *= f64::from(font.scale_pct) / 100.0;
         }
-        advance + slots as f64 * f64::from(font.letter_spacing) / 20.0
-            + super::linebreak::autospace_dn_pt(text, font.size_pt())
+        advance += slots as f64 * f64::from(font.letter_spacing) / 20.0;
+        if font.auto_space_dn {
+            advance += super::linebreak::autospace_dn_pt(text, font.size_pt());
+        }
+        advance
     }
 
     fn natural_height_fine(&self, _text: &str, font: &FontSpec) -> i64 {

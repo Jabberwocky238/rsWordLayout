@@ -39,6 +39,11 @@ pub struct FontSpec {
     pub letter_spacing: Twips,
     /// `w:w`：横向缩放百分比，100 为原始。
     pub scale_pct: u32,
+    /// Resolved paragraph `w:autoSpaceDN` condition for this measurement request.
+    /// Built-in providers retain their existing ideograph/ASCII-digit spacing
+    /// when true and omit it when false. This is not a run font declaration;
+    /// other providers remain responsible for their own spacing policy.
+    pub auto_space_dn: bool,
     /// `w:caps` / `w:smallCaps`：显示时的大小写变换。
     ///
     /// 放在这里而不是改 `Run::text`，是因为它**影响度量但不改原文**：
@@ -229,6 +234,7 @@ impl FontSpec {
             italic: false,
             letter_spacing: 0,
             scale_pct: 100,
+            auto_space_dn: true,
             caps: Caps::None,
             kerning: false,
         }

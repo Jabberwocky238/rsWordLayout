@@ -1406,8 +1406,10 @@ impl LineTail {
         rise_fine: i64,
     ) -> Self {
         let (font, rise_fine) = if para.terminator == crate::oracle::LineTerminator::ParagraphMark
-            && let Some(style) = para.mark.paint_style()
+            && let Some(mut style) = para.mark.paint_style()
         {
+            // Autospace is a paragraph measurement condition, not mark rPr.
+            style.font.auto_space_dn = font.auto_space_dn;
             (style.font, style.rise_fine)
         } else {
             (font.clone(), rise_fine)

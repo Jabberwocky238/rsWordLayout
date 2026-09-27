@@ -488,3 +488,115 @@ fn empty_and_fully_hidden_paragraphs_keep_legacy_height_but_paint_independent_ma
         );
     }
 }
+
+fn autospace_disabled_para(text: &str, mark_props: &Value) -> Para {
+    let body = style("Body Font", 24, 0);
+    let document = document_from_json(&json!({"main": [{"kind": "text",
+        "props": {"autoSpaceDn": false},
+        "inlines": [{"kind": "run", "text": text, "props": body}]
+    }]}));
+    marked(document.paras[0].clone(), mark_props)
+}
+
+#[test]
+fn same_style_mark_preserves_the_disabled_paragraph_condition_and_shaping_group() {
+    let props = style("Body Font", 24, 0);
+    let input = autospace_disabled_para("fi", &props);
+    let pages = layout(std::slice::from_ref(&input));
+    let texts = fragments(&pages);
+    assert_eq!(texts.len(), 1);
+    assert_eq!(texts[0].text, "fi ");
+    assert_eq!(texts[0].source, Some((0, 3)));
+    assert_eq!(texts[0].font, input.runs[0].font);
+    let shaper = RecordingShaper::default();
+    paint_document(&pages, Some(&shaper), &["synthetic".into()]);
+    let calls = shaper.0.borrow();
+    assert_eq!(calls.len(), 1);
+    assert_eq!(calls[0].0, "fi ");
+    assert!(!calls[0].1.auto_space_dn);
+}
+
+#[test]
+fn independent_mark_keeps_its_paint_style_and_the_disabled_paragraph_condition() {
+    let mut props = style("Mark Font", 48, 8);
+    props["color"] = json!({"val": "FF0000"});
+    let input = autospace_disabled_para("fi", &props);
+    let mark_properties = input.mark.clone();
+    let pages = layout(std::slice::from_ref(&input));
+    assert_eq!(fragments(&pages).len(), 2);
+    let body = fragment(&pages, (0, 2));
+    let mark = fragment(&pages, (2, 3));
+    assert!(!body.font.auto_space_dn);
+    assert!(!mark.font.auto_space_dn);
+    assert_eq!(body.font.family, "Body Font");
+    assert_eq!(mark.font.family, "Mark Font");
+    assert_eq!(mark.font.effective_size_centipoints(), 2400);
+    assert_eq!(mark.rise_fine, 400);
+    assert_eq!(mark.color, Color::rgb(255, 0, 0));
+    assert_eq!(mark.x_pt, SimpleMetrics.advance_pt("fi", &body.font));
+    assert_eq!(mark.baseline_fine, body.baseline_fine - 400);
+    assert_eq!(input.mark, mark_properties);
+    let shaper = RecordingShaper::default();
+    paint_document(&pages, Some(&shaper), &["synthetic".into()]);
+    let calls = shaper.0.borrow();
+    assert_eq!(
+        calls
+            .iter()
+            .map(|(text, _)| text.as_str())
+            .collect::<Vec<_>>(),
+        ["fi", " "]
+    );
+    assert!(calls.iter().all(|(_, font)| !font.auto_space_dn));
+}
+
+#[test]
+fn control_tails_keep_the_disabled_paragraph_condition_without_losing_source_boundaries() {
+    for (kind, same_style) in [
+        (P::PageBreak, true),
+        (P::PageBreak, false),
+        (P::LineBreak, true),
+        (P::LineBreak, false),
+    ] {
+        let props = if same_style {
+            style("Body Font", 24, 0)
+        } else {
+            style("Mark Font", 48, 8)
+        };
+        let mut input = autospace_disabled_para("fi\u{fffc}", &props);
+        input.runs[0].placeholders = vec![kind];
+        let pages = layout(&[input]);
+        let texts = fragments(&pages);
+        assert!(texts.iter().all(|text| !text.font.auto_space_dn));
+        if kind == P::PageBreak {
+            assert_eq!(lines(&pages), [(0, 0, 4, T::PageBreak(B::BeforeMark))]);
+            if same_style {
+                assert_eq!(texts.len(), 1);
+                assert_eq!(texts[0].text, "fi  ");
+                assert_eq!(texts[0].source, Some((0, 4)));
+            } else {
+                assert_eq!(fragment(&pages, (0, 3)).text, "fi ");
+                assert_eq!(fragment(&pages, (3, 4)).font.family, "Mark Font");
+            }
+        } else {
+            assert_eq!(
+                lines(&pages),
+                [(0, 0, 3, T::LineBreak), (0, 3, 4, T::ParagraphMark)]
+            );
+            assert_eq!(fragment(&pages, (0, 3)).text, "fi ");
+            assert_eq!(fragment(&pages, (3, 4)).text, " ");
+            assert_eq!(
+                fragment(&pages, (3, 4)).font.family,
+                if same_style { "Body Font" } else { "Mark Font" }
+            );
+        }
+        let shaper = RecordingShaper::default();
+        paint_document(&pages, Some(&shaper), &["synthetic".into()]);
+        assert!(
+            shaper
+                .0
+                .borrow()
+                .iter()
+                .all(|(_, font)| !font.auto_space_dn)
+        );
+    }
+}
