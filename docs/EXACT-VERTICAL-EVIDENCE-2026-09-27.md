@@ -436,3 +436,30 @@ are terminal with process return code zero; final inventory is 0/0.
 Each case has one PDF export, so two CP scans establish source-scan stability,
 not repeated-export stability. This single-page ASCII batch does not validate
 pagination, mixed scripts, docGrid or a generalized baseline algorithm.
+
+An independent comparator rechecked the final 631-file Word manifest and all
+consumed inputs after reading, binding 12 cases, 42 source rows, 41 nonempty
+labels and 164 body glyphs through unique label text, geometric rows and both
+native CP receipts. Actual PostScript names were checked against the hash-bound
+TTF name tables. All bindings passed; this is not a passing engine geometry
+verdict. The comparator kept 42 nonbody glyphs unassigned and qualified 41
+same-row trailing spaces as local control candidates. It did not force the
+empty first mark into a body-label correspondence or reuse ordinal pairing.
+
+At either fixed mark size, the exact480 body12-to24 intervention moves the
+engine's E000 origin by +11.28 pt while Word's change is zero. At either fixed
+body size, the mark-size intervention has zero Word origin change. The engine
+errors for these first probes are -8.16 pt at body12 and +3.12 pt at body24;
+exact218 errors are +2.40 and +13.68 pt. These are reported errors, not proposed
+correction constants. At 481 twips the engine shares the local delayed phase
+change but retains its origin error. No formula was fitted in this comparison.
+
+The final report is
+`artifacts/exact-canonical-comparison-results-2026-09-27/comparison-run-02.json`,
+SHA-256 `8a283ec671c137ed0dbccb1aa0ced3f10e42710148bf02e972ee63cdee367ec3`.
+Its ten-file `SHA256SUMS` has SHA-256
+`c1d1e2c46b1a19d2df6b53ff0cce502d2c00c2d4f5a25cc59a78dec7d6ef2b75`.
+The earlier preparation plan, eight synthetic binding checks, both actual
+reader runs and their unchanged direct intervention values are retained.
+The subsequent fine-ascent transport change preserves all twelve complete
+engine traces, so these counterexamples remain current.
