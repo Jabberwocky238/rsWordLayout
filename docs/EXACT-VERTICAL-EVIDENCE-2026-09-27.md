@@ -92,7 +92,8 @@ that changing required extent does not move glyphs.
 ## Canonical discriminating inputs
 
 [`fixtures/exact-vertical-canonical-2026-09-27/`](../fixtures/exact-vertical-canonical-2026-09-27/README.md)
-contains 12 deterministic, still UNMEASURED inputs. Its manifest SHA-256 is
+contains 12 deterministic inputs, initially UNMEASURED and subsequently captured
+in the independent batch recorded below. Its manifest SHA-256 is
 `d538d7798687c9b20fd633083ee0d5a2159430a145b3a1ca5fd96ecef74b22eb`.
 `tools/measure/make_exact_vertical_fixture.py --check DIRECTORY` independently
 walks package XML and source offsets, and compares the deterministic bytes.
@@ -374,3 +375,64 @@ assumptions, exclusive-output evaluator and all row results. Its four-file
 The first reader invocation stopped before output on a misspelled JSON key;
 fixing it did not alter either declared formula. Source and prior frozen
 capture bindings were rechecked. No production rule changed.
+
+## Canonical Word capture: independent body and mark interventions
+
+All 12 new canonical inputs were captured on Mac Word 16.112.3 between
+2026-09-27 05:05:55 and 05:11:24 UTC. The original source manifest is unchanged.
+Each case has its actual PDF, unchanged DOCX, exact native content/paragraph
+ranges, two complete CP scans, font preflight, per-CP PDF font/size/rise audit,
+and source/PDF hashes. All 206 source units, including 40 paragraph marks and
+two soft returns, are accounted for. All cases are one page; there are 42
+native lines in total. Each owned document was closed without saving and
+followed by an empty native document/window inventory.
+
+These are raw PDF glyph origins, presented to two decimal places. The extractor
+still reports `UNCALIBRATED` and no measured `lineBaseline`; do not reinterpret
+the readings as line boxes, required extent or ink clipping. All labels have
+x=36 pt, and all audited glyph rise values are zero.
+
+| Controlled input | Probe glyph y (pt) | R001 / R002 y (pt) |
+| --- | --- | --- |
+| exact480, all four body12/24 x mark12/24 combinations | E000 55.20 | 79.20 / 103.20 |
+| exact480, Arial12 body / TNR12 mark | E000 55.20 | 79.20 / 103.20 |
+| exact218, body/mark both12 or both24 | E000 44.64 | 66.00 / 90.00 |
+| exact480, three paragraphs | E000/E001/E002 55.20 / 79.20 / 103.20 | 127.20 / 151.20 |
+| exact480, two soft returns within one paragraph | E000/E001/E002 55.20 / 79.20 / 103.20 | 127.20 / 151.20 |
+| exact481, three probe paragraphs | E000/E001/E002 55.20 / 79.20 / 103.20 | 127.44 / 151.44 |
+| exact480, empty first paragraph | CP0 mark 55.20; no E000 label | 79.20 / 103.20 |
+| exact480, top margin721 instead of720 twips | E000 55.20 | 79.20 / 103.20 |
+
+The independent 2x2 size inputs resolve the earlier confounding: actual body
+and mark sizes each change in the PDF, but neither intervention changes these
+origins. Arial changes the actual body font while the mark remains TNR; the
+origins still agree. These controlled cases contradict the current maximum-run
+ascent placement and do not support attributing the offset to mark size alone.
+They do not establish a universal font-independent formula or a replacement
+scalar rule. The earlier scalar counterexamples remain failures.
+
+The soft-return and paragraph cases have different source controls and native
+paragraph counts; their equal label origins are a measured comparison, not an
+assumption that the source structures are equivalent. The 481 case affects only
+the three probe paragraphs; both references retain exact480. Its delayed
+0.24 pt difference is not interpreted as a measured unquantized advance.
+The empty paragraph's control is bound only after checking the entire ASCII
+PDF stream against the exact source, one whitespace per declared CR/VT, with
+independent unique-label/CP/native-scan checks. No glyph ordinal is treated as
+source identity without those checks.
+
+The final batch is `artifacts/exact-vertical-word-continuation2-2026-09-27/`.
+Its 631-file `durable-hashes.json` has SHA-256
+`2e4b62f80da009d26cfe16466102959863f70c468b914ecdee92c8fc04e9572b`;
+`offline-audit.json` has SHA-256
+`fa2acca8c821dba3102cc8381df3c19e704dc0022c543de5860c723a3692dbed`.
+All prior frozen capture files were rechecked unchanged. The two earlier
+pre-event stops and the first open's conservative UNCONFIRMED status remain
+recorded. After an exact-file access grant, the same already-open document
+was identified and resumed without repeating open. Each subsequent grant was
+limited to the matching owned file, with AX/path receipts. All 133 Word events
+are terminal with process return code zero; final inventory is 0/0.
+
+Each case has one PDF export, so two CP scans establish source-scan stability,
+not repeated-export stability. This single-page ASCII batch does not validate
+pagination, mixed scripts, docGrid or a generalized baseline algorithm.
