@@ -13,6 +13,8 @@
 
 from __future__ import annotations
 
+from bisect import bisect_right
+
 from . import OK, UNDECIDABLE, counting, pairing
 from .source_text import InvalidSourceOffset, SourceText
 
@@ -56,6 +58,57 @@ def lines_from_sweep(sweep: dict, *, source: SourceText | None = None) -> list[d
     for line in lines:
         line["text"] = source.slice(line["start"], line["end"])
     return lines
+
+
+def _line_ordinal_decreases(sweep: dict, lines: list[dict], source: SourceText) -> dict:
+    """Reject only decreases with unambiguous recorded paragraph ownership."""
+    paragraphs = sweep.get("paragraphs")
+    if not isinstance(paragraphs, list) or not paragraphs:
+        return {}
+    ranges = []
+    for index, paragraph in enumerate(paragraphs):
+        if not isinstance(paragraph, dict):
+            return {}
+        start, end = paragraph.get("start"), paragraph.get("end")
+        if type(start) is not int or type(end) is not int or not 0 <= start < end <= source.length:
+            return {}
+        try:
+            source.index(start)
+            source.index(end)
+        except InvalidSourceOffset:
+            return {}
+        ranges.append((start, end, index))
+    ranges.sort()
+    if any(left[1] > right[0] for left, right in zip(ranges, ranges[1:])):
+        return {}
+    starts = [start for start, _, _ in ranges]
+
+    def owner(at: int) -> tuple | None:
+        index = bisect_right(starts, at) - 1
+        return ranges[index] if index >= 0 and at < ranges[index][1] else None
+
+    issues: dict = {}
+    for previous, current in zip(lines, lines[1:]):
+        if previous["page"] != current["page"]:
+            continue
+        before, after = previous["line"], current["line"]
+        if type(before) is not int or type(after) is not int or after >= before:
+            continue
+        # One unchanged ordinal segment can cross paragraph boundaries.
+        # Compare ownership at the actual adjacent source units, not its start.
+        paragraph = owner(previous["end"] - 1)
+        if paragraph is None or paragraph != owner(current["start"]):
+            continue
+        issues.setdefault(current["page"], []).append({
+            "sourceOffset": current["start"],
+            "previousSourceOffset": previous["end"] - 1,
+            "previousLine": before,
+            "line": after,
+            "paragraphIndex": paragraph[2],
+            "paragraphStart": paragraph[0],
+            "paragraphEnd": paragraph[1],
+        })
+    return issues
 
 
 def line_marks(sweep: dict, line: dict, *, source: SourceText | None = None) -> dict[int, str] | None:
@@ -173,8 +226,20 @@ def build(bundle: dict) -> dict:
 
     out["state"] = OK
     counts = {"lines": 0, "ok": 0, "fail": 0, "undecidable": 0}
+    ordinal_issues = _line_ordinal_decreases(sweep, all_lines, source)
 
     for pdf_index, (word_page, pdf_page) in enumerate(zip(word_pages, pdf_pages)):
+        if word_page in ordinal_issues:
+            counts["undecidable"] += 1
+            out["pages"].append({
+                "index": pdf_index,
+                "wordPage": word_page,
+                "state": UNDECIDABLE,
+                "reason": "SOURCE_LINE_ORDINAL_DECREASE: same recorded paragraph and page",
+                "lineOrdinalIssues": ordinal_issues[word_page],
+                "lines": [],
+            })
+            continue
         page_lines = [l for l in all_lines if l["page"] == word_page]
         page_glyphs = pdf_page["glyphs"]
         marks = {i: m for i, l in enumerate(page_lines) if (m := all_marks[l["start"]]) is not None}

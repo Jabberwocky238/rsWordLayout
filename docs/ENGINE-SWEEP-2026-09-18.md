@@ -223,7 +223,7 @@ Word 侧 `breaks-sections` S2 实测跨节增量**精确为 0.00**（两对读�
 
 | | 结果 |
 | --- | --- |
-| ~~`page-start` 的行划分对不上~~ | **已解释**：行数不符的 12 页**全部**是声明东亚代码页的字体（BrushScriptMT ×6、AppleMyungjo ×6），行数对上的 18 页**一个都不是**。原因是引擎的自然行高少了 V25 那个 ×1.3 |
+| `page-start` 的行划分对不上 | **回测候选，机制未证**：本次旧表中 12 个差异页关联 BrushScriptMT 与 AppleMyungjo；V25 的 ×1.3 是相关性假说。2026-09-27 完整源区间审计确认当前为 18 个分页差异页，另含 ArialUnicodeMS，见[更新审计](STRUCTURAL-REPLAY-AUDIT-2026-09-27.md)；不能据此直接启用倍率 |
 | ~~`lineRule=auto` 的自然行高是哪组字体量~~ | **判了**：六个预注册候选**全部判假**；`PREREG-2026-09-18-auto-line.md` |
 | ~~CJK 一个读数都没有~~ | **采了**：`captures/cjk-plain-2026-09-18`，Z1/Z2/Z3/Z4 各自成立 |
 | ~~行首禁则从没被任何读数碰过~~ | **已确立**：`kinsoku` + `kinsoku2` 两批，各 4/4 |
@@ -241,7 +241,7 @@ Word 侧 `breaks-sections` S2 实测跨节增量**精确为 0.00**（两对读�
 | S-4 | 字体名是「族名 + 字样」时选不中 face | first-line / cursor-unit 两份排不出来 |
 | S-5 | 上下标字号落在整半点上 | probe-metrics P3/P4 各 0/6 |
 | S-6 | 跨节边界行距少一格 | probe-metrics P5 |
-| **S-7** | **`lineRule=auto` 的自然行高少了 V25 那个 ×1.3** | 东亚代码页字体上全中；`cjk-plain` 逐行 Δy 增量恰好等于 N7 − N1 |
+| **S-7** | **`lineRule=auto` 在若干字体上的自然行高偏低；V25 的 ×1.3 仍是回测候选** | 本批相关性及 `cjk-plain` 的增量支持继续核查；[原始判定](PREREG-2026-09-18-auto-line.md) §7.4 保留 7 个不成立页，不构成通用算法证明 |
 | **S-8** | **没有 `w:overflowPunct`（标点溢出边界）** | kinsoku：每条这样的行与 Word 差 2 个字符 |
 
 S-7 与 S-8 是 CJK 文档上仅有的两条。除它们之外，`cjk-plain` 上引擎的
