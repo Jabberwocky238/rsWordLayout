@@ -873,6 +873,9 @@ pub enum LineRule {
 #[derive(Debug, Clone)]
 pub struct Para {
     pub runs: Vec<Run>,
+    /// Independent native declaration and resolved properties of the paragraph mark.
+    /// See [`crate::ParagraphMarkProperties`] for the current application limits.
+    pub mark: crate::ParagraphMarkProperties,
     pub align: Align,
     /// 左缩进。
     pub indent_left: Twips,
@@ -922,6 +925,7 @@ impl Default for Para {
     fn default() -> Para {
         Para {
             runs: Vec::new(),
+            mark: crate::ParagraphMarkProperties::default(),
             align: Align::Left,
             indent_left: 0,
             indent_right: 0,
@@ -1975,9 +1979,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             + para.runs.iter().map(|r| r.text.encode_utf16().count() as u32).sum::<u32>();
         let segs = segments(para, source_base);
 
-        // Hidden text still owns source positions. Its paragraph mark remains
-        // visible; without a separate mark style, keep the existing font
-        // fallback for an entirely hidden paragraph.
+        // Hidden text still owns source positions. Independent mark inputs do
+        // not yet govern visibility or metrics here; keep the existing visible
+        // mark and font fallback for an entirely hidden paragraph.
         if segs.is_empty() {
             let mark_run = para
                 .runs

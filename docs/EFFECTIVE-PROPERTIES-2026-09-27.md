@@ -33,7 +33,35 @@ DOCX 的 CLI、SVG、CFFI、WASM 入口统一使用 `LoadedDocument::layout_docu
 最终有效属性专项 16 项、几何专项 22 项、含 Calibri 的隐藏文字专项 14 项全部通过。
 核心/SVG/CFFI/WASM 完整测试、workspace 检查和 Clippy 通过；Android 历史假设回放
 保持 186/186，25 组 Mac 轨迹的页面数据保持相同，既有失败与不可判项没有新增。
-显示隐藏文字、非空段落的独立段落标记样式、编号标记绘制及兼容开关仍待继续。
+显示隐藏文字、非空段落的独立段落标记绘制与行高贡献、编号标记绘制及兼容开关仍待继续。
 空东亚主题槽与 docDefaults 语言回填的字体来源也需要后续专项验证，不能把非空主题槽
 测试的通过推广为所有主题字体组合都已对齐。
 运行记录位于 `artifacts/section-core-2026-09-27/`。
+
+## 后续：独立段落标记属性
+
+`Para.mark: ParagraphMarkProperties` 现在保存两份独立输入：
+
+| 访问器 | 来源 | 缺省含义 |
+| --- | --- | --- |
+| `declared()` | 当前主 part 段落的 `props.rpr` | 没有直接声明 |
+| `effective()` | 同节点的原生 `Resolver::run` 结果，含解析后的主题字体槽 | 没有可用的解析结果 |
+
+“保留”针对钉住版本的原生 JSON 投影，不表示原 XML 字节或逐字段来源均已保存。
+两份输入不互相补齐，也不从最后一个文字 run 反推。空对象、显式 JSON null、非法原生
+JSON 类型和缺失分别保留；有效结果即使只有空的 `fonts` 对象，也仍表示 resolver 已运行。
+只带原生 JSON 的兼容入口保存直接声明，不伪造已完成样式继承的结果。
+
+标记不进入 `Para.runs`，不会增加文字长度或再消费一个 CP。非空、空和全隐藏正文均保留
+独立属性。隐藏段落恢复后从恢复的块读取直接声明；并排 `rPr` 修复后继续使用同一次解析
+重建的节点号与有效映射，不拿旧节点或段落序号关联。
+
+`LayoutDocument::trace_metadata()` 新增 `paragraphMarks`，按段序保存 `sourceNode`、
+两份属性及 `declaredPresent` / `effectiveAvailable`。独立 presence 位避免 JSON null
+把“未声明”和“显式 null”混在一起。`layoutPolicy` 说明当前应用边界。
+
+这一片保持既有布局行为：正式 DOCX 的空段落仍用有效标记字体与抬升；非空或全隐藏段落
+仍沿用原绘制和度量路径。颜色、隐藏标记、独立末行占高、分页符与标记分别绘制不是因为
+属性被保留就已经实现。原始 `LoadedDocument.json` 不被写成有效值。
+手动完整构造 `Para` 的 Rust 调用方需新增 `mark: Default::default()`；使用结构更新
+`..Para::default()` 的调用方保持可用。

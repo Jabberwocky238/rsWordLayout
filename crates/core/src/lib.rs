@@ -15,6 +15,7 @@ mod load;
 pub mod font;
 mod oracle;
 mod oracle_json;
+mod paragraph_mark;
 
 // ---- 几何：坐标一律 twips，没有像素 ----
 pub use layout::{
@@ -60,6 +61,7 @@ pub use font::{
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
 pub use grid::{DocumentGrid, GridKind};
+pub use paragraph_mark::ParagraphMarkProperties;
 pub use document::{
     ColumnLayout, ColumnSpec, DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
     document_from_json,

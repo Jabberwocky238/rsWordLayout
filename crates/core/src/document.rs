@@ -274,6 +274,17 @@ impl LayoutDocument {
             "skippedBlocks": self.skipped_blocks,
             "diagnostics": self.diagnostics,
             "sourceWarnings": self.source_warnings,
+            "paragraphMarks": {
+                "layoutPolicy": "legacy: effective font/rise for empty DOCX paragraphs; independent mark metrics, visibility and painting otherwise unresolved",
+                "paragraphs": self.paras.iter().enumerate().map(|(index, para)| json!({
+                    "paragraph": index,
+                    "sourceNode": para.source_node,
+                    "declaredPresent": para.mark.declared().is_some(),
+                    "declared": para.mark.declared(),
+                    "effectiveAvailable": para.mark.effective().is_some(),
+                    "effective": para.mark.effective(),
+                })).collect::<Vec<_>>(),
+            },
             "grid": {
                 "applied": false,
                 "status": "inputs retained; grid layout and absent defaults are unresolved",

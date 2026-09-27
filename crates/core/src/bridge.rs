@@ -710,11 +710,14 @@ pub(crate) fn project_paragraphs(
             collect_runs(inlines, size, bold, effective, &mut runs);
         }
 
+        let mark = crate::ParagraphMarkProperties::from_json(
+            block.get("props").and_then(|props| props.get("rpr")),
+            effective.and_then(|e| node_props(block, &e.marks)),
+        );
+
         // 空段落也要占一行高度。
         if runs.is_empty() {
-            let mark_props = effective
-                .and_then(|e| node_props(block, &e.marks))
-                .unwrap_or(&Value::Null);
+            let mark_props = mark.effective().unwrap_or(&Value::Null);
             let rise_fine = vertical_run_shape(mark_props, run_size(mark_props, size)).1;
             runs.push(Run {
                 text: String::new(),
@@ -740,6 +743,7 @@ pub(crate) fn project_paragraphs(
 
         paras.push(Para {
             runs,
+            mark,
             align: read_align(props),
             indent_left,
             indent_right,
