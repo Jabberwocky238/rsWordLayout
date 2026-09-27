@@ -825,12 +825,32 @@ pub struct Page {
     pub columns: Vec<Rect>,
     /// Column ownership indexed by the page-wide line number.
     pub line_columns: Vec<usize>,
+    /// Engine vertical decisions indexed by page-wide line number. Missing
+    /// entries stay unknown for manually assembled pages; never infer them
+    /// from glyph origins, which may include independent run shifts.
+    pub line_placements: Vec<Option<LinePlacement>>,
     pub fragments: Vec<Fragment>,
+}
+
+/// Snapshot of engine vertical decisions, all in 1/7200-inch units.
+/// These are diagnostics, not measured Word line boxes or ink bounds.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LinePlacement {
+    /// Absolute page coordinate before baseline quantization.
+    pub top_fine: i64,
+    /// Cursor advance, excluding paragraph spacing and region transitions.
+    pub advance_fine: i64,
+    /// Required bottom extent relative to `top_fine`, used for page fitting.
+    pub required_fine: i64,
+    /// Baseline relative to `top_fine`, before quantization and run shifts.
+    pub baseline_offset_fine: i64,
+    /// Absolute quantized baseline, before individual run/mark shifts.
+    pub baseline_fine: i64,
 }
 
 impl Page {
     pub fn new(size: Size, content_area: Rect) -> Page {
-        Page { size, content_area, columns: vec![content_area], line_columns: Vec::new(), fragments: Vec::new() }
+        Page { size, content_area, columns: vec![content_area], line_columns: Vec::new(), line_placements: Vec::new(), fragments: Vec::new() }
     }
 
     /// 把一行摊平进页面。
@@ -1920,6 +1940,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let baseline_fine = self
             .metrics
             .quantize_baseline_fine(top_fine + fine(line.baseline));
+        page.line_placements.resize(line_index as usize + 1, None);
+        page.line_placements[line_index as usize] = Some(LinePlacement {
+            top_fine,
+            advance_fine: line.vertical.advance_fine,
+            required_fine: line.vertical.required_fine,
+            baseline_offset_fine: fine(line.baseline),
+            baseline_fine,
+        });
         let baseline_y = coarse(baseline_fine);
         let last = line.pieces.len().saturating_sub(1);
         let tails = line.paint_tails();
@@ -3063,9 +3091,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // `exact` **不受内容下限约束**：行高就是 `w:line`，装不下就装不下。
         //
         // 这是量出来的。font-free 那一批（`docs/PREREG-2026-09-17-font-free.md`）
-        // 在 `exact` 行距下换六个度量差 2.4 倍的字体族，基线**逐格相同**，40/40——
+        // 在 `exact` 行距下换六个度量差 2.4 倍的字体族，字形原点逐格相同，40/40——
         // 其中 Zapfino 在 13pt 下 ascent 有 **24.4pt**，比那一批最大的行距 14.6pt
-        // 还高，Word 照样把基线放在同一格上。**字体一点都没参与。**
+        // 还高，Word 照样把字形放在同一格上。这约束旧夹具的推进，不给出占高或基线公式；
+        // 正文与 mark 同时变化、旧属性顺序等边界见 EXACT-VERTICAL-EVIDENCE-2026-09-27.md。
         //
         // 加了内容下限就做不到：那会让行高被 ascent + descent 撑开，
         // 于是 Zapfino 那一组的行距变成 24.4pt 而不是 11.1pt。
@@ -3212,12 +3241,13 @@ pub struct PaintPage {
     pub content_area: Rect,
     pub columns: Vec<Rect>,
     pub line_columns: Vec<usize>,
+    pub line_placements: Vec<Option<LinePlacement>>,
     pub cmds: Vec<DrawCmd>,
 }
 
 impl PaintPage {
     pub fn new(width: Twips, height: Twips, content_area: Rect) -> PaintPage {
-        PaintPage { width, height, content_area, columns: vec![content_area], line_columns: Vec::new(), cmds: Vec::new() }
+        PaintPage { width, height, content_area, columns: vec![content_area], line_columns: Vec::new(), line_placements: Vec::new(), cmds: Vec::new() }
     }
 
     /// 把本页交给一个画布。
@@ -3253,6 +3283,7 @@ pub fn paint_page(page: &Page, shaper: Option<&dyn TextShaper>, faces: &[FaceId]
     let mut out = PaintPage::new(page.size.width, page.size.height, page.content_area);
     out.columns = page.columns.clone();
     out.line_columns = page.line_columns.clone();
+    out.line_placements = page.line_placements.clone();
     for frag in &page.fragments {
         match frag {
             Fragment::Rect { rect, color } => {

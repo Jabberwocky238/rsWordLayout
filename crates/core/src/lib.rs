@@ -34,7 +34,7 @@ pub use layout::{Span, WrapContext, WrapRegion, WrapSide};
 
 // ---- 布局引擎 ----
 pub use layout::{
-    Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para, PlaceholderKind, Platform, Run,
+    Align, Engine, Fragment, Line, LinePlacement, LineRule, Page, PageSetup, Para, PlaceholderKind, Platform, Run,
     TabAlign, TabLeader, TabStop, TextFragment, View,
 };
 

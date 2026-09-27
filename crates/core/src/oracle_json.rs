@@ -17,8 +17,10 @@
 //! 以及 Word 的 `Range.Start/End` 一致。段落标记各占 1 个单位。
 //!
 //! Pages with multiple column regions expose `columns` frames in points and
-//! each line's explicit region index (or null). Single-region payloads remain
-//! unchanged; these frames describe the engine, not Word measurements.
+//! each line's explicit region index (or null). Single-region payloads omit
+//! these column fields. These frames describe the engine, not Word measurements.
+//! `engineVerticalDiagnostic` separately retains exact integer 1/7200-inch
+//! engine decisions, or null if unavailable. It is not an acceptance channel.
 //!
 //! # 手写而不引 serde
 //!
@@ -168,6 +170,14 @@ pub fn to_trace_json(record: &LayoutRecord, meta: &TraceMeta) -> String {
                     Some(column) => out.push_str(&format!("          \"column\": {column},\n")),
                     None => out.push_str("          \"column\": null,\n"),
                 }
+            }
+            match line.placement {
+                Some(p) => out.push_str(&format!(
+                    "          \"engineVerticalDiagnostic\": {{\"unit\": \"1/7200in\", \"top\": {}, \"advance\": {}, \"required\": {}, \"baselineOffset\": {}, \"baseline\": {}}},\n",
+                    p.top_fine, p.advance_fine, p.required_fine,
+                    p.baseline_offset_fine, p.baseline_fine,
+                )),
+                None => out.push_str("          \"engineVerticalDiagnostic\": null,\n"),
             }
             // 行盒**仅供诊断，不参与验收**——行盒与行基线在现有通道上不可测。
             out.push_str(&format!(

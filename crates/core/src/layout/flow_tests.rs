@@ -261,6 +261,14 @@ fn changing_required_extent_does_not_move_the_baseline_or_drawn_fragments() {
             .collect::<Vec<_>>()
     };
     assert_eq!(drawn(&before), drawn(&after));
+    for (old, new) in before.line_placements.iter().zip(&after.line_placements) {
+        let old = old.unwrap();
+        let new = new.unwrap();
+        assert_eq!(old.required_fine, 400);
+        assert_eq!(new.required_fine, 2500);
+        assert_eq!(new.advance_fine, 978);
+        assert_eq!(new.baseline_fine, old.baseline_fine);
+    }
     let baselines = drawn(&after);
     let first = baselines.iter().find(|fragment| fragment.0 == 0).unwrap().4;
     let second = baselines.iter().find(|fragment| fragment.0 == 1).unwrap().4;

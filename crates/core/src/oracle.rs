@@ -153,6 +153,9 @@ pub struct LineRecord {
     /// bookkeeping. A later group never reuses an earlier group's column index.
     /// Missing or invalid ownership remains unknown, including for empty lines.
     pub column: Option<usize>,
+    /// Engine-only vertical decisions; independent of glyph geometry and not
+    /// a Word acceptance signal. Missing paint metadata stays unknown.
+    pub placement: Option<crate::LinePlacement>,
     /// 行终止符。
     pub terminator: LineTerminator,
     /// 行盒。**仅供诊断，不参与验收**——行盒与行基线在现有通道上不可测
@@ -283,6 +286,7 @@ impl LayoutRecord {
                         source: piece_source,
                         column: page.line_columns.get(*line as usize).copied()
                             .filter(|column| *column < page.columns.len()),
+                        placement: page.line_placements.get(*line as usize).copied().flatten(),
                         // 终止符由 paint 层随指令带下来；缺失时保持 Wrapped
                         // （自动换行），不猜。
                         terminator: *terminator,
