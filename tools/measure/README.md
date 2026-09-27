@@ -155,6 +155,35 @@ tools/measure/.venv/bin/python tools/measure/android_pages.py \
 截断或达到 80 条采样上限。退出码为 OK=0、FAIL=1、UNDECIDABLE=2。
 详见 [页数证据与 docGrid 边界](../../docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)。
 
+### 原生 docGrid 整数参考回放
+
+`docgrid_native.py` 为已恢复的原生整数 helper 提供 JSON 入口。输入必须显式给出
+六个分量、tag、两个 u16 参数、u32 尺度、i32 周期及转换旁路；工具不推断字号、
+DPI、DOCX 属性或运行分支。仓库样例全部为合成整数，不是采集到的 Word 内存。
+
+```sh
+python3 tools/measure/docgrid_native.py \
+  tools/measure/cases/docgrid-native-synthetic.json \
+  --output artifacts/docgrid-helper-replay.json
+
+PYTHONPATH=tools/measure tools/measure/.venv/bin/python -m pytest -q \
+  tools/measure/tests/test_docgrid_native.py
+```
+
+输出文件必须全新，完整写入后才发布。报告包含输入、模型与入口脚本哈希、中间值
+及诊断，状态为 `ARITHMETIC_REFERENCE`。模型逐字节复用冻结的 `helper_model.py`，
+现保存在 `wordmeasure/docgrid_reference.py`，运行时核对固定哈希；没有未提交的
+artifact 运行依赖。报告中的 Word 哈希用于标识推导来源，不代表本次读取或执行 Word。
+
+`components` 前五项为有符号 i32，末项为原样保留的 u32 位模式。tag 只接受 0/2，
+所有字段必填；重复键、重复 ID、浮点整数、bool 冒充整数与越界值均拒绝。
+结果的 `convertedPeriod` 在零尺度/零周期旁路保留输入寄存器值，不代表发生了转换。
+负高度路径按原始 SDIV 加非零余数处理，不可概括为数学 ceiling。
+
+工具只回放 helper，不组合宿主后处理、LS/PTS 返回值或页面占高，也不判断是否与
+Word 对齐。其用途是复现整数步骤并为后续实现提供对照，证据边界见
+[原生算法分析](../../docs/DOCGRID-ALGORITHM-EVIDENCE-2026-09-27.md)。
+
 ### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：

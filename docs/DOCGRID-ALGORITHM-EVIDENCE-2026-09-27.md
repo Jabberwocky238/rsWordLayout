@@ -491,3 +491,25 @@ output = [H, A, B+hi+max(outer-chosen,0), C+lo, D+lo]
 [字体回调与聚合](DOCGRID-FONT-COMPONENTS-2026-09-27.md) 和
 [PTS 行高返回](DOCGRID-PTS-HEIGHTS-2026-09-27.md) 已补齐更多静态读写边；它们
 明确保留字体提供者、运行尺度、特殊节点及页面边界语义的未决项。
+
+## 可重复运行的整数参考入口
+
+冻结 helper 模型现以原始字节纳入
+`tools/measure/wordmeasure/docgrid_reference.py`，SHA-256 为
+`10cbf5b056719da29e6bee97afcb5691c93b47239d8f0d385a940baa4763fb7e`。
+新增 `tools/measure/docgrid_native.py` 校验显式 JSON 输入并生成带哈希的逐案例报告，
+不依赖本机未提交的证据目录。此处是复用参考模型，没有另写一套计算或启用生产网格。
+
+```sh
+python3 tools/measure/docgrid_native.py \
+  tools/measure/cases/docgrid-native-synthetic.json \
+  --output artifacts/docgrid-helper-replay.json
+```
+
+仓库的四个样例覆盖偶数/奇数余量、先转换周期再取倍数，以及独立外部下限。
+所有输入都是合成整数；尺度 300/1440 不作为任何 Word 探针的实际模式声明。
+报告保留中间值、诊断、opaque word 和源哈希，明确标为 `ARITHMETIC_REFERENCE`。
+输入单位、运行分支和来源尚未认证，不能据此报告 Word 或引擎验收通过。
+
+专项回归覆盖 32 项输入、整数边界和文件输出合同。模型沿用原冻结检查的范围：
+不是新函数的完整指令解释器，诊断调用假定返回且不改输入，最终消费者另行验证。

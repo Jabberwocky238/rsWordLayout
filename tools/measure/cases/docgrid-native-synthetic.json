@@ -1,0 +1,45 @@
+{
+  "schema": "rsword-docgrid-helper-input/1",
+  "cases": [
+    {
+      "id": "synthetic-even-split",
+      "components": [57, 46, 7, 0, 0, 3735928559],
+      "tag": 2,
+      "valueU16": 0,
+      "ratioU16": 240,
+      "scaleU32": 1440,
+      "periodI32": 75,
+      "useInputHeight": false
+    },
+    {
+      "id": "synthetic-odd-split",
+      "components": [56, 46, 7, 0, 0, 4294967295],
+      "tag": 2,
+      "valueU16": 0,
+      "ratioU16": 240,
+      "scaleU32": 1440,
+      "periodI32": 75,
+      "useInputHeight": false
+    },
+    {
+      "id": "synthetic-conversion-before-ceil",
+      "components": [58, 46, 0, 0, 0, 0],
+      "tag": 2,
+      "valueU16": 0,
+      "ratioU16": 240,
+      "scaleU32": 300,
+      "periodI32": 277,
+      "useInputHeight": false
+    },
+    {
+      "id": "synthetic-rounded-outer",
+      "components": [57, 46, 0, 0, 0, 0],
+      "tag": 0,
+      "valueU16": 500,
+      "ratioU16": 240,
+      "scaleU32": 300,
+      "periodI32": 360,
+      "useInputHeight": false
+    }
+  ]
+}
