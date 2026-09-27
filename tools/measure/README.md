@@ -193,7 +193,7 @@ Word 对齐。其用途是复现整数步骤并为后续实现提供对照，证
 ```sh
 python3 tools/measure/dwrite_metrics.py \
   --font "/System/Library/Fonts/Supplemental/Times New Roman.ttf" \
-  --em-size 16 --em-size 50 \
+  --em-size 16 --em-size 50 --em-size 2048 \
   --out artifacts/dwrite-metrics-new.json
 
 tools/measure/.venv/bin/python -m pytest -q tools/measure/tests/test_dwrite_metrics.py
@@ -210,6 +210,27 @@ face index 0、无 simulations；先由 `Analyze` 获取 face type，再查询 F
 Base64）。子进程默认限时 45 秒；超时会终止并回收该子进程。HRESULT 失败、崩溃、超时、
 协议缺失或哈希变化均输出 `FAILED` 收据并返回 1；只有完整指标和 Release 序列才输出
 `MEASURED` 并返回 0。参数或输出路径错误返回 2。固定库哈希不代表所有动态依赖都已固定。
+
+### 字体记录转换参考
+
+`font_record.py` 读取上述成功测量，在显式宿主参数下重放 Face1 非 CFF 路径的数值转换。
+当前要求单面 TrueType；它重新验证原始 stdout 协议与字体文件哈希，并从有效 OS/2 表
+读取 signed16 xAvgCharWidth。初始化需要精确 designUnitsPerEm 请求的 GDI 指标，非复制
+路径还需要精确 `float32(-lfHeight)` 请求的指标；缺少或重复结果冲突时拒绝，不能插值。
+示例里的 2048 是已测 TNR 文件的设计单位数，并非所有字体的固定值。
+
+```sh
+python3 tools/measure/font_record.py \
+  --measurements artifacts/dwrite-metrics-new.json \
+  --lf-height -16 --width-scale 1 --escapement 0 \
+  --out artifacts/font-record-new.json
+```
+
+三个宿主参数必须显式给定，示例不表示 Word 的 12pt 对应 -16。输出状态始终为
+`ARITHMETIC_REFERENCE`，保存逐步 binary32 乘法、H 转换、半字截断、定义的 U 字段、
+T 的前七个数值 word 与初始 M 六元组；不生成完整 T，不计算后续字体调整或 LS 聚合。
+模型采用 IEEE RNE 浮点假设，尚未观测 Word FPCR。`--out` 同样原子拒绝覆盖。
+公式、数值例与边界见[字体记录参考模型](../../docs/FONT-RECORD-REFERENCE-2026-09-27.md)。
 
 ### Mac 采集回放
 
