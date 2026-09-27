@@ -60,6 +60,10 @@ SimpleW 的剩余量为 `limit=end−q`，其中
 因此固有 advance/required 分离仍有必要，但还不充分：保留后的最终 advance
 可能依赖可用空间和 overhang 决策。不能先永久固定行推进，再只用 required 决定移页。
 
+局部规则现有 [Simple 可执行参考](SIMPLE-FIT-REFERENCE-2026-09-27.md)，以显式
+U/V/S/limit 分类，再消费已知的 overhang 结果；未知时保留未决。它模拟原生 i32
+回绕和 S 范围检查，没有补造生产输入，也没有改变当前 core 的分页行为。
+
 ## S 的真实宿主来源
 
 已注册的 context+1b8 回调解码到宿主 `0x1034d47fc`。它读取 line client 的

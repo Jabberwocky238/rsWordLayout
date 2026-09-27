@@ -250,6 +250,24 @@ python3 tools/measure/font_adjustment.py \
 键和多余字段被拒绝，已有输出（包括悬空符号链接）不会覆盖。输入与源码哈希随报告保存。
 合同与手算样例见[字体调整参考模型](../../docs/FONT-ADJUSTMENT-REFERENCE-2026-09-27.md)。
 
+### PTS Simple 容纳与末行裁减参考
+
+`simple_fit.py` 用显式原生整数重放 Simple 分支的容纳检查。输入 `fit` 必须包含
+`u/v/s/limit`；可选 `allowOverhang` 必须为 bool，只有需要 overhang 时才消费。
+省略时保留 `NEEDS_OVERHANG`，不自动选择保留或裁减。
+
+```sh
+python3 tools/measure/simple_fit.py \
+  --input tools/measure/examples/simple-fit-synthetic.json \
+  --out artifacts/simple-fit-new.json
+```
+
+输出 `ARITHMETIC_REFERENCE`，保存初步分类、最终结果、原生回绕中间量和输入/源码
+哈希。合成样例 U=80、V=40、S=20、limit=110 需要 overhang 决策；显式 false 将
+V 裁到 30，true 保留 40。S 的来源、单位、查询失败和外层分页没有推断。已有输出
+不可覆盖。精确合同与生产接入约束见
+[Simple 可执行参考](../../docs/SIMPLE-FIT-REFERENCE-2026-09-27.md)。
+
 ### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：
