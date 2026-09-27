@@ -16,6 +16,7 @@ pub mod font;
 mod oracle;
 mod oracle_json;
 mod paragraph_mark;
+mod table;
 
 // ---- 几何：坐标一律 twips，没有像素 ----
 pub use layout::{
@@ -35,7 +36,7 @@ pub use layout::{Span, WrapContext, WrapRegion, WrapSide};
 // ---- 布局引擎 ----
 pub use layout::{
     Align, Engine, Fragment, Line, LinePlacement, LineRule, Page, PageSetup, Para, PlaceholderKind, Platform, Run,
-    TabAlign, TabLeader, TabStop, TextFragment, SpacingEvent, View,
+    TableCellBox, TableRowBox, TabAlign, TabLeader, TabStop, TextFragment, SpacingEvent, View,
 };
 
 // ---- 绘制指令：布局产物 → 画布 ----
@@ -62,6 +63,7 @@ pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
 pub use grid::{DocumentGrid, GridKind};
 pub use paragraph_mark::ParagraphMarkProperties;
+pub use table::{LayoutTable, LayoutTableCell, LayoutTableRow, TableWidth};
 pub use document::{
     ColumnLayout, ColumnSpec, DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
     document_from_json,

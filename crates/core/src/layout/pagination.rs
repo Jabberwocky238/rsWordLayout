@@ -44,6 +44,8 @@ struct Flow {
     keep_continuation: Option<KeepContinuation>,
     keep_prefix: Option<KeepPrefix>,
     replay: Option<ReplayStart>,
+    // Replay covers paragraphs only; a band holding table rows is not balanced.
+    band_has_table: bool,
     trial_bottom: Option<i64>,
     next_bottom: Option<i64>,
 }
@@ -67,6 +69,7 @@ impl Flow {
             keep_continuation: None,
             keep_prefix: None,
             replay: None,
+            band_has_table: false,
             trial_bottom: None,
             next_bottom: None,
         }
@@ -88,6 +91,7 @@ impl Flow {
             keep_continuation: start.keep_continuation,
             keep_prefix: start.keep_prefix,
             replay: None,
+            band_has_table: false,
             trial_bottom: Some(bottom),
             next_bottom: None,
         }
@@ -149,6 +153,7 @@ impl Flow {
         self.previous_bottom = top;
         self.paragraph_after = None;
         self.replay = None;
+        self.band_has_table = false;
     }
 
     fn reset_empty_page(&mut self) {
@@ -203,6 +208,7 @@ impl<M: FontMetrics> Engine<'_, M> {
     pub(super) fn layout_sections(
         &self,
         paras: &[Para],
+        tables: &[crate::LayoutTable],
         sections: &[crate::LayoutSection],
         mirror_margins: bool,
     ) -> Vec<Page> {
@@ -213,63 +219,22 @@ impl<M: FontMetrics> Engine<'_, M> {
         let mut flow = Flow::new(setup, columns, mirror_margins);
         let mut source = 0;
         let mut active_section: Option<usize> = None;
-        for (index, para) in paras.iter().enumerate() {
-            if let Some((si, section)) = sections
-                .iter()
-                .enumerate()
-                .find(|(_, s)| s.para_range.contains(&index))
-                && active_section != Some(si)
+        let mut pending_tables = tables.iter().enumerate().peekable();
+        for index in 0..=paras.len() {
+            while let Some((table_index, table)) =
+                pending_tables.next_if(|(_, table)| table.before_para <= index)
             {
-                use crate::SectionStart;
-                let previous = active_section.map(|si| &sections[si]);
-                let same_page = previous.is_some_and(|previous| previous.setup == section.setup)
-                    && section.kind == SectionStart::Continuous
-                    && flow.page.size == section.setup.size
-                    && flow.page.content_area == flow.regions.section_body(section.setup);
-                if same_page && !flow.page.fragments.is_empty() {
-                    self.balance_band(paras, sections, index, &mut flow);
-                    let bottom = flow.used_bottom();
-                    flow.regions.close_band(&mut flow.page, bottom);
-                    flow.regions
-                        .set_section(section.setup, section.columns.clone());
-                    if bottom >= fine(flow.page.content_area.bottom()) {
-                        flow.advance(true).expect("normal page flow");
-                    } else {
-                        flow.regions
-                            .start_band(&mut flow.page, flow.line_index, bottom);
-                        flow.reset_band();
-                    }
-                } else {
-                    flow.regions
-                        .set_section(section.setup, section.columns.clone());
-                    let new_page = !matches!(
-                        section.kind,
-                        SectionStart::Continuous | SectionStart::NextColumn
-                    );
-                    if previous.is_some() && new_page && !flow.page.fragments.is_empty() {
-                        flow.advance(true).expect("normal page flow");
-                    } else if previous.is_some()
-                        && section.kind == SectionStart::NextColumn
-                        && !flow.regions.is_empty(flow.line_index)
-                    {
-                        flow.advance(false).expect("normal column flow");
-                    }
-                    if flow.page.fragments.is_empty() {
-                        flow.reset_empty_page();
-                        if previous.is_some() {
-                            let physical_page = flow.regions.physical_page_index() + 1;
-                            let wrong_parity = match section.kind {
-                                SectionStart::EvenPage => !physical_page.is_multiple_of(2),
-                                SectionStart::OddPage => physical_page.is_multiple_of(2),
-                                _ => false,
-                            };
-                            if wrong_parity {
-                                flow.advance(true).expect("normal blank page flow");
-                            }
-                        }
-                    }
+                if let Some(si) = sections
+                    .iter()
+                    .position(|s| s.block_range.contains(&table.block_index))
+                {
+                    self.enter_section(paras, sections, si, index, &mut active_section, &mut flow);
                 }
-                active_section = Some(si);
+                source += self.format_table(table_index, table, source, &mut flow);
+            }
+            let Some(para) = paras.get(index) else { break };
+            if let Some(si) = sections.iter().position(|s| s.para_range.contains(&index)) {
+                self.enter_section(paras, sections, si, index, &mut active_section, &mut flow);
             }
             self.format_flow_paragraph(paras, sections, index, source, None, &mut flow)
                 .expect("normal formatting always advances");
@@ -284,6 +249,146 @@ impl<M: FontMetrics> Engine<'_, M> {
         flow.pages
     }
 
+    /// Apply a section start before its first block. `index` is the first
+    /// paragraph not yet formatted; it ends any balanced band.
+    fn enter_section(
+        &self,
+        paras: &[Para],
+        sections: &[crate::LayoutSection],
+        si: usize,
+        index: usize,
+        active_section: &mut Option<usize>,
+        flow: &mut Flow,
+    ) {
+        if *active_section == Some(si) {
+            return;
+        }
+        let section = &sections[si];
+        use crate::SectionStart;
+        let previous = active_section.map(|si| &sections[si]);
+        let same_page = previous.is_some_and(|previous| previous.setup == section.setup)
+            && section.kind == SectionStart::Continuous
+            && flow.page.size == section.setup.size
+            && flow.page.content_area == flow.regions.section_body(section.setup);
+        if same_page && !flow.page.fragments.is_empty() {
+            self.balance_band(paras, sections, index, flow);
+            let bottom = flow.used_bottom();
+            flow.regions.close_band(&mut flow.page, bottom);
+            flow.regions
+                .set_section(section.setup, section.columns.clone());
+            if bottom >= fine(flow.page.content_area.bottom()) {
+                flow.advance(true).expect("normal page flow");
+            } else {
+                flow.regions
+                    .start_band(&mut flow.page, flow.line_index, bottom);
+                flow.reset_band();
+            }
+        } else {
+            flow.regions
+                .set_section(section.setup, section.columns.clone());
+            let new_page = !matches!(
+                section.kind,
+                SectionStart::Continuous | SectionStart::NextColumn
+            );
+            if previous.is_some() && new_page && !flow.page.fragments.is_empty() {
+                flow.advance(true).expect("normal page flow");
+            } else if previous.is_some()
+                && section.kind == SectionStart::NextColumn
+                && !flow.regions.is_empty(flow.line_index)
+            {
+                flow.advance(false).expect("normal column flow");
+            }
+            if flow.page.fragments.is_empty() {
+                flow.reset_empty_page();
+                if previous.is_some() {
+                    let physical_page = flow.regions.physical_page_index() + 1;
+                    let wrong_parity = match section.kind {
+                        SectionStart::EvenPage => !physical_page.is_multiple_of(2),
+                        SectionStart::OddPage => physical_page.is_multiple_of(2),
+                        _ => false,
+                    };
+                    if wrong_parity {
+                        flow.advance(true).expect("normal blank page flow");
+                    }
+                }
+            }
+        }
+        *active_section = Some(si);
+    }
+
+    /// Format a supported table (see `crate::table`). Exact-height rows move
+    /// whole to the next region; returns the projected source length.
+    fn format_table(
+        &self,
+        table_index: usize,
+        table: &crate::LayoutTable,
+        source_base: u32,
+        flow: &mut Flow,
+    ) -> u32 {
+        flow.keep_continuation = None;
+        flow.keep_prefix = None;
+        // The preceding after-space is already in the cursor; a table does
+        // not collapse paragraph spacing on either side.
+        flow.paragraph_after = None;
+        let mut source = source_base;
+        for (row_index, row) in table.rows.iter().enumerate() {
+            let height = fine(row.height);
+            while flow.cursor_fine + height > flow.bottom()
+                && (!flow.regions.is_empty(flow.line_index) || flow.regions.is_partial())
+            {
+                flow.advance(false).expect("normal table flow");
+            }
+            let area = flow.regions.area();
+            let top = flow.cursor_fine;
+            let rect = Rect::new(area.x, coarse(top), table.width.resolve(area.width), row.height);
+            let mut cells = Vec::with_capacity(row.cells.len());
+            for cell in &row.cells {
+                let cell_start = source;
+                let first_line = flow.line_index;
+                let mut cursor = top;
+                let mut content_bottom = top;
+                let mut after: Option<Twips> = None;
+                for para in &cell.paras {
+                    cursor += after.map_or(fine(para.space_before), |after| {
+                        paragraph_gap_fine(after, para.space_before) - fine(after)
+                    });
+                    let start = LineCursor { source, first: true };
+                    // Hard breaks inside a cell only end lines here.
+                    for line in self.break_paragraph_at(para, rect, cursor, source, start) {
+                        self.place_line(&mut flow.page, &line, para, cursor, flow.line_index);
+                        flow.page.line_columns.push(flow.regions.column());
+                        content_bottom = content_bottom.max(cursor + line.vertical.required_fine);
+                        cursor += line.vertical.advance_fine;
+                        flow.line_index += 1;
+                    }
+                    cursor += fine(para.space_after);
+                    after = Some(para.space_after);
+                    source += para.runs.iter().map(|run| utf16_len(&run.text)).sum::<u32>() + 1;
+                }
+                source += 1;
+                cells.push(TableCellBox {
+                    rect,
+                    source: (cell_start, source),
+                    lines: first_line..flow.line_index,
+                    overflow_fine: (content_bottom - (top + height)).max(0),
+                });
+            }
+            flow.required_bottom = flow.required_bottom.max(top + height);
+            flow.cursor_fine = top + height;
+            flow.band_has_table |= flow.regions.count() > 1;
+            flow.page.table_rows.push(TableRowBox {
+                table: table_index,
+                row: row_index,
+                column: flow.regions.column(),
+                rect,
+                top_fine: top,
+                height_fine: height,
+                cells,
+            });
+        }
+        source - source_base
+    }
+
     fn balance_band(
         &self,
         paras: &[Para],
@@ -291,7 +396,7 @@ impl<M: FontMetrics> Engine<'_, M> {
         end: usize,
         flow: &mut Flow,
     ) {
-        if flow.regions.count() < 2 {
+        if flow.regions.count() < 2 || flow.band_has_table {
             return;
         }
         let Some(start) = flow.replay.clone() else {

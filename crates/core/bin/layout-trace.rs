@@ -575,7 +575,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for diagnostic in &document.diagnostics {
         eprintln!("layout: {diagnostic}");
     }
-    let paras = &document.paras;
+    // 表格单元格里的段落也要参与缺字扫描，否则回退字体只按正文挑。
+    let paras: Vec<Para> = document.paras.iter()
+        .chain(document.tables.iter().flat_map(|table| &table.rows)
+            .flat_map(|row| &row.cells).flat_map(|cell| &cell.paras))
+        .cloned()
+        .collect();
+    let paras = &paras;
     let skipped = document.skipped_blocks;
     if paras.is_empty() {
         return Err("没有可排版的段落".into());
@@ -675,12 +681,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut trace: serde_json::Value = serde_json::from_str(&to_trace_json(&record, &meta))?;
     trace["layoutInput"] = document.trace_metadata();
+    if !document.tables.is_empty() {
+        trace["tableLayout"] = table_layout(&pages);
+    }
     std::fs::write(&output, serde_json::to_string_pretty(&trace)?)?;
 
     let lines: usize = record.pages.iter().map(|p| p.lines.len()).sum();
     println!(
-        "段落 {} · 页 {} · 行 {lines} · 字形 {}",
+        "段落 {}（表格 {}）· 页 {} · 行 {lines} · 字形 {}",
         paras.len(),
+        document.tables.len(),
         record.page_count(),
         record.glyph_count()
     );
@@ -689,10 +699,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     if skipped > 0 {
         // 跳过的块不会出现在轨迹里；比较器会把它读成行数不符，所以这里要明说。
-        println!("跳过非文本块 {skipped}（表格 / 绘图等，本版未实现）——轨迹里没有它们");
+        println!("跳过非文本块 {skipped}（不支持的表格 / 绘图等，见 layout 诊断）——轨迹里没有它们");
     }
     println!("已写出 {output}");
     Ok(())
+}
+
+/// 表格行盒的引擎记账，twips。行号是页内行号，与 `pages[].lines[].index` 相同。
+/// 这是引擎的诊断，不是 Word 实测的行盒。
+fn table_layout(pages: &[rsword_layout_core::Page]) -> serde_json::Value {
+    use serde_json::json;
+    json!({
+        "unit": "twips",
+        "status": "engine diagnostic, not measured Word geometry",
+        "pages": pages.iter().enumerate().map(|(index, page)| json!({
+            "page": index,
+            "rows": page.table_rows.iter().map(|row| json!({
+                "table": row.table,
+                "row": row.row,
+                "column": row.column,
+                "rect": [row.rect.x, row.rect.y, row.rect.width, row.rect.height],
+                "topFine": row.top_fine,
+                "heightFine": row.height_fine,
+                "cells": row.cells.iter().map(|cell| json!({
+                    "source": [cell.source.0, cell.source.1],
+                    "lines": [cell.lines.start, cell.lines.end],
+                    "overflowFine": cell.overflow_fine,
+                })).collect::<Vec<_>>(),
+            })).collect::<Vec<_>>(),
+        })).collect::<Vec<_>>(),
+    })
 }
 
 #[cfg(test)]

@@ -738,96 +738,122 @@ pub(crate) fn project_paragraphs(
             continue;
         }
         let starts_section_page = section_starts.contains(&block_index);
-
-        let style_id = block.get("styleId").and_then(Value::as_str);
-        let level = block
-            .get("textKind")
-            .and_then(|t| t.get("level"))
-            .and_then(Value::as_u64);
-        let (size, bold, before, after, keep_next) = if effective.is_some() {
-            (BODY_SIZE_HALF_POINTS, false, 0, 0, false)
-        } else {
-            style_defaults(style_id, level)
-        };
-        let has_sect_pr = block
-            .get("facts")
-            .and_then(|f| f.get("hasSectPr"))
-            .and_then(Value::as_bool)
-            .unwrap_or(false);
-
-        let mut runs = Vec::new();
-        if let Some(inlines) = block.get("inlines") {
-            collect_runs(inlines, size, bold, effective, &mut runs);
-        }
-
-        let mark = crate::ParagraphMarkProperties::from_json(
-            block.get("props").and_then(|props| props.get("rpr")),
-            effective.and_then(|e| node_props(block, &e.marks)),
-        );
-
-        // 空段落也要占一行高度。
-        if runs.is_empty() {
-            let mark_props = mark.effective().unwrap_or(&Value::Null);
-            let rise_fine = vertical_run_shape(mark_props, run_size(mark_props, size)).1;
-            runs.push(Run {
-                text: String::new(),
-                hidden: false,
-                font: if effective.is_some() { run_font(mark_props, size, bold) } else { FontSpec::new(BODY_FAMILY, size) },
-                color: run_color(mark_props).unwrap_or(Color::BLACK),
-                placeholders: Vec::new(),
-                rise: (rise_fine / FINE_PER_TWIP) as Twips,
-                rise_fine: effective.map(|_| rise_fine),
-            });
-        }
-
-        let direct_props = block.get("props").unwrap_or(&Value::Null);
-        let props = effective
-            .and_then(|e| node_props(block, &e.paras))
-            .unwrap_or(direct_props);
-        // Native JSON uses camelCase Rust field names, not the XML acronym.
-        // Resolve at paragraph scope, including the synthesized empty run.
-        let auto_space_dn = props.get("autoSpaceDn").and_then(Value::as_bool).unwrap_or(true);
-        for run in &mut runs {
-            run.font.auto_space_dn = auto_space_dn;
-        }
-        let (indent_left, indent_right, indent_first_line) = read_indent(props);
-        let (line_rule, line_value, space_before, space_after) =
-            read_spacing(props, before, after);
-
-        // 必须在 runs 被 move 进 Para 之前算好。
-        let terminator = pick_terminator(has_sect_pr);
-
-        paras.push(Para {
-            runs,
-            mark,
-            align: read_align(props),
-            indent_left,
-            indent_right,
-            indent_first_line,
-            space_before,
-            space_after,
-            line_rule,
-            line_value,
-            keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),
-            keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
-            widow_control: props.get("widowControl").map(as_bool).unwrap_or(false),
-            snap_to_grid: props.get("snapToGrid").and_then(Value::as_bool),
-            // 两个来源：段落属性 `w:pageBreakBefore`，以及本段是「另起一页」的分节起点。
-            // 引擎侧对首页为空的情形已有保护，所以文档开头的那个节不会多出一张空页。
-            page_break_before: starts_section_page
-                || props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
-            overflow_punct: props.get("overflowPunct").map(as_bool).unwrap_or(true),
-            tabs: effective
-                .and_then(|e| block.get("node").and_then(Value::as_u64)
-                    .and_then(|node| u32::try_from(node).ok())
-                    .and_then(|node| e.tabs.get(&node)))
-                .cloned()
-                .unwrap_or_else(|| read_tabs(doc, style_id, direct_props)),
-            default_tab_stop,
-            source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
-            terminator,
-        });
+        paras.push(project_text_block(doc, block, effective, starts_section_page, default_tab_stop));
     }
 
     (paras, skipped)
+}
+
+/// Text blocks of a table cell, projected like main-story paragraphs. `None`
+/// when a block is not a paragraph (for example a nested table).
+pub(crate) fn project_cell_paragraphs(
+    doc: &Value,
+    blocks: &[Value],
+    effective: Option<&EffectiveProperties>,
+) -> Option<Vec<Para>> {
+    let default_tab_stop = default_tab_stop(doc);
+    blocks
+        .iter()
+        .map(|block| {
+            (block.get("kind").and_then(Value::as_str) == Some("text"))
+                .then(|| project_text_block(doc, block, effective, false, default_tab_stop))
+        })
+        .collect()
+}
+
+fn project_text_block(
+    doc: &Value,
+    block: &Value,
+    effective: Option<&EffectiveProperties>,
+    starts_section_page: bool,
+    default_tab_stop: Option<Twips>,
+) -> Para {
+    let style_id = block.get("styleId").and_then(Value::as_str);
+    let level = block
+        .get("textKind")
+        .and_then(|t| t.get("level"))
+        .and_then(Value::as_u64);
+    let (size, bold, before, after, keep_next) = if effective.is_some() {
+        (BODY_SIZE_HALF_POINTS, false, 0, 0, false)
+    } else {
+        style_defaults(style_id, level)
+    };
+    let has_sect_pr = block
+        .get("facts")
+        .and_then(|f| f.get("hasSectPr"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+
+    let mut runs = Vec::new();
+    if let Some(inlines) = block.get("inlines") {
+        collect_runs(inlines, size, bold, effective, &mut runs);
+    }
+
+    let mark = crate::ParagraphMarkProperties::from_json(
+        block.get("props").and_then(|props| props.get("rpr")),
+        effective.and_then(|e| node_props(block, &e.marks)),
+    );
+
+    // 空段落也要占一行高度。
+    if runs.is_empty() {
+        let mark_props = mark.effective().unwrap_or(&Value::Null);
+        let rise_fine = vertical_run_shape(mark_props, run_size(mark_props, size)).1;
+        runs.push(Run {
+            text: String::new(),
+            hidden: false,
+            font: if effective.is_some() { run_font(mark_props, size, bold) } else { FontSpec::new(BODY_FAMILY, size) },
+            color: run_color(mark_props).unwrap_or(Color::BLACK),
+            placeholders: Vec::new(),
+            rise: (rise_fine / FINE_PER_TWIP) as Twips,
+            rise_fine: effective.map(|_| rise_fine),
+        });
+    }
+
+    let direct_props = block.get("props").unwrap_or(&Value::Null);
+    let props = effective
+        .and_then(|e| node_props(block, &e.paras))
+        .unwrap_or(direct_props);
+    // Native JSON uses camelCase Rust field names, not the XML acronym.
+    // Resolve at paragraph scope, including the synthesized empty run.
+    let auto_space_dn = props.get("autoSpaceDn").and_then(Value::as_bool).unwrap_or(true);
+    for run in &mut runs {
+        run.font.auto_space_dn = auto_space_dn;
+    }
+    let (indent_left, indent_right, indent_first_line) = read_indent(props);
+    let (line_rule, line_value, space_before, space_after) =
+        read_spacing(props, before, after);
+
+    // 必须在 runs 被 move 进 Para 之前算好。
+    let terminator = pick_terminator(has_sect_pr);
+
+    Para {
+        runs,
+        mark,
+        align: read_align(props),
+        indent_left,
+        indent_right,
+        indent_first_line,
+        space_before,
+        space_after,
+        line_rule,
+        line_value,
+        keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),
+        keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
+        widow_control: props.get("widowControl").map(as_bool).unwrap_or(false),
+        snap_to_grid: props.get("snapToGrid").and_then(Value::as_bool),
+        // 两个来源：段落属性 `w:pageBreakBefore`，以及本段是「另起一页」的分节起点。
+        // 引擎侧对首页为空的情形已有保护，所以文档开头的那个节不会多出一张空页。
+        page_break_before: starts_section_page
+            || props.get("pageBreakBefore").map(as_bool).unwrap_or(false),
+        overflow_punct: props.get("overflowPunct").map(as_bool).unwrap_or(true),
+        tabs: effective
+            .and_then(|e| block.get("node").and_then(Value::as_u64)
+                .and_then(|node| u32::try_from(node).ok())
+                .and_then(|node| e.tabs.get(&node)))
+            .cloned()
+            .unwrap_or_else(|| read_tabs(doc, style_id, direct_props)),
+        default_tab_stop,
+        source_node: block.get("node").and_then(Value::as_u64).map(|n| n as u32),
+        terminator,
+    }
 }

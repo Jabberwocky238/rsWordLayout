@@ -107,19 +107,17 @@ impl LoadedDocument {
     /// 共用页面格式器的输入，包含有效段落属性与文档声明的节几何。
     pub fn layout_document(&self) -> crate::LayoutDocument {
         let json = self.layout_json();
-        let mut document = crate::document_from_json(&json);
+        let mut document = crate::document::document_from_json_with(&json, Some(&self.effective));
         document.compatibility = self.compatibility;
         document.source_warnings.extend(self.compatibility_warnings.iter().cloned());
-        let (mut paras, _) = project_paragraphs(&json, Some(&self.effective));
         // 分节的起页由文档格式器处理；这里只保留继承或直接声明的段落起页。
-        for para in &mut paras {
+        for para in &mut document.paras {
             para.page_break_before = para.source_node
                 .and_then(|node| self.effective.paras.get(&node))
                 .and_then(|props| props.get("pageBreakBefore"))
                 .and_then(Value::as_bool)
                 .unwrap_or(false);
         }
-        document.paras = paras;
         document
     }
 
@@ -296,12 +294,27 @@ fn effective_properties(session: &EditSession) -> EffectiveProperties {
     // 连字符样式或 toggle 合成后可见的 run 也不保留。仅为布局重建这些段的 typed IR：
     // 分类阶段屏蔽样式 vanish，实际属性仍由未改动的原始 Resolver 计算。
     let recovered = recover_style_hidden_paragraphs(session);
+    // Table cells use the same paragraph resolution. Table-style layers are not
+    // applied; the table projection rejects tables that declare a style.
+    let mut blocks: Vec<&Block> = Vec::new();
     for original in &document.main {
         let block = recovered.get(&original.node()).unwrap_or(original);
-        let Block::Text(para) = block else { continue };
-        if !matches!(original, Block::Text(_)) {
+        if let Block::Text(para) = block
+            && !matches!(original, Block::Text(_))
+        {
             effective.recovered_blocks.insert(para.node.0, block.to_json(&cx));
         }
+        blocks.push(block);
+    }
+    while let Some(block) = blocks.pop() {
+        let para = match block {
+            Block::Text(para) => para,
+            Block::Table(table) => {
+                blocks.extend(table.rows.iter().flat_map(|row| &row.cells).flat_map(|cell| &cell.blocks));
+                continue;
+            }
+            _ => continue,
+        };
         let style = para.style_id.as_deref().or(default_style);
         let list = match &para.kind {
             TextKind::ListItem { list } => Some(list),

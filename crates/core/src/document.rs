@@ -4,7 +4,9 @@ use std::ops::Range;
 
 use serde_json::{Value, json};
 
-use crate::{DocumentGrid, Margins, PageSetup, Para, Rect, Twips, paras_from_document};
+use crate::bridge::{EffectiveProperties, project_paragraphs};
+use crate::table::{LayoutTable, SOURCE_POLICY, TABLE_POLICY, project_table};
+use crate::{DocumentGrid, Margins, PageSetup, Para, Rect, Twips};
 
 // Pinned rsword schema/props/section.toml, CT_Columns: at most 45 columns.
 const MAX_COLUMNS: usize = 45;
@@ -206,6 +208,8 @@ pub struct DocumentCompatibility {
 #[derive(Debug, Clone)]
 pub struct LayoutDocument {
     pub paras: Vec<Para>,
+    /// Supported main-story tables in source order, anchored between paragraphs.
+    pub tables: Vec<LayoutTable>,
     pub sections: Vec<LayoutSection>,
     pub compatibility: DocumentCompatibility,
     pub skipped_blocks: usize,
@@ -273,11 +277,29 @@ impl LayoutDocument {
     }
 
     /// Input provenance for a trace; coordinates are twips, not trace points.
+    /// Documents without supported tables keep the earlier metadata shape.
     pub fn trace_metadata(&self) -> Value {
+        let mut metadata = self.base_trace_metadata();
+        if !self.tables.is_empty() {
+            metadata["tables"] = json!({
+                "policy": TABLE_POLICY,
+                "sourceProjection": SOURCE_POLICY,
+                "evidence": "report-level Word constraint for table32-tail (one print page); row boxes and continuation are engine contracts, not Word captures",
+                "items": self.tables.iter().map(LayoutTable::trace_metadata).collect::<Vec<_>>(),
+            });
+        }
+        metadata
+    }
+
+    fn base_trace_metadata(&self) -> Value {
         json!({
             "unit": "twips",
             "fallback": "host A4, 1440-twip margins; not inferred Word defaults",
-            "sourceCoverage": if self.skipped_blocks == 0 { "projected main-story paragraphs" } else { "partial: unsupported blocks omitted; CP is projected text only" },
+            "sourceCoverage": match (self.skipped_blocks, self.tables.is_empty()) {
+                (0, true) => "projected main-story paragraphs",
+                (0, false) => "projected main-story paragraphs and supported tables",
+                _ => "partial: unsupported blocks omitted; CP is projected text only",
+            },
             "skippedBlocks": self.skipped_blocks,
             "diagnostics": self.diagnostics,
             "sourceWarnings": self.source_warnings,
@@ -496,21 +518,54 @@ fn section_columns(props: &Value, body: Rect, section: usize, diagnostics: &mut 
 /// The pinned parser omits boolean compatibility flags from native JSON. Use
 /// `LoadedDocument::layout_document` to retain them, or set `compatibility` explicitly.
 pub fn document_from_json(doc: &Value) -> LayoutDocument {
-    let (mut paras, _) = paras_from_document(doc);
+    document_from_json_with(doc, None)
+}
+
+pub(crate) fn document_from_json_with(
+    doc: &Value,
+    effective: Option<&EffectiveProperties>,
+) -> LayoutDocument {
+    let (mut paras, _) = project_paragraphs(doc, effective);
     let main = doc["main"].as_array().map(Vec::as_slice).unwrap_or(&[]);
-    let skipped_blocks = main
-        .iter()
-        .filter(|block| {
-            block["kind"] != "text"
-                && !(block["kind"] == "protected"
-                    && block["protectedKind"]["kind"] == "sectionProps")
-        })
-        .count();
     let mut prefix = vec![0usize];
     for block in main {
         prefix.push(prefix.last().copied().unwrap_or(0) + usize::from(block["kind"] == "text"));
     }
     let mut diagnostics = Vec::new();
+    let is_section_props = |block: &Value| {
+        block["kind"] == "protected" && block["protectedKind"]["kind"] == "sectionProps"
+    };
+    let mut tables = Vec::new();
+    for (block_index, block) in main.iter().enumerate() {
+        if block["kind"] != "table" {
+            continue;
+        }
+        match project_table(doc, block, block_index, prefix[block_index], effective) {
+            Ok(table) => {
+                let next = main[block_index + 1..].iter().find(|block| !is_section_props(block));
+                if next.is_none_or(|next| next["kind"] != "text") {
+                    diagnostics.push(format!("block {block_index}: table has no following paragraph; Word requires one and its document repair is not modeled"));
+                }
+                if let Some(previous) = table.before_para.checked_sub(1)
+                    && prefix[block_index] == prefix[block_index.saturating_sub(1)] + 1
+                    && paras[previous].keep_next
+                {
+                    diagnostics.push(format!("block {block_index}: keepNext from the preceding paragraph into a table is not implemented; the link is not applied"));
+                }
+                tables.push(table);
+            }
+            Err(reason) => diagnostics.push(format!("block {block_index}: table not laid out: {reason}; omitted from the trace")),
+        }
+    }
+    let skipped_blocks = main
+        .iter()
+        .enumerate()
+        .filter(|(index, block)| {
+            block["kind"] != "text"
+                && !is_section_props(block)
+                && !tables.iter().any(|table: &LayoutTable| table.block_index == *index)
+        })
+        .count();
     let mirror_margins = doc["settings"].get("mirrorMargins").and_then(|value| {
         if !value.is_boolean() {
             diagnostics.push(format!("mirrorMargins requires a boolean; cannot interpret {value}; mirroring is inactive"));
@@ -637,8 +692,16 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             diagnostics.push(format!("section at block {}: keepNext across same-setup continuous column groups involving multiple columns is not implemented; links within a group and single-column continuous flow retain their existing behavior", pair[1].block_range.start));
         }
     }
+    for (si, section) in sections.iter().enumerate() {
+        if section.columns.count() > 1
+            && tables.iter().any(|table| section.block_range.contains(&table.block_index))
+        {
+            diagnostics.push(format!("section {si}: tables in multi-column sections flow sequentially; column balancing is disabled for bands containing table rows"));
+        }
+    }
     LayoutDocument {
         paras,
+        tables,
         sections,
         compatibility: DocumentCompatibility::default(),
         skipped_blocks,

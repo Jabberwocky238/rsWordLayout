@@ -846,6 +846,34 @@ pub struct Page {
     /// from glyph origins, which may include independent run shifts.
     pub line_placements: Vec<Option<LinePlacement>>,
     pub fragments: Vec<Fragment>,
+    /// Table row boxes placed on this page, in flow order.
+    pub table_rows: Vec<TableRowBox>,
+}
+
+/// One placed table row. Engine bookkeeping, not measured Word geometry.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableRowBox {
+    /// Index into `LayoutDocument::tables`.
+    pub table: usize,
+    pub row: usize,
+    /// Page-wide column-region index, as in `Page::line_columns`.
+    pub column: usize,
+    /// Row box in twips; `y` is `top_fine` rounded.
+    pub rect: Rect,
+    pub top_fine: i64,
+    pub height_fine: i64,
+    pub cells: Vec<TableCellBox>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TableCellBox {
+    pub rect: Rect,
+    /// Projected source interval, including the cell end unit.
+    pub source: (u32, u32),
+    /// Page-wide line numbers of the cell's lines.
+    pub lines: std::ops::Range<u32>,
+    /// Content extent below the exact row bottom; painted unclipped.
+    pub overflow_fine: i64,
 }
 
 /// Snapshot of engine vertical decisions, all in 1/7200-inch units.
@@ -866,7 +894,7 @@ pub struct LinePlacement {
 
 impl Page {
     pub fn new(size: Size, content_area: Rect) -> Page {
-        Page { size, content_area, columns: vec![content_area], line_columns: Vec::new(), line_placements: Vec::new(), fragments: Vec::new() }
+        Page { size, content_area, columns: vec![content_area], line_columns: Vec::new(), line_placements: Vec::new(), fragments: Vec::new(), table_rows: Vec::new() }
     }
 
     /// 把一行摊平进页面。
@@ -1273,7 +1301,7 @@ fn segments(para: &Para, source_base: u32) -> Vec<Segment> {
     out
 }
 
-fn utf16_len(text: &str) -> u32 {
+pub(crate) fn utf16_len(text: &str) -> u32 {
     text.encode_utf16().count() as u32
 }
 
@@ -1940,12 +1968,21 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
     /// 把段落序列排成页面。
     pub fn layout(&self, paras: &[Para]) -> Vec<Page> {
-        self.layout_sections(paras, &[], false)
+        self.layout_sections(paras, &[], &[], false)
     }
 
     /// Format the projected main story using each section's page geometry.
     /// See `document.diagnostics` for unsupported or approximate inputs.
     pub fn layout_document(&self, document: &crate::LayoutDocument) -> Vec<Page> {
+        // keepNext into a table is not implemented; do not link across it.
+        let mut paras = std::borrow::Cow::Borrowed(&document.paras[..]);
+        for table in &document.tables {
+            if let Some(previous) = table.before_para.checked_sub(1)
+                && paras[previous].keep_next
+            {
+                paras.to_mut()[previous].keep_next = false;
+            }
+        }
         Engine {
             metrics: self.metrics,
             setup: self.setup,
@@ -1954,7 +1991,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             view: self.view,
             compatibility: document.compatibility,
         }
-        .layout_sections(&document.paras, &document.sections, document.mirror_margins() == Some(true))
+        .layout_sections(&paras, &document.tables, &document.sections, document.mirror_margins() == Some(true))
     }
 
     /// 把一行放到页面上，处理水平对齐。
