@@ -45,10 +45,19 @@ pub struct PageOverrides {
     pub content_width: Option<Twips>,
 }
 
+/// Document switches interpreted by the shared formatter, independently of the view.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct DocumentCompatibility {
+    /// `w:compat/w:splitPgBreakAndParaMark`. Absence and explicit false both keep
+    /// the print-view default; mobile view still splits the paragraph mark.
+    pub split_page_break_and_para_mark: Option<bool>,
+}
+
 #[derive(Debug, Clone)]
 pub struct LayoutDocument {
     pub paras: Vec<Para>,
     pub sections: Vec<LayoutSection>,
+    pub compatibility: DocumentCompatibility,
     pub skipped_blocks: usize,
     pub diagnostics: Vec<String>,
     overrides: PageOverrides,
@@ -111,6 +120,9 @@ impl LayoutDocument {
             "sourceCoverage": if self.skipped_blocks == 0 { "projected main-story paragraphs" } else { "partial: unsupported blocks omitted; CP is projected text only" },
             "skippedBlocks": self.skipped_blocks,
             "diagnostics": self.diagnostics,
+            "compatibility": {
+                "splitPgBreakAndParaMark": self.compatibility.split_page_break_and_para_mark,
+            },
             "overrides": {
                 "margin": self.overrides.margin,
                 "pageWidth": self.overrides.page_width,
@@ -195,6 +207,8 @@ fn section_setup(props: &Value, settings: &Value) -> (PageSetup, Vec<&'static st
 
 /// Project text and section geometry without losing original block ownership.
 /// Unsupported blocks are counted; they do not have full-story CP coverage.
+/// The pinned parser omits boolean compatibility flags from native JSON. Use
+/// `LoadedDocument::layout_document` to retain them, or set `compatibility` explicitly.
 pub fn document_from_json(doc: &Value) -> LayoutDocument {
     let (mut paras, _) = paras_from_document(doc);
     let main = doc["main"].as_array().map(Vec::as_slice).unwrap_or(&[]);
@@ -312,6 +326,7 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
     LayoutDocument {
         paras,
         sections,
+        compatibility: DocumentCompatibility::default(),
         skipped_blocks,
         diagnostics,
         overrides: PageOverrides::default(),

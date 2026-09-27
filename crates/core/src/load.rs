@@ -79,13 +79,15 @@ use std::borrow::Cow;
 use std::collections::BTreeMap;
 
 use rsword::model::{Block, Document, Inline, ProtectedKind, TextKind};
-use rsword::package::Package;
+use rsword::package::{Package, RelType};
 use rsword::resolve::{EffectiveRunProps, Resolver};
-use rsword::semantic::props::{RunProps, StyleType};
+use rsword::semantic::props::{Codec, Ctx, RunProps, StyleType, codec::OnOff};
+use rsword::xml::{LocalName, QName};
 use serde_json::Value;
 
 use crate::bridge::{EffectiveProperties, merge_layout_tabs, project_paragraphs};
 use crate::layout::Para;
+use crate::DocumentCompatibility;
 
 /// [`load_document`] 的产物。
 #[derive(Debug, Clone)]
@@ -97,6 +99,7 @@ pub struct LoadedDocument {
     /// 合并那一步失败的原因。`Some` 时 `json` 是未合并的原样结果，调用方应当报出来。
     pub merge_error: Option<String>,
     effective: EffectiveProperties,
+    compatibility: DocumentCompatibility,
 }
 
 impl LoadedDocument {
@@ -104,6 +107,7 @@ impl LoadedDocument {
     pub fn layout_document(&self) -> crate::LayoutDocument {
         let json = self.layout_json();
         let mut document = crate::document_from_json(&json);
+        document.compatibility = self.compatibility;
         let (mut paras, _) = project_paragraphs(&json, Some(&self.effective));
         // 分节的起页由文档格式器处理；这里只保留继承或直接声明的段落起页。
         for para in &mut paras {
@@ -163,7 +167,37 @@ fn load_open(
 ) -> Result<LoadedDocument, Box<dyn std::error::Error>> {
     let json: Value = serde_json::from_str(&sessions.document(id, None)?)?;
     let effective = sessions.inspect(id, |session, _| effective_properties(session))?;
-    Ok(best_effort(json, effective, |json| merge_open(sessions, id, bytes, json)))
+    let compatibility = sessions.inspect(id, |session, _| document_compatibility(session))?;
+    Ok(best_effort(json, effective, compatibility, |json| merge_open(sessions, id, bytes, json)))
+}
+
+/// The pinned parser (399e36a) keeps compat booleans in `raw_unmodeled` and
+/// omits them from native JSON. Read the original settings DOM, including false,
+/// without modifying declared JSON or pulling in the editing API.
+fn document_compatibility(session: &EditSession) -> DocumentCompatibility {
+    let mut result = DocumentCompatibility::default();
+    let Some(compat) = session.document().settings.as_ref().and_then(|s| s.compat.as_ref()) else {
+        return result;
+    };
+    let package = session.package();
+    let settings_part = package.related(package.main_part(), RelType::Settings).next()
+        .or_else(|| package.find_name("word/settings.xml"));
+    let Some(dom) = settings_part.and_then(|part| package.part(part).dom()) else {
+        return result;
+    };
+    let Some(&node) = compat.raw_unmodeled.iter()
+        .find(|&&node| dom.name(node) == Some(QName::w(LocalName::SplitPgBreakAndParaMark)))
+    else {
+        return result;
+    };
+    let mut diagnostics = Vec::new();
+    let mut context = Ctx::new(dom, &mut diagnostics);
+    context.enter(node);
+    result.split_page_break_and_para_mark = Some(
+        dom.attr_value(node, QName::w(LocalName::Val))
+            .is_none_or(|value| OnOff::parse(&value, &mut context)),
+    );
+    result
 }
 
 /// 合并一步的结果：`Ok(None)` 无改写；`Ok(Some)` 带重建后的 JSON、有效属性与合并处数。
@@ -174,15 +208,16 @@ type MergeResult = Result<Option<(Value, EffectiveProperties, usize)>, Box<dyn s
 fn best_effort(
     json: Value,
     effective: EffectiveProperties,
+    compatibility: DocumentCompatibility,
     merge: impl FnOnce(&Value) -> MergeResult,
 ) -> LoadedDocument {
     match merge(&json) {
         Ok(Some((merged, effective, n))) => {
-            LoadedDocument { json: merged, merged_run_props: n, merge_error: None, effective }
+            LoadedDocument { json: merged, merged_run_props: n, merge_error: None, effective, compatibility }
         }
-        Ok(None) => LoadedDocument { json, merged_run_props: 0, merge_error: None, effective },
+        Ok(None) => LoadedDocument { json, merged_run_props: 0, merge_error: None, effective, compatibility },
         Err(error) => {
-            LoadedDocument { json, merged_run_props: 0, merge_error: Some(error.to_string()), effective }
+            LoadedDocument { json, merged_run_props: 0, merge_error: Some(error.to_string()), effective, compatibility }
         }
     }
 }
@@ -448,21 +483,26 @@ fn skip_ws(xml: &str, at: usize) -> usize {
 mod tests {
     use super::{LoadedDocument, best_effort};
     use crate::bridge::EffectiveProperties;
+    use crate::DocumentCompatibility;
 
     #[test]
     fn a_failed_merge_falls_back_to_the_unmerged_json() {
         let json = serde_json::json!({"mainPart": 3, "main": []});
-        let LoadedDocument { json: got, merged_run_props, merge_error, .. } =
-            best_effort(json.clone(), EffectiveProperties::default(), |_| Err("replacePartXml 失败".into()));
+        let compatibility = DocumentCompatibility { split_page_break_and_para_mark: Some(true) };
+        let LoadedDocument { json: got, merged_run_props, merge_error, compatibility: got_compatibility, .. } =
+            best_effort(json.clone(), EffectiveProperties::default(), compatibility, |_| Err("replacePartXml 失败".into()));
         assert_eq!(got, json, "合并失败时交回原样的 JSON");
         assert_eq!(merged_run_props, 0);
         assert_eq!(merge_error.as_deref(), Some("replacePartXml 失败"));
+        assert_eq!(got_compatibility, compatibility);
 
         // 对照：没有可合并的，原样且不报错；合并成功，换成合并后的。
-        let none = best_effort(json.clone(), EffectiveProperties::default(), |_| Ok(None));
+        let none = best_effort(json.clone(), EffectiveProperties::default(), compatibility, |_| Ok(None));
         assert_eq!((none.json, none.merged_run_props, none.merge_error), (json.clone(), 0, None));
+        assert_eq!(none.compatibility, compatibility);
         let merged = serde_json::json!({"mainPart": 3, "main": [1]});
-        let some = best_effort(json, EffectiveProperties::default(), |_| Ok(Some((merged.clone(), EffectiveProperties::default(), 2))));
+        let some = best_effort(json, EffectiveProperties::default(), compatibility, |_| Ok(Some((merged.clone(), EffectiveProperties::default(), 2))));
         assert_eq!((some.json, some.merged_run_props, some.merge_error), (merged, 2, None));
+        assert_eq!(some.compatibility, compatibility);
     }
 }

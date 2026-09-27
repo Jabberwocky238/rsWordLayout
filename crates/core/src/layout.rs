@@ -883,6 +883,9 @@ pub struct Para {
     pub keep_next: bool,
     /// `w:keepLines`：段内不跨页。
     pub keep_lines: bool,
+    /// Avoid leaving a single paragraph line on either side of an automatic
+    /// page break. Missing source properties keep the host default (`false`).
+    pub widow_control: bool,
     /// `w:pageBreakBefore`。
     pub page_break_before: bool,
     /// `w:overflowPunct`: allow a supported closing CJK punctuation glyph
@@ -921,6 +924,7 @@ impl Default for Para {
             line_value: 240,
             keep_next: false,
             keep_lines: false,
+            widow_control: false,
             page_break_before: false,
             overflow_punct: true,
             tabs: Vec::new(),
@@ -1374,6 +1378,15 @@ struct LineCursor {
     first: bool,
 }
 
+#[derive(Clone, Copy)]
+struct PageFit {
+    area: Rect,
+    next_area: Rect,
+    top_fine: i64,
+    source_base: u32,
+    keep_after_fine: i64,
+}
+
 /// 模拟哪个平台上的 Word。
 ///
 /// 同一份文档在 Mac Word 与 Android Word 上有几条规则实测相反，而两边的夹具形状一样
@@ -1451,7 +1464,7 @@ pub enum Platform {
 ///
 /// 这与 OOXML 兼容项 `w:splitPgBreakAndParaMark`（`w:compat` 下）打开时**行形状相同**，
 /// 但不是它：`br-page.docx` 没有 settings.xml，那一项是关的，移动视图照样拆。那一项是文档设置、
-/// 两种视图都该认；以后桥接层读到它时另作一个输入，生效条件是「移动视图 **或** 兼容项」，
+/// 两种视图都该认；[`crate::DocumentCompatibility`] 是独立输入，生效条件是「移动视图 **或** 兼容项」，
 /// 不要拿它顶替视图（见 `Engine::splits_page_break_and_mark`）。
 ///
 /// 分页符后面段内还有文字或对象时两种视图相同：都在分页符处收行，其余内容从下一页起。
@@ -1479,6 +1492,7 @@ pub struct Engine<'m, M: FontMetrics> {
     platform: Platform,
     /// 模拟哪种视图。见 [`View`]。
     view: View,
+    compatibility: crate::DocumentCompatibility,
 }
 
 impl<'m, M: FontMetrics> Engine<'m, M> {
@@ -1496,6 +1510,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             wrap,
             platform: Platform::default(),
             view: View::default(),
+            compatibility: crate::DocumentCompatibility::default(),
         }
     }
 
@@ -1506,6 +1521,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     pub fn with_platform(mut self, platform: Platform, view: View) -> Engine<'m, M> {
         self.platform = platform;
         self.view = view;
+        self
+    }
+
+    /// Set document switches for the paragraph-only `layout` entry point.
+    /// `layout_document` always uses the supplied document's switches instead.
+    pub fn with_compatibility(mut self, compatibility: crate::DocumentCompatibility) -> Self {
+        self.compatibility = compatibility;
         self
     }
 
@@ -1521,14 +1543,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
     /// 段末手动分页符之后，段落标记是否另起一行（见 [`View`] 的说明）。
     ///
-    /// 只看视图：[`View::Mobile`] 拆，[`View::Print`] 不拆。以后读到文档的兼容项
-    /// `w:splitPgBreakAndParaMark` 时，在这里与视图取「或」。
+    /// [`View::Mobile`] 或文档兼容项 `w:splitPgBreakAndParaMark` 为真时拆开。
+    /// 显式关闭兼容项只恢复打印视图的默认，不关闭移动视图自身的拆行行为。
     ///
     /// 段落以分节符结束（段内 `w:sectPr`）时不拆，分节符照分页视图收进分页符那一行。
     /// 这一条是**假设**：Android 只量到以段落标记结束的 `br-page`，OOXML 那个兼容项也只说
     /// 段落标记；拆开的话分节符那行落到下一页、分节再翻一页，平白多出一页。
     fn splits_page_break_and_mark(&self, para: &Para) -> bool {
-        self.view == View::Mobile
+        (self.view == View::Mobile
+            || self.compatibility.split_page_break_and_para_mark == Some(true))
             && para.terminator == crate::oracle::LineTerminator::ParagraphMark
     }
 
@@ -1544,6 +1567,125 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         self.wrap.available(full, y, height)
     }
 
+    fn keep_link(paras: &[Para], sections: &[crate::LayoutSection], index: usize) -> bool {
+        paras.get(index).is_some_and(|p| p.keep_next)
+            && paras.get(index + 1).is_some_and(|p| !p.page_break_before)
+            && !sections.iter().any(|s| {
+                s.para_range.start == index + 1
+                    && !matches!(s.kind, crate::SectionStart::Continuous | crate::SectionStart::NextColumn)
+            })
+    }
+
+    /// Space required after a linked paragraph. Intermediate keepNext paragraphs
+    /// stay whole when the chain fits; an oversized chain relaxes to the immediate
+    /// successor's minimum prefix so an empty page always makes progress.
+    fn keep_after_height(
+        &self,
+        paras: &[Para],
+        sections: &[crate::LayoutSection],
+        index: usize,
+        area: Rect,
+        position: (i64, u32, Rect),
+    ) -> i64 {
+        let (mut top, mut source, next_area) = position;
+        let origin = top;
+        let capacity = i64::from(area.height) * FINE_PER_TWIP;
+        let mut minimum = None;
+        let mut index = index;
+        while Self::keep_link(paras, sections, index) {
+            let next = &paras[index + 1];
+            top += (i64::from(paras[index].space_after) + i64::from(next.space_before)) * FINE_PER_TWIP;
+            let y = (top as f64 / FINE_PER_TWIP as f64).round() as Twips;
+            let lines = self.break_paragraph(next, area, y, source);
+            let segment_len = lines.iter().position(|l| l.page_break_after).map_or(lines.len(), |i| i + 1);
+            let whole: i64 = lines.iter().take(segment_len).map(|l| l.height_fine).sum();
+            let mut prefix = if next.keep_lines || (next.widow_control && segment_len == 3) {
+                segment_len
+            } else if next.widow_control { 2.min(segment_len) } else { 1.min(segment_len) };
+            if next.widow_control && prefix < segment_len && (area != next_area || !self.wrap.is_empty()) {
+                let tail = &lines[prefix];
+                let reflow = self.break_paragraph_at(next, next_area, next_area.y, source,
+                    LineCursor { source: tail.source_start, first: tail.is_first });
+                if reflow.len() < 2 || reflow[0].page_break_after {
+                    // A cached two-line prefix is not legal when its remainder
+                    // becomes one line on the next page. Reserve the full group
+                    // before the preceding keepNext paragraph is committed.
+                    prefix = segment_len;
+                }
+            }
+            let mut prefix_height: i64 = lines.iter().take(prefix).map(|l| l.height_fine).sum();
+            if prefix_height > capacity {
+                prefix = if next.widow_control {
+                    if segment_len == 3 { 3 } else { 2.min(segment_len) }
+                } else { 1.min(segment_len) };
+                prefix_height = lines.iter().take(prefix).map(|l| l.height_fine).sum();
+                if prefix_height > capacity {
+                    prefix_height = lines.first().map_or(0, |l| l.height_fine);
+                }
+            }
+            minimum.get_or_insert(top - origin + prefix_height);
+            let has_hard_break = lines.iter().any(|l| l.page_break_after);
+            let intermediate = !has_hard_break && Self::keep_link(paras, sections, index + 1);
+            top += if intermediate { whole } else { prefix_height };
+            if top - origin > capacity {
+                return minimum.unwrap_or(0);
+            }
+            if !intermediate {
+                break;
+            }
+            source += next.runs.iter().map(|r| utf16_len(&r.text)).sum::<u32>() + 1;
+            index += 1;
+        }
+        top - origin
+    }
+
+    /// Choose an automatic page boundary before committing any of the candidate
+    /// lines. Explicit page breaks end the group and override widow protection.
+    fn page_line_quota(
+        &self,
+        para: &Para,
+        lines: &std::collections::VecDeque<PendingLine>,
+        fit: PageFit,
+    ) -> usize {
+        let mut top = fit.top_fine;
+        let mut count = 0;
+        for (i, line) in lines.iter().enumerate() {
+            let keep_after = if i + 1 == lines.len() && !line.page_break_after { fit.keep_after_fine } else { 0 };
+            if top + line.height_fine + keep_after > i64::from(fit.area.bottom()) * FINE_PER_TWIP {
+                break;
+            }
+            count += 1;
+            top += line.height_fine;
+            if line.page_break_after {
+                break;
+            }
+        }
+        if para.widow_control && count > 0 && count < lines.len() && !lines[count - 1].page_break_after {
+            // A changed area can turn two cached tail lines into one real line.
+            // Query the successor page before accepting a boundary in that case.
+            while count >= 2 {
+                let has_two_remaining = if fit.area == fit.next_area && self.wrap.is_empty() {
+                    count + 1 < lines.len() && !lines[count].page_break_after
+                } else {
+                    let next = &lines[count];
+                    let reflow = self.break_paragraph_at(
+                        para, fit.next_area, fit.next_area.y, fit.source_base,
+                        LineCursor { source: next.source_start, first: next.is_first },
+                    );
+                    reflow.len() >= 2 && !reflow[0].page_break_after
+                };
+                if has_two_remaining {
+                    break;
+                }
+                count -= 1;
+            }
+            if count == 1 {
+                return 0;
+            }
+        }
+        count
+    }
+
     /// 把段落序列排成页面。
     pub fn layout(&self, paras: &[Para]) -> Vec<Page> {
         self.layout_sections(paras, &[])
@@ -1552,7 +1694,15 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     /// Format the projected main story using each section's page geometry.
     /// See `document.diagnostics` for unsupported or approximate inputs.
     pub fn layout_document(&self, document: &crate::LayoutDocument) -> Vec<Page> {
-        self.layout_sections(&document.paras, &document.sections)
+        Engine {
+            metrics: self.metrics,
+            setup: self.setup,
+            wrap: self.wrap.clone(),
+            platform: self.platform,
+            view: self.view,
+            compatibility: document.compatibility,
+        }
+        .layout_sections(&document.paras, &document.sections)
     }
 
     fn layout_sections(&self, paras: &[Para], sections: &[crate::LayoutSection]) -> Vec<Page> {
@@ -1627,54 +1777,83 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
             cursor_fine += fine(para.space_before);
             let mut lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
-            let block_height_fine: i64 = lines.iter().map(|l| l.height_fine).sum();
+            let first_segment = lines.iter().position(|l| l.page_break_after).map_or(lines.len(), |i| i + 1);
+            let block_height_fine: i64 = lines.iter().take(first_segment).map(|l| l.height_fine).sum();
 
-            // keepLines：整段放不下就先翻页（除非本页是空的，那样翻了也没用）。
+            // keepLines only moves a group that can fit a fresh page. For an
+            // oversized group, relax this constraint without breaking a feasible
+            // keepNext link to the preceding paragraph.
             if para.keep_lines
                 && cursor_fine + block_height_fine > fine(area.bottom())
                 && !page.fragments.is_empty()
             {
-                area = setup.content_area();
-                pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
-                cursor_fine = fine(area.y);
-                line_index = 0;
-                lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
+                let next_area = setup.content_area();
+                let next_lines = self.break_paragraph(para, next_area, next_area.y, para_base);
+                let next_segment = next_lines.iter().position(|l| l.page_break_after).map_or(next_lines.len(), |i| i + 1);
+                let next_height: i64 = next_lines.iter().take(next_segment).map(|l| l.height_fine).sum();
+                if next_height <= fine(next_area.height) {
+                    area = next_area;
+                    pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
+                    cursor_fine = fine(area.y);
+                    line_index = 0;
+                    lines = next_lines;
+                }
             }
 
-            // keepNext：本段是最后一段时无意义；否则要保证下一段至少第一行同页。
-            let next_first_line_fine = if para.keep_next {
-                paras.get(idx + 1).and_then(|n| {
-                    // 只取高度，源区间用不上；给下一段的正确基点，免得读代码时费解。
-                    self.break_paragraph(n, area, coarse(cursor_fine), source_cursor)
-                        .first()
-                        .map(|l| l.height_fine)
-                }).unwrap_or(0)
-            } else {
-                0
-            };
+            // Move a keepNext chain before committing its first line when the
+            // group fits a fresh page. Hard breaks remain stronger than keep rules.
+            if para.keep_next && !page.fragments.is_empty() && !lines.iter().any(|l| l.page_break_after) {
+                let height: i64 = lines.iter().map(|l| l.height_fine).sum();
+                let after = self.keep_after_height(paras, sections, idx, area, (cursor_fine + height, source_cursor, setup.content_area()));
+                if after > 0 && cursor_fine + height + after > fine(area.bottom()) {
+                    let next_area = setup.content_area();
+                    let next_lines = self.break_paragraph(para, next_area, next_area.y, para_base);
+                    let next_height: i64 = next_lines.iter().map(|l| l.height_fine).sum();
+                    let next_after = self.keep_after_height(paras, sections, idx, next_area, (fine(next_area.y) + next_height, source_cursor, next_area));
+                    if next_height + next_after <= fine(next_area.height) {
+                        area = next_area;
+                        pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
+                        cursor_fine = fine(area.y);
+                        line_index = 0;
+                        lines = next_lines;
+                    }
+                }
+            }
 
             let mut pending: std::collections::VecDeque<_> = lines.into();
-            while let Some(mut line) = pending.pop_front() {
-                let mut needed_fine = line.height_fine;
-                // 最后一行还要替下一段的首行占位。
-                if para.keep_next && pending.is_empty() {
-                    needed_fine += next_first_line_fine;
-                }
-                if cursor_fine + needed_fine > fine(area.bottom()) && !page.fragments.is_empty() {
+            let quota = |pending: &std::collections::VecDeque<PendingLine>, area: Rect, top_fine: i64| {
+                let keep_after_fine = if Self::keep_link(paras, sections, idx) {
+                    let height: i64 = pending.iter().map(|l| l.height_fine).sum();
+                    self.keep_after_height(paras, sections, idx, area, (top_fine + height, source_cursor, setup.content_area()))
+                } else { 0 };
+                self.page_line_quota(para, pending, PageFit {
+                    area, next_area: setup.content_area(), top_fine, source_base: para_base,
+                    keep_after_fine,
+                })
+            };
+            let mut remaining = quota(&pending, area, cursor_fine);
+            while !pending.is_empty() {
+                if remaining == 0 && !page.fragments.is_empty() {
                     let previous_area = area;
                     area = setup.content_area();
                     pages.push(std::mem::replace(&mut page, Page::new(setup.size, area)));
                     cursor_fine = fine(area.y);
                     line_index = 0;
                     if !self.wrap.is_empty() || area != previous_area {
+                        let line = pending.front().expect("pending paragraph line");
                         pending = self.break_paragraph_at(
                             para, area, coarse(cursor_fine), para_base,
                             LineCursor { source: line.source_start, first: line.is_first },
                         ).into();
-                        line = pending.pop_front().expect("a remaining source line must advance");
                     }
+                    remaining = quota(&pending, area, cursor_fine);
                 }
+                // A paragraph taller than the page, or impossible widow/keep
+                // constraints, must still consume at least one source line.
+                remaining = remaining.max(1);
+                let line = pending.pop_front().expect("a remaining source line must advance");
                 self.place_line(&mut page, &line, para, cursor_fine, line_index);
+                remaining -= 1;
                 line_index += 1;
                 // **精确累加**：用 height_fine 而不是取整后的 height。
                 cursor_fine += line.height_fine;
@@ -1697,6 +1876,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             LineCursor { source: next.source_start, first: next.is_first },
                         ).into();
                     }
+                    remaining = quota(&pending, area, cursor_fine);
                 }
             }
 

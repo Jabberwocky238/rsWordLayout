@@ -58,7 +58,10 @@ pub use font::{
 // ---- rsword 桥接 ----
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
-pub use document::{LayoutDocument, LayoutSection, PageOverrides, SectionStart, document_from_json};
+pub use document::{
+    DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
+    document_from_json,
+};
 pub use load::{LoadedDocument, load_document, merge_sibling_run_props};
 
 // ---- 近似度量桩，**不可用于真实排版** ----
