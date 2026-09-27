@@ -15,8 +15,9 @@
 | [continuous40-break10-noBalance0.docx](../fixtures/column-balance-canonical-2026-09-27/continuous40-break10-noBalance0.docx) | `a3f7292eec22de2c21ae62d19e38c10364e1f2804bdbd5ba445ed24640b19eb3` |
 | [continuous40-break10-noBalance1.docx](../fixtures/column-balance-canonical-2026-09-27/continuous40-break10-noBalance1.docx) | `71e9185dc245064db87d091d35de44da88c8c745b73e2184e4718dc7d4a3664b` |
 
-前两份与各自 capture META 的 before/after 哈希一致；后两份与规范 capture META 一致，
-PDF 哈希也匹配，两遍原始扫描一致。相关原包分别位于
+前两份源文件与各自 capture META 的 before/after 哈希一致；旧 `glyphs.json` 内记录的
+PDF 哈希与 META 一致，但这些旧包目录没有保留 PDF，本轮没有重新提取或复核其 PDF 字节。
+后两份与规范 capture META 一致，原 PDF 哈希及两遍扫描的复核见规范采集回执。相关原包分别位于
 [vmisc2 capture](../captures/vmisc2-2026-09-17/)、
 [probe-metrics capture](../captures/probe-metrics-2026-09-17/) 和
 [规范栏断 capture](../artifacts/column-balance-canonical-append-2026-09-27/)。
@@ -95,6 +96,39 @@ CP50 是 mark，Ln11 为 `[50,51)`；C010 位于 Ln12 `[51,56)`，均为 Word pa
 `(315.6,55.2)`、12pt；C010 从 glyph50 开始，y=79.2。
 原生 content 字节明确为 `C009\x0e\rC010\r`，派生 JSON 的 LF 是文本读取归一化。
 这能区别源 break/mark 及其行归属，仍不把 PDF 空格 index 直接当 CP，亦不推导通用控制 glyph 数量。
+
+## 旧包中的独立位移与推进
+
+绘制切片 `5c62d5c` 的旧/新 trace 中另有 18 个 mark 改变，均已按源 ZIP 的完整文本与
+CP、原 scan 的页行、对应 PDF 页完整 glyph 序列重新绑定，未直接拿引擎 glyph index
+猜 Word 的源位置。这些限定检查不使用上面的 VOID probe-metrics，也不升级旧包的整体状态。
+
+| 既有包 | mark CP | 限定观察 |
+| --- | --- | --- |
+| vmisc | 47、53、59、65 | 末 run 上/下移，mark 与正常正文 glyph 的 y 均为 84.96pt |
+| vmisc2 | 5、11、17、23、29 | 末 run 上移，mark 仍回到正常正文 glyph y=84.96pt |
+| hbox | 611、624、637 | 正文字距改变，mark 的 PDF charSpace/wordSpace 仍为 0 |
+| hbox2 | 1120、1133、1146 | 正文字距改变，mark 的 PDF charSpace/wordSpace 仍为 0 |
+| vmisc3 | 91、101、111 | 正文横向缩放改变，mark 的 PDF scaling 仍为 1 |
+
+前 9 项的源页均只有对应标签、正常文字、位移文字和唯一尾空格；正常正文与 mark 相对
+y 为 0，末 run 的 y 则不同。旧引擎 mark 的纵向误差为 -3/-6/+3/+6pt 及
+-5/-7/-12/-13/-24pt，新输出回到 84.96pt，保留原始 f64 的约 8e-14pt 表示差。
+这里只比较 glyph 原点，不将其称为可测的行盒基线。绑定和原始摘要见
+[mark-output-check.json](../artifacts/paragraph-mark-paint-2026-09-27/mark-output-check.json)，
+SHA-256 `fb791ce77bd3262e34b62f2f3a73c75d32e4accc08706ccd14d242efe1567864`。
+
+后 9 项的尾空格均为 Luminari、PDF effectiveSize=12.96pt、advance 约 2.94192pt，
+并与各自包内 3 个未改变 spacing/scale 的控制 mark 一致。新引擎 advance=2.951pt，
+9 项误差均比旧值减小，但仍相差 0.00908pt，不能标为逐位通过。名义 13pt 与 PDF 的
+12.96pt 可解释这项残差，不据此给输出乘拟合系数。详见
+[mark-advance-check.json](../artifacts/paragraph-mark-paint-2026-09-27/mark-advance-check.json)，
+SHA-256 `9980d61eef50f2be432b4ec60b73dcdcd6712cf9975c8e5f41daddedeb25cdbb`。
+
+原 PDF 未在本机保留，检查的是已记录哈希相互匹配的 glyph JSON/META 及源/scan 链，
+不是重新导出或重新提取。旧 glyph 数据的 UNCALIBRATED 标签、各包原有 FAIL/UNDECIDABLE
+和旧属性顺序限制均保留。此处支持这些具体输入的 mark 不继承末 run 位移、字距或缩放；
+不验证显式 mark 上下标、字号量化、行高、全隐藏段落及跨平台通用公式。
 
 ## 尚缺的鉴别输入
 

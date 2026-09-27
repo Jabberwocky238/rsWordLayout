@@ -60,7 +60,7 @@ JSON 类型和缺失分别保留；有效结果即使只有空的 `fonts` 对象
 两份属性及 `declaredPresent` / `effectiveAvailable`。独立 presence 位避免 JSON null
 把“未声明”和“显式 null”混在一起。`layoutPolicy` 说明当前应用边界。
 
-这一片保持既有布局行为：正式 DOCX 的空段落仍用有效标记字体与抬升；非空或全隐藏段落
+输入接入片保持既有布局行为：正式 DOCX 的空段落仍用有效标记字体与抬升；非空或全隐藏段落
 仍沿用原绘制和度量路径。颜色、隐藏标记、独立末行占高、分页符与标记分别绘制不是因为
 属性被保留就已经实现。原始 `LoadedDocument.json` 不被写成有效值。
 手动完整构造 `Para` 的 Rust 调用方需新增 `mark: Default::default()`；使用结构更新
@@ -84,3 +84,52 @@ Android 旧采集保持 186/186 条件源行区间匹配；Mac 保持 25 FAIL / 
 的三个回普通基线读数来自整批 VOID 的 probe-metrics，只保留为探索线索，不能作为验收依据。
 应继续分开处理 mark 与行内控制符的绘制样式和源位置；现有有效观察仍不能决定独立 mark
 如何贡献末行高度、页面占高或全隐藏段落行为。
+
+## 后续：独立标记绘制
+
+尾部结构提交 `5103a4e` 将控制字符与段落末尾保存为有序项，每项有明确的 UTF-16 源区间、
+替代空格数量及绘制样式。源范围不再从字形数量倒推，隐藏内容和对象留下的源缺口以空片段
+保留。源区间连续、样式相同且替代文本等长时仍合并整形；不同样式的后续尾项从前一组实际
+推进位置开始。多组尾项跟在 tab 后时分开绘制，避免用孤立空格宽度猜测上下文中的 tab 字形。
+该结构提交的 61 项定向测试通过、1 项既有条件测试忽略，25 份旧 trace 的完整页面逐项相同。
+
+绘制片仅在真正的 `ParagraphMark` 上使用独立 `FontSpec` 和精细位移，分页符、栏断、
+软回车及无字形的分节末尾不被覆盖。JSON 投影集中在 bridge，排版代码只读取私有 typed
+样式；`declared()` / `effective()` 仍原样保留。可应用条件为有效结果包含非空 ascii 或
+hAnsi 字体、正 u32 字号；如声明了 position，必须可解析为 parser 使用的 i32；如声明了
+vertAlign，必须为 baseline/superscript/subscript。字体槽选择顺序与正文投影一致。
+缺少这些必需字段或值非法时保留旧绘制近似，不借末 run 填齐，也不把宿主默认值称作 Word
+缺省。`paintStyleAvailable` 单独报告能否投影，不能代替 `effectiveAvailable`。
+
+有效 position/vertAlign 缺省时使用现有 run 投影的正常基线；其余字体字段也复用既有 run
+投影，包括其中未完成的上下标、缩放、字距近似。颜色、隐藏标记、空行度量、行高、页底
+容量及对齐宽度维持原规则；正式 DOCX 空段落已有的标记字体度量路径继续保留。这一片不把
+“mark 不贡献行高”定为 Word 规则，也未验证 Android/Windows 的独立标记几何。
+
+11 项新的公开入口测试检查独立属性、稀疏/非法回退、双尾项、不同视图、空/全隐藏正文、
+soft return 空末行、源代理对和对象缺口、正文整形及连续栏组重放。真实 DOCX 规范输入也
+进入测试，但仍是引擎行为回归，不是新增 Word 测量。测试和离线轨迹记录在
+`artifacts/paragraph-mark-paint-2026-09-27/`。
+
+绘制实现提交为 `5c62d5c`。workspace/fontenv 最终 77 组、600 项通过、12 项忽略，
+全目标 Clippy `-D warnings` 通过。首次全量运行暴露 C 入口测试将正文与 mark 视为同一
+片段的旧断言；C/Wasm 测试现分别验证正文的 20-twip 字距、mark 的独立 0 字距及各自 CP，
+入口生产代码未改。原失败日志保留，最终成功日志为 `workspace-tests-after-entry-assertions.log`。
+
+新 CLI 在 8 份规范输入中验证 24 个 mark 的精确源 CP、字体文件身份和独立字号，仍无
+解析警告；Android 保持 186/186 条件源行区间。Mac 仍为 25 FAIL / 5 UNDECIDABLE。
+25 份有效 trace 的 356 页、3834 行及全部源/终止符/已有栏元数据、18150 个字形的数量
+完全不变；仅 5 份文件的 20 个真段落标记改变，其余字形逐项一致，没有浮点末位差异。
+其中 9 项只改变 advance，9 项只改变 y，2 项同时改变字号和 advance。
+`audit-paint-replay.json` SHA-256 为
+`15fea7a36d4a252ef3d1722843a829a5e0251c08bcc9828de69ed3df63845caf`。
+
+vmisc2 的 CP37/53 分别从沿用正文的 10pt/8pt 改为标记自身的名义 13pt，且与同行正常
+正文 glyph 的相对 y 保持 0。Word PDF 读数仍是 12.96pt；字号残差 0.04pt、绝对 y 残差
+6.72/16.32pt 未消除，不能称几何通过。其他变化的旧包限定复核见
+[独立位移与推进](PARAGRAPH-MARK-EVIDENCE-2026-09-27.md#旧包中的独立位移与推进)。
+
+本片 404 个产物的冻结清单 `durable-hashes.json` SHA-256 为
+`6d9733c284ab70dec13090f91f84fffe932664ce4e37e36ffc796a530d166f89`；
+实际回放二进制 SHA-256 为
+`5b2c76367e726ce34cc51d35d5b3fc16f14b0a25d421c8cc509154a105856483`。
