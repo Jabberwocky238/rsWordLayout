@@ -16,9 +16,9 @@
 //! **偏移空间**：`sourceStart` / `sourceEnd` 用 **UTF-16 单位**，与 rsword 的坐标流
 //! 以及 Word 的 `Range.Start/End` 一致。段落标记各占 1 个单位。
 //!
-//! Multiple-column pages additionally expose `columns` frames in points and
-//! each line's explicit `column` index (or null). Single-column page payloads
-//! remain unchanged; column frames describe the engine, not Word measurements.
+//! Pages with multiple column regions expose `columns` frames in points and
+//! each line's explicit region index (or null). Single-region payloads remain
+//! unchanged; these frames describe the engine, not Word measurements.
 //!
 //! # 手写而不引 serde
 //!

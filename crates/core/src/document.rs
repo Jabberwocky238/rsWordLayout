@@ -129,8 +129,10 @@ impl ColumnLayout {
         json!({
             "declared": self.declared,
             "effective": effective,
-            "flow": "left-to-right sequential; continuous-section balancing not implemented",
+            "flow": "left-to-right; sequential document end; same-setup continuous sections close column groups and balance preceding multi-column content by source replay",
+            "flowEvidence": "Mac Word 16.112.3 print, compatibility mode 15, controlled Times New Roman probes; shared behavior on other platforms and views is inferred",
             "rounding": "equal widths distribute remainder twips from left to right (host policy)",
+            "areasScope": "section body templates; actual page column-group regions are recorded on each page",
             "areas": areas.iter().map(|area| json!({
                 "x": area.x, "y": area.y, "width": area.width, "height": area.height,
             })).collect::<Vec<_>>(),
@@ -196,6 +198,8 @@ pub struct DocumentCompatibility {
     /// the print-view default; mobile view still splits the paragraph mark.
     pub split_page_break_and_para_mark: Option<bool>,
     /// `w:compat/w:noColumnBalance`, preserved separately from layout policy.
+    /// Both explicit values produced the same captured Mac print column groups.
+    /// The shared formatter does not use this flag to disable balancing.
     pub no_column_balance: Option<bool>,
 }
 
@@ -278,6 +282,7 @@ impl LayoutDocument {
             "compatibility": {
                 "splitPgBreakAndParaMark": self.compatibility.split_page_break_and_para_mark,
                 "noColumnBalance": self.compatibility.no_column_balance,
+                "noColumnBalancePolicy": "retained without disabling balancing; both explicit values agree in the captured Mac print probes, with other platforms and views inferred",
             },
             "overrides": {
                 "margin": self.overrides.margin,
@@ -430,7 +435,6 @@ fn section_columns(props: &Value, body: Rect, section: usize, diagnostics: &mut 
             notes.push("column separator lines (sep) are not rendered".into());
         }
         if columns.count() > 1 {
-            notes.push("sequential column flow: continuous-section column balancing is not implemented".into());
             if let Some(bidi) = props.get("bidi") {
                 match bidi.as_bool() {
                     Some(true) => notes.push("right-to-left column order (bidi) is not implemented; using left-to-right order".into()),
@@ -558,12 +562,13 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             SectionStart::Continuous | SectionStart::NextColumn
         ) && pair[0].setup != pair[1].setup
         {
-            diagnostics.push(format!("section at block {} changes continuous geometry: current page retained; new geometry starts on the next page", pair[1].block_range.start));
+            diagnostics.push(format!("section at block {} changes continuous geometry: current page retained; new geometry starts on the next page; no balancing or new same-page column group is applied across different page setups", pair[1].block_range.start));
         }
         if matches!(pair[1].kind, SectionStart::Continuous | SectionStart::NextColumn)
             && pair[0].columns != pair[1].columns
+            && (pair[1].kind != SectionStart::Continuous || pair[0].setup != pair[1].setup)
         {
-            diagnostics.push(format!("section at block {} changes continuous columns: current page retains its columns; new columns start on the next page; balancing and mixed column regions are not implemented", pair[1].block_range.start));
+            diagnostics.push(format!("section at block {} changes {} columns: current page retains its columns; new columns start on the next page; same-page regrouping requires a continuous section with unchanged page setup", pair[1].block_range.start, pair[1].kind.as_str()));
         }
         if matches!(pair[1].kind, SectionStart::Continuous | SectionStart::NextColumn)
             && pair[0].grid != pair[1].grid
@@ -582,6 +587,18 @@ pub fn document_from_json(doc: &Value) -> LayoutDocument {
             && !value.is_boolean()
         {
             diagnostics.push(format!("block {block_index}: snapToGrid requires a boolean; cannot interpret {value}"));
+        }
+    }
+    for pair in sections.windows(2) {
+        if pair[1].kind == SectionStart::Continuous
+            && pair[0].setup == pair[1].setup
+            && (pair[0].columns.count() > 1 || pair[1].columns.count() > 1)
+            && !pair[0].para_range.is_empty()
+            && !pair[1].para_range.is_empty()
+            && paras[pair[0].para_range.end - 1].keep_next
+            && !paras[pair[1].para_range.start].page_break_before
+        {
+            diagnostics.push(format!("section at block {}: keepNext across same-setup continuous column groups involving multiple columns is not implemented; links within a group and single-column continuous flow retain their existing behavior", pair[1].block_range.start));
         }
     }
     LayoutDocument {

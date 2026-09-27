@@ -149,7 +149,8 @@ pub struct LineRecord {
     pub glyphs: Vec<GlyphRecord>,
     /// 本行覆盖的源字符区间。
     pub source: Option<SourceRange>,
-    /// Index into the page's column frames, from explicit layout bookkeeping.
+    /// Global index into the page's column-group regions, from explicit layout
+    /// bookkeeping. A later group never reuses an earlier group's column index.
     /// Missing or invalid ownership remains unknown, including for empty lines.
     pub column: Option<usize>,
     /// 行终止符。
@@ -175,8 +176,9 @@ pub struct PageRecord {
     /// 页面尺寸，twips。
     pub width: Twips,
     pub height: Twips,
-    /// Column frames in page coordinates, in reading order. These describe the
-    /// engine layout and do not establish matching Word column geometry.
+    /// All column-group regions in page coordinates, ordered by group flow and
+    /// then column order. Repeated horizontal positions remain separate regions.
+    /// These describe the engine and do not establish matching Word geometry.
     pub columns: Vec<Rect>,
     pub lines: Vec<LineRecord>,
 }

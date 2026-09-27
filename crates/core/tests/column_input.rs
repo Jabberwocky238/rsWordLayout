@@ -55,11 +55,7 @@ fn observed_two_column_width_uses_missing_equal_width_as_equal() {
             Rect::new(6313, 720, 4873, 15398),
         ]
     );
-    assert!(
-        doc.diagnostics
-            .iter()
-            .any(|note| note.contains("continuous-section column balancing"))
-    );
+    assert!(doc.diagnostics.is_empty());
     let meta = doc.trace_metadata();
     assert_eq!(meta["sections"][0]["columns"]["declared"]["num"], 2);
     assert!(
@@ -68,6 +64,9 @@ fn observed_two_column_width_uses_missing_equal_width_as_equal() {
             .is_none()
     );
     assert_eq!(meta["sections"][0]["columns"]["areas"][1]["x"], 6313);
+    assert!(meta["sections"][0]["columns"]["flow"].as_str().unwrap().contains("sequential document end"));
+    assert!(meta["sections"][0]["columns"]["flowEvidence"].as_str().unwrap().contains("other platforms and views is inferred"));
+    assert!(meta["sections"][0]["columns"]["areasScope"].as_str().unwrap().contains("section body templates"));
 }
 
 #[test]
@@ -377,7 +376,6 @@ fn unsupported_separator_rtl_and_vertical_flow_are_explicit_diagnostics() {
         "separator lines",
         "right-to-left column order",
         "textDirection",
-        "continuous-section column balancing",
     ] {
         assert!(
             doc.diagnostics.iter().any(|note| note.contains(phrase)),
@@ -388,7 +386,7 @@ fn unsupported_separator_rtl_and_vertical_flow_are_explicit_diagnostics() {
 }
 
 #[test]
-fn continuous_column_changes_retain_both_inputs_and_report_missing_mixed_regions() {
+fn same_setup_continuous_column_changes_retain_inputs_without_an_unsupported_diagnostic() {
     let doc = document_from_json(&json!({
         "main": [{"kind": "text"}, {"kind": "text"}],
         "sections": [
@@ -403,9 +401,61 @@ fn continuous_column_changes_retain_both_inputs_and_report_missing_mixed_regions
         ),
         (1, 2)
     );
-    assert!(
-        doc.diagnostics
-            .iter()
-            .any(|note| note.contains("current page retains its columns; new columns start on the next page"))
-    );
+    assert!(doc.diagnostics.is_empty());
+}
+
+#[test]
+fn next_column_and_changed_page_setup_retain_the_pending_column_diagnostic() {
+    for (kind, changed_setup) in [("nextColumn", false), ("continuous", true)] {
+        let mut next_props = json!({"kind": kind, "columns": {"num": 2}});
+        if changed_setup {
+            next_props["pageSize"] = json!({"w": 10000, "h": 16838});
+        }
+        let doc = document_from_json(&json!({
+            "main": [{"kind": "text"}, {"kind": "text"}],
+            "sections": [
+                {"blockRange": [0, 1], "props": {}},
+                {"blockRange": [1, 2], "props": next_props},
+            ],
+        }));
+        assert!(doc.diagnostics.iter().any(|note| note.contains(
+            "current page retains its columns; new columns start on the next page"
+        )), "{kind}: {:?}", doc.diagnostics);
+        assert_eq!(doc.diagnostics.iter().any(|note| note.contains(
+            "no balancing or new same-page column group"
+        )), changed_setup);
+    }
+}
+
+#[test]
+fn keep_next_diagnostic_is_limited_to_linked_same_setup_continuous_multicolumn_groups() {
+    for (first_columns, next_columns) in [(1, 1), (1, 2), (2, 1), (2, 2)] {
+        for (kind, keep_next, page_break, changed_setup) in [
+            ("continuous", true, false, false),
+            ("continuous", false, false, false),
+            ("continuous", true, true, false),
+            ("continuous", true, false, true),
+            ("nextColumn", true, false, false),
+        ] {
+            let mut next_props = json!({"kind": kind, "columns": {"num": next_columns}});
+            if changed_setup {
+                next_props["pageSize"] = json!({"w": 10000, "h": 16838});
+            }
+            let doc = document_from_json(&json!({
+                "main": [
+                    {"kind": "text", "props": {"keepNext": keep_next}},
+                    {"kind": "text", "props": {"pageBreakBefore": page_break}},
+                ],
+                "sections": [
+                    {"blockRange": [0, 1], "props": {"columns": {"num": first_columns}}},
+                    {"blockRange": [1, 2], "props": next_props},
+                ],
+            }));
+            let expected = kind == "continuous" && keep_next && !page_break && !changed_setup
+                && (first_columns > 1 || next_columns > 1);
+            assert_eq!(doc.diagnostics.iter().any(|note| note.contains(
+                "keepNext across same-setup continuous column groups"
+            )), expected, "{first_columns}/{next_columns}/{kind}/{keep_next}/{page_break}/{changed_setup}");
+        }
+    }
 }

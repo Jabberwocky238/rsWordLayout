@@ -307,7 +307,7 @@ fn diagnostic_overrides_apply_to_all_sections_and_invalid_override_is_atomic() {
 }
 
 #[test]
-fn explicit_column_list_without_num_is_projected_and_reports_unbalanced_flow() {
+fn explicit_column_list_without_num_is_projected_without_an_unsupported_flow_diagnostic() {
     let geometry = uniform_section(10000, 12000, 720, "nextPage").replace(
         "</w:sectPr>",
         r#"<w:cols w:equalWidth="0"><w:col w:w="3000" w:space="720"/><w:col w:w="4840"/></w:cols></w:sectPr>"#,
@@ -326,11 +326,7 @@ fn explicit_column_list_without_num_is_projected_and_reports_unbalanced_flow() {
         doc.sections[0].columns.areas(doc.sections[0].setup.content_area()).unwrap(),
         vec![Rect::new(720, 720, 3000, 10560), Rect::new(4440, 720, 4840, 10560)],
     );
-    assert!(
-        doc.diagnostics
-            .iter()
-            .any(|message| message.contains("continuous-section column balancing is not implemented"))
-    );
+    assert!(!doc.diagnostics.iter().any(|message| message.contains("balancing is not implemented")));
     assert!(!doc.diagnostics.iter().any(|message| message.contains("invalid columns")));
 }
 

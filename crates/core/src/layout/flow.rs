@@ -1,14 +1,17 @@
 //! Sequential column regions. Physical pages and columns have different lifetimes.
 
-use super::{Page, PageSetup, Rect};
+use super::{FINE_PER_TWIP, Page, PageSetup, Rect, Twips};
 use crate::ColumnLayout;
 
+#[derive(Clone)]
 pub(super) struct FlowRegions {
     setup: PageSetup,
     columns: ColumnLayout,
     areas: Vec<Rect>,
     column: usize,
     first_line: u32,
+    region_base: usize,
+    top_fine: i64,
 }
 
 impl FlowRegions {
@@ -19,6 +22,8 @@ impl FlowRegions {
             areas: Vec::new(),
             column: 0,
             first_line: 0,
+            region_base: 0,
+            top_fine: i64::from(setup.content_area().y) * FINE_PER_TWIP,
         };
         flow.areas = flow.pending_areas();
         flow
@@ -61,7 +66,48 @@ impl FlowRegions {
     }
 
     pub(super) fn column(&self) -> usize {
-        self.column
+        self.region_base + self.column
+    }
+
+    pub(super) fn count(&self) -> usize {
+        self.areas.len()
+    }
+
+    pub(super) fn top_fine(&self) -> i64 {
+        self.top_fine
+    }
+
+    pub(super) fn full_height_fine(&self) -> i64 {
+        i64::from(self.setup.content_area().height) * FINE_PER_TWIP
+    }
+
+    pub(super) fn ends_page(&self, force_page: bool) -> bool {
+        force_page || self.column + 1 == self.areas.len()
+    }
+
+    pub(super) fn is_partial(&self) -> bool {
+        self.top_fine > i64::from(self.setup.content_area().y) * FINE_PER_TWIP
+    }
+
+    pub(super) fn close_band(&self, page: &mut Page, bottom_fine: i64) {
+        let bottom = (bottom_fine as f64 / FINE_PER_TWIP as f64).round() as Twips;
+        for area in &mut page.columns[self.region_base..] {
+            area.height = (bottom - area.y).max(0);
+        }
+    }
+
+    pub(super) fn start_band(&mut self, page: &mut Page, line_index: u32, top_fine: i64) {
+        self.areas = self.pending_areas();
+        let top = (top_fine as f64 / FINE_PER_TWIP as f64).round() as Twips;
+        for area in &mut self.areas {
+            area.height = (area.bottom() - top).max(0);
+            area.y = top;
+        }
+        self.top_fine = top_fine;
+        self.column = 0;
+        self.first_line = line_index;
+        self.region_base = page.columns.len();
+        page.columns.extend_from_slice(&self.areas);
     }
 
     pub(super) fn is_empty(&self, line_index: u32) -> bool {
@@ -78,6 +124,8 @@ impl FlowRegions {
         self.areas = self.pending_areas();
         self.column = 0;
         self.first_line = 0;
+        self.region_base = 0;
+        self.top_fine = i64::from(self.area().y) * FINE_PER_TWIP;
         *line_index = 0;
         *page = self.fresh_page();
         self.area()
@@ -90,9 +138,11 @@ impl FlowRegions {
         line_index: &mut u32,
         force_page: bool,
     ) -> Rect {
-        if force_page || self.column + 1 == self.areas.len() {
+        if self.ends_page(force_page) {
             self.areas = self.pending_areas();
             self.column = 0;
+            self.region_base = 0;
+            self.top_fine = i64::from(self.area().y) * FINE_PER_TWIP;
             pages.push(std::mem::replace(page, self.fresh_page()));
             *line_index = 0;
         } else {

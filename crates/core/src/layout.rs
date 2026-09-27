@@ -820,7 +820,8 @@ pub struct Page {
     pub size: Size,
     /// 正文可用区（已扣页边距），供调试与页眉页脚定位参考。
     pub content_area: Rect,
-    /// Column frames in page coordinates, in reading order.
+    /// Column regions in page coordinates, in reading order across all groups.
+    /// Continuous sections can append regions below earlier groups on this page.
     pub columns: Vec<Rect>,
     /// Column ownership indexed by the page-wide line number.
     pub line_columns: Vec<usize>,
@@ -1332,6 +1333,7 @@ mod vertical;
 use vertical::VerticalExtent;
 mod flow;
 use flow::FlowRegions;
+mod pagination;
 #[cfg(test)]
 mod flow_tests;
 
@@ -1400,6 +1402,7 @@ struct PageFit {
     area: Rect,
     next_area: Rect,
     top_fine: i64,
+    bottom_fine: i64,
     source_base: u32,
     keep_after: Option<VerticalExtent>,
 }
@@ -1591,9 +1594,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     fn keep_link(paras: &[Para], sections: &[crate::LayoutSection], index: usize) -> bool {
         paras.get(index).is_some_and(|p| p.keep_next)
             && paras.get(index + 1).is_some_and(|p| !p.page_break_before)
-            && !sections.iter().any(|s| {
+            && !sections.iter().enumerate().any(|(si, s)| {
                 s.para_range.start == index + 1
-                    && s.kind != crate::SectionStart::Continuous
+                    && (s.kind != crate::SectionStart::Continuous
+                        || sections.get(si.wrapping_sub(1)).is_some_and(|previous| {
+                            previous.setup == s.setup
+                                && (previous.columns.count() > 1 || s.columns.count() > 1)
+                        }))
             })
     }
 
@@ -1607,10 +1614,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         index: usize,
         area: Rect,
         position: (i64, u32, Rect),
+        capacity: i64,
     ) -> Option<VerticalExtent> {
         let (origin, mut source, next_area) = position;
         let mut extent: Option<VerticalExtent> = None;
-        let capacity = i64::from(area.height) * FINE_PER_TWIP;
         let mut minimum = None;
         let mut index = index;
         while Self::keep_link(paras, sections, index) {
@@ -1675,15 +1682,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         para: &Para,
         lines: &std::collections::VecDeque<PendingLine>,
         fit: PageFit,
-    ) -> usize {
+    ) -> (usize, Option<i64>) {
         let mut extent = VerticalExtent::default();
         let mut count = 0;
+        let mut next_bottom = None;
         for (i, line) in lines.iter().enumerate() {
             let candidate = extent.then(line.vertical);
             let required = if i + 1 == lines.len() && !line.flow_break.is_hard() {
                 fit.keep_after.map_or(candidate, |after| candidate.then(after)).required_fine
             } else { candidate.required_fine };
-            if fit.top_fine + required > i64::from(fit.area.bottom()) * FINE_PER_TWIP {
+            if fit.top_fine + required > fit.bottom_fine {
+                next_bottom = Some(fit.top_fine + required);
                 break;
             }
             count += 1;
@@ -1712,10 +1721,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 count -= 1;
             }
             if count == 1 {
-                return 0;
+                return (0, next_bottom);
             }
         }
-        count
+        (count, next_bottom)
     }
 
     /// 把段落序列排成页面。
@@ -1735,185 +1744,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             compatibility: document.compatibility,
         }
         .layout_sections(&document.paras, &document.sections)
-    }
-
-    fn layout_sections(&self, paras: &[Para], sections: &[crate::LayoutSection]) -> Vec<Page> {
-        let setup = sections.first().map_or(self.setup, |s| s.setup);
-        let columns = sections.first().map_or_else(crate::ColumnLayout::default, |s| s.columns.clone());
-        let mut regions = FlowRegions::new(setup, columns);
-        let mut area = regions.area();
-        let mut pages: Vec<Page> = Vec::new();
-        let mut page = Page::new(setup.size, setup.content_area());
-        // 纵向游标走**精细单位**（1/7200 英寸），只在落位与判断时换回 twips。
-        // 按整 twips 累加会逐行漂移：栅格上的 273.6 twips 落成 274，每行多 0.4 twip。
-        let fine = |t: Twips| i64::from(t) * FINE_PER_TWIP;
-        let coarse = |f: i64| ((f as f64) / FINE_PER_TWIP as f64).round() as Twips;
-        let mut cursor_fine: i64 = fine(area.y);
-
-        // 本页内的行号。一行可能出多个片段，下游要靠它把它们合回一行；
-        // 翻页时归零。
-        let mut line_index: u32 = 0;
-        regions.reset_empty_page(&mut page, &mut line_index);
-
-        // 全篇 UTF-16 偏移游标。与 Word 的 `Range.Start/End` 同一套数法：
-        // 各段文本依次拼接，**每段末尾算一个终止符**（`\r`，带 `w:sectPr` 的段是 `\x0c`，
-        // 都占 1 个 UTF-16 单位）。段内的软回车与分页符已经以 U+FFFC 占位符
-        // 落在 run 文本里，所以逐 run 数就够，不必另加。
-        let mut source_cursor: u32 = 0;
-        let mut active_section = None;
-
-        for (idx, para) in paras.iter().enumerate() {
-            if let Some((si, section)) = sections.iter().enumerate().find(|(_, s)| s.para_range.contains(&idx))
-                && active_section != Some(si)
-            {
-                use crate::SectionStart;
-                let first_section = active_section.is_none();
-                active_section = Some(si);
-                regions.set_section(section.setup, section.columns.clone());
-                let new_page = !matches!(section.kind, SectionStart::Continuous | SectionStart::NextColumn);
-                if !first_section && new_page && !page.fragments.is_empty() {
-                    area = regions.advance(&mut pages, &mut page, &mut line_index, true);
-                    cursor_fine = fine(area.y);
-                } else if !first_section && section.kind == SectionStart::NextColumn && !regions.is_empty(line_index) {
-                    area = regions.advance(&mut pages, &mut page, &mut line_index, false);
-                    cursor_fine = fine(area.y);
-                }
-                if page.fragments.is_empty() {
-                    // An explicit break can already have opened the next page.
-                    // Replace its geometry rather than inserting a second blank page.
-                    area = regions.reset_empty_page(&mut page, &mut line_index);
-                    cursor_fine = fine(area.y);
-                    if !first_section {
-                        let physical_page = pages.len() + 1;
-                        let wrong_parity = match section.kind {
-                            SectionStart::EvenPage => !physical_page.is_multiple_of(2),
-                            SectionStart::OddPage => physical_page.is_multiple_of(2),
-                            _ => false,
-                        };
-                        if wrong_parity {
-                            pages.push(page.clone());
-                        }
-                    }
-                }
-            }
-            let para_base = source_cursor;
-            let para_units: u32 = para
-                .runs
-                .iter()
-                .map(|r| r.text.encode_utf16().count() as u32)
-                .sum();
-            // +1 是段落终止符本身。
-            source_cursor = para_base + para_units + 1;
-
-            if para.page_break_before && !page.fragments.is_empty() {
-                area = regions.advance(&mut pages, &mut page, &mut line_index, true);
-                cursor_fine = fine(area.y);
-            }
-
-            cursor_fine += fine(para.space_before);
-            let mut lines = self.break_paragraph(para, area, coarse(cursor_fine), para_base);
-            let first_segment = lines.iter().position(|l| l.flow_break.is_hard()).map_or(lines.len(), |i| i + 1);
-            let block_extent = lines_extent(lines.iter().take(first_segment));
-
-            // keepLines only moves a group that can fit a fresh page. For an
-            // oversized group, relax this constraint without breaking a feasible
-            // keepNext link to the preceding paragraph.
-            if para.keep_lines
-                && cursor_fine + block_extent.required_fine > fine(area.bottom())
-                && !regions.is_empty(line_index)
-            {
-                let next_area = regions.next_area();
-                let next_lines = self.break_paragraph(para, next_area, next_area.y, para_base);
-                let next_segment = next_lines.iter().position(|l| l.flow_break.is_hard()).map_or(next_lines.len(), |i| i + 1);
-                let next_extent = lines_extent(next_lines.iter().take(next_segment));
-                if next_extent.required_fine <= fine(next_area.height) {
-                    area = regions.advance(&mut pages, &mut page, &mut line_index, false);
-                    cursor_fine = fine(area.y);
-                    lines = next_lines;
-                }
-            }
-
-            // Move a keepNext chain before committing its first line when the
-            // group fits a fresh page. Hard breaks remain stronger than keep rules.
-            if para.keep_next && !regions.is_empty(line_index) && !lines.iter().any(|l| l.flow_break.is_hard()) {
-                let current = lines_extent(lines.iter());
-                let after = self.keep_after_extent(paras, sections, idx, area, (cursor_fine + current.advance_fine, source_cursor, regions.next_area()));
-                if after.is_some_and(|after| cursor_fine + current.then(after).required_fine > fine(area.bottom())) {
-                    let next_area = regions.next_area();
-                    let next_lines = self.break_paragraph(para, next_area, next_area.y, para_base);
-                    let next_extent = lines_extent(next_lines.iter());
-                    let next_after = self.keep_after_extent(paras, sections, idx, next_area, (fine(next_area.y) + next_extent.advance_fine, source_cursor, regions.area_after_next()));
-                    if next_after.map_or(next_extent, |after| next_extent.then(after)).required_fine <= fine(next_area.height) {
-                        area = regions.advance(&mut pages, &mut page, &mut line_index, false);
-                        cursor_fine = fine(area.y);
-                        lines = next_lines;
-                    }
-                }
-            }
-
-            let mut pending: std::collections::VecDeque<_> = lines.into();
-            let quota = |pending: &std::collections::VecDeque<PendingLine>, area: Rect, next_area: Rect, top_fine: i64| {
-                let keep_after = if Self::keep_link(paras, sections, idx) {
-                    let current = lines_extent(pending.iter());
-                    self.keep_after_extent(paras, sections, idx, area, (top_fine + current.advance_fine, source_cursor, next_area))
-                } else { None };
-                self.page_line_quota(para, pending, PageFit {
-                    area, next_area, top_fine, source_base: para_base,
-                    keep_after,
-                })
-            };
-            let mut remaining = quota(&pending, area, regions.next_area(), cursor_fine);
-            while !pending.is_empty() {
-                if remaining == 0 && !regions.is_empty(line_index) {
-                    let previous_area = area;
-                    area = regions.advance(&mut pages, &mut page, &mut line_index, false);
-                    cursor_fine = fine(area.y);
-                    if !self.wrap.is_empty() || area != previous_area {
-                        let line = pending.front().expect("pending paragraph line");
-                        pending = self.break_paragraph_at(
-                            para, area, coarse(cursor_fine), para_base,
-                            LineCursor { source: line.source_start, first: line.is_first },
-                        ).into();
-                    }
-                    remaining = quota(&pending, area, regions.next_area(), cursor_fine);
-                }
-                // A paragraph taller than the page, or impossible widow/keep
-                // constraints, must still consume at least one source line.
-                remaining = remaining.max(1);
-                let line = pending.pop_front().expect("a remaining source line must advance");
-                self.place_line(&mut page, &line, para, cursor_fine, line_index);
-                page.line_columns.push(regions.column());
-                remaining -= 1;
-                line_index += 1;
-                // Advance in fine units; the occupied bottom only controls fit.
-                cursor_fine += line.vertical.advance_fine;
-
-                // Explicit page/column controls end the current region even
-                // when space remains. A page break skips all remaining columns.
-                //
-                // 与「放不下就翻页」不同，这一条**不看还剩多少空间**——源里写了分页就是分页。
-                // 实测夹具里有连续两个分页符的情形，那确实产生一张只有一条行记录的页。
-                if line.flow_break.is_hard() {
-                    let previous_area = area;
-                    area = regions.advance(&mut pages, &mut page, &mut line_index, line.flow_break == FlowBreak::Page);
-                    cursor_fine = fine(area.y);
-                    if (!self.wrap.is_empty() || area != previous_area)
-                        && let Some(next) = pending.front()
-                    {
-                        pending = self.break_paragraph_at(
-                            para, area, coarse(cursor_fine), para_base,
-                            LineCursor { source: next.source_start, first: next.is_first },
-                        ).into();
-                    }
-                    remaining = quota(&pending, area, regions.next_area(), cursor_fine);
-                }
-            }
-
-            cursor_fine += fine(para.space_after);
-        }
-
-        pages.push(page);
-        pages
     }
 
     /// 把一行放到页面上，处理水平对齐。

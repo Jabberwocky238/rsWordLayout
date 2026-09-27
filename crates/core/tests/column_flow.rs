@@ -4,7 +4,8 @@
 //! physical-page boundary, and distinct column/page breaks. Synthetic metrics
 //! below test source accounting and inferred flow constraints, not new Word
 //! captures. One separately gated Mac capture checks terminal 40-line sequential
-//! flow with Times New Roman; continuous-section balancing remains unmeasured.
+//! flow with Times New Roman; canonical continuous-section captures are exercised
+//! separately in continuous_columns.rs.
 
 use std::collections::BTreeSet;
 
