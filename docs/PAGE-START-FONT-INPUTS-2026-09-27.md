@@ -65,3 +65,45 @@ Arial Unicode MS 与三个对照，也不能证明其中任何一个进入 `{128
 `6754c6d6d2fec4b5e0bda4f4676542ae02d7ef2e345f47044664c7ee71630f1f`；
 LOGFONT 包 30 成员，
 `d226c0b7d5c742aaff04945d75c09a15a595611e2299353a2ccf8955579db6d7`。
+
+## 默认字符集改写的来源
+
+后续[静态调查](../artifacts/font-charset-rewrite-2026-09-27/README.md)已经闭合
+`100341634..650` 的局部 gate 和被调转换函数：
+
+```text
+if current V.byte38 == 1 and current P0.bit22 == 0:
+    V.byte38 = low8(MsoChsFromCpg(MsoGetACP()))
+```
+
+gate 内没有字体族或 mode 判断。它读的是当时的 P/V，不能用独立 LOGFONT 返回值
+替代。P0.bit22 的一个初始来源是上游属性字 bits24/25 的 OR；后面有接收可写 P
+的调用，因此这个初值也不能自动当作最终读取值，更未将其命名为某个 OOXML 属性。
+
+固定 mso30 中的 `MsoChsFromCpg` 是无调用的整数比较树，相关转换为：
+
+| 明确输入的码页 | charset 输出 | 是否在 SPECIAL 集合 |
+| ---: | ---: | --- |
+| 932 | 128 | 是 |
+| 936 | 134 | 是 |
+| 949 | 129 | 是 |
+| 950 | 136 | 是 |
+| 1361 | 130 | 否 |
+| 10000 | 77 | 否 |
+| 1252 或未列在完整映射表中的 i32 | 0 | 否 |
+
+`MsoGetACP` 经 mso20 转到 WLMKernel 的进程缓存。其 `dispatch_once` 初始化器
+读取 mbulocale 的首选文本编码并转成码页；编码来源链明确使用
+`CFBundleGetMainBundle` 与 bundle 的首选语言。码页转换返回 -1 时缓存 10000。
+完整映射和缓存初始化指令均保存在新包中，没有执行这些 API。
+
+因此 ACP 属于主应用 bundle、语言与初始化状态的输入，不是某个字体文件的属性。
+以后即便在独立 Python 中成功读取 ACP，也不能直接当作 Word 进程的 ACP。
+目前缺的是实际 Word 缓存值、当前 P/V 与选中路径；改写后还有可接收 P/V 并触发
+重试的调用，不能直接推定 tail 最终 V38。六字体全部返回 DEFAULT_CHARSET 的
+实测与这条改写规则并不矛盾，但它们仍未选定 page-start 的实际补偿分支。
+
+本片核验 7 个完整函数、133 个旧证据成员；离线指令解释覆盖全部 u16 码页及
+三个 i32 边界，共 65,539 例，与完整常量表一致。未宣称穷举全部 i32，更没有新增
+Word 或原生 API 测量。经审核冻结的新包 38 成员，SHA256SUMS 清单哈希为
+`3d0b144d6a0ec4b6d621d23301605d7bb974420d1cdfd8db7b2da7895fd5eee9`。
