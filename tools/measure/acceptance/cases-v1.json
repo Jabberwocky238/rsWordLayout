@@ -1,0 +1,2131 @@
+{
+  "schema": "rsword-acceptance-cases/1",
+  "version": 1,
+  "codeBaseline": "2a192d34f327615f126eb2807efacd5991f9a0e6",
+  "families": [
+    "line-breaking",
+    "vertical-pagination",
+    "sections-columns",
+    "tables",
+    "headers-numbering",
+    "objects",
+    "footnotes"
+  ],
+  "evidenceStates": {
+    "strict": "raw Word reference with a strict comparator",
+    "conditional": "raw reference compared under explicit historical assumptions",
+    "report-only": "report-level constraint without a strict page/line log",
+    "reference-invalid": "reference exists but is void",
+    "binding-missing": "reference cannot be bound to a current document"
+  },
+  "familyTagging": "declared from each preregistration question or report topic",
+  "cases": [
+    {
+      "id": "mac-print/a-form-2026-09-17",
+      "group": "a-form",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/a-form.docx",
+        "sha256": "7cbb3657575cc27832033d8a695814018dd5f5bee74202c00f6ad8ec18965ec2"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/a-form-2026-09-17",
+        "metaSha256": "83998f9dd4d0f2a1f11e8c85ec27a049b83b4820ba2d025e4d8e26bd96f5ed3d"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/accumulation-2026-09-17",
+      "group": "accumulation",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Comic Sans MS",
+          "Georgia",
+          "Tahoma",
+          "Trebuchet MS",
+          "Verdana"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/accumulation.docx",
+        "sha256": "b81d4338200bd4464a87b30f940e5e3a04cdc9f58b8292e36b172615dc975463"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/accumulation-2026-09-17",
+        "metaSha256": "a0fd76702b8e396749fc75d3cfb175bcb516f613426aebe92ef05b6c29b7ee5b"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/baseline-order-2026-09-17",
+      "group": "baseline-order",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Plantagenet Cherokee",
+          "STIX Two Text",
+          "Sathu",
+          "Skia",
+          "Trattatello",
+          "Zapfino"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/baseline-order.docx",
+        "sha256": "9acad2f4905fb14e06fa5c23bbe5b4271cb4c234f173045e15f6230885123c98"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/baseline-order-2026-09-17",
+        "metaSha256": "347b497aba80f74f5fafb1f2fb0ae8f925e19af7ca6fdd8473b187942ac41430"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/breaks-sections-2026-09-17",
+      "group": "breaks-sections",
+      "families": [
+        "sections-columns",
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/breaks-sections.docx",
+        "sha256": "5087b3e6d04f659df83b065a4849546e1481222ca6bd3498d87eebd2b30f2b84"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/breaks-sections-2026-09-17",
+        "metaSha256": "faa7f22887a903fcce9aa99ef0cd2a525444270655037989c8eaaa6543c0fbe8"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/cjk-plain-2026-09-18",
+      "group": "cjk-plain",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Songti SC"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/cjk-plain.docx",
+        "sha256": "07dea76d27bb4b085a5cc753032d60ef694e5284abe690740420a2939fc8ac23"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/cjk-plain-2026-09-18",
+        "metaSha256": "9e1acde22c127cf8ba73f53665aba8cbd5af9736272a5766f2a78024f729cb5a"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/cursor-unit-2026-09-17",
+      "group": "cursor-unit",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Andale Mono",
+          "Ayuthaya",
+          "Big Caslon Medium",
+          "Chalkduster",
+          "Krungthep"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/cursor-unit.docx",
+        "sha256": "9cfd06fb59794515de9c74877e2903dada87848574aa65a049485e43689d1ac3"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/cursor-unit-2026-09-17",
+        "metaSha256": "4a3286050a1d91980d23a2022e7c154c14eb34df38e980f04f0133db78782b3f"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/exact-spacing-2026-09-17",
+      "group": "exact-spacing",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Brush Script MT",
+          "Lao Sangam MN",
+          "Silom"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/exact-spacing.docx",
+        "sha256": "95ea1ad3ea28342783f995ea116b0eebec10112919076e3a0bb0d3437eb2642a"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/exact-spacing-2026-09-17",
+        "metaSha256": "a04d07772c84375160d2d97f58412536ed938af371e9948e43834fd558b8732f"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/first-line-2026-09-17",
+      "group": "first-line",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Apple Chancery",
+          "Bodoni 72 Smallcaps Book",
+          "Herculanum",
+          "Impact",
+          "Luminari",
+          "Microsoft Sans Serif"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/first-line.docx",
+        "sha256": "a9f42e6a0c1f9aa892b9c13d67f1ce7a355133855f69085f4f11fafcd17497cd"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/first-line-2026-09-17",
+        "metaSha256": "4216747dfba580105d289d60a4d49d8394b0ee7e85e279591dcc5e78bffa36ad"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/first-line-2026-09-17-void",
+      "group": "first-line",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Apple Chancery",
+          "Bodoni 72 Smallcaps Book",
+          "Herculanum",
+          "Impact",
+          "Luminari",
+          "Microsoft Sans Serif"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/first-line.docx",
+        "sha256": "a9f42e6a0c1f9aa892b9c13d67f1ce7a355133855f69085f4f11fafcd17497cd"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/first-line-2026-09-17-void",
+        "metaSha256": "10cc4677b27f7a5196ce218366256082edc177c8d02b00ac27ee6a7d69b2f869"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "reference-invalid",
+      "evidenceReason": "CAPTURE_VOID",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID"
+      }
+    },
+    {
+      "id": "mac-print/fixed-distance-2026-09-17",
+      "group": "fixed-distance",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/fixed-distance.docx",
+        "sha256": "3fbb8a58e33951c6e699a3f543169f4368dbc809e7029594239d734751faa344"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/fixed-distance-2026-09-17",
+        "metaSha256": "30cf7c3836996659c66a8c5e2d24bc13c905ed3c9c217e7caae6f8af3c942fcf"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/font-free-2026-09-17",
+      "group": "font-free",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "AppleMyungjo",
+          "Herculanum",
+          "Khmer Sangam MN",
+          "Luminari",
+          "Trattatello",
+          "Zapfino"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/font-free.docx",
+        "sha256": "ce3c82dfeb124065b122aed566640cad1b871647f15cee8fcabd0f94049e0d30"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/font-free-2026-09-17",
+        "metaSha256": "0926cc06fac6b695b837626e2a3d3182bfa1a2c973b831eb0363b5deb09222ca"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/hbox-2026-09-17",
+      "group": "hbox",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/hbox.docx",
+        "sha256": "9d972f7bfb755aecfcc7cda53f00f59ceebbedf84ebeb6c8e6adc5ca7d09078c"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/hbox-2026-09-17",
+        "metaSha256": "41870d3f2f84004d83b27d9849388e2552740f627f2ecd7257f3297c2fcfbe47"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/hbox2-2026-09-17",
+      "group": "hbox2",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/hbox2.docx",
+        "sha256": "df9e8bccd20357ce69b95ca70c0a7b20220029d7370bb8042dfe40da8004322d"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/hbox2-2026-09-17",
+        "metaSha256": "66dd510b48856961ab630a033b191ccca3e079e4b8ea0342504ee3fe8a6fc39c"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/indent-align-2026-09-17",
+      "group": "indent-align",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/indent-align.docx",
+        "sha256": "c7cd816b48331dbea4b60be8f56ff57cae60701a6e8515447ee3d403067d1730"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/indent-align-2026-09-17",
+        "metaSha256": "390041cb7bf07093a721bbb2d2081e7e7dec2a464c16239da7e380ccae917f15"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/kinsoku-2026-09-18",
+      "group": "kinsoku",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Songti SC"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/kinsoku.docx",
+        "sha256": "37abbd1186bc9711679816ae0addec1e4c45d23c835d5c621b188f171583fead"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/kinsoku-2026-09-18",
+        "metaSha256": "a271021d03e4b71de54a7075e63814bacd532a0b383da0b5d02db857e782fb44"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/kinsoku2-2026-09-18",
+      "group": "kinsoku2",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Songti SC"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/kinsoku2.docx",
+        "sha256": "57e52d52a70650529b7166f6a5fd379fc5dd91a1ca5d362814f0fc8ef106f8ec"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/kinsoku2-2026-09-18",
+        "metaSha256": "15065c0380000dea9f8273f1f455ae79c6d67757a29c2e8265bf9e3593abf422"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/noise-floor-2026-09-17",
+      "group": "noise-floor",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "AppleMyungjo",
+          "Luminari",
+          "Trattatello"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/noise-floor.docx",
+        "sha256": "b4e2c2c563ea52cf1087a4a2176667c78f8feee0a22ae739b35e04bc40377657"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/noise-floor-2026-09-17",
+        "metaSha256": "584992bc3ab1861effb91364c35839319a27dbe68606593f84929268f1f798a0"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/page-start-2026-09-17",
+      "group": "page-start",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "AppleMyungjo",
+          "Arial Unicode MS",
+          "Brush Script MT",
+          "Khmer Sangam MN",
+          "Lao Sangam MN",
+          "Silom"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/page-start.docx",
+        "sha256": "e9c933739fd462eb8b440438fe93a1323d6220f6c1e8c5caf8b36a4c2905dcb1"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/page-start-2026-09-17",
+        "metaSha256": "b739b5cf418c24c3c4796f95a09c8573fcefd2d325f5e67994181eceba2155a5"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/page-start-2026-09-17-void",
+      "group": "page-start",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Brush Script MT",
+          "Gurmukhi MN",
+          "Khmer Sangam MN",
+          "Kokonor",
+          "Lao Sangam MN",
+          "Silom"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": null,
+        "sha256": "78550ef10f3c6db982cdc3f8a617df49f04a42ff0418c73a7ec601511978f72a"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/page-start-2026-09-17-void",
+        "metaSha256": "be97df248f71cc23f38adce8c380476d54e56ab07b6df3a1dd9604dde9741937"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "reference-invalid",
+      "evidenceReason": "CAPTURE_VOID",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID"
+      }
+    },
+    {
+      "id": "mac-print/probe-metrics-2026-09-17",
+      "group": "probe-metrics",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Carlito",
+          "Liberation Mono",
+          "Liberation Sans",
+          "Liberation Serif"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/probe-metrics.docx",
+        "sha256": "faffc29559e479386869eb492d8296c52bf3f26ce7fb3ff95d05cbfe9844bc90"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/probe-metrics-2026-09-17",
+        "metaSha256": "12c90fcac5173e857ce801e85c9b421555ee101234729936c43947523dbbec11"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "reference-invalid",
+      "evidenceReason": "CAPTURE_VOID",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID"
+      }
+    },
+    {
+      "id": "mac-print/recursive-2026-09-17",
+      "group": "recursive",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "AppleMyungjo",
+          "Lao Sangam MN"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/recursive.docx",
+        "sha256": "0e189e160fa5d9b5b3946951bba25c3c10cd1447d120045d57348af61e5b7259"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/recursive-2026-09-17",
+        "metaSha256": "a1fe6c7bef3e3b4edbb54bb8a607c91cc8b1dd863e28a072c2057bb532f959df"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/rounding-2026-09-17",
+      "group": "rounding",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Brush Script MT",
+          "Silom"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/rounding.docx",
+        "sha256": "bddfa0b24101e017743540d04e22d45a26c2db7c36fbede40264e7651abbfc19"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/rounding-2026-09-17",
+        "metaSha256": "75e1e7114d86d7681a39f72cf3a15d5503196db3eba275a27bb654e0f971df8e"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/shift-floor-2026-09-17",
+      "group": "shift-floor",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "AppleMyungjo",
+          "Brush Script MT"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/shift-floor.docx",
+        "sha256": "04d2bc8d5779b08fa126bf8e88330f3aed91e1bcb4f21f19f03ea6df016012eb"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/shift-floor-2026-09-17",
+        "metaSha256": "c39cf9c9a45e5945d5408206018b0e53b4da6ce8a905cb983e7b98bf3b151c6f"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/size-free-2026-09-17",
+      "group": "size-free",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/size-free.docx",
+        "sha256": "84deea75e148f1b6865d276cc9daed39629026d4faf46a7a658c91a44e85c789"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/size-free-2026-09-17",
+        "metaSha256": "cb7cc699070b29675eb66e5a38e3b2467aca2862c1cff105bca30382adb74216"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/vertical-precision-2026-09-22",
+      "group": "vertical-precision",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "e77e422a1c962b05a6e1ba9a880dbfb8de710de8eae65952a7895f32ef8a525f",
+        "requiredFamilies": [
+          "Arial",
+          "Courier New",
+          "Times New Roman"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/vertical-precision.docx",
+        "sha256": "5f7d0996db0fad961d887fc3f08b9ed973bba7483838bc9aca6d52c8c6850fca"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/vertical-precision-2026-09-22",
+        "metaSha256": "381291d502012c73ceae5b2c6ddb2c7e2f458d87cb28f629230dc070d786ff67"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/vmisc-2026-09-17",
+      "group": "vmisc",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/vmisc.docx",
+        "sha256": "2d0fff0c1d50fd3624d114488705220a203594674ca415b3d793ca81055c8bc1"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/vmisc-2026-09-17",
+        "metaSha256": "8672f3ee898e777afcfdabd8ca19f7cf276d6e2e2af044a81191772349b37483"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/vmisc2-2026-09-17",
+      "group": "vmisc2",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari",
+          "Times New Roman"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/vmisc2.docx",
+        "sha256": "808c58e18a67a0dcff1cc22852ee985d1366e58e5c46846a219402e4fe54fdab"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/vmisc2-2026-09-17",
+        "metaSha256": "807ba68f5bfdf7a4811659ceeb42eadadf29b1d0e505c618b9fea05cbe525867"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/vmisc2-2026-09-17-void",
+      "group": "vmisc2",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": null,
+        "sha256": "1b0be91fb5b7821a5da30334bb756488a253cf7c2a7bcf98eb19c6d52cfb2816"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/vmisc2-2026-09-17-void",
+        "metaSha256": "438d5dd9e65fd0bd34d9893abb39b32d14fcb9c28a3f7da5667b0c084d8e4599"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "reference-invalid",
+      "evidenceReason": "CAPTURE_VOID",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID"
+      }
+    },
+    {
+      "id": "mac-print/vmisc3-2026-09-17",
+      "group": "vmisc3",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": "fixtures/vmisc3.docx",
+        "sha256": "27d2c0304fffc5aa539c49b10f5e01fba529c9823f50ed9ec3d35fc0b74910e4"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/vmisc3-2026-09-17",
+        "metaSha256": "a0c7fa95d5595d617d306def2c38df7e633136c1639a28ff03c96b7588d066ba"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "strict",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "FAIL",
+        "reason": "TRACE_SELFCHECK_UNDECIDABLE"
+      }
+    },
+    {
+      "id": "mac-print/vmisc3-2026-09-17-void",
+      "group": "vmisc3",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "mac-word-16.112.3-print",
+        "platform": "mac",
+        "view": "print",
+        "wordVersion": "16.112.3",
+        "wordBuild": "16.112.26083020",
+        "fontEnvironmentSha256": "4eff0df4a9fc9e9811ad6484969b526f61ab1e756e7ea55fed082a5e601db672",
+        "requiredFamilies": [
+          "Luminari",
+          "Times New Roman"
+        ],
+        "coordinateDomain": "PDF glyph origins in points; main-story UTF-16"
+      },
+      "document": {
+        "path": null,
+        "sha256": "8b62770907ed5103031457716b54ade2738a8ceb08c58e9bf9350a05639502ae"
+      },
+      "reference": {
+        "kind": "mac-pdf-glyph-bundle",
+        "path": "captures/vmisc3-2026-09-17-void",
+        "metaSha256": "3b11206bbf0aa814d6ef1df26d557f14fd4fc9d8db193f0c38747e427b240fe0"
+      },
+      "comparator": "wordmeasure compare (glyph origins, 0pt tolerance) + wordmeasure selfcheck",
+      "evidence": "reference-invalid",
+      "evidenceReason": "CAPTURE_VOID",
+      "baseline": {
+        "source": "artifacts/autospace-consistency-mac-replay-2026-09-27/after",
+        "state": "UNDECIDABLE",
+        "reason": "CAPTURE_VOID"
+      }
+    },
+    {
+      "id": "android-mobile-legacy/br-page",
+      "group": "br-page",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/br-page.docx",
+        "sha256": "5ccc6f7a7b56146f6854329c0e8906b3f4cfad8680ae4f7f82d69be867e46343"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/br-page.word.narrow.jsonl",
+        "sha256": "4aef0d5b18e6899f3a2fa6e48b8556956c22bb6921857df6419fe4a4877095d0"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 17,
+        "wordLines": 17
+      }
+    },
+    {
+      "id": "android-mobile-legacy/breakme",
+      "group": "breakme",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/breakme.docx",
+        "sha256": "3d599a65bb8cbcd800d2e64849e023ac4ba04b02eb4e4444059c1fd4487e1acc"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/breakme.word.narrow.jsonl",
+        "sha256": "068e5d8ab810c99415512f0095f95fa259dc2f882cf485a28456e572742f2618"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 13,
+        "wordLines": 13
+      }
+    },
+    {
+      "id": "android-mobile-legacy/caps-on",
+      "group": "caps-on",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/caps-on.docx",
+        "sha256": "c6f0a4890b07488a5ef885a9872a9291c56556c5e41e4b84ef5aeb8c38eafa8c"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/caps-on.word.narrow.jsonl",
+        "sha256": "434b25a60b080ddfc210d6c8f0d4b9f94dc5c79098e3d3ced5d13fbcb6a01a3f"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 4,
+        "wordLines": 4
+      }
+    },
+    {
+      "id": "android-mobile-legacy/han22",
+      "group": "han22",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/han22.docx",
+        "sha256": "949ebbf330a86c7fb50b2edd44ee493a387675c87afca9c7e3590ea9459e3240"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/han22.word.narrow.jsonl",
+        "sha256": "4cfd03c4d2f95d0458ffd2f86fe2ab079177f94974382b28f3ffcfc502373ea6"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 2,
+        "wordLines": 2
+      }
+    },
+    {
+      "id": "android-mobile-legacy/justify",
+      "group": "justify",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/justify.docx",
+        "sha256": "762367fcb8cdc0b9183276ff08471ea07d9c9488cb2d3cf821d51741e9413bd8"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/justify.word.narrow.jsonl",
+        "sha256": "0af172540c25a1db37a7cc7b1e7e5b35a7505752f951dbdce7bc0ae50ecdf5b8"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 20,
+        "wordLines": 20
+      }
+    },
+    {
+      "id": "android-mobile-legacy/kinsoku",
+      "group": "kinsoku",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/kinsoku.docx",
+        "sha256": "48af9f6b1bcac35891bfa37166f6d1f70196be11df556f6e9d0c10736d2d7587"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/kinsoku.word.narrow.jsonl",
+        "sha256": "4dce211d4346e441640a0f2f9e455d57953d11e9406f8d371e5e463e2c456035"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 2,
+        "wordLines": 2
+      }
+    },
+    {
+      "id": "android-mobile-legacy/latinspace",
+      "group": "latinspace",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/latinspace.docx",
+        "sha256": "1011396217fa2d02272b958d2b60334bd82eaa92b4418b636e9c60818fc291b3"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/latinspace.word.narrow.jsonl",
+        "sha256": "7f4e649dfd963febadd14696a56305430e038db53a5e6433747c05caee406122"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 24,
+        "wordLines": 24
+      }
+    },
+    {
+      "id": "android-mobile-legacy/latinwrap",
+      "group": "latinwrap",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/latinwrap.docx",
+        "sha256": "5e03f149e38db2f7089f7c844ddeb0a2b5076c053801d6f333b71db94403fe5f"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/latinwrap.word.narrow.jsonl",
+        "sha256": "b92a1556ae9c85d09fe2c9b807aa39419ecda6474d2215b6531c74b5143972da"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 20,
+        "wordLines": 20
+      }
+    },
+    {
+      "id": "android-mobile-legacy/longpage-240",
+      "group": "longpage-240",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/longpage-240.docx",
+        "sha256": "2f586ad347349435e9fc7f24f0259803e90586676e02e823ccdaf9d17b635521"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/longpage-240.word.narrow.jsonl",
+        "sha256": "b9465b00a0506e4d11463f8088ef181b0808b0534376dd40257ea6447b5aaa3c"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 80,
+        "wordLines": 80
+      }
+    },
+    {
+      "id": "android-mobile-legacy/mix-cjk",
+      "group": "mix-cjk",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/mix-cjk.docx",
+        "sha256": "f21b5fbca192730aa80f9e57c071e93eb671f480c50824d8a384f90c63088be1"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/mix-cjk.word.narrow.jsonl",
+        "sha256": "3de92d4450978b9836cee0c97f428eb73662a634b20842893f31d4d1daa7c6ce"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 3,
+        "wordLines": 3
+      }
+    },
+    {
+      "id": "android-mobile-legacy/tabone",
+      "group": "tabone",
+      "families": [
+        "line-breaking"
+      ],
+      "config": {
+        "id": "android-word-mobile-5329-legacy",
+        "platform": "android",
+        "view": "mobile",
+        "contentWidthTwips": 5329,
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "assumptions": [
+          "legacy narrow capture: cpSpace=document",
+          "legacy narrow capture: mode=mobile-consumption"
+        ],
+        "coordinateDomain": "main-story UTF-16 line boundaries only"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/tabone.docx",
+        "sha256": "a53ddefc9f9355b52b500579baf643ff712258ce4f7977db8255076eb65eaed7"
+      },
+      "reference": {
+        "kind": "android-narrow-line-log",
+        "path": "../word_analyse/reports/diff/tabone.word.narrow.jsonl",
+        "sha256": "8d7508be296d0be765c624efaf4246d6e86c07d304bcf0ecd8ea19e8239dd0ea"
+      },
+      "comparator": "tools/measure/android_replay.py (ordered source ranges)",
+      "evidence": "conditional",
+      "evidenceReason": "LEGACY_NARROW_ASSUMPTIONS",
+      "baseline": {
+        "source": "artifacts/android-replay-2026-09-27",
+        "state": "OK",
+        "matchedLines": 1,
+        "wordLines": 1
+      }
+    },
+    {
+      "id": "android-print-report/table32-tail",
+      "group": "table32",
+      "families": [
+        "tables"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/table32-tail.docx",
+        "sha256": "e31202b447695bca3503cd4c8018eb8ec3d3a5536030fa006ce3b46f5f5428de"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/*; docs/STRUCTURED-FLOW-EVIDENCE-2026-09-27.md",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/table32",
+      "group": "table32",
+      "families": [
+        "tables"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/table32.docx",
+        "sha256": "8ea7ca25d4f62fa57faa2cd380be99d440650390046ca808c6fa02a1bd6aae95"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/table.md",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/table32-noborder",
+      "group": "table32",
+      "families": [
+        "tables"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/table32-noborder.docx",
+        "sha256": "e771e2f610f6fe41fd22a0c5f6a607fe19bb159ccaca837ebbcc7b16b886ebf0"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/findings/question-set.md Q9",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/table32-rowh",
+      "group": "table32",
+      "families": [
+        "tables"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/table32-rowh.docx",
+        "sha256": "83a12d529fd30302aaa2d6900fac0635ae14636a3afa9a0dc3c2e88545f56427"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/findings/question-set.md Q9",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/footnote32",
+      "group": "footnote32",
+      "families": [
+        "footnotes"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/footnote32.docx",
+        "sha256": "b5e25ac2deb04df32a244461f12feb5bcea70756e72f8f1dd28894a9d9e7074b"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/footnote.md",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/twocol64",
+      "group": "twocol64",
+      "families": [
+        "sections-columns"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/twocol64.docx",
+        "sha256": "c177990291b90a5a53fbb07456a4354ccf956b0486623d2c5eab0a09011e9cf8"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/columns.md",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/widow-split",
+      "group": "widow",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/widow-split.docx",
+        "sha256": "7b77d5727a7b88b6d32feeba927fe34267081ee99c6ee26e60ffd4edbf3ada20"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/widow.md",
+        "constraint": {
+          "secondPageStart": 1933
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/widow-on",
+      "group": "widow",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/widow-on.docx",
+        "sha256": "2cf24d3d3f461c2bbb24afa7b371e3f56f35fa9abd0a98bd8fa8d8a92908796d"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/widow.md",
+        "constraint": {
+          "secondPageStart": 1834
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/keep-next",
+      "group": "keep",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/keep-next.docx",
+        "sha256": "65cb47434198fe6857b7c21a8f36f6b3a3a21220d24efaa5008afe0c3ac24c57"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/keep-next.md",
+        "constraint": {
+          "secondPageStart": 1054
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/keep-lines",
+      "group": "keep",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/keep-lines.docx",
+        "sha256": "a654a9eb1e92a01814a173b90ff0920b30366956d39843021b676a652a233c00"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/rsword-diff/keep-lines.md",
+        "constraint": {
+          "secondPageStart": 1054
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-139-n36",
+      "group": "dg-decide-139",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-139-n36.docx",
+        "sha256": "093e5975961f30ab6f0d9c37262552a854a19d38fd814f627cfa70ef12a6c6e9"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-139-n37",
+      "group": "dg-decide-139",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-139-n37.docx",
+        "sha256": "bb55676924b623b932b664e9fa0c08da3e1a33cc743a5a9ea3bd03307fe04fa5"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-139-n38",
+      "group": "dg-decide-139",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-139-n38.docx",
+        "sha256": "b0b37da30cd1265a549fc27a782f89fd4a547974af5df90986a4730a5f8d314b"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-188-n40",
+      "group": "dg-decide-188",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-188-n40.docx",
+        "sha256": "b6d61e20bb7ed1b4840e78144fa7ed9dd259ad74825252c79c946de7c457a000"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-188-n41",
+      "group": "dg-decide-188",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-188-n41.docx",
+        "sha256": "48e6982b21f24b05a0e428411d1cf175f8be1d26beb25ec3699d0d6d0566b81f"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-188-n42",
+      "group": "dg-decide-188",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-188-n42.docx",
+        "sha256": "1030bef09e2d7fc07d672d6a81153a67f2ddbb0dcf709c195838b99e972e3bc4"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-220-n34",
+      "group": "dg-decide-220",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-220-n34.docx",
+        "sha256": "1919987db1067af775cc5971ff1532519af6d1d48f8621e4ee44d96995713726"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-220-n35",
+      "group": "dg-decide-220",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-220-n35.docx",
+        "sha256": "146de9838d2352da3c926b359a83257c76e3c3236dca566fc1b128310d37cd6c"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 1
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    },
+    {
+      "id": "android-print-report/dg-decide-220-n36",
+      "group": "dg-decide-220",
+      "families": [
+        "vertical-pagination"
+      ],
+      "config": {
+        "id": "android-word-print-report",
+        "platform": "android",
+        "view": "print",
+        "requiredFamilies": [
+          "Calibri"
+        ],
+        "geometry": "document"
+      },
+      "document": {
+        "path": "../word_analyse/fixtures/dg-decide-220-n36.docx",
+        "sha256": "0e987a61fc8b1a475657f40071bcce4066814655f9e48312db6169722d9be5f9"
+      },
+      "reference": {
+        "kind": "report-constraint",
+        "path": "../word_analyse/reports/diff/docgrid-decided.md; strict PGIDX audit undecidable (docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)",
+        "constraint": {
+          "pages": 2
+        }
+      },
+      "comparator": "acceptance.py report check (page count / next-page source start)",
+      "evidence": "report-only",
+      "evidenceReason": "NO_STRICT_PAGE_LINE_LOG"
+    }
+  ]
+}
