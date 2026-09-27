@@ -263,8 +263,9 @@ FscbkSnapGridVertical, 0x18ad24..0x18ad70:
 调用路径的证据。它也不能证明 Word 不支持 docGrid：客户端或其他路径仍可能处理。
 Word 主程序的 `nm -arch arm64 -u -C` 筛选结果包含两个 `LsModify*LineHeight`
 导入，没有包含上述两个 `SnapGridVertical` 导入。这只限定直接导入面，不排除
-框架内部调用或间接调用。`ApplySnapGridReal` 本次只记录候选符号，没有展开其长体，
-也没有根据名字将它归为正文纵向网格。
+框架内部调用或间接调用。此前的导出窄查只记录了 `ApplySnapGridReal` 候选符号，
+没有展开其长体，也没有根据名字将它归为正文纵向网格；其实现及两个行高接口的
+[后续指令补查](#macos-grid-line-height-followup) 见下节。
 
 本机两个 PTLS 框架目录没有 `Headers/` 或 `.h/.hpp`。对 Word 应用包、当前本地代码
 目录、Homebrew include 与 CommandLineTools SDK 的相关头文件名窄查，未找到 Microsoft
@@ -282,3 +283,127 @@ xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS72
 
 该窄查增加了可定位接口，也排除了直接照搬 `FsSnapGridVertical` 的路线，仍没有补齐
 字体自然高度到 pitch 倍数、基线相位或 exact/atLeast 与网格组合的规则。
+
+<a id="macos-grid-line-height-followup"></a>
+
+## 补查：字符 U 轴网格与行高写入边界
+
+继续只读分析上节同一个 SHA-256 的 macOS 框架 arm64 指令，没有启动或控制 Word。
+以下函数范围结合 Mach-O `LC_FUNCTION_STARTS` 表确认；导出符号之间可能包含匿名函数，
+不能把 `--dis-symname` 输出中相邻的匿名辅助函数全部算作该导出函数本体。
+
+### ApplySnapGridReal 处理字符及 glyph cluster
+
+真实签名仍为 `PTLS7::ApplySnapGridReal(PTLS7::lschnke*, int, int)`，本体范围为
+`0x113948..0x1140d4`，后者是下一个匿名函数的起点。两个整数用于 chunk 索引范围，
+按 32 字节步长寻址条目；没有证据把其中任何一个标成 pitch。
+
+| 指令位置 | 可以直接核对的行为 |
+| --- | --- |
+| `0x113984` 起 | 读取 chunk 条目关联的文本对象，整理 UTF16、字符位置、逐字符关联对象和标记数组 |
+| `0x113b88` | 调用 `LsdnExternalNameNextChar`，生成字符位置 |
+| `0x113d08` | 调用 `PTLS7::LsdnGetUrPenAtBeginningOfChunk(PTLS7::CLsDnode*, unsigned int*, int*, int*, int*)` |
+| `0x113d38..0x113d50` | 从函数表 `+0x258` 取地址间接调用，传入文本相关数组、字符数和输出指针；回调业务名未知 |
+| `0x113dc0..0x113e10` | 对前述输出进行有符号整数除法、余数和位置量化运算 |
+| `0x113fa0` | 调用 `LsFIwchFirstInCluster`，检查 cluster 边界 |
+| `0x114224..0x1142bc` | 匿名辅助函数定位首尾 glyph，把调整量拆分后分别传给 `LsApplyChanges` 的 `SIDE(1)`、`SIDE(2)` |
+
+最后一个辅助函数的关键指令为：
+
+```asm
+114258: asr w20, w5, #1
+11425c: sub w21, w5, w20
+11426c: bl  LsIgindBaseFirstFromIwch
+114278: mov w3, #1
+11427c: mov w4, w21
+114280: bl  LsApplyChanges
+114294: bl  LsIgindBaseLastFromIwch
+1142a0: mov w3, #2
+1142a4: mov w4, w20
+1142b8: b   LsApplyChanges
+```
+
+这里的调用名为便于阅读省略了 mangling；真实被调接口包括
+`PTLS7::LsApplyChanges(int*, int*, int, PTLS7::SIDE, int)`，地址 `0x10d870`。
+其指令按 glyph 索引修改两组整数数组：`SIDE(1)` 给第一组对应项加调整量，
+`SIDE(2)` 给第二组对应项加调整量。没有取得这两组数组的字段名，不能擅自将其
+命名为 advance、bearing 或其他具体度量。
+
+这些字符、cluster、U 坐标和逐 glyph 写入共同支持将此路径判为沿文本 **U 轴** 的
+字符网格调整。在普通横排中它沿水平方向；此处不把 U 轴无条件等同于页面水平轴。
+已读到的整数运算不能移作自然行高到垂直 `linePitch` 的公式，运算数与 XML
+`charSpace`、`linePitch` 的对应也尚未确认。
+
+框架内直接调用点为 `0x29cd8`。函数起点表将其归入 `0x29820` 开始、
+`0x29dac` 结束的匿名函数；它不是前面最近的导出符号
+`LsCopyGmapWithGivenIgind`。该调用受对象 `+0x24` 字节等于 `1` 的分支控制，
+没有字段名证据将这个字节直接解释为某种 OOXML 网格类型。
+
+### 两个行高接口保存四个显式整数
+
+真实导出签名及本体范围：
+
+```cpp
+// 0x30b64..0x30c24
+PTLS7::LsModifyLineHeight(
+    PTLS7::lscontext*, PTLS7::CLsLine*, int, int, int, int);
+
+// 0x8d9d4..0x8da48
+PTLS7::LsModifyDisplayLineHeight(
+    PTLS7::lscontext*, PTLS7::CLsDisplayLine*, int, int, int, int);
+
+// 0x90dc4..0x90dd0
+PTLS7::CLsDisplayMainSubline::ModifyLineHeight(int, int, int, int);
+```
+
+以上只列符号实际提供的名称和参数类型，不补造返回类型或参数业务名。
+按传入顺序暂称四个整数为 `a`、`b`、`c`、`d`，指令确认其写入位置如下：
+
+| 参数 | 格式化 subline 偏移 | Display main-subline 偏移 |
+| --- | --- | --- |
+| `a` | `+0x15c` | `+0x84` |
+| `b` | `+0x190` | `+0x78` |
+| `c` | `+0x194` | `+0x7c` |
+| `d` | `+0x160` | `+0x80` |
+
+`LsModifyLineHeight` 校验 context、line 及其所属关系后保存原值；`b` 或 `c`
+变化时还把 subline `+0x1b4` 的 `0x200` 位置位。其函数体没有网格取整、
+行高倍率计算或把某个输入压成布尔值的操作。Display 包装器在
+`0x8da28..0x8da38` 将四个输入原样转交给成员函数，成员函数本体仅为：
+
+```asm
+90dc4: stp w4, w1, [x0, #0x80]
+90dc8: stp w2, w3, [x0, #0x78]
+90dcc: ret
+```
+
+`PTLS7::LsGetObjDimSublineCore(PTLS7::CLsSubline const*, PTLS7::heights*,
+PTLS7::heights*, int*)` 的一条读取分支，在 `0x2eba0..0x2ebb4` 将
+`+0x190/+0x194/+0x198` 复制到一个 `heights` 输出。因此 `b/c` 确实对应该结构的
+前两个高度分量。现有本地符号和头文件材料没有给出这两个分量的字段名及顺序，
+也没有给出 `a/d` 的业务名；不能据此把它们填成 ascent、descent 或 multiline。
+四个参数均为 `int` 本身既不能证明、也不能排除某个参数承载了宿主定义的状态。
+
+本次对框架内直接分支指令的筛选没有发现两个公开 `LsModify*LineHeight` 的内部
+直接调用；主程序确实导入它们的证据仍仅限定导入面。尚未取得主程序调用时四个
+整数的来源，更没有验证哪个调用与 docGrid、exact 或 atLeast 对应。
+
+### 复现与开发边界
+
+```sh
+ptls='/Applications/Microsoft Word.app/Contents/Frameworks/MicrosoftPTLS7.framework/Versions/A/MicrosoftPTLS7'
+
+nm -arch arm64 -gU -C "$ptls" | rg 'ApplySnapGridReal|ModifyLineHeight|ModifyDisplayLineHeight|LsGetObjDimSublineCore'
+xcrun llvm-objdump --macho --arch=arm64 --function-starts=both "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS717ApplySnapGridRealEPNS_7lschnkeEii' "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS714LsApplyChangesEPiS0_iNS_4SIDEEi' "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS718LsModifyLineHeightEPNS_9lscontextEPNS_7CLsLineEiiii' "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS725LsModifyDisplayLineHeightEPNS_9lscontextEPNS_14CLsDisplayLineEiiii' "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS721CLsDisplayMainSubline16ModifyLineHeightEiiii' "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble --dis-symname '__ZN5PTLS722LsGetObjDimSublineCoreEPKNS_10CLsSublineEPNS_7heightsES4_Pi' "$ptls"
+xcrun llvm-objdump --macho --arch=arm64 --disassemble "$ptls" | rg '[[:space:]]b(l)?[[:space:]].*(__ZN5PTLS717ApplySnapGridReal|__ZN5PTLS718LsModifyLineHeight|__ZN5PTLS725LsModifyDisplayLineHeight)'
+```
+
+本轮确认了字符 U 轴调整与四整数行高写入的边界，可以继续保留自然度量和宿主最终
+行度量之间的分离。它没有补齐垂直 docGrid 的公式、基线相位或 exact/atLeast 例外，
+不能据此新增网格常数或把未命名分量固化进引擎 API。

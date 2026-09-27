@@ -81,3 +81,17 @@ keepLines 搬家；检查源区间、x 和实际基线。前三项在修复前�
 环绕查询的高度估值和公开坐标仍为整数 twips，遮挡整行时的回退行为也未修改。
 本次没有决定 docGrid 的步长、占高或基线相位；未来若行高度依赖绝对网格相位，
 还须重新审计 widow 检查中“同区域且无环绕”的快捷路径。
+
+修复提交为 `7f8dce4`。完整 workspace/fontenv 回归 74 组、569 项通过、12 项忽略；
+当时包括前三项新回归。随后添加的跨栏预排用例与前三项一起执行，4 项全部通过。
+workspace 全目标 Clippy `-D warnings` 通过，指定真实 TNR 字体的多栏专项 13 项通过
+（其中一项读取 7 份规范 DOCX）。首次手动启用该测试遗漏字体环境变量的失败日志保留，
+补上 `RSWORD_TEST_TIMES_NEW_ROMAN` 后通过，没有修改测试预期。
+
+Android 11 份旧采集仍为 186/186 条件源行区间匹配。Mac 仍为 25 FAIL / 5 UNDECIDABLE；
+与上一轮连续栏平衡产物比较，25 份有效轨迹的完整 `pages`（含栏、行与字形）逐项相同，
+比较统计及分类也相同。没有运行 Word 或取得新的几何证据。
+记录保存在 `artifacts/fine-wrap-2026-09-27/`；`baseline-diff.json` SHA-256 为
+`5c294f208de42846b75cfe61e6681f526fca0d09048c633efda378d807e2fc22`。
+328 个文件的清单 `durable-hashes.json` SHA-256 为
+`6953b3fdcc701a8245f432be583113c5b39d4b95d8d592673bd244c52d4acd62`。
