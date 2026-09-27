@@ -88,3 +88,48 @@ moving a trial to a new page, balanced columns followed by a continuous group,
 sparse/missing page-wide IDs and a source-only empty section line. A private
 formatter test preserves distinct advance/required values while confirming
 that changing required extent does not move glyphs.
+
+## Canonical discriminating inputs
+
+[`fixtures/exact-vertical-canonical-2026-09-27/`](../fixtures/exact-vertical-canonical-2026-09-27/README.md)
+contains 12 deterministic, still UNMEASURED inputs. Its manifest SHA-256 is
+`d538d7798687c9b20fd633083ee0d5a2159430a145b3a1ca5fd96ecef74b22eb`.
+`tools/measure/make_exact_vertical_fixture.py --check DIRECTORY` independently
+walks package XML and source offsets, and compares the deterministic bytes.
+
+- An exact480 two-by-two matrix varies body and mark sizes independently:
+  12/12, 24/12, 12/24 and 24/24 pt. Another case changes only the body to Arial.
+- The exact218 pair changes both body and mark together, 12/12 to 24/24 pt.
+  It tests a short line and does not isolate the two contributions.
+- Three separate paragraphs and one paragraph with two soft returns use the
+  same probe labels; their UTF-16 source differs only at the two CR/VT controls.
+- exact481 changes the three probe paragraphs' advances; top721 changes only
+  the top margin of the baseline case. An empty first paragraph isolates the
+  absence of a body run.
+
+Every case ends with two TNR 12 pt/exact480 reference paragraphs. All inputs
+explicitly disable keepNext, keepLines and widowControl, have zero paragraph
+gaps, compatibility mode 15, one column, and no grid/styles/docDefaults.
+Body, soft-return runs and marks have four explicit font slots, size/szCs and
+vanish=false in the canonical property order. These source/profile checks are
+not complete XSD validation, font-file binding or proof of Word output.
+
+No y, line-box size, page count or control glyph count is prefilled as expected
+Word output. The next native capture must bind the source bytes, repeated CP
+scans, resolved fonts and vector output before testing a candidate algorithm.
+
+The real CLI parsed and painted all 12 inputs with explicitly bound TNR/Arial
+font files, Mac grid and print view. Input checks cover 40 independent mark
+declarations/effective properties, 164 body glyphs, 42 source controls and 42
+engine lines. All 206 glyphs retain the expected source/style identities;
+source warnings, notdef and unassigned counts are zero. Exact values
+218/480/481 produce integer diagnostic advances 1090/2400/2405. These are
+engine-input checks, not observed Word expectations.
+
+`artifacts/exact-vertical-probes-2026-09-27/run-02/manifest.json` has SHA-256
+`da0b25672571fc0534ac4309b30f04012174bafe4785c07fbdc2c236dc98843f`.
+The first validator incorrectly expected `LINE_BREAK` instead of the existing
+JSON contract `SOFT_RETURN`; its failed result and script snapshot are retained.
+After fixing that check, all 12 cases pass and all 12 trace hashes are identical
+between the two runs. No fixture, engine behavior or capture was changed to
+obtain the passing validator result.

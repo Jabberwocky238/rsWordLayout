@@ -1,0 +1,3076 @@
+{
+  "schema": "rsword-exact-vertical-source/1",
+  "captureStatus": "UNMEASURED",
+  "generator": "tools/measure/make_exact_vertical_fixture.py",
+  "generatorSha256": "bdfd6d8d203a0d83a4cbafb4e51d9a618da1e1c8da3e1c6d35f320ce0a0a5b0d",
+  "packageHelper": "tools/measure/make_paragraph_mark_fixture.py",
+  "packageHelperSha256": "9cae4bdb38970f3fea74e8746c6853f8ebe95066e37b7e26df4f22976a6a51e4",
+  "pPrPropertyOrder": [
+    "keepNext",
+    "keepLines",
+    "widowControl",
+    "spacing",
+    "jc",
+    "rPr"
+  ],
+  "rPrPropertyOrder": [
+    "rFonts",
+    "vanish",
+    "sz",
+    "szCs"
+  ],
+  "sectPrPropertyOrder": [
+    "type",
+    "pgSz",
+    "pgMar",
+    "cols"
+  ],
+  "referenceParagraphs": {
+    "labels": [
+      "R001",
+      "R002"
+    ],
+    "font": {
+      "family": "Times New Roman",
+      "sizeHalfPoints": 24,
+      "hidden": false
+    },
+    "lineRule": "exact",
+    "lineTwips": 480
+  },
+  "paragraphBeforeTwips": 0,
+  "paragraphAfterTwips": 0,
+  "keepNext": false,
+  "keepLines": false,
+  "widowControl": false,
+  "compatibilityMode": 15,
+  "pageTwips": [
+    11906,
+    16838
+  ],
+  "marginsTwips": {
+    "top": "per-case",
+    "left": 720,
+    "right": 720,
+    "bottom": 720
+  },
+  "columns": 1,
+  "docGrid": false,
+  "stylesPart": false,
+  "docDefaults": false,
+  "sourceUnit": "UTF-16 code units; half-open ranges, CR paragraph marks and VT soft returns.",
+  "sourceStatus": "Input-derived; native Word source and repeated scans must independently verify it.",
+  "fontIdentityNote": "Explicit family declarations; actual font files must be bound during capture.",
+  "cases": [
+    {
+      "name": "exact480-body12-mark12",
+      "file": "exact480-body12-mark12.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Baseline for independent body and mark changes.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "125d664a54517537c138eff6d8ae3c4bb3757f4f6b0f25a0ffb42ef8898570cf",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "fdbb2600ee13b499ca2dd3b7ca3722d8b6edaeaefff999b656eada971b013120",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-body24-mark12",
+      "file": "exact480-body24-mark12.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Change only the probe body size.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 48,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 48,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "ca9054acd98537102e4716931a5494f3afbd1c6d5997bb8b27cc76da117f92c9",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "e05293ec7fdbc2e5d5a5a59e57e37d2c2f6ce6b1afabf3ec73df1f9e7140cbb3",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-body12-mark24",
+      "file": "exact480-body12-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Change only the probe mark size.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 48,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "ee44e0b9bff7b1defdee8190b08489f1bbee4beaf8c45a5b3c7630a8f64eb28d",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "0a2e32ef63722c8f61d979bd8593da395ca66b80b84f38ac291235f14a1e862b",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-body24-mark24",
+      "file": "exact480-body24-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Complete the two-by-two body/mark size comparison.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 48,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 48,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 48,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "65a870db24b8c7677181d45031effca3c1d6d0289596b4e5d1c6b4b391e212ed",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "f8c727f68174c5e560969600839e981f428e132d7d32c5c61f0f5032fe8b8318",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-body12Arial-mark12TNR",
+      "file": "exact480-body12Arial-mark12TNR.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Change only the probe body family.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Arial",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Arial",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Arial",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "af1b66d7b69fc6251d52a9c883a39580d738dc73cd3a127e75f30b3be5bd9b83",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "93095bfd11b0ed0cfd8eb02f5280c00cc1f4138c652b18077f4d6eaedd21c508",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact218-body12-mark12",
+      "file": "exact218-body12-mark12.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Short exact line with 12 pt body and mark.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 218,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 218,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "1ebd1b36ff3cd1ab8e161a9f686e6543ad7d89b7650bf50b67f649def3dc6bc9",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "1cfcc6db32a5b356ef2acb1967f739c0cf42eceda070e0494c9cf0f1fa85bc70",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact218-body24-mark24",
+      "file": "exact218-body24-mark24.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Paired short exact line; body and mark sizes change together.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 218,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 48,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 48,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 218,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 48,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 48,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "084a47a23539ab3913fe50d2d2506578be373e4dd1d760567670f6be98c88faa",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "4bbae2f594df625bef4172bbbca3c3808bcb32ead7a5d6535cf4c80e96fa923a",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-three-paragraphs",
+      "file": "exact480-three-paragraphs.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Three separate probe paragraphs followed by two reference paragraphs.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "three-paragraphs",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 5,
+      "sourceText": "E000\rE001\rE002\rR001\rR002\r",
+      "sourceLengthUtf16": 25,
+      "sourceTextUtf16LeSha256": "850c140e7294627fc5517ed840bd10c81f6e69b6252e6f3997efaf8eb2bcb0d6",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "probe",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E001",
+              "paragraphIndex": 1,
+              "role": "probe",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "probe",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E002",
+              "paragraphIndex": 2,
+              "role": "probe",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "role": "reference",
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 3,
+              "role": "reference",
+              "sourceStart": 15,
+              "textEnd": 19,
+              "sourceEnd": 20,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "role": "reference",
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 4,
+              "role": "reference",
+              "sourceStart": 20,
+              "textEnd": 24,
+              "sourceEnd": 25,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "E001",
+          "paragraphIndex": 1,
+          "role": "probe",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "E002",
+          "paragraphIndex": 2,
+          "role": "probe",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 3,
+          "role": "reference",
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 4,
+          "role": "reference",
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "803ca6443a1f19c830e016a55c8bdceacfe58e224514300486a2f9b60f17c0b7",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "73e632ceb6c43eaf040eb523e2d541376ce5c0ee6615a59b2c0ae64224775f80",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-two-soft-returns",
+      "file": "exact480-two-soft-returns.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Same three probe labels in one paragraph, separated by two soft returns.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "two-soft-returns",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "E000\u000bE001\u000bE002\rR001\rR002\r",
+      "sourceLengthUtf16": 25,
+      "sourceTextUtf16LeSha256": "9fb8118b5fc041c04b5eaa37f92756ea776b645880eec3aadb6986aa92ec2417",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "text": "E001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "soft-return",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            },
+            {
+              "kind": "text",
+              "text": "E002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "SOFT_RETURN",
+              "character": "\u000b",
+              "codePoint": "U+000B",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "<w:br w:type=\"textWrapping\"/>"
+            },
+            {
+              "kind": "SOFT_RETURN",
+              "character": "\u000b",
+              "codePoint": "U+000B",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "<w:br w:type=\"textWrapping\"/>"
+            },
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "SOFT_RETURN"
+            },
+            {
+              "label": "E001",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "SOFT_RETURN"
+            },
+            {
+              "label": "E002",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 15,
+              "textEnd": 19,
+              "sourceEnd": 20,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 20,
+              "textEnd": 24,
+              "sourceEnd": 25,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "E001",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "E002",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "fd5dc2dd7785eb979330317b1f791874068916b930c6ec302519b0f00b57dcbd",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "336f3e3eb2145b47267f1b4db097340182a777ebc14af2668116c762cad07556",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact481-three-paragraphs",
+      "file": "exact481-three-paragraphs.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Change only probe exact spacing relative to exact480-three-paragraphs.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 481,
+        "structure": "three-paragraphs",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 5,
+      "sourceText": "E000\rE001\rE002\rR001\rR002\r",
+      "sourceLengthUtf16": 25,
+      "sourceTextUtf16LeSha256": "850c140e7294627fc5517ed840bd10c81f6e69b6252e6f3997efaf8eb2bcb0d6",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 481,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "probe",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 481,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E001",
+              "paragraphIndex": 1,
+              "role": "probe",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "probe",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 481,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E002",
+              "paragraphIndex": 2,
+              "role": "probe",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "role": "reference",
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 19,
+              "sourceEnd": 20,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 3,
+              "role": "reference",
+              "sourceStart": 15,
+              "textEnd": 19,
+              "sourceEnd": 20,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "role": "reference",
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 20,
+              "sourceEnd": 24,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 24,
+              "sourceEnd": 25,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 4,
+              "role": "reference",
+              "sourceStart": 20,
+              "textEnd": 24,
+              "sourceEnd": 25,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "E001",
+          "paragraphIndex": 1,
+          "role": "probe",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "E002",
+          "paragraphIndex": 2,
+          "role": "probe",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 3,
+          "role": "reference",
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 4,
+          "role": "reference",
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "bb28fec29d4babd3bb813af21ea3c37b5799ce5af29170f219734b2a06d34e2f",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "97e5d047644564b02548a80b17230cd30145553c8755650a05ee54b158f56aeb",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-empty-first-mark12",
+      "file": "exact480-empty-first-mark12.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "An empty first probe paragraph with an explicit 12 pt mark.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "empty-first",
+        "bodyFont": null,
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 720,
+      "paragraphCount": 3,
+      "sourceText": "\rR001\rR002\r",
+      "sourceLengthUtf16": 11,
+      "sourceTextUtf16LeSha256": "392e6d3d3a1322ba2b331e49044706b9b9c72d33013a11461398944b9a10e644",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 1,
+          "paragraphMarkOffset": 0,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": null,
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 0,
+              "sourceEnd": 1,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 0,
+              "sourceEnd": 1,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 1,
+          "sourceEnd": 6,
+          "paragraphMarkOffset": 5,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 1,
+              "sourceEnd": 5,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 5,
+              "sourceEnd": 6,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 1,
+              "textEnd": 5,
+              "sourceEnd": 6,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 6,
+          "sourceEnd": 11,
+          "paragraphMarkOffset": 10,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 6,
+              "sourceEnd": 10,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 10,
+              "sourceEnd": 11,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 6,
+              "textEnd": 10,
+              "sourceEnd": 11,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 0,
+          "sourceEnd": 1,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 1,
+          "textEnd": 5,
+          "sourceEnd": 6,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 6,
+          "textEnd": 10,
+          "sourceEnd": 11,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "62b585d35b4f3549765d66ad8b37a24d25773cebcea82a1a79448e19ac052cc6",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "e5e8a3e074134b4d6da19acd2700c89d28da17081a8b0ed3c74ac0511a2437fd",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "exact480-body12-mark12-top721",
+      "file": "exact480-body12-mark12-top721.docx",
+      "captureStatus": "UNMEASURED",
+      "purpose": "Change only the top margin by one twip relative to the baseline.",
+      "probe": {
+        "lineRule": "exact",
+        "lineTwips": 480,
+        "structure": "one-probe",
+        "bodyFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        },
+        "paragraphMarkFont": {
+          "family": "Times New Roman",
+          "sizeHalfPoints": 24,
+          "hidden": false
+        }
+      },
+      "topMarginTwips": 721,
+      "paragraphCount": 3,
+      "sourceText": "E000\rR001\rR002\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "58bfd72d281bdcb38fd872c1b49d153d1c7b4b90eb47efa2cba5cd4693b36fc1",
+      "paragraphs": [
+        {
+          "index": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "E000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 4,
+              "sourceEnd": 5,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "E000",
+              "paragraphIndex": 0,
+              "role": "probe",
+              "sourceStart": 0,
+              "textEnd": 4,
+              "sourceEnd": 5,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 9,
+              "sourceEnd": 10,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R001",
+              "paragraphIndex": 1,
+              "role": "reference",
+              "sourceStart": 5,
+              "textEnd": 9,
+              "sourceEnd": 10,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "lineRule": "exact",
+          "lineTwips": 480,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "runs": [
+            {
+              "kind": "text",
+              "text": "R002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "character": "\r",
+              "codePoint": "U+000D",
+              "sourceStart": 14,
+              "sourceEnd": 15,
+              "inputXml": "implicit end of w:p"
+            }
+          ],
+          "anchors": [
+            {
+              "label": "R002",
+              "paragraphIndex": 2,
+              "role": "reference",
+              "sourceStart": 10,
+              "textEnd": 14,
+              "sourceEnd": 15,
+              "terminator": "PARAGRAPH_MARK"
+            }
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "label": "E000",
+          "paragraphIndex": 0,
+          "role": "probe",
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R001",
+          "paragraphIndex": 1,
+          "role": "reference",
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "R002",
+          "paragraphIndex": 2,
+          "role": "reference",
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "sha256": "d12423cc6d0c563eacdf1beaab2a62a943323d7e85857ec085a87a455c88ad20",
+      "packagePartSha256": {
+        "[Content_Types].xml": "addf3f1e674c65c0283cc6063ad9437fd14f399e8879131e7f6dc16971ae0e2d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "ef780844c09303496c11408fab35d764d213b07514f94e1ee9e521a0930c0483",
+        "word/document.xml": "568e5a8fd4a11bbc490523d8ee392553ed4e50917e5fe0788d0c8052643985e7",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    }
+  ]
+}
