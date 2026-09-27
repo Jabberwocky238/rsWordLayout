@@ -100,9 +100,20 @@ I+0..6b，因此包含 I40；此后 I 随格式化与断行调用继续传递，
 还找到了条件启用位的来源入口：已冻结 `LsSetLineProperties` 在 `0x9c00c`
 读取输入 lslinerestr.byte20 的 bit7，置位时在 `0x9c018..1c` 设置
 formatprop+58 的 bit12。Core 随后在 `0x1b418..434` 将这个 bit 作为 content
-enabled 参数传入填充函数。下一步可沿宿主实际 lslinerestr 输入追该标志，
-尚未证明样本文档启用或关闭它。完整对象链与调查边界见
+enabled 参数传入填充函数。尚未证明样本文档启用或关闭它。完整对象链与调查边界见
 [content-info README](../artifacts/docgrid-content-info-inputs-2026-09-27/README.md)。
+
+宿主输入续查已闭合普通调用的 `Q=SP+280` 身份，并找到两处 `Q.word20|=0x80`
+的真实 setter。它们比较宿主日志标为 `cp` 的输入与 paragraph client 的两个 getter：
+`max_signed(A(P),cp)==B(P)`。A/B 分别读 P+2d4/+2e4，并按可选 P+238 映射对象
+增加偏移；尚未命名为公开段落属性。一般 builder 先把比较结果写入 R128.bit3，
+中间调用后重新读取该 bit 才置 Q 的标志，不能省略可能改变状态的调用。另一 builder
+直接使用比较结果，但属于外部 formatter 分支，不能认定必到同一直接 LsCreateLine。
+
+初始化路径把 bit7 清零，但 builder 后续可以置位；另一内联初始化写入未 mask 的
+源字节，不能把它默认为 Boolean。以上闭合的是条件输入来源，既没有得到探针最终
+gate 值，也没有得到 I40 的非零生产者。八个完整函数及边界见
+[content-enable README](../artifacts/docgrid-content-enable-input-2026-09-27/README.md)。
 
 ## Mac 字体 API 的独立证据
 
@@ -346,6 +357,7 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 | docgrid-font-request-size-2026-09-27/ | 31 | `78a5e6eec51a8875e50ae64280c9eeccae68421424eaa167785694f037a5b3da` |
 | docgrid-adjusted-font-metrics-2026-09-27/ | 33 | `3fd1611a399f9a2e4fda5f3167b56d1e1c0e437b21c1f30c1fc10bddaed90ed2` |
 | docgrid-content-info-inputs-2026-09-27/ | 50 | `973a180874eb1a527adad68e94617b7ec1aba0ebc0c0e5b473f42fbf5968b724` |
+| docgrid-content-enable-input-2026-09-27/ | 13 | `0ca964f079a180be6af64b43ea0992ea158078550d26d61e9c66a6098203d910` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -371,6 +383,8 @@ F.184 不参与这十项缩放。因子 h2 有独立生产者：模式 2 先计�
 content-info 续查核对十份采集、16 个完整函数、八条直接引用及两类有界候选查询；
 旧两包 112 个成员未改变，50 文件清单通过。对象地址、初始清零、读取 gate 和
 后续待查边已经复核；候选数量不作为最终值为零或完整调用树无写入的证据。
+宿主启用位续查核对两份采集、八个完整函数和四个旧包的 178 个成员；13 文件清单
+逐项通过。独立复核保留了中间调用重读、外部 formatter 路径和未 mask 初始化的限定。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
