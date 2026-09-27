@@ -237,6 +237,47 @@ feature 替换、初始化 fallback 和 adjusted-wrapper 后续变更仍须保�
 随后已用显式文件和显式 emSize 完成[独立字体指标实测](DWRITE-METRICS-2026-09-27.md)，
 证明可以读取这份库的数值输出；该实验没有观测 Word 的实际字号或字体选择状态。
 
+## 字号请求的实际写入
+
+普通字体选择分派的一条路径已接到 LOGFONT 高度的实际 store：
+`0x10033ef48 -> 0x1003403f8 -> 0x10034049c -> 0x10034326c`。
+最初从 run-property 记录 C+4 复制半字到选择记录 R+6；后续可以更换这个值，
+进入 builder 前的局部副本也先钳到至少 1。因此下式以真正到达 builder 的 P 为输入，
+并未证明 C+4 的 OOXML 字号身份或每条分支都保持它不变。
+
+令 h=P.u16[6]、p=P.u16[8]，N 为已恢复的最近整数乘除 helper，Z 为截断/饱和
+helper。在普通正数且不溢出的范围内，初始垂直尺度为：
+
+| mode | 初始尺度 |
+| --- | --- |
+| 0 | N(p,72,100) |
+| 1 | TLS 提供者的 +90 word，另一方向另读 +8c |
+| 2，调用者第五参数为零 | 294912 |
+| 3 | N(1440,p,100)，p=100 有直接 1440 分支 |
+
+P.byte[2].bit1 选择 N 或 Z，计算 `a=convert(10*h,scale,1440)`，随后写入
+`request[0]=min(-1,-a)`。该写入在 `0x1003433e4`，仍需保留 W 寄存器边界语义。
+乘十与半点转 twips 一致，但单凭这个系数不能证明原始字段就是 `w:sz`。
+
+模式 2 会再次改写高度。`0x100343b3c -> 0x100343bf4` 的输出依次可能来自缓存、
+特殊 bit4 分支的常数 1000、临时字体查询，或失败回退。临时查询先把请求高度写成
+-2048，再通过真实 owner face getter 调用 `IDWriteFontFace::GetMetrics`，把首个
+u16（designUnitsPerEm）写入两个输出。随后 `0x10034131c` 将第二个输出取负写回
+最终请求的首 word，覆盖初始 294912 换算结果。
+
+成功临时查询路径因此写入 `lfHeight=-D`，但 D 属于临时查询得到的 face。之后的
+实际创建可能选择另一 manager 或 face，尚未证明最终 Q 的 D 与此值相同，也不能
+单凭这次 store 宣称一定走 copy50。缓存、1000 和失败回退仍分别保留。
+同一函数后段还会改写 fontObject+168/+174，不能把该字段全程命名为固定 D。
+
+manager 的真实 fixup 已闭合：选择值 2/3/4 进入 `0x100343e50 -> 0x100343e60`
+的 DirectWrite 创建链，其它选择有 CreateFontIndirectW 与独立 feature 路径。
+另一条曾考虑的 `0x1005c4104` 被具名诊断确认是 stock-font 文件缓存路径，调用者
+传入的是 +16；它不能用来证明普通 LS 的 TNR12 请求是 -16。
+
+这次闭合了实际 store 与模式 2 覆写，尚待确认活动模式、内部字号的源 setter、
+临时/最终 face 身份及构造后的 adjusted-wrapper 缩放。没有选一个 DPI 去拟合分页。
+
 ## 冻结与验证
 
 所有目录位于 `artifacts/`。表中哈希是各自 `SHA256SUMS` 文件的 SHA-256。
@@ -251,6 +292,7 @@ feature 替换、初始化 fallback 和 adjusted-wrapper 后续变更仍须保�
 | docgrid-font-source-provider-2026-09-27/ | 61 | `03f6e799d02ecf84f153f1167a6c0df3d24595bd50bc73f4ce71f70aa18a439d` |
 | docgrid-float-conversion-2026-09-27/ | 12 | `3ef120400f674a9ab7a19ebca399b981f4f1b34e0ff6c658ab60ce50ab6dc9d7` |
 | docgrid-font-face-inputs-2026-09-27/ | 37 | `3b3c4a2e298786e456c640edb31818a2acf13216c1d4bf9cd916fb11b800a3b5` |
+| docgrid-font-request-size-2026-09-27/ | 31 | `78a5e6eec51a8875e50ae64280c9eeccae68421424eaa167785694f037a5b3da` |
 
 主代理逐项核验前两组 90 文件。后两组审计核对 41 个反汇编窗口的完整指令地址
 覆盖、原有三份退出状态收据、源材料哈希及 Python 语法；早期窗口仅有原始 stdout，
@@ -268,6 +310,9 @@ feature 替换、初始化 fallback 和 adjusted-wrapper 后续变更仍须保�
 与 OS/2 来源。官方 GitHub commit API 的 403 回执保留，随后通过公开 Git ref
 解析固定提交，并重新下载核对三个头文件逐字节相等。37 文件清单校验通过；
 独立复核指出的门控旁路和未检查 HRESULT 两项限定已在冻结前补正。
+字号 store 片核对 15 个完整函数、五个真实 fixup，31 文件清单逐项通过。
+独立复核确认初始换算、manager 分派和模式 2 分支；临时 face 与最终 face 身份
+尚未等同的限定已在冻结前补齐。旧 176 个证据文件保持原哈希。
 
 本片没有 Cargo 或 Word 回归结果，生产算法没有变更。网格输入尺度与下游 LS
 四参数见[原生数据流](DOCGRID-NATIVE-DATAFLOW-2026-09-27.md)，数学 helper 见
