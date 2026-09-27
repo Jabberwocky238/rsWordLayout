@@ -29,7 +29,7 @@ fn svg_text_carries_letter_spacing_and_scale() {
     let mut font = FontSpec::new("test", 24);
     font.letter_spacing = 20;
     let svg = svg_of(font.clone());
-    // 20 twips = 1pt = 1 个用户单位；不写 `pt`（SVG 里 1pt 是 1.25 个用户单位）。
+    // Numeric user units map to layout points here; a `pt` suffix would introduce CSS unit conversion.
     assert!(svg.contains(" letter-spacing=\"1.0000\""), "{svg}");
     assert!(!svg.contains("transform="), "不缩放就不带 transform：{svg}");
 

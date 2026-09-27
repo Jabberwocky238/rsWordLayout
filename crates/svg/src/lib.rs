@@ -1,11 +1,9 @@
 //! SVG 后端：[`VectorCanvas`] 的一个实现。
 //!
-//! **这条路不经过栅格化。** 路径出 `<path>`，文字出 `<text>`，由浏览器用真实字体
-//! 渲染——因此放大无限清晰，文字还能选中与搜索。GPU 后端要把字形变成纹理，
-//! 缩放到某个倍数就受位图尺寸限制；SVG 没有这个上限。
-//!
-//! 代价是浏览器按自己的字体度量排字，与布局算出的宽度可能有出入——
-//! 这正是近似度量的误差会显形的地方，属于有意暴露而非隐藏。
+//! `SvgCanvas` / `render_html` 保留浏览器 `<text>`，文字可选中与搜索，
+//! 但浏览器会重新整形，与引擎已经定位的字形可能不同。`fontenv` feature 提供
+//! `render_outlined_html`：从实际字体提取矢量轮廓，直接使用每个字形的精确位置，
+//! 不再交给浏览器排字。两条路径都不经过栅格化。
 
 use std::fmt::Write as _;
 
@@ -16,6 +14,11 @@ use rsword_layout_core::{
 use rsword_layout_core::{TWIPS_PER_POINT, Twips};
 use rsword_layout_core::PaintList;
 
+#[cfg(feature = "fontenv")]
+mod outlined;
+#[cfg(feature = "fontenv")]
+pub use outlined::{OutlineError, render_outlined_html};
+
 /// twips → SVG 用户单位。1 单位 = 1pt，A4 因此是 595×842。
 fn u(v: Twips) -> f64 {
     f64::from(v) / f64::from(TWIPS_PER_POINT)
@@ -23,6 +26,10 @@ fn u(v: Twips) -> f64 {
 
 fn esc(s: &str) -> String {
     s.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;")
+}
+
+fn esc_attr(s: &str) -> String {
+    esc(s).replace('"', "&quot;").replace('\'', "&#39;")
 }
 
 fn hex(c: Color) -> String {
@@ -45,7 +52,7 @@ fn rule_attr(r: FillRule) -> &'static str {
 ///   这也是 `w:w` 本来的样子；
 /// - 间距：`letter-spacing`，浏览器加在每个字符之后，与引擎「每个 cluster 一次、
 ///   末字也加」同口径（组合符号上浏览器怎么数不归这里管）。值写**用户单位**（1 = 1pt）
-///   不带 `pt`——SVG 里 `1pt` 是 1.25 个用户单位。它处在缩放之后的坐标系里，所以预先除以
+///   不带 `pt`，避免引入 CSS 绝对单位换算。它处在缩放之后的坐标系里，所以预先除以
 ///   比例，落到页面上仍是原值：与度量「间距不随缩放」的假定一致。
 fn spacing_attrs(font: &rsword_layout_core::FontSpec, origin_x_pt: f64) -> String {
     let mut out = String::new();
@@ -148,8 +155,10 @@ fn alpha_attr(name: &str, p: &Paint) -> String {
 pub struct SvgCanvas {
     pages: Vec<String>,
     cur: String,
-    /// `Save` 的嵌套深度：SVG 用 `<g>` 表达图形状态栈。
+    /// Open SVG groups; a saved depth restores every subsequent state group.
     depth: usize,
+    saved_depths: Vec<usize>,
+    clip_serial: usize,
 }
 
 impl SvgCanvas {
@@ -163,6 +172,10 @@ impl SvgCanvas {
 
     /// 包成可直接打开的 HTML。
     pub fn into_html(self, title: &str) -> String {
+        self.into_html_with_caption(title, "矢量 SVG · 放大不失真、文字可选中")
+    }
+
+    fn into_html_with_caption(self, title: &str, caption: &str) -> String {
         let mut s = String::new();
         s.push_str("<!DOCTYPE html>\n<html lang=\"zh\">\n<head>\n<meta charset=\"utf-8\">\n");
         let _ = writeln!(s, "<title>{}</title>", esc(title));
@@ -182,9 +195,10 @@ impl SvgCanvas {
         let _ = writeln!(
             s,
             "<div class=\"bar\"><b>{}</b><span>{} 页</span>\
-             <span>矢量 SVG · 放大不失真、文字可选中</span></div>",
+             <span>{}</span></div>",
             esc(title),
-            self.pages.len()
+            self.pages.len(),
+            esc(caption)
         );
         for p in &self.pages {
             s.push_str(p);
@@ -201,6 +215,8 @@ impl VectorCanvas for SvgCanvas {
     fn begin_page(&mut self, width: Twips, height: Twips) -> Result<(), Self::Error> {
         self.cur.clear();
         self.depth = 0;
+        self.saved_depths.clear();
+        self.clip_serial = 0;
         write!(
             self.cur,
             "<svg class=\"pg\" xmlns=\"http://www.w3.org/2000/svg\" \
@@ -216,6 +232,7 @@ impl VectorCanvas for SvgCanvas {
             self.cur.push_str("</g>");
         }
         self.depth = 0;
+        self.saved_depths.clear();
         self.cur.push_str("</svg>");
         self.pages.push(std::mem::take(&mut self.cur));
         Ok(())
@@ -224,32 +241,37 @@ impl VectorCanvas for SvgCanvas {
     fn draw(&mut self, cmd: &DrawCmd) -> Result<(), Self::Error> {
         match cmd {
             DrawCmd::Save => {
+                self.saved_depths.push(self.depth);
                 self.cur.push_str("<g>");
                 self.depth += 1;
                 Ok(())
             }
             DrawCmd::Restore => {
                 // 容忍多余的 Restore：忽略而非崩溃。
-                if self.depth > 0 {
-                    self.cur.push_str("</g>");
-                    self.depth -= 1;
+                if let Some(depth) = self.saved_depths.pop() {
+                    for _ in depth..self.depth {
+                        self.cur.push_str("</g>");
+                    }
+                    self.depth = depth;
                 }
                 Ok(())
             }
             DrawCmd::Transform(t) => {
                 // SVG 的 matrix 与 PDF 同序（a b c d e f），但平移量以用户单位计。
                 let Transform { a, b, c, d, e, f } = *t;
+                let [a, b, c, d] = [a, b, c, d].map(f64::from);
                 self.depth += 1;
                 write!(
                     self.cur,
-                    "<g transform=\"matrix({a} {b} {c} {d} {:.2} {:.2})\">",
-                    u(e as Twips),
-                    u(f as Twips)
+                    "<g transform=\"matrix({a} {b} {c} {d} {} {})\">",
+                    f64::from(e) / f64::from(TWIPS_PER_POINT),
+                    f64::from(f) / f64::from(TWIPS_PER_POINT)
                 )
             }
             DrawCmd::Clip { path, rule } => {
                 // SVG 的裁剪要具名引用，这里用递增 id。
-                let id = format!("clip{}", self.pages.len() * 1000 + self.depth);
+                let id = format!("clip{}-{}", self.pages.len(), self.clip_serial);
+                self.clip_serial += 1;
                 self.depth += 1;
                 write!(
                     self.cur,
@@ -303,7 +325,7 @@ impl VectorCanvas for SvgCanvas {
                     "<text x=\"{:.6}\" y=\"{:.2}\" font-family=\"{}\" font-size=\"{:.2}\"",
                     origin_x_pt,
                     *origin_y_fine as f64 / 100.0,
-                    esc(&font.family),
+                    esc_attr(&font.family),
                     font.size_pt()
                 )?;
                 self.cur.push_str(&spacing_attrs(font, *origin_x_pt));

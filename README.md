@@ -29,10 +29,25 @@ rsword::resolve              rsWordLayout                后端
 ## 跑一下
 
 ```sh
-cargo run --bin render -- fixtures/sample.docx fixtures/sample.html
+cargo run -p rsword-layout-svg --bin render -- fixtures/plain.docx layout.html
 ```
 
-输出每页一个 `<svg>`，坐标全部由布局引擎算出，浏览器只负责画字形、不参与排版决策。
+默认模式使用近似度量，输出可选择的 SVG `<text>`；浏览器会重新整形文字，片段内部
+的字形位置不保证与引擎一致。需要使用排版后的字形位置时，显式提供字体并选择轮廓模式：
+
+```sh
+cargo run -p rsword-layout-svg --features fontenv --bin render -- \
+  --text-mode outlines \
+  --font fixtures/fonts/LiberationSans-Regular.ttf \
+  --fallback-font fixtures/fonts/DroidSansFallbackFull.ttf \
+  fixtures/cjk-plain.docx layout.html
+```
+
+此模式用同一字体库完成度量、整形和矢量轮廓导出，保留每个字形的实际字体、字号和
+精确位置，正文字形不依赖浏览器安装的字体；轮廓没有可选择文字。字体参数可重复，
+`path.ttc#1` 选择 TTC 内序号 1 的字体，省略序号时为 0。
+这保证的是引擎绘制指令的输出一致性，不代表已有 Word 排版差异已消除，见
+[SVG 字形定位](docs/SVG-POSITIONING-2026-09-27.md)。
 
 ## 状态
 

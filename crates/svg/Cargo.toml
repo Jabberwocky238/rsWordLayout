@@ -10,10 +10,14 @@ publish = false
 name = "render"
 path = "bin/render.rs"
 
+[features]
+fontenv = ["rsword-layout-core/fontenv", "dep:skrifa"]
+
 [dependencies]
 rsword-layout-core = { workspace = true }
 rsword = { workspace = true }
 serde_json = { workspace = true }
+skrifa = { workspace = true, optional = true }
 
 [lints]
 workspace = true
