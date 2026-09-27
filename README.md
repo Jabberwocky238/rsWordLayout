@@ -42,8 +42,10 @@ cargo run --bin render -- fixtures/sample.docx fixtures/sample.html
 `w:vanish` 隐藏内容不排版，但保留 UTF-16 源位置。
 
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
-y 游标分页、`keepNext` / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、
+y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、
 节页面尺寸与边距、换页后重新断行和环绕查询、SVG 后端。
+文档兼容项 `splitPgBreakAndParaMark` 独立于平台和视图输入；
+实现与验收范围见 [段落保留进展](docs/PARAGRAPH-FLOW-2026-09-27.md)。
 
 **已知缺口**（代码注释里逐条标注）：
 
@@ -51,7 +53,7 @@ y 游标分页、`keepNext` / `keepLines` / `pageBreakBefore`、四种对齐、�
   真实字体路径使用 `fontenv` 特性下的 `RealMetrics` 与 rustybuzz。
 - 裸 JSON 的 `paras_from_document` 保留历史样式近似；`LoadedDocument` 已通过
   钉住版本的 `rsword::resolve::Resolver` 合成有效属性。Android 的复杂 toggle 继承仍需实测。
-- 未实现：表格、分栏、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
+- 未实现：docGrid、表格、分栏、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
 
 ## 许可
 

@@ -136,6 +136,25 @@ tools/measure/.venv/bin/python tools/measure/android_replay.py \
 run 切分、几何和分页不在此评分范围内。命令、输入哈希和结果写入输出目录。
 详见 [接入评估与证据限制](../../docs/WORD-ANALYSE-INTEGRATION-2026-09-27.md)。
 
+### Android 页容器计数审计
+
+`android_pages.py` 读取单份原始 PGIDX 日志，保留全部计数段和末次读数前后的宽度。
+它可与 `--trace` 提供的既有引擎轨迹或 `--engine-page-count` 提供的数量比较，
+自身不运行引擎。`--fixture` 必填，输入均记录哈希，`--output` 必须为新文件。
+
+```sh
+tools/measure/.venv/bin/python tools/measure/android_pages.py \
+    ../word_analyse/reports/diff/print/dg-decide-139-n37.print.live.log \
+    --fixture ../word_analyse/fixtures/dg-decide-139-n37.docx \
+    --trace /path/to/existing-engine-trace.json \
+    --assume-legacy-print --output artifacts/android-page-audit.json
+```
+
+旧 PGIDX 缺少文档、线程、通道和完成标记，严格模式始终不可判；
+`--assume-legacy-print` 仅启用带显式历史假设的条件比较，不能覆盖哈希/模式冲突、
+截断或达到 80 条采样上限。退出码为 OK=0、FAIL=1、UNDECIDABLE=2。
+详见 [页数证据与 docGrid 边界](../../docs/ANDROID-PAGE-EVIDENCE-2026-09-27.md)。
+
 ### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：
