@@ -26,7 +26,7 @@ pub use caps::Caps;
 
 pub use spec::{
     BreakOpportunity, FINE_PER_TWIP, FontHint, FontMetrics, FontSlots, FontSpec,
-    OverflowPunctuationContext, SlotKind, TextMetrics,
+    LineFontMetrics, MeasuredFontSpan, OverflowPunctuationContext, SlotKind, TextMetrics,
 };
 
 mod simple;

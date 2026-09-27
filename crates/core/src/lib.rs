@@ -54,7 +54,7 @@ pub use oracle_json::{TraceMeta, to_trace_json};
 // ---- 度量契约 ----
 pub use font::{
     BreakOpportunity, Caps, FontHint, FontMetrics, FontSlots, FontSpec, SimpleMetrics, SlotKind,
-    TextMetrics,
+    LineFontMetrics, MeasuredFontSpan, TextMetrics,
 };
 
 // ---- rsword 桥接 ----

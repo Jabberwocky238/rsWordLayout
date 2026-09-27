@@ -263,6 +263,26 @@ impl TextMetrics {
     }
 }
 
+/// An accepted fragment and its existing measurement or fitting result.
+/// Tabs supply a space; hidden text and paint-only line tails are excluded.
+#[derive(Debug, Clone, Copy)]
+pub struct MeasuredFontSpan<'a> {
+    pub text: &'a str,
+    pub font: &'a FontSpec,
+    pub measured: TextMetrics,
+}
+
+/// Font contributions for a complete line, before paragraph spacing or shifts.
+/// Coarse values retain the provider's projection; fine values are independent.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct LineFontMetrics {
+    pub ascent: Twips,
+    pub descent: Twips,
+    pub natural_height: Twips,
+    pub natural_height_fine: i64,
+    pub ascent_fine: i64,
+}
+
 /// 断行候选位置：可以断开的字符边界。
 ///
 /// 断行规则（UAX #14）与字体无关，但和语言有关（中日文可在字间断，西文按词），
@@ -301,6 +321,27 @@ pub trait FontMetrics {
     /// finer font metrics; this is not a paragraph line-spacing policy.
     fn ascent_fine(&self, _text: &str, _font: &FontSpec, measured: &TextMetrics) -> i64 {
         i64::from(measured.ascent) * FINE_PER_TWIP
+    }
+
+    /// Combine accepted fragments without remeasuring their coarse metrics.
+    ///
+    /// The default preserves the existing independent maxima, including both
+    /// fine-metric overrides. Providers with unrounded font components can
+    /// combine those first and project once for the whole line instead.
+    /// Empty lines use `empty_line_metrics` and the two fine hooks directly;
+    /// an empty slice here has no contribution and returns zero metrics.
+    fn line_metrics(&self, spans: &[MeasuredFontSpan<'_>]) -> LineFontMetrics {
+        spans.iter().fold(LineFontMetrics::default(), |mut line, span| {
+            let m = span.measured;
+            line.ascent = line.ascent.max(m.ascent);
+            line.descent = line.descent.max(m.descent);
+            line.natural_height = line.natural_height.max(m.natural_height());
+            line.natural_height_fine = line.natural_height_fine
+                .max(self.natural_height_fine(span.text, span.font));
+            line.ascent_fine = line.ascent_fine
+                .max(self.ascent_fine(span.text, span.font, &m));
+            line
+        })
     }
 
     /// 在给定宽度内最多能放下多少字节，返回该前缀的字节长度与其度量。

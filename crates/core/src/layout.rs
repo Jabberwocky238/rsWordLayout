@@ -17,7 +17,10 @@
 //! 这条线照 dvipdfmx 的 `pdfdev.h` 划：那里坐标在 user space，
 //! device space 的换算系数在设备初始化时设一次。
 
-use crate::font::{FINE_PER_TWIP, FontMetrics, FontSpec, OverflowPunctuationContext};
+use crate::font::{
+    FINE_PER_TWIP, FontMetrics, FontSpec, LineFontMetrics, MeasuredFontSpan,
+    OverflowPunctuationContext, TextMetrics,
+};
 
 
 // ==========================================================================
@@ -1304,6 +1307,8 @@ struct LinePiece {
     dx_pt: f64,
     text: String,
     font: FontSpec,
+    /// Preserve the accepted measurement, including a provider's fit result.
+    measured: TextMetrics,
     color: Color,
     /// 基线抬升，1/7200 英寸，正值向上。
     rise_fine: i64,
@@ -2114,8 +2119,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let font = mark_run
                 .map(|r| r.font.clone())
                 .unwrap_or_else(|| FontSpec::new("Times New Roman", 24));
-            let m = self.metrics.empty_line_metrics(&font);
-            let h = self.line_height(para, m.ascent + m.descent, m.natural_height());
+            let m = self.line_font_metrics(&[], &font);
+            let h = self.line_height(para, m.ascent + m.descent, m.natural_height);
             let span = self
                 .line_spans(para, area, coarse(y_fine), h)
                 .into_iter()
@@ -2125,9 +2130,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 vertical: self.line_vertical(
                     para,
                     m.ascent + m.descent,
-                    self.metrics.natural_height_fine("", &font),
+                    m.natural_height_fine,
                 ),
-                baseline_offset_fine: self.metrics.ascent_fine("", &font, &m),
+                baseline_offset_fine: m.ascent_fine,
                 pieces: Vec::new(),
                 width: 0,
                 width_pt: 0.0,
@@ -2177,12 +2182,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 与 `cur_w` 并行的精确值，单位点。断行判断仍走 `cur_w`（整 twips 够用），
         // 只有**落位**读这一个——横向取整的残差同样沿行累加。
         let mut cur_w_pt: f64 = 0.0;
-        let mut cur_ascent: Twips = 0;
-        let mut cur_ascent_fine: i64 = 0;
-        let mut cur_descent: Twips = 0;
-        let mut cur_natural: Twips = 0;
-        // 与 `cur_natural` 并行的精确值，单位 1/7200 英寸。
-        let mut cur_natural_fine: i64 = 0;
         let mut first_line = resume.first;
         // 本行上一个片段（或行首）之后刚跨过一个行内对象占位符：下一个片段与它之间的交界
         // 是断点。见 `LinePiece::after_object`。每推一个片段、每收一行都清掉。
@@ -2268,19 +2267,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         // 收行。空行也要收：`'\u{FFFC}文字'` 这种分页符在段首的情形，
                         // 前面确实是一条空行（Word 也给它一条独立的行记录）。
                         // 显式换行收下的这一行此后再不回退：退回只在本行之内找断点。
-                        let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
-                        let h = if cur.is_empty() && cur_w == 0 {
-                            // 空行高度由该 run 的字体定，不能取 0——否则后面的行会叠上来。
-                            let m = self.metrics.empty_line_metrics(&run.font);
-                            cur_ascent = m.ascent;
-                            cur_ascent_fine = self.metrics.ascent_fine("", &run.font, &m);
-                            cur_descent = m.descent;
-                            cur_natural_fine = self.metrics.natural_height_fine("", &run.font);
-                            self.line_height(para, m.ascent + m.descent, m.natural_height())
-                        } else {
-                            h
-                        };
-                        let vertical = self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine);
+                        let m = self.line_font_metrics(&cur, &run.font);
+                        let h = self.line_height(para, m.ascent + m.descent, m.natural_height);
+                        let vertical = self.line_vertical(para, m.ascent + m.descent, m.natural_height_fine);
                         let mut tails = vec![LineTail::from_run((seg.source, consumed), terminator, run)];
                         if ends_paragraph {
                             tails.push(LineTail::paragraph_end(
@@ -2289,7 +2278,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         }
                         lines.push(PendingLine {
                             vertical,
-                            baseline_offset_fine: cur_ascent_fine,
+                            baseline_offset_fine: m.ascent_fine,
                             pieces: std::mem::take(&mut cur),
                             width: cur_w,
                             width_pt: cur_w_pt,
@@ -2311,11 +2300,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         line_start = consumed;
                         cur_w = 0;
                         cur_w_pt = 0.0;
-                        cur_ascent = 0;
-                        cur_ascent_fine = 0;
-                        cur_descent = 0;
-                        cur_natural = 0;
-                        cur_natural_fine = 0;
                         first_line = false;
                         cur_y_fine += vertical.advance_fine;
                         span = self.pick_span(para, area, coarse(cur_y_fine), h.max(probe_h));
@@ -2348,6 +2332,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         dx_pt: cur_w_pt,
                         text: "\t".to_string(),
                         font: run.font.clone(),
+                        measured: m,
                         color: run.color,
                         rise_fine: run.effective_rise_fine(),
                         source: (seg.source, seg.source + 1),
@@ -2360,13 +2345,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     // 不带上前面各片段逐个取整的残差；右／居中／小数点见 `land_tab`。
                     cur_w = cur_w.max(landed_w);
                     cur_w_pt += advance / 20.0;
-                    cur_ascent = cur_ascent.max(m.ascent);
-                    cur_ascent_fine =
-                        cur_ascent_fine.max(self.metrics.ascent_fine(" ", &run.font, &m));
-                    cur_descent = cur_descent.max(m.descent);
-                    cur_natural = cur_natural.max(m.natural_height());
-                    cur_natural_fine =
-                        cur_natural_fine.max(self.metrics.natural_height_fine(" ", &run.font));
                     (at, byte) = next_segment(&segs, at);
                 }
                 SegmentKind::Text => {
@@ -2389,6 +2367,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             dx_pt: cur_w_pt,
                             text: rest.to_string(),
                             font: run.font.clone(),
+                            measured: m_all,
                             color: run.color,
                             rise_fine: run.effective_rise_fine(),
                             source: (consumed, consumed + utf16_len(rest)),
@@ -2399,13 +2378,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         });
                         cur_w += m_all.advance;
                         cur_w_pt += self.metrics.advance_pt(rest, &run.font);
-                        cur_ascent = cur_ascent.max(m_all.ascent);
-                        cur_ascent_fine =
-                            cur_ascent_fine.max(self.metrics.ascent_fine(rest, &run.font, &m_all));
-                        cur_descent = cur_descent.max(m_all.descent);
-                        cur_natural = cur_natural.max(m_all.natural_height());
-                        cur_natural_fine =
-                            cur_natural_fine.max(self.metrics.natural_height_fine(rest, &run.font));
                         (at, byte) = next_segment(&segs, at);
                         continue;
                     }
@@ -2448,6 +2420,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 dx_pt: cur_w_pt,
                                 text: piece.to_string(),
                                 font: run.font.clone(),
+                                measured: m,
                                 color: run.color,
                                 rise_fine: run.effective_rise_fine(),
                                 source: (consumed, consumed + utf16_len(piece)),
@@ -2458,13 +2431,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             });
                             cur_w += m.advance;
                             cur_w_pt += self.metrics.advance_pt(piece, &run.font);
-                            cur_ascent = cur_ascent.max(m.ascent);
-                            cur_ascent_fine =
-                                cur_ascent_fine.max(self.metrics.ascent_fine(piece, &run.font, &m));
-                            cur_descent = cur_descent.max(m.descent);
-                            cur_natural = cur_natural.max(m.natural_height());
-                            cur_natural_fine = cur_natural_fine
-                                .max(self.metrics.natural_height_fine(piece, &run.font));
                             byte += cut;
                             (true, seg.run_index)
                         }
@@ -2476,7 +2442,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 if offset > 0 {
                                     p.text.truncate(offset);
                                     p.source.1 = p.source.0 + utf16_len(&p.text);
-                                    cur_w = p.dx + self.metrics.measure(&p.text, &p.font).advance;
+                                    p.measured = self.metrics.measure(&p.text, &p.font);
+                                    cur_w = p.dx + p.measured.advance;
                                     cur_w_pt = p.dx_pt + self.metrics.advance_pt(&p.text, &p.font);
                                     cur.truncate(piece + 1);
                                 } else {
@@ -2484,14 +2451,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                     cur_w_pt = p.dx_pt;
                                     cur.truncate(piece);
                                 }
-                                // 行高按剩下的片段重算：切走的那部分字体未必与前文相同。
-                                (
-                                    cur_ascent,
-                                    cur_descent,
-                                    cur_natural,
-                                    cur_natural_fine,
-                                    cur_ascent_fine,
-                                ) = self.pieces_vertical(&cur);
                             }
                             (eat, segs[at].run_index)
                         }
@@ -2508,21 +2467,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
                     // 收行。行尾字体取切口所在的 run（与原先「本截所在 run」同一口径）。
                     let run = &para.runs[end_run];
-                    if cur.is_empty() && cur_w == 0 {
-                        // 只有行内对象的一行（对象在行首，后面的长串一个字也不上这一行）。
-                        // 对象本身不占宽也不占高，行高按该 run 的字体取，与空行同一口径。
-                        let m = self.metrics.empty_line_metrics(&run.font);
-                        cur_ascent = m.ascent;
-                        cur_ascent_fine = self.metrics.ascent_fine("", &run.font, &m);
-                        cur_descent = m.descent;
-                        cur_natural = m.natural_height();
-                        cur_natural_fine = self.metrics.natural_height_fine("", &run.font);
-                    }
-                    let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
-                    let vertical = self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine);
+                    let m = self.line_font_metrics(&cur, &run.font);
+                    let h = self.line_height(para, m.ascent + m.descent, m.natural_height);
+                    let vertical = self.line_vertical(para, m.ascent + m.descent, m.natural_height_fine);
                     lines.push(PendingLine {
                         vertical,
-                        baseline_offset_fine: cur_ascent_fine,
+                        baseline_offset_fine: m.ascent_fine,
                         pieces: std::mem::take(&mut cur),
                         width: cur_w,
                         width_pt: cur_w_pt,
@@ -2539,11 +2489,6 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     line_start = consumed;
                     cur_w = 0;
                     cur_w_pt = 0.0;
-                    cur_ascent = 0;
-                    cur_ascent_fine = 0;
-                    cur_descent = 0;
-                    cur_natural = 0;
-                    cur_natural_fine = 0;
                     first_line = false;
                     object_join = false;
                     // 换行：y 推进一行高，可用区间随之可能变化。
@@ -2568,17 +2513,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         {
             let mark_run = para.runs.iter().rev().find(|run| !run.hidden)
                 .expect("nonempty visible paragraph");
-            if cur.is_empty() {
-                let font = &mark_run.font;
-                let m = self.metrics.empty_line_metrics(font);
-                cur_ascent = m.ascent;
-                cur_ascent_fine = self.metrics.ascent_fine("", font, &m);
-                cur_descent = m.descent;
-                cur_natural_fine = self.metrics.natural_height_fine("", font);
-            }
+            let m = self.line_font_metrics(&cur, &mark_run.font);
             lines.push(PendingLine {
-                vertical: self.line_vertical(para, cur_ascent + cur_descent, cur_natural_fine),
-                baseline_offset_fine: cur_ascent_fine,
+                vertical: self.line_vertical(para, m.ascent + m.descent, m.natural_height_fine),
+                baseline_offset_fine: m.ascent_fine,
                 pieces: cur,
                 width: cur_w,
                 width_pt: cur_w_pt,
@@ -3060,20 +2998,25 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         TabSegment { whole, whole_twips, before_point: before_point.unwrap_or(whole) }
     }
 
-    /// 按片段重算一行的纵向量：(ascent, descent, natural, natural_fine, ascent_fine)。
-    fn pieces_vertical(&self, pieces: &[LinePiece]) -> (Twips, Twips, Twips, i64, i64) {
-        pieces.iter().fold((0, 0, 0, 0, 0), |(a, d, n, nf, af), p| {
-            // 制表符按空格量纵向：U+0009 在不少字体里没有字形，选不到 face。
-            let text = if p.tab.is_some() { " " } else { p.text.as_str() };
-            let m = self.metrics.measure(text, &p.font);
-            (
-                a.max(m.ascent),
-                d.max(m.descent),
-                n.max(m.natural_height()),
-                nf.max(self.metrics.natural_height_fine(text, &p.font)),
-                af.max(self.metrics.ascent_fine(text, &p.font, &m)),
-            )
-        })
+    /// Finalize only retained pieces. Empty/object-only lines keep their
+    /// explicit fallback metrics, rather than contributing a synthetic span.
+    fn line_font_metrics(&self, pieces: &[LinePiece], empty_font: &FontSpec) -> LineFontMetrics {
+        if pieces.is_empty() {
+            let m = self.metrics.empty_line_metrics(empty_font);
+            return LineFontMetrics {
+                ascent: m.ascent,
+                descent: m.descent,
+                natural_height: m.natural_height(),
+                natural_height_fine: self.metrics.natural_height_fine("", empty_font),
+                ascent_fine: self.metrics.ascent_fine("", empty_font, &m),
+            };
+        }
+        let spans: Vec<_> = pieces.iter().map(|p| MeasuredFontSpan {
+            text: if p.tab.is_some() { " " } else { p.text.as_str() },
+            font: &p.font,
+            measured: p.measured,
+        }).collect();
+        self.metrics.line_metrics(&spans)
     }
 
     /// 取本行用哪个区间：最宽的那段。整行被占满时退回满宽，

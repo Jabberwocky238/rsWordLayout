@@ -21,7 +21,10 @@ use std::collections::BTreeMap;
 use skrifa::{FontRef, MetadataProvider};
 
 use super::registry::FontRegistry;
-use super::spec::{BreakOpportunity, FINE_PER_TWIP, FontMetrics, FontSpec, TextMetrics};
+use super::spec::{
+    BreakOpportunity, FINE_PER_TWIP, FontMetrics, FontSpec, LineFontMetrics, MeasuredFontSpan,
+    TextMetrics,
+};
 use crate::layout::{Twips, spacing_slots};
 
 /// 纵向量化栅格。
@@ -192,7 +195,10 @@ impl<'r> RealMetrics<'r> {
             // 一个 face 都没有：给零，让上层看到「没度量」而不是一个编出来的高度。
             return TextMetrics::default();
         };
+        self.project_vertical(ascent, descent, line_gap)
+    }
 
+    fn project_vertical(&self, ascent: f64, descent: f64, line_gap: f64) -> TextMetrics {
         let round = |v: f64| v.round() as Twips;
         match self.grid.step() {
             None => TextMetrics {
@@ -258,6 +264,27 @@ impl FontMetrics for RealMetrics<'_> {
             advance: self.apply_spacing(advance, spacing_slots(&shaped), font)
                 + super::linebreak::autospace_dn_twips(text, font.effective_size_centipoints()),
             ..self.vertical_for(text, font)
+        }
+    }
+
+    fn line_metrics(&self, spans: &[MeasuredFontSpan<'_>]) -> LineFontMetrics {
+        let (mut ascent, mut descent, mut gap) = (0.0f64, 0.0f64, 0.0f64);
+        for span in spans {
+            if let Some((a, d, g)) = self.vertical_raw(span.text, span.font) {
+                ascent = ascent.max(a);
+                descent = descent.max(d);
+                gap = gap.max(g);
+            }
+        }
+        // Apply the same projection as a single mixed-face request, after
+        // collecting every accepted fragment. No shaping is needed here.
+        let m = self.project_vertical(ascent, descent, gap);
+        LineFontMetrics {
+            ascent: m.ascent,
+            descent: m.descent,
+            natural_height: m.natural_height(),
+            natural_height_fine: ((ascent + descent + gap) * FINE_PER_TWIP as f64).round() as i64,
+            ascent_fine: i64::from(m.ascent) * FINE_PER_TWIP,
         }
     }
 
