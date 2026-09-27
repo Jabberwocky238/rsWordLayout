@@ -177,3 +177,30 @@ run 的同名元素只出现在
 页数证据仍按 [ANDROID-PAGE-EVIDENCE-2026-09-27.md](ANDROID-PAGE-EVIDENCE-2026-09-27.md)
 的限定使用。九份旧日志严格模式全部不可判；其中三份达到 PGIDX 80 条采样上限，
 连条件比较也不能证明最终分页容量，不能靠输入接入或数学重构将其升级成通过。
+
+## 规范网格探针
+
+后续新增 `tools/measure/make_docgrid_fixture.py`，基础输入位于
+`fixtures/docgrid-canonical-2026-09-27/`，鉴别输入在独立 `append-discriminators/`。
+两份 manifest 记录每个 DOCX、正文 XML、settings XML 的哈希、原文、UTF-16 源区间、
+实际 grid/snap/spacing XML 与字体声明，没有预填 Word 排版结果。
+
+基础 18 份显式使用 Times New Roman 12pt，正文与段落标记均声明四槽字体和字号，
+段前后距为零，widowControl 关闭，兼容模式 15。包括无网格、pitch 240/300/360/480
+各配 snap 缺省/true/false、exact480 与 atLeast240 的 pitch360 对照，以及同段内
+12 行的 soft-return 对照和前三段 snap=false、后九段 true 的相位探针。
+auto 的 line=240 是 240 分之一行单位，不称作 240 twips。
+
+追加 3 份分别为 12pt/pitch270/snap=true、18pt/无网格、18pt/pitch300/snap=true。
+本机 TNR `hhea` 为 upem=2048、ascent=1825、descent=443、lineGap=87；12pt 下字面占高
+为 265.78125 twips，自然高度为 275.9765625 twips。pitch270 可区分这两种候选输入，
+但这些字体表计算本身不能证明 Word 采用哪一种。
+
+21 份 DOCX 及两份 manifest 均已逐字节重生成复核；252 标签、230 段、22 个 soft return
+及字体/属性顺序通过离线核查。当前原生 `layout-trace` 实际读取全部 21 份，解析警告为零；
+每份源长 60、排出 12 行。后两项仅是实现前基线，不能用来验收网格算法。
+引擎基线、字体表与哈希记录在 `artifacts/docgrid-engine-2026-09-27/`。
+
+新的静态证据复核见 [DOCGRID-ALGORITHM-EVIDENCE](DOCGRID-ALGORITHM-EVIDENCE-2026-09-27.md)。
+其中纠正了旧 `LineGapMutator` 报告的三段度量求和解释；当前保存的原生和 Web 材料
+仍未给出可直接移植的 docGrid 公式。

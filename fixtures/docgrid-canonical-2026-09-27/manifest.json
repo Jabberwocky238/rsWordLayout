@@ -1,0 +1,4274 @@
+{
+  "schema": "rsword-docgrid-source/1",
+  "generator": "tools/measure/make_docgrid_fixture.py",
+  "purpose": "Collect line-grid, paragraph snap and line-spacing observations without assumed layout results.",
+  "pPrPropertyOrder": [
+    "widowControl",
+    "snapToGrid",
+    "spacing",
+    "jc",
+    "rPr"
+  ],
+  "sectPrPropertyOrder": [
+    "type",
+    "pgSz",
+    "pgMar",
+    "cols",
+    "docGrid"
+  ],
+  "optionalPropertyNote": "snapToGrid and docGrid are omitted only in the cases that declare them absent.",
+  "fontFamily": "Times New Roman",
+  "fontSizeHalfPoints": 24,
+  "fontApplication": "Explicit ascii, hAnsi, eastAsia, cs, sz and szCs on every text run and paragraph mark.",
+  "fontIdentityNote": "OOXML family declaration only; the font files used for capture must be recorded separately.",
+  "labelCount": 12,
+  "paragraphBeforeTwips": 0,
+  "paragraphAfterTwips": 0,
+  "widowControl": false,
+  "alignment": "left",
+  "stylesPart": false,
+  "docDefaults": false,
+  "compatibilityMode": 15,
+  "pageTwips": [
+    11906,
+    16838
+  ],
+  "marginTwips": 720,
+  "columns": 1,
+  "sourceUnit": "UTF-16 code units; half-open label ranges include a CR paragraph mark or VT soft return; paragraph ranges include the final CR",
+  "sourceStatus": "Derived from input OOXML; capture paragraph ranges and endOfContent must independently verify these anchors.",
+  "cases": [
+    {
+      "name": "auto240-no-grid-snapAbsent",
+      "file": "auto240-no-grid-snapAbsent.docx",
+      "sha256": "acb2dcf39aafff8e14c3546f55d11e3d05dd4c7a7e8ada54372b902ecf06675e",
+      "documentXmlSha256": "3bd98a117ec1578d95f912f3a4bb8f68a999239bc1c1bbf2e60d0f08233a1fd1",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": null,
+      "snapToGridXml": null,
+      "docGrid": {
+        "present": false,
+        "kind": null,
+        "linePitchTwips": null,
+        "xml": null
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch240-snapAbsent",
+      "file": "auto240-pitch240-snapAbsent.docx",
+      "sha256": "c6f0465ecf26dd2595213021e66d7d186f72fffc0b66ffc063a30acd4b10e009",
+      "documentXmlSha256": "607d409eaf530c5623590c658a446de060cc4d6bbb88a2ecfda63dd7e07d0acd",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": null,
+      "snapToGridXml": null,
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 240,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"240\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch240-snapTrue",
+      "file": "auto240-pitch240-snapTrue.docx",
+      "sha256": "4ec0995901269745bc0e5bafaf9f36211dd82129a8323e81a2a6ea4ea24ec4f8",
+      "documentXmlSha256": "186e06f0882fcc3fbafc42eadf3a2e7dcf499eefbb35780765eddbcd8011d69e",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 240,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"240\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch240-snapFalse",
+      "file": "auto240-pitch240-snapFalse.docx",
+      "sha256": "d19b2b586fd551a93ac000f6ccd60a9d87f5e7a834b1664409da4e7a8645a565",
+      "documentXmlSha256": "6ea49b510ed80dee837ad705119779a205988e690f7ee63aa9ab86d9d3c26099",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": false,
+      "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 240,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"240\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch300-snapAbsent",
+      "file": "auto240-pitch300-snapAbsent.docx",
+      "sha256": "7d0e63e92397789749c20235557385b0ee835bc8f175a8f57e0dea909f9665cf",
+      "documentXmlSha256": "6c617d1f4bc7d5bd731411572315d06b623d20c4bc38fc19a06bb23464feff2f",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": null,
+      "snapToGridXml": null,
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 300,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"300\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch300-snapTrue",
+      "file": "auto240-pitch300-snapTrue.docx",
+      "sha256": "762c747e6c5e2b466991da04f2c9375d072ad00f2cbf995a47b6f247174992ff",
+      "documentXmlSha256": "f2c3bce3eef7612d7310c378128bbe79c3357f6033e74e3f6e6e5b30be4e50cc",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 300,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"300\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch300-snapFalse",
+      "file": "auto240-pitch300-snapFalse.docx",
+      "sha256": "d8988fcac542a86ab0310797ffe7f00c506819b3fae944beae11b7a118740149",
+      "documentXmlSha256": "3cfe6287735e114ccfa95cbd4793c438537296045a171b4db778ae73073bb28d",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": false,
+      "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 300,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"300\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch360-snapAbsent",
+      "file": "auto240-pitch360-snapAbsent.docx",
+      "sha256": "c8ecaa3c29e7acb4d7179612212a897a0b561aa904044ec7ed0269301c4a80e1",
+      "documentXmlSha256": "eb4add1e497ecec9f911ec4c41ea9dc9dc903cd7f5f88776ef4b82fb7dae3dff",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": null,
+      "snapToGridXml": null,
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch360-snapTrue",
+      "file": "auto240-pitch360-snapTrue.docx",
+      "sha256": "cd96677bf19fe246f7c9a01d02478ab50ccf24a1c582426565de23bfd27a648a",
+      "documentXmlSha256": "69eb0c849c232af0b95e08c6a45f308275093a835159cbb7d52fa41f3c167bb6",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch360-snapFalse",
+      "file": "auto240-pitch360-snapFalse.docx",
+      "sha256": "be2133de2dec927f261af2fb848f2bd41d6922740c264c0ceeb9ba94e4c470e9",
+      "documentXmlSha256": "c9a3fbf782f759b71480bcee4cce12a1ab3c2d54b87456bb1c3c343628557056",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": false,
+      "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch480-snapAbsent",
+      "file": "auto240-pitch480-snapAbsent.docx",
+      "sha256": "42f320fa699569c2682438590c179de922ed3a49cffd8256a07d033014ecce40",
+      "documentXmlSha256": "f2b20c762d9ee4f07620d8391508d6768e8397978ccada228aa21e697c09b4ca",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": null,
+      "snapToGridXml": null,
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 480,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"480\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch480-snapTrue",
+      "file": "auto240-pitch480-snapTrue.docx",
+      "sha256": "0aa306d0830b7278fd12be0695c3cfa33d43bc65a2ac1884d17aa13b823d2e91",
+      "documentXmlSha256": "08ad44db468e2de99a7b45b222153d70508175371627289e2fdd75dc8d0e85a4",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 480,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"480\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch480-snapFalse",
+      "file": "auto240-pitch480-snapFalse.docx",
+      "sha256": "e53bd5b0210526a04a72cafe300bb37f009a7fc9ddc8883eca60d9a669487d96",
+      "documentXmlSha256": "a36771217e94ebe8e75f16006d046e0347cbb6345ba2c62dde8e972ef6420bf8",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": false,
+      "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 480,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"480\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        }
+      ]
+    },
+    {
+      "name": "exact480-pitch360-snapTrue",
+      "file": "exact480-pitch360-snapTrue.docx",
+      "sha256": "51e93e20b7c8c424915031477f5b72a3a85d0d7ddabe76837778f01adf26da01",
+      "documentXmlSha256": "9cacdd18bba7870af6cb76f21990b0f7e17f43c87e1c074af3344663ff4c9fee",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "exact",
+      "lineValue": 480,
+      "lineValueUnit": "twips",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"480\" w:lineRule=\"exact\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "atLeast240-pitch360-snapTrue",
+      "file": "atLeast240-pitch360-snapTrue.docx",
+      "sha256": "aaddde7025bce15fa9e8b5ee878093d049acf2a1aa577bd5e038e847e79e9a53",
+      "documentXmlSha256": "e861341fb11fd4ff3cee504e5da437145d5ec8c7d9e23ff5489db4609beda46a",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "atLeast",
+      "lineValue": 240,
+      "lineValueUnit": "twips",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"atLeast\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch360-snapTrue-softLines",
+      "file": "auto240-pitch360-snapTrue-softLines.docx",
+      "sha256": "0b6d4a21b5f3d860cac813dc87dd03282f3aa729d3cb8a7281ffcc3d12d24863",
+      "documentXmlSha256": "00752ae55774415b8aa55b464f9afbd142a73753bb2c89f4d25b108c234869a2",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "soft-lines",
+      "paragraphCount": 1,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\u000bG001\u000bG002\u000bG003\u000bG004\u000bG005\u000bG006\u000bG007\u000bG008\u000bG009\u000bG010\u000bG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "be1e646f25a2c000b2a3884f445c931f0e7fd6f350bc9d86d8b5548a6098e805",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 4,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 9,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 14,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 19,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 0,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 24,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 0,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 29,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 0,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 34,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 0,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 39,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 0,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 44,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 0,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 49,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 0,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 54,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 0,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch360-snapFalse-softLines",
+      "file": "auto240-pitch360-snapFalse-softLines.docx",
+      "sha256": "81f97b0967e52ef1a743dbfab633f6c4298ada4fb8c9ae022004faf3418c8b59",
+      "documentXmlSha256": "e4e5adb38c3f640dc66d667ad9d21d4e051db080fc3ed7cc28fb8447e34f17b9",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "soft-lines",
+      "paragraphCount": 1,
+      "snapToGridMode": "uniform",
+      "snapToGrid": false,
+      "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\u000bG001\u000bG002\u000bG003\u000bG004\u000bG005\u000bG006\u000bG007\u000bG008\u000bG009\u000bG010\u000bG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "be1e646f25a2c000b2a3884f445c931f0e7fd6f350bc9d86d8b5548a6098e805",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 4,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 9,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 14,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 19,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 0,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 24,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 0,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 29,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 0,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 34,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 0,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 39,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 0,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 44,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 0,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 49,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 0,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": null,
+          "softBreakOffset": 54,
+          "terminator": "SOFT_RETURN"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 0,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch360-snapPhase3False9True",
+      "file": "auto240-pitch360-snapPhase3False9True.docx",
+      "sha256": "dc8593a664ef2e4f06c3072ace09f1780762dd0332ce1dc654a8b94b12ec4cdc",
+      "documentXmlSha256": "c87fff0a4d430800d3f5b4ba1835daccdb7faea4d852cdc3987fd853949ab7f5",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "snap-phase",
+      "paragraphCount": 12,
+      "snapToGridMode": "per-paragraph",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 360,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"360\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": false,
+          "snapToGridXml": "<w:snapToGrid w:val=\"0\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    }
+  ]
+}

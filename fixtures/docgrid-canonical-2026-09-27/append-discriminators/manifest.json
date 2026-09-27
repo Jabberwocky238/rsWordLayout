@@ -1,0 +1,786 @@
+{
+  "schema": "rsword-docgrid-source/1",
+  "generator": "tools/measure/make_docgrid_fixture.py",
+  "purpose": "Collect line-grid, paragraph snap and line-spacing observations without assumed layout results.",
+  "pPrPropertyOrder": [
+    "widowControl",
+    "snapToGrid",
+    "spacing",
+    "jc",
+    "rPr"
+  ],
+  "sectPrPropertyOrder": [
+    "type",
+    "pgSz",
+    "pgMar",
+    "cols",
+    "docGrid"
+  ],
+  "optionalPropertyNote": "snapToGrid and docGrid are omitted only in the cases that declare them absent.",
+  "fontFamily": "Times New Roman",
+  "fontSizeHalfPoints": null,
+  "fontSizeNote": "Mixed sizes: each case records its explicit fontSizeHalfPoints.",
+  "batch": "append-discriminators",
+  "baseManifest": "../manifest.json",
+  "fontApplication": "Explicit ascii, hAnsi, eastAsia, cs, sz and szCs on every text run and paragraph mark.",
+  "fontIdentityNote": "OOXML family declaration only; the font files used for capture must be recorded separately.",
+  "labelCount": 12,
+  "paragraphBeforeTwips": 0,
+  "paragraphAfterTwips": 0,
+  "widowControl": false,
+  "alignment": "left",
+  "stylesPart": false,
+  "docDefaults": false,
+  "compatibilityMode": 15,
+  "pageTwips": [
+    11906,
+    16838
+  ],
+  "marginTwips": 720,
+  "columns": 1,
+  "sourceUnit": "UTF-16 code units; half-open label ranges include a CR paragraph mark or VT soft return; paragraph ranges include the final CR",
+  "sourceStatus": "Derived from input OOXML; capture paragraph ranges and endOfContent must independently verify these anchors.",
+  "cases": [
+    {
+      "name": "auto240-pitch270-snapTrue-size12",
+      "file": "auto240-pitch270-snapTrue-size12.docx",
+      "fontSizeHalfPoints": 24,
+      "purpose": "Place the pitch between the recorded 12pt font content and natural line extents to distinguish which extent controls grid rounding.",
+      "sha256": "05da5480b52c820580be1a8f75d68b3a19c94bb256ded3597332f85b822211d8",
+      "documentXmlSha256": "c334035b2011a60dac50d3a51430625f05271c2e95feaa847caaa228467c59ff",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 270,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"270\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    },
+    {
+      "name": "auto240-no-grid-snapAbsent-size18",
+      "file": "auto240-no-grid-snapAbsent-size18.docx",
+      "fontSizeHalfPoints": 36,
+      "purpose": "Measure an 18pt no-grid control for the paired 18pt pitch300 probe.",
+      "sha256": "5ffd8d6658296b186a673b313523a6a5754501b27f9c482bef8b4fce2bb48c9f",
+      "documentXmlSha256": "328d2466f3ee89f4219b4f5e2dcf3d5c6103c364cb334d7d41f63a620ddeef91",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": null,
+      "snapToGridXml": null,
+      "docGrid": {
+        "present": false,
+        "kind": null,
+        "linePitchTwips": null,
+        "xml": null
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": null,
+          "snapToGridXml": null
+        }
+      ]
+    },
+    {
+      "name": "auto240-pitch300-snapTrue-size18",
+      "file": "auto240-pitch300-snapTrue-size18.docx",
+      "fontSizeHalfPoints": 36,
+      "purpose": "Distinguish larger-font behavior from the existing 12pt pitch300 probe using the paired 18pt no-grid control.",
+      "sha256": "40b443455072b0c630d13a65caa78a28063597d695cdb8b914c94d945e2e49a8",
+      "documentXmlSha256": "30685b196ae850d3d3a96032530aaa77adb9eaf18215e7066c4cc45916aa5831",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "lineRule": "auto",
+      "lineValue": 240,
+      "lineValueUnit": "240ths-of-line",
+      "spacingXml": "<w:spacing w:before=\"0\" w:after=\"0\" w:line=\"240\" w:lineRule=\"auto\"/>",
+      "structure": "paragraphs",
+      "paragraphCount": 12,
+      "snapToGridMode": "uniform",
+      "snapToGrid": true,
+      "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>",
+      "docGrid": {
+        "present": true,
+        "kind": "lines",
+        "linePitchTwips": 300,
+        "xml": "<w:docGrid w:type=\"lines\" w:linePitch=\"300\"/>"
+      },
+      "sourceText": "G000\rG001\rG002\rG003\rG004\rG005\rG006\rG007\rG008\rG009\rG010\rG011\r",
+      "sourceLengthUtf16": 60,
+      "sourceTextUtf16LeSha256": "1de7b07426d656f3952445f1a1a37748924237900be6fac200c95729fc7ad5fc",
+      "anchors": [
+        {
+          "label": "G000",
+          "paragraphIndex": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G001",
+          "paragraphIndex": 1,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G002",
+          "paragraphIndex": 2,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G003",
+          "paragraphIndex": 3,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G004",
+          "paragraphIndex": 4,
+          "sourceStart": 20,
+          "textEnd": 24,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G005",
+          "paragraphIndex": 5,
+          "sourceStart": 25,
+          "textEnd": 29,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G006",
+          "paragraphIndex": 6,
+          "sourceStart": 30,
+          "textEnd": 34,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G007",
+          "paragraphIndex": 7,
+          "sourceStart": 35,
+          "textEnd": 39,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G008",
+          "paragraphIndex": 8,
+          "sourceStart": 40,
+          "textEnd": 44,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G009",
+          "paragraphIndex": 9,
+          "sourceStart": 45,
+          "textEnd": 49,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G010",
+          "paragraphIndex": 10,
+          "sourceStart": 50,
+          "textEnd": 54,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "G011",
+          "paragraphIndex": 11,
+          "sourceStart": 55,
+          "textEnd": 59,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "softBreakOffset": null,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 1,
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 2,
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 3,
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 4,
+          "sourceStart": 20,
+          "sourceEnd": 25,
+          "paragraphMarkOffset": 24,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 5,
+          "sourceStart": 25,
+          "sourceEnd": 30,
+          "paragraphMarkOffset": 29,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 6,
+          "sourceStart": 30,
+          "sourceEnd": 35,
+          "paragraphMarkOffset": 34,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 7,
+          "sourceStart": 35,
+          "sourceEnd": 40,
+          "paragraphMarkOffset": 39,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 8,
+          "sourceStart": 40,
+          "sourceEnd": 45,
+          "paragraphMarkOffset": 44,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 9,
+          "sourceStart": 45,
+          "sourceEnd": 50,
+          "paragraphMarkOffset": 49,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 10,
+          "sourceStart": 50,
+          "sourceEnd": 55,
+          "paragraphMarkOffset": 54,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        },
+        {
+          "index": 11,
+          "sourceStart": 55,
+          "sourceEnd": 60,
+          "paragraphMarkOffset": 59,
+          "snapToGrid": true,
+          "snapToGridXml": "<w:snapToGrid w:val=\"1\"/>"
+        }
+      ]
+    }
+  ]
+}
