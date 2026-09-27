@@ -23,6 +23,7 @@ fn run(text: &str, family: &str) -> Run {
         placeholders: Vec::new(),
         rise: 0,
         rise_fine: None,
+        hidden: false,
     }
 }
 
@@ -108,6 +109,7 @@ fn a_lone_page_break_gets_its_own_line_record() {
             placeholders: vec![PlaceholderKind::PageBreak],
         rise: 0,
         rise_fine: None,
+        hidden: false,
         }],
         ..Para::default()
     };

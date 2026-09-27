@@ -14,6 +14,7 @@ fn para(text: &str, placeholders: Vec<P>) -> Para {
             placeholders,
             rise: 0,
             rise_fine: None,
+            hidden: false,
         }],
         ..Para::default()
     }

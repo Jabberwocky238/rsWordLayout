@@ -9,6 +9,7 @@
 mod anchor;
 mod bridge;
 mod layout;
+mod load;
 pub mod font;
 mod oracle;
 mod oracle_json;
@@ -30,8 +31,8 @@ pub use layout::{Span, WrapContext, WrapRegion, WrapSide};
 
 // ---- 布局引擎 ----
 pub use layout::{
-    Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para, PlaceholderKind, Run,
-    TextFragment,
+    Align, Engine, Fragment, Line, LineRule, Page, PageSetup, Para, PlaceholderKind, Platform, Run,
+    TabAlign, TabLeader, TabStop, TextFragment, View,
 };
 
 // ---- 绘制指令：布局产物 → 画布 ----
@@ -49,13 +50,14 @@ pub use oracle_json::{TraceMeta, to_trace_json};
 
 // ---- 度量契约 ----
 pub use font::{
-    BreakOpportunity, FontHint, FontMetrics, FontSlots, FontSpec, SimpleMetrics, SlotKind,
+    BreakOpportunity, Caps, FontHint, FontMetrics, FontSlots, FontSpec, SimpleMetrics, SlotKind,
     TextMetrics,
 };
 
 // ---- rsword 桥接 ----
 pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
+pub use load::{LoadedDocument, load_document, merge_sibling_run_props};
 
 // ---- 近似度量桩，**不可用于真实排版** ----
 

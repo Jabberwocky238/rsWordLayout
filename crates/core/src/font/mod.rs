@@ -21,6 +21,8 @@
 //! - `fontenv` —— 按码位选字体与 fallback（依赖 docx-layout）
 
 mod spec;
+pub mod caps;
+pub use caps::Caps;
 
 pub use spec::{
     BreakOpportunity, FINE_PER_TWIP, FontHint, FontMetrics, FontSlots, FontSpec,

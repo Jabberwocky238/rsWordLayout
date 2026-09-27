@@ -14,6 +14,7 @@ fn run(text: &str) -> Run {
         placeholders: vec![],
         rise: 0,
         rise_fine: None,
+        hidden: false,
     }
 }
 

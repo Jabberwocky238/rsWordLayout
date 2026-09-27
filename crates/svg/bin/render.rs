@@ -5,11 +5,11 @@
 //! 输出每页一个 `<svg>`，文字是 `<text>` 元素而非位图——由浏览器用真实字体渲染，
 //! 因此放大无限清晰、可选中、可搜索。整条链路不经过任何栅格化。
 
-use rsword::bind::native::SessionTable;
 use rsword::model::Document;
 use rsword::package::Package;
 use rsword_layout_core::{
-    AnchorScan, Engine, PageSetup, SimpleMetrics, paint_document, paras_from_document,
+    AnchorScan, Engine, PageSetup, SimpleMetrics, load_document, paint_document,
+    paras_from_document,
 };
 use rsword_layout_svg::render_html;
 
@@ -21,10 +21,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bytes = std::fs::read(&input)?;
 
     // 1. 解析。段落走 JSON 投影，环绕走 Rust 模型——锚定几何不在 JSON 里。
-    let mut sessions = SessionTable::default();
-    let id = sessions.open(&bytes, None)?;
-    let doc: serde_json::Value = serde_json::from_str(&sessions.document(&id, None)?)?;
-    sessions.close(&id);
+    // 并排的 `w:rPr` 解析器只留最后一个，`load_document` 先把它们并起来。
+    let loaded = load_document(&bytes)?;
+    if let Some(error) = &loaded.merge_error {
+        eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
+    }
+    let doc = loaded.json;
 
     // 2. 桥接。
     let (paras, skipped) = paras_from_document(&doc);

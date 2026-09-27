@@ -21,6 +21,7 @@ fn para(text: &str) -> Para {
                 .collect(),
             rise: 0,
             rise_fine: None,
+            hidden: false,
         }],
         ..Para::default()
     }

@@ -36,6 +36,10 @@ cargo run --bin render -- fixtures/sample.docx fixtures/sample.html
 
 ## 状态
 
+共享 PTS/LS 内核的后续开发顺序、证据和验收条件见
+[开发路线](docs/SHARED-PTS-LS-DEVELOPMENT-2026-09-27.md)。直接声明的 `w:vanish`
+已在共用行布局中处理：隐藏内容不排版，但保留 UTF-16 源位置。
+
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
 y 游标分页、`keepNext` / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、SVG 后端。
 

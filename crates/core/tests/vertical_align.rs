@@ -120,6 +120,7 @@ fn rise_does_not_change_the_advance() {
             placeholders: Vec::new(),
             rise,
             rise_fine: None,
+            hidden: false,
         }],
         ..Para::default()
     };

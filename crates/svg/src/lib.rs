@@ -36,6 +36,52 @@ fn rule_attr(r: FillRule) -> &'static str {
     }
 }
 
+/// `w:w`（横向缩放）与 `w:spacing`（字符间距）落到 `<text>` 上。都是默认值时为空串。
+///
+/// 布局断行时量的宽度已经含这两项（`FontMetrics::measure`）；`<text>` 若不带，浏览器按
+/// 原宽排字，缩放与紧缩的文字画出界、压到下一个片段，加宽的又挤在一起。
+///
+/// - 缩放：以片段起点为不动点横向压，`matrix(s 0 0 1 x·(1−s) 0)`。字形轮廓跟着压，
+///   这也是 `w:w` 本来的样子；
+/// - 间距：`letter-spacing`，浏览器加在每个字符之后，与引擎「每个 cluster 一次、
+///   末字也加」同口径（组合符号上浏览器怎么数不归这里管）。值写**用户单位**（1 = 1pt）
+///   不带 `pt`——SVG 里 `1pt` 是 1.25 个用户单位。它处在缩放之后的坐标系里，所以预先除以
+///   比例，落到页面上仍是原值：与度量「间距不随缩放」的假定一致。
+fn spacing_attrs(font: &rsword_layout_core::FontSpec, origin_x_pt: f64) -> String {
+    let mut out = String::new();
+    let scale = if font.scale_pct != 100 && font.scale_pct > 0 {
+        f64::from(font.scale_pct) / 100.0
+    } else {
+        1.0
+    };
+    if scale != 1.0 {
+        let _ = write!(
+            out,
+            " transform=\"matrix({scale:.4} 0 0 1 {:.6} 0)\"",
+            origin_x_pt * (1.0 - scale)
+        );
+    }
+    if font.letter_spacing != 0 {
+        let spacing = f64::from(font.letter_spacing) / f64::from(TWIPS_PER_POINT) / scale;
+        let _ = write!(out, " letter-spacing=\"{spacing:.4}\"");
+    }
+    out
+}
+
+/// `w:caps` / `w:smallCaps` 落到 `<text>` 上。不变换时为空串。
+///
+/// 与 [`spacing_attrs`] 同理，`<text>` 里保留**原文**（可选中、可搜索），大小写交给渲染器。
+/// 这只是近似，字形级几何在绘制指令的字形序列里，这里不用：浏览器的 `text-transform`
+/// 按 Unicode 完整映射（`ß` → `SS`），引擎按一对一映射（`ß` 不变）；`font-variant` 的
+/// 小型大写用字体的 `smcp` 或浏览器自己的缩小比例（常见约 70%），不是引擎的 80% 取整到半点。
+fn caps_attr(font: &rsword_layout_core::FontSpec) -> &'static str {
+    match font.caps {
+        rsword_layout_core::Caps::None => "",
+        rsword_layout_core::Caps::All => " style=\"text-transform:uppercase\"",
+        rsword_layout_core::Caps::Small => " font-variant=\"small-caps\"",
+    }
+}
+
 /// 路径转 SVG 的 `d` 属性。
 fn path_d(p: &Path) -> String {
     let mut d = String::new();
@@ -260,12 +306,14 @@ impl VectorCanvas for SvgCanvas {
                     esc(&font.family),
                     font.size_pt()
                 )?;
+                self.cur.push_str(&spacing_attrs(font, *origin_x_pt));
                 if font.bold {
                     self.cur.push_str(" font-weight=\"bold\"");
                 }
                 if font.italic {
                     self.cur.push_str(" font-style=\"italic\"");
                 }
+                self.cur.push_str(caps_attr(font));
                 if paint.color != Color::BLACK {
                     write!(self.cur, " fill=\"{}\"", hex(paint.color))?;
                 }

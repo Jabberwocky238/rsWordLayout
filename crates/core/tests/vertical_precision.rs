@@ -82,6 +82,7 @@ impl TextShaper for OffsetShaper {
                 x_advance_pt: 2.5,
                 x_offset: 0,
                 y_offset: 3,
+                size_centipoints: None,
             })
             .collect()
     }
@@ -151,6 +152,7 @@ fn legacy_run(rise: i32) -> Run {
         placeholders: vec![],
         rise,
         rise_fine: None,
+        hidden: false,
     }
 }
 

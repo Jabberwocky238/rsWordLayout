@@ -22,6 +22,7 @@ fn run(text: &str, placeholders: &[PlaceholderKind]) -> Run {
         placeholders: placeholders.to_vec(),
         rise: 0,
         rise_fine: None,
+        hidden: false,
     }
 }
 

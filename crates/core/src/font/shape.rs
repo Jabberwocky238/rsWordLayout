@@ -104,6 +104,38 @@ impl RustybuzzShaper {
         size_centipoints: u64,
         kerning: bool,
     ) -> Vec<ShapedRun> {
+        // 直接用 Word Range 的 UTF-16 单位标 cluster，避免把 UTF-8 字节
+        // 或输出字形序号当作字符归属（连字、代理对、RTL 均不一一对应）。
+        let mut chars = Vec::with_capacity(text.len());
+        let mut source_end = 0;
+        for ch in text.chars() {
+            chars.push((ch, source_end));
+            source_end += ch.len_utf16() as u32;
+        }
+        self.shape_clusters_with_face_centipoints(
+            face_index,
+            &chars,
+            source_end,
+            size_centipoints,
+            kerning,
+        )
+    }
+
+    /// 按调用方给的 cluster 值整形。
+    ///
+    /// `chars` 是（显示字符，源 UTF-16 偏移），偏移单调不减；`source_end` 是最后一个
+    /// 源字符的终点。存在的理由是 `w:caps`：显示字符不等于原文（`a` 画成 `A`），
+    /// cluster 值要标在原文上。现在的映射是一对一（见 [`super::caps::upper_one_to_one`]）；
+    /// 将来换成一对多（`ß` → `SS`）时，一个源字符展开出的几个显示字符**共用同一个 cluster 值**，
+    /// 字形的 `source` 就仍落在原文上，这里不用改。
+    pub fn shape_clusters_with_face_centipoints(
+        &self,
+        face_index: usize,
+        chars: &[(char, u32)],
+        source_end: u32,
+        size_centipoints: u64,
+        kerning: bool,
+    ) -> Vec<ShapedRun> {
         let Some((_, bytes, index)) = self.faces.get(face_index) else {
             return Vec::new();
         };
@@ -112,12 +144,8 @@ impl RustybuzzShaper {
         };
 
         let mut buf = UnicodeBuffer::new();
-        let mut source_end = 0;
-        for ch in text.chars() {
-            // 直接用 Word Range 的 UTF-16 单位标 cluster，避免把 UTF-8 字节
-            // 或输出字形序号当作字符归属（连字、代理对、RTL 均不一一对应）。
-            buf.add(ch, source_end);
-            source_end += ch.len_utf16() as u32;
+        for &(ch, cluster) in chars {
+            buf.add(ch, cluster);
         }
         // 这里只推断当前段的方向与脚本；不同脚本和双向文本须由调用方分段。
         buf.guess_segment_properties();
@@ -193,6 +221,7 @@ impl RustybuzzShaper {
                 source: cluster_spans
                     .get(&info.cluster)
                     .map(|&end| (info.cluster, end)),
+                size_centipoints: Some(size_centipoints),
             });
             acc = next;
             acc_twips = next_twips;
@@ -219,14 +248,42 @@ impl TextShaper for RustybuzzShaper {
             .get(&font.family)
             .copied()
             .or(self.default_face);
-        match face {
-            Some(i) => self.shape_with_face_centipoints(
-                i,
-                text,
-                font.effective_size_centipoints(),
-                font.kerning,
-            ),
-            None => Vec::new(),
+        let Some(i) = face else {
+            return Vec::new();
+        };
+        // `w:caps` / `w:smallCaps` 与 `FontRegistry::shape_text` 走同一个展开：
+        // 小型大写一段文字里有两个字号，按字号分段整形。只有一个 face，
+        // 它的 cmap 里没有的大写退回源字符（假定，见 `caps::display_chars_with`）。
+        let face = match font.caps {
+            super::Caps::None => None,
+            _ => self.faces.get(i).and_then(|(_, bytes, index)| Face::from_slice(bytes, *index)),
+        };
+        let covers = |source_ch: char, ch: char| {
+            (ch == source_ch || face.as_ref().is_none_or(|f| f.glyph_index(ch).is_some()))
+                .then_some(())
+        };
+        let mut out = Vec::new();
+        let mut seg: Vec<(char, u32)> = Vec::new();
+        let mut seg_size = None;
+        let mut seg_end = 0;
+        for (d, _) in super::caps::display_chars_with(text, font, covers) {
+            if let Some(size) = seg_size
+                && size != d.size_centipoints
+            {
+                out.extend(self.shape_clusters_with_face_centipoints(
+                    i, &seg, seg_end, size, font.kerning,
+                ));
+                seg.clear();
+            }
+            seg_size = Some(d.size_centipoints);
+            seg.push((d.ch, d.source.0));
+            seg_end = d.source.1;
         }
+        if let Some(size) = seg_size {
+            out.extend(self.shape_clusters_with_face_centipoints(
+                i, &seg, seg_end, size, font.kerning,
+            ));
+        }
+        out
     }
 }

@@ -53,6 +53,7 @@ fn para(text: &str) -> Para {
             placeholders: Vec::new(),
             rise: 0,
             rise_fine: None,
+            hidden: false,
         }],
         ..Para::default()
     }

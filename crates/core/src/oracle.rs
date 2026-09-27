@@ -48,6 +48,10 @@ pub enum PageBreakPosition {
     /// 分页符自身独占一条行记录（不含段落标记）：画 **0 个**。
     OwnLine,
     /// 紧跟段落标记：画 **1 个空格**（该行连同段落标记共 +2）。
+    ///
+    /// 只在分页视图（段落标记收进分页符那一行）出现。移动视图
+    /// （[`crate::View::Mobile`]）里段落标记另起一行，分页符那行按有无前文记
+    /// `OwnLine` / `MidParagraph`，段落标记那行记 `ParagraphMark`。
     BeforeMark,
     /// 段中，两侧都有文字：画 **0 个**。
     MidParagraph,
@@ -195,6 +199,21 @@ impl LayoutRecord {
 
     pub fn glyph_count(&self) -> usize {
         self.pages.iter().map(PageRecord::glyph_count).sum()
+    }
+
+    /// 画成 `.notdef`（glyph 0）的字形数：没有任何已装字体画得出的字符。
+    ///
+    /// 与 [`LayoutRecord::unassigned_glyphs`] 不是一回事：那是「不进行划分」的字形，
+    /// 进验收分母；这里的字形都归了行，只是字形本身是名义的（CJK 按 1 em 占位），
+    /// 几何可比、字形 id 与 face 不可比。从记录直接数，不另存——
+    /// 另存就可能与字形序列对不上。
+    pub fn notdef_glyph_count(&self) -> usize {
+        self.pages
+            .iter()
+            .flat_map(|p| &p.lines)
+            .flat_map(|l| &l.glyphs)
+            .filter(|g| g.glyph_id == 0)
+            .count()
     }
 
     /// 从绘制指令摊出记录。

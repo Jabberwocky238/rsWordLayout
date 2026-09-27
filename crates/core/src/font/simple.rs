@@ -31,31 +31,55 @@ impl SimpleMetrics {
         }
     }
 
-    fn advance_units(text: &str, font: &FontSpec) -> (i64, i64) {
+    /// （全字号部分的 em 千分比合计，缩小字号部分的 em 千分比合计，字符间距的位置数）。
+    ///
+    /// 宽度按显示字符数（[`super::caps::display_chars`]），与真度量同一个展开：
+    /// `w:caps` 下 `a` 按 `A` 量；`w:smallCaps` 下有大写形式的字符落到缩小的那个字号。
+    /// 分两个桶而不是逐字符乘字号，是为了不做大小写变换时与原来的整数运算逐位相同。
+    ///
+    /// 间距的位置数按**源字符簇**数（`linebreak::cluster_boundaries`），不按 `char`，
+    /// 也不按显示字符：`RealMetrics` 按整形 cluster 计，组合符号并进基字，桩也得跳过它们，
+    /// 否则 `x` + U+0301 在桩里加两次、真度量里加一次；大小写变换不改源字符，也就不改位置数
+    /// （将来换成一对多的映射，`ß` → `SS` 两个字形共用一个源区间，真度量那边同样只数一次）。
+    /// 同一张表也是紧急断行的切口，于是切开的两段间距位置数之和等于整段——宽度可加。
+    /// 按 cluster 计本身是假定（见 `RealMetrics::apply_spacing`）。
+    fn advance_units(text: &str, font: &FontSpec) -> (i64, i64, i64) {
+        let full = font.effective_size_centipoints();
         let mut permille = 0;
-        let mut count = 0;
-        for ch in text.chars() {
-            permille += Self::advance_permille(ch);
-            count += 1;
+        let mut reduced = 0;
+        for d in super::caps::display_chars(text, font) {
+            if d.size_centipoints == full {
+                permille += Self::advance_permille(d.ch);
+            } else {
+                reduced += Self::advance_permille(d.ch);
+            }
         }
         if font.bold {
             permille = permille * 1030 / 1000;
+            reduced = reduced * 1030 / 1000;
         }
-        (permille, count)
+        let slots = if font.letter_spacing == 0 {
+            0
+        } else {
+            super::linebreak::cluster_boundaries(text).count() as i64
+        };
+        (permille, reduced, slots)
     }
 }
 
 impl FontMetrics for SimpleMetrics {
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
         let em = i128::from(font.effective_size_centipoints());
-        let (permille, count) = Self::advance_units(text, font);
+        let small = i128::from(super::caps::small_caps_size_centipoints(font.effective_size_centipoints()));
+        let (permille, reduced, slots) = Self::advance_units(text, font);
         // Five centipoints per twip; retain fractions until each legacy output.
-        let mut advance = (em * i128::from(permille) / 5000) as Twips;
-        // 横向缩放与字距。
+        let mut advance = ((em * i128::from(permille) + small * i128::from(reduced)) / 5000) as Twips;
+        // 横向缩放与字距。字距每个源字符簇一次（见 `advance_units`），不随缩放。
         if font.scale_pct != 100 && font.scale_pct > 0 {
             advance = ((i64::from(advance) * i64::from(font.scale_pct)) / 100) as Twips;
         }
-        advance += (count as Twips) * font.letter_spacing;
+        advance += (slots as Twips) * font.letter_spacing;
+        advance += super::linebreak::autospace_dn_twips(text, font.size_half_points);
 
         TextMetrics {
             advance,
@@ -66,12 +90,17 @@ impl FontMetrics for SimpleMetrics {
     }
 
     fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
-        let (permille, count) = Self::advance_units(text, font);
+        let (permille, reduced, slots) = Self::advance_units(text, font);
         let mut advance = font.size_pt() * permille as f64 / 1000.0;
+        if reduced != 0 {
+            let small = super::caps::small_caps_size_centipoints(font.effective_size_centipoints());
+            advance += small as f64 / 100.0 * reduced as f64 / 1000.0;
+        }
         if font.scale_pct != 100 && font.scale_pct > 0 {
             advance *= f64::from(font.scale_pct) / 100.0;
         }
-        advance + count as f64 * f64::from(font.letter_spacing) / 20.0
+        advance + slots as f64 * f64::from(font.letter_spacing) / 20.0
+            + super::linebreak::autospace_dn_pt(text, font.size_pt())
     }
 
     fn natural_height_fine(&self, _text: &str, font: &FontSpec) -> i64 {

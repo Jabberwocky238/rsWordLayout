@@ -22,7 +22,7 @@ use skrifa::{FontRef, MetadataProvider};
 
 use super::registry::FontRegistry;
 use super::spec::{BreakOpportunity, FINE_PER_TWIP, FontMetrics, FontSpec, TextMetrics};
-use crate::layout::Twips;
+use crate::layout::{Twips, spacing_slots};
 
 /// 纵向量化栅格。
 ///
@@ -141,7 +141,9 @@ impl<'r> RealMetrics<'r> {
         let probe = if text.is_empty() { "x" } else { text };
         let mut seen: Vec<String> = Vec::new();
         for ch in probe.chars() {
-            let Some(face) = self.registry.select_face_for(font, ch) else {
+            // 与整形同一口径：名义 `.notdef` 借哪个 face，纵向量就取哪个 face 的。
+            // 否则一段全是缺字的汉字行高为零。
+            let Some((face, _)) = self.registry.face_for_char(font, ch) else {
                 continue;
             };
             if seen.contains(&face) {
@@ -219,24 +221,32 @@ impl<'r> RealMetrics<'r> {
     }
 
     /// 缩放与字距。与 `SimpleMetrics` 同一口径——换度量不该顺带换这部分语义。
-    fn apply_spacing(&self, advance: i64, glyphs: usize, font: &FontSpec) -> Twips {
+    ///
+    /// `slots` 是加间距的位置数，取 [`crate::layout::spacing_slots`]（每个整形 cluster 一次），
+    /// 与画字的 `apply_char_spacing` 数同一个东西。`SimpleMetrics` 不整形，按
+    /// `linebreak::cluster_boundaries` 数源字符簇；组合序列（`x` + U+0301）两边都是一次。
+    ///
+    /// 依据（见 `bridge::run_letter_spacing`）：空格也加是实测（`latinspace`）；
+    /// 行尾最后一个可见字符也加是**假定**——只在「行尾空格不计宽」时才被 `latinspace` 证实，
+    /// 而 rsword 计行尾空格；按 cluster 计、间距不随 `w:w` 缩放也都是假定（未测）。
+    fn apply_spacing(&self, advance: i64, slots: usize, font: &FontSpec) -> Twips {
         let mut advance = advance;
         if font.scale_pct != 100 && font.scale_pct > 0 {
             advance = advance * i64::from(font.scale_pct) / 100;
         }
-        (advance + glyphs as i64 * i64::from(font.letter_spacing)) as Twips
+        (advance + slots as i64 * i64::from(font.letter_spacing)) as Twips
     }
 
     /// `apply_spacing` 的精确版，单位点。
     ///
     /// 与整数版差在缩放那一步：整数版的 `advance * pct / 100` 是截断除法，
     /// 这里是实数除法。要的就是这个差——横向的取整全部推迟到出数时做一次。
-    fn apply_spacing_pt(&self, advance: f64, glyphs: usize, font: &FontSpec) -> f64 {
+    fn apply_spacing_pt(&self, advance: f64, slots: usize, font: &FontSpec) -> f64 {
         let mut advance = advance;
         if font.scale_pct != 100 && font.scale_pct > 0 {
             advance = advance * f64::from(font.scale_pct) / 100.0;
         }
-        advance + glyphs as f64 * f64::from(font.letter_spacing) / 20.0
+        advance + slots as f64 * f64::from(font.letter_spacing) / 20.0
     }
 }
 
@@ -245,7 +255,8 @@ impl FontMetrics for RealMetrics<'_> {
         let shaped = self.registry.shape_text(text, font);
         let advance: i64 = shaped.iter().map(|g| i64::from(g.x_advance)).sum();
         TextMetrics {
-            advance: self.apply_spacing(advance, shaped.len(), font),
+            advance: self.apply_spacing(advance, spacing_slots(&shaped), font)
+                + super::linebreak::autospace_dn_twips(text, font.size_half_points),
             ..self.vertical_for(text, font)
         }
     }
@@ -256,10 +267,56 @@ impl FontMetrics for RealMetrics<'_> {
         super::linebreak::break_opportunities(text)
     }
 
+    /// 紧急断行只切在整形器的 cluster 起点上。
+    ///
+    /// 默认实现用 `linebreak::cluster_boundaries` 那张近似表，而它是薄的：泰文 SARA AM、
+    /// 老挝文 AM、高棉文与印度系的元音符号都不在里面，切在它们前面会把符号甩到下一行行首
+    /// （辅音 + SARA AM 的长串，第二行以 SARA AM 开头）。整形器本来就知道哪些字符归一簇——rustybuzz
+    /// 默认的 cluster 级别按字素合并：组合符号并进基字，SARA AM 分解重排后并进前一个辅音，
+    /// 连字与音节各成一簇——所以直接用 `ShapedRun::source` 的起点，UTF-16 换回字节偏移。
+    /// 「按 cluster 切」本身是**假设**，Word 只量过单一 BMP 字母（见 [`FontMetrics::fit_clusters`]）。
+    ///
+    /// 每个候选前缀仍重新 `measure`，与 [`FontMetrics::fit`] 同一口径：切口处的整形
+    /// 可能与整段不同，宽度以切下来的那一段为准。整形给不出字形或给不出源区间时
+    /// （该段一个 face 都没有），退回默认那张表。
+    ///
+    /// 代价：每条紧急断行多整形一次剩余全文。调用方每行本来就对剩余全文 `measure`、`fit`
+    /// 各一次，量级不变；2 万字不带断点的一段在 5329 上约 5.3 s（用近似表约 4.1 s，
+    /// 改造前约 285 s）。只整形一个窗口能省掉这一次，但窗口尾部的连字与音节会让切口
+    /// 落进 cluster 中间，这里不冒这个险。
+    fn fit_clusters(&self, text: &str, font: &FontSpec, max_width: Twips) -> (usize, TextMetrics) {
+        let starts: std::collections::BTreeSet<u32> = self
+            .registry
+            .shape_text(text, font)
+            .iter()
+            .filter_map(|g| g.source.map(|(start, _)| start))
+            .collect();
+        if starts.is_empty() {
+            return super::spec::fit_cluster_ends(
+                self,
+                text,
+                font,
+                max_width,
+                super::linebreak::cluster_boundaries(text),
+            );
+        }
+        let mut unit = 0u32;
+        let mut ends = Vec::new();
+        for (offset, ch) in text.char_indices() {
+            if offset > 0 && starts.contains(&unit) {
+                ends.push(offset);
+            }
+            unit += ch.len_utf16() as u32;
+        }
+        ends.push(text.len());
+        super::spec::fit_cluster_ends(self, text, font, max_width, ends)
+    }
+
     fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
         let shaped = self.registry.shape_text(text, font);
         let advance: f64 = shaped.iter().map(|g| g.x_advance_pt).sum();
-        self.apply_spacing_pt(advance, shaped.len(), font)
+        self.apply_spacing_pt(advance, spacing_slots(&shaped), font)
+            + super::linebreak::autospace_dn_pt(text, font.size_pt())
     }
 
     fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {

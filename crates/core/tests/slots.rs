@@ -4,7 +4,7 @@
 //! 换一个能画的」；Word 是「这个字符属于 CJK 区，所以用 eastAsia 槽指定的字体」，
 //! 即使 ascii 槽的字体也能画出它。两者选出的字体常常不同。
 
-use rsword_layout_core::{FontHint, FontSlots, FontSpec, SlotKind};
+use rsword_layout_core::{Caps, FontHint, FontSlots, FontSpec, SlotKind};
 
 fn slots() -> FontSlots {
     FontSlots {
@@ -73,6 +73,7 @@ fn slot_selection_differs_from_single_family() {
         italic: false,
         letter_spacing: 0,
         scale_pct: 100,
+        caps: Caps::None,
         kerning: false,
     };
     assert_eq!(font.family_for('A'), "Times New Roman");
@@ -100,6 +101,7 @@ fn missing_slot_falls_back_to_family() {
         italic: false,
         letter_spacing: 0,
         scale_pct: 100,
+        caps: Caps::None,
         kerning: false,
     };
     assert_eq!(

@@ -37,6 +37,7 @@ fn exact(text: &str) -> Para {
                 .collect(),
             rise: 0,
             rise_fine: None,
+            hidden: false,
         }],
         line_rule: LineRule::Exact,
         line_value: 100,

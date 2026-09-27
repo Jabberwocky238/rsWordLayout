@@ -128,6 +128,12 @@ pub fn to_trace_json(record: &LayoutRecord, meta: &TraceMeta) -> String {
         "  \"unassignedGlyphs\": {},\n",
         record.unassigned_glyphs
     ));
+    // 缺字画成 `.notdef` 的字形数。它们归了行、占了名义宽度，
+    // 但字形 id 与 face 不是 Word 会画的那个——比较器读字形层之前要先看这一栏。
+    out.push_str(&format!(
+        "  \"notdefGlyphs\": {},\n",
+        record.notdef_glyph_count()
+    ));
 
     out.push_str("  \"pages\": [\n");
     for (pi, page) in record.pages.iter().enumerate() {

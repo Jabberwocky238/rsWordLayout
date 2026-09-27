@@ -63,6 +63,11 @@ path = "tests/real_metrics.rs"
 required-features = ["fontenv"]
 
 [[test]]
+name = "cjk_fallback"
+path = "tests/cjk_fallback.rs"
+required-features = ["fontenv"]
+
+[[test]]
 name = "vertical_align"
 path = "tests/vertical_align.rs"
 
@@ -77,6 +82,14 @@ path = "tests/section_breaks.rs"
 [[test]]
 name = "page_breaks"
 path = "tests/page_breaks.rs"
+
+[[test]]
+name = "page_break_mark"
+path = "tests/page_break_mark.rs"
+
+[[test]]
+name = "soft_breaks"
+path = "tests/soft_breaks.rs"
 
 [[test]]
 name = "placeholder"
@@ -98,6 +111,50 @@ path = "tests/oracle.rs"
 name = "paint"
 path = "tests/paint.rs"
 
+[[test]]
+name = "emergency_break"
+path = "tests/emergency_break.rs"
+
+[[test]]
+name = "platform_view"
+path = "tests/platform_view.rs"
+
+[[test]]
+name = "letter_spacing"
+path = "tests/letter_spacing.rs"
+
+[[test]]
+name = "letter_spacing_shaped"
+path = "tests/letter_spacing_shaped.rs"
+required-features = ["fontenv"]
+
+[[test]]
+name = "caps"
+path = "tests/caps.rs"
+
+[[test]]
+name = "caps_shaping"
+path = "tests/caps_shaping.rs"
+required-features = ["fontenv"]
+
+[[test]]
+name = "tab_stops"
+path = "tests/tab_stops.rs"
+
+[[test]]
+name = "kinsoku_android"
+path = "tests/kinsoku_android.rs"
+
+[[test]]
+name = "cross_run_retreat"
+path = "tests/cross_run_retreat.rs"
+
+# 用手机 Word 自带的 Calibri 复现实测起点；字体不进仓库，测试是 #[ignore]，
+# 设 RSWORD_TEST_CALIBRI 后用 --include-ignored 跑。
+[[test]]
+name = "tab_stops_calibri"
+path = "tests/tab_stops_calibri.rs"
+required-features = ["fontenv"]
 
 [features]
 default = []

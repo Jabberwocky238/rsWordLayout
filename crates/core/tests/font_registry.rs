@@ -213,6 +213,7 @@ fn nonfirst_collection_face_survives_real_metrics_and_paint() {
                 placeholders: Vec::new(),
                 rise: 0,
                 rise_fine: None,
+                hidden: false,
             }],
             ..Para::default()
         };

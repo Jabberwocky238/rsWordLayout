@@ -19,6 +19,7 @@ fn record() -> LayoutRecord {
             placeholders: Vec::new(),
             rise: 0,
             rise_fine: None,
+            hidden: false,
         }],
         align: Align::Left,
         ..Para::default()
@@ -101,6 +102,7 @@ fn source_ranges_cover_the_line_in_reading_order() {
             placeholders: Vec::new(),
             rise: 0,
             rise_fine: None,
+            hidden: false,
         }],
         ..Para::default()
     };

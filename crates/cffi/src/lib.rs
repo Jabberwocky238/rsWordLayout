@@ -98,20 +98,14 @@ pub unsafe extern "C" fn rsl_session_new(
 }
 
 fn build_session(docx: &[u8], dpi: f32) -> Result<RslSession, String> {
-    use rsword::bind::native::SessionTable;
-    use rsword_layout_core::paras_from_document;
+    use rsword_layout_core::{load_document, paras_from_document};
     use rsword_layout_core::{Engine, PageSetup};
     use rsword_layout_core::SimpleMetrics;
 
-    let mut sessions = SessionTable::default();
-    let id = sessions.open(docx, None).map_err(|e| format!("解析失败：{e}"))?;
-    let json = sessions
-        .document(&id, None)
-        .map_err(|e| format!("取模型失败：{e}"))?;
-    sessions.close(&id);
-
-    let value: serde_json::Value =
-        serde_json::from_str(&json).map_err(|e| format!("模型 JSON 无法解析：{e}"))?;
+    // 与 layout-trace 同一个入口：并排的 `w:rPr` 解析器只留最后一个，`load_document` 先把它们
+    // 并起来。直接 `SessionTable::document()` 的话，同一份 docx 换个入口就排得不一样。
+    // 合并失败时它交回原样的 JSON（`merge_error`），这里没有告警通道，照原样排。
+    let value = load_document(docx).map_err(|e| format!("解析失败：{e}"))?.json;
     let (paras, _skipped) = paras_from_document(&value);
     if paras.is_empty() {
         return Err("文档里没有可排版的段落".into());
@@ -363,3 +357,47 @@ pub extern "C" fn rsl_vertex_stride() -> usize {
 /// 让 `CStr` 参数不至于未使用；保留给将来按名字取配置。
 #[allow(dead_code)]
 fn _unused(_: &CStr) {}
+
+#[cfg(test)]
+mod tests {
+    use super::build_session;
+    use rsword::bind::native::SessionTable;
+    use rsword_layout_core::Fragment;
+
+    /// 与 word_analyse `latinspace.docx` 同形：同一 `w:r` 里并排两个 `w:rPr`，
+    /// 字符间距在第一个里。解析器只留最后一个，不走 `load_document` 就丢了它。
+    fn double_rpr_docx() -> Vec<u8> {
+        let xml = concat!(
+            r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>"#,
+            r#"<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>"#,
+            r#"<w:p><w:r><w:rPr><w:spacing w:val="20"/></w:rPr><w:rPr><w:sz w:val="24"/></w:rPr>"#,
+            r#"<w:t>alpha</w:t></w:r></w:p>"#,
+            r#"<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body></w:document>"#,
+        );
+        let blank = rsword::save::blank_docx(None).expect("空白 docx");
+        let mut sessions = SessionTable::default();
+        let id = sessions.open(&blank, None).unwrap();
+        let doc: serde_json::Value =
+            serde_json::from_str(&sessions.document(&id, None).unwrap()).unwrap();
+        let op = serde_json::json!({"op": "replacePartXml", "part": doc["mainPart"], "xml": xml});
+        sessions.apply(&id, &op.to_string(), None).unwrap();
+        let bytes = sessions.save(&id, None).unwrap();
+        sessions.close(&id);
+        bytes
+    }
+
+    #[test]
+    fn session_goes_through_load_document() {
+        // 同一份 docx 换个入口不该排得不一样：这里的字符间距要与 layout-trace 一样到位。
+        let session = build_session(&double_rpr_docx(), 96.0).unwrap();
+        let spacing: Vec<i32> = session.doc[0]
+            .fragments
+            .iter()
+            .filter_map(|f| match f {
+                Fragment::Text(t) => Some(t.font.letter_spacing),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(spacing, [20]);
+    }
+}

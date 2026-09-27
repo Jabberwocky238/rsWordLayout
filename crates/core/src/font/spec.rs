@@ -10,6 +10,7 @@
 //! shaping（连字、kerning、复杂文种重排）属于实现者的职责：它是由字体 GSUB/GPOS 表
 //! 决定的确定性查表，不是布局要解的约束。实现者通常直接转调 HarfBuzz。
 
+use super::caps::Caps;
 use crate::layout::Twips;
 
 /// 一次度量请求的字体条件。
@@ -38,6 +39,11 @@ pub struct FontSpec {
     pub letter_spacing: Twips,
     /// `w:w`：横向缩放百分比，100 为原始。
     pub scale_pct: u32,
+    /// `w:caps` / `w:smallCaps`：显示时的大小写变换。
+    ///
+    /// 放在这里而不是改 `Run::text`，是因为它**影响度量但不改原文**：
+    /// 行的源区间、断点仍按原文，宽度与字形按变换后的字符（见 [`super::caps`]）。
+    pub caps: Caps,
     /// 是否启用字距调整（GPOS `kern`）。
     ///
     /// **默认关**，这不是保守取值，是 OOXML 的语义：`w:kern` 给的是
@@ -223,6 +229,7 @@ impl FontSpec {
             italic: false,
             letter_spacing: 0,
             scale_pct: 100,
+            caps: Caps::None,
             kerning: false,
         }
     }
@@ -288,8 +295,14 @@ pub trait FontMetrics {
 
     /// 在给定宽度内最多能放下多少字节，返回该前缀的字节长度与其度量。
     ///
-    /// 返回 `None` 表示一个字符都放不下——调用方据此决定是硬塞还是换行。
-    /// 默认实现按断行点线性试探；实现者若能直接问 shaper 要 cluster 边界，应覆盖它。
+    /// **只在断点上切**（[`Self::break_opportunities`]，串尾那个也算）。返回 `None` 表示
+    /// 没有哪个断点之前的前缀放得下——**不再**表示「一个字符都放不下」。调用方据此决定
+    /// 是收行，还是走 [`Self::fit_clusters`] 的紧急断行；按字符切是那一个方法的事，
+    /// 覆盖本方法时不要在这里按 cluster 切，否则会绕过断行规则，也永远走不到紧急断行。
+    ///
+    /// 口径：前缀宽度含断点前的空格。所以行尾余量不足一个空格宽时，「词 + 空格」这个
+    /// 前缀放不下，即使词本身放得下。
+    /// 默认实现按断行点线性试探，遇到第一个放不下的就停。
     fn fit(&self, text: &str, font: &FontSpec, max_width: Twips) -> Option<(usize, TextMetrics)> {
         let mut best: Option<(usize, TextMetrics)> = None;
         for op in self.break_opportunities(text) {
@@ -363,6 +376,32 @@ pub trait FontMetrics {
         ordinary
     }
 
+    /// 紧急断行：一行里找不到断点时按字符切，返回放得下的最长前缀。
+    ///
+    /// 实测（Android Word，Calibri 12pt，`word_analyse/reports/rsword-diff/char-scale.md`、
+    /// `tab.md`）：没有断点的一串 `0` 在 5329 twips 上每行 43 个，`M` 每行 25 个。
+    /// 按字体的理想推进量算，第 44 个 `0` 超出 23 twips、第 26 个 `M` 超出 6 twips，都不收；
+    /// 另有一个假说：Word 窄路径的字宽按像素（1440/778 twips）取整——它能同时解释
+    /// `i-plain` 的 95 个 `i`（理想宽度给 96）与其余单字计数——那样这两个余量是 46 与
+    /// 13 twips。所以量到的是**容差上界**：
+    /// 理想宽度下 < 6 twips，像素取整下 < 13 twips，不是「证明为零」。
+    /// 这里取零容差：前缀宽度不超过 `max_width` 就收。**恰好相等（≤ 还是 <）未测。**
+    ///
+    /// 「字符」是字符簇：代理对与组合序列不拆。默认实现用 `linebreak::cluster_boundaries`
+    /// 那张近似表；能问整形器要 cluster 边界的实现应当覆盖本方法，只切在 cluster 起点上
+    /// （`RealMetrics`（feature `fontenv`）就是这样做的）。
+    ///
+    /// 第一个簇就放不下时仍返回它，此时度量超出 `max_width`——空行要靠它前进，
+    /// 已有内容的行由调用方决定不收。「空行至少收一个单位」本身没有直接测过；
+    /// `fittext-over`（`fittext.md`，0、10、50）是部分支持：一个 12000 twips 宽的
+    /// fitText run 独占一行、溢出也收。fitText 尚未实现，实现时整个 fitText run 应当是
+    /// **一个**簇，而不是绕过本方法——绕过就丢了第一行在第 10 个字之后的那一刀。
+    /// 空串返回 `(0, measure(""))`。
+    /// 默认实现逐簇线性试探，遇到第一个放不下的就停，与 [`Self::fit`] 同一口径。
+    fn fit_clusters(&self, text: &str, font: &FontSpec, max_width: Twips) -> (usize, TextMetrics) {
+        fit_cluster_ends(self, text, font, max_width, super::linebreak::cluster_boundaries(text))
+    }
+
     /// 文字的可断行位置，按偏移升序。
     fn break_opportunities(&self, text: &str) -> Vec<BreakOpportunity>;
 
@@ -422,4 +461,27 @@ pub trait FontMetrics {
     fn empty_line_metrics(&self, font: &FontSpec) -> TextMetrics {
         self.measure("", font)
     }
+}
+
+/// [`FontMetrics::fit_clusters`] 的试探本体：`ends` 是可切位置（字节偏移，升序，含串尾），
+/// 逐个量前缀，遇到第一个放不下的就停。
+///
+/// 抽出来是为了让覆盖 `fit_clusters` 的实现只换「切在哪」而不换「怎么量」：
+/// 默认实现给近似表的簇终点，真度量给整形器的 cluster 起点，量法与口径必须同一套。
+pub(super) fn fit_cluster_ends<M: FontMetrics + ?Sized>(
+    metrics: &M,
+    text: &str,
+    font: &FontSpec,
+    max_width: Twips,
+    ends: impl IntoIterator<Item = usize>,
+) -> (usize, TextMetrics) {
+    let mut best: Option<(usize, TextMetrics)> = None;
+    for end in ends {
+        let m = metrics.measure(&text[..end], font);
+        if m.advance > max_width {
+            return best.unwrap_or((end, m));
+        }
+        best = Some((end, m));
+    }
+    best.unwrap_or_else(|| (0, metrics.measure("", font)))
 }

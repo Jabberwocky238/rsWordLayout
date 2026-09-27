@@ -1,17 +1,18 @@
 //! 探针：把比较器记录打出来，核对推进量、源区间与终止符是否真的填上了。
 
-use rsword::bind::native::SessionTable;
 use rsword_layout_core::{
-    Engine, LayoutRecord, LineTerminator, PageSetup, SimpleMetrics, paint_document,
-    paras_from_document,
+    Engine, LayoutRecord, LineTerminator, PageSetup, SimpleMetrics, load_document,
+    paint_document, paras_from_document,
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args().nth(1).ok_or("用法：probe_oracle <input.docx>")?;
-    let mut sessions = SessionTable::default();
-    let id = sessions.open(&std::fs::read(&path)?, None)?;
-    let doc: serde_json::Value = serde_json::from_str(&sessions.document(&id, None)?)?;
-    sessions.close(&id);
+    // 与 layout-trace 同一个入口（并排的 `w:rPr` 先合并），探出来的才是同一份排版。
+    let loaded = load_document(&std::fs::read(&path)?)?;
+    if let Some(error) = &loaded.merge_error {
+        eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
+    }
+    let doc = loaded.json;
 
     let (paras, _) = paras_from_document(&doc);
     let metrics = SimpleMetrics;

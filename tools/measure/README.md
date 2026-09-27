@@ -54,7 +54,89 @@ cargo run --features fontenv --bin layout-trace -- \
 不能拿 `select_face` 代替：那带 fallback，族没装也会返回一个能盖住码位的 face，
 于是核查永远通过。
 
+页面几何有三个选项，都不给就是 A4（11906 twips 宽）、四边 1 英寸，即上面与下面离线回放的命令：
+`--margin <twips>` 设四边边距（默认 1440）；`--page-width <twips>` 改页宽（默认 11906），
+先于下一个生效；`--content-width <twips>` 按（改过的）页宽把左右边距平分，凑出这个版心宽
+（余量是奇数时右边多 1 twip，上下边距不动），版心比页宽还宽直接报错退出。word_analyse 的
+Android 读数用 `--content-width 5329`（窄路径）与 `--content-width 10466`（纸页路径）；
+改了页宽的夹具（`smallcaps-wide` 页宽 16000、版心 14560，`smallcaps-12000` 页宽 12000、
+版心 10560）再加 `--page-width`。实际用的版心、页宽与左右边距印在 stderr。
+
+`--platform mac|android` 与 `--view print|mobile` 说明在模拟哪个平台的 Word、哪种视图。
+默认 `mac` + `print`，就是本目录一切采集所在的 Word for Mac 分页视图；上面的命令与下面的
+离线回放都不传这两个选项，靠的就是这个默认。`android` 只给 Android Word 的读数
+（word_analyse）用：它的窄路径（`w3=5329`）是移动视图，配 `--view mobile`；纸页路径
+（`w3=10466`）仍是 `print`。两个取值都记进轨迹的 `metrics` 栏，拼错的取值直接报错退出。
+目前读平台的断行规则有两条（CJK 回退字体装不装也看平台，见下文）：
+- 文档没写 `w:defaultTabStop` 时的默认制表位：`mac` 照规范 720，`android` 221（拟合值，
+  见 `crates/core/src/layout.rs`）；本目录的采集里没有制表符，Mac 回放不受影响。
+- 行末标点挂出：`mac` 照段落的 `w:overflowPunct`（没写即开）把单个越界的 `。，）、` 挂出版心
+  （本目录 `kinsoku` 采集实测），`android` 从不挂出（word_analyse `kinsoku.md` 实测 `）`、`。`）。
+  没有单独的开关，由平台定，`metrics` 栏里写明。Mac 回放用默认的 `mac`，`kinsoku`、`kinsoku2`、
+  `cjk-plain` 照旧。
+  行首 / 行尾禁则两个平台共用一套；它扩充之后 `mac` 下也有几处未测的变化（`％。`、`～。`、`。〉`
+  这样挨着新增禁则字符的标点不再挂出）。同样的序列拆在两个 run 里时，跨 run 回退退回行里更早的
+  断点，与一个 run 里相同（`[21汉％][。10汉]` 20、`[22汉][。〉10汉]` 21，越界的 `。`、`，` 不开
+  下一行；假设，Word 未测）。本目录的采集里没有这些序列，Mac 回放看不见它们；见
+  `crates/core/src/layout.rs` 里 `Platform` 的说明。
+
+读视图的规则有一条：段末手动分页符之后段内再无内容、段落不带分节符时，`print` 把段落标记收进分页符那一行
+（本目录 `breaks-sections`、`vmisc2` 实测），`mobile` 让它另起一行（word_analyse `br-page` 窄路径
+实测）。Mac 回放用默认的 `print`，照旧。移动视图没有页，`--view mobile` 轨迹里的页下标是引擎
+照样分页排出来的，不对应 Word。
+
+`--fallback-font <path>[#index]`（可重复，按给出的顺序）与 `--no-fallback` 管 CJK 回退链：
+`--font` 盖不住的 eastAsia 字符（CJK 夹具的 eastAsia 槽写 SimSun，手机上没有）由回退链补，
+回退链也盖不住的 CJK 字符画 `.notdef`、占 1 em，轨迹顶层多一个 `notdefGlyphs` 计数。
+**默认只在 `--platform android` 下开**，用仓库里的 `fixtures/fonts/DroidSansFallbackFull.ttf`，
+环境变量 `RSWORD_FALLBACK_FONT` 可换成手机上拉下来的 `NotoSansCJK-Regular.ttc#2`；`mac`（默认）
+不装，所以本目录的采集与回放不会被悄悄补字。显式给的路径当场核，读不到就报错。
+链上的字体只在盖得住「缺着」的字符时才装，「缺着」按链的来路分两种：
+
+- 显式给的链（`--fallback-font`、`RSWORD_FALLBACK_FONT`）与选字体同一个判据：eastAsia 槽里的
+  字体画不出就算，哪怕别的 `--font` 画得出（`w:hint="eastAsia"` 下的 `“`、空格），
+  一个字符用哪个字体只看它自己；
+- 默认的 Droid 只在有字符**哪个 `--font` 都画不出**时才装，所以全文都盖住的文档
+  （如 `--font calibri --font NotoSansCJK` 排 CJK 夹具）轨迹除多出 `notdefGlyphs: 0` 外不变
+  （字体指纹也不变）。代价是不局部：文档别处只要有一个缺字，Droid 就装上，
+  并接走全文槽里画不出、它又盖得住的字符（包括 `--font` 画得出的）。
+
+装了什么、各落到哪写进 stderr 与 `metrics` 栏。细节见 `layout-trace` 的文档注释。
+
+照 word_analyse 的一条 Android 读数排（手机的 Calibri 不在仓库里，路径自备）：
+
+```sh
+cargo run --release --features fontenv --bin layout-trace -- \
+    --platform android --view mobile \
+    --font <手机的 calibri.ttf> --content-width 5329 \
+    word_analyse/fixtures/br-page.docx trace.json
+```
+
+纸页路径去掉 `--view mobile`、`--content-width` 换成 10466。不传 `--platform android` 排出来的是
+Mac 规则（缺省制表位 720、行末标点挂出、不装回退字体），对不上 Android 的读数。
+
 ## 离线全量回放
+
+### Android word_analyse 边界回放
+
+`android_replay.py` 只读兄弟项目的 `reports/diff/*.word.narrow.jsonl`，核对 DOCX
+哈希后用当前引擎生成轨迹，逐行比较完整 UTF-16 区间。运行示例：
+
+```sh
+tools/measure/.venv/bin/python tools/measure/android_replay.py \
+    --font /tmp/wordfonts/calibri.ttf \
+    --fallback-font '/tmp/wordfonts/NotoSansCJK-Regular.ttc#2' \
+    --assume-legacy-narrow --output artifacts/android-replay-new
+```
+
+从仓库根目录运行，字体路径按本机实际位置填写，输出目录必须不存在。
+默认资料目录是 `../word_analyse`，可用 `--analysis-root` 改；`--fixture` 可重复筛选。
+旧采集的视图与 CP 空间为 unknown，默认严格模式判 `UNDECIDABLE`；显式添加
+`--assume-legacy-narrow` 后的匹配带条件假设，不代表新测证据。多行、缺行不会略过，
+run 切分、几何和分页不在此评分范围内。命令、输入哈希和结果写入输出目录。
+详见 [接入评估与证据限制](../../docs/WORD-ANALYSE-INTEGRATION-2026-09-27.md)。
+
+### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：
 

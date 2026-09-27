@@ -794,6 +794,12 @@ pub struct TextFragment {
     /// 被 run 切碎——比较器的行层配对必然对不上，且失败**看起来像「引擎少排了行」，
     /// 其实是记账粒度错了**。
     pub line: u32,
+    /// 本片段以一个制表符开头时，该制表符的推进量，单位点。
+    ///
+    /// 制表符的宽度由制表位定，不是字体里 U+0009 的推进量（Calibri 没有 U+0009 的 cmap，
+    /// 落到 glyph 0，12pt 下 121.6 twips）。绘制时画成**一个空格字形**，推进量取这个值——
+    /// 「制表符画 1 个空格」是量具方法 §4 的 Windows 计数约定，Mac 与 Android 上**未测**。
+    pub tab_advance_pt: Option<f64>,
 }
 
 /// 一行。保留行信息而不直接摊平成 Fragment，是因为对齐、两端对齐的空白分配、
@@ -881,7 +887,20 @@ pub struct Para {
     pub page_break_before: bool,
     /// `w:overflowPunct`: allow a supported closing CJK punctuation glyph
     /// outside the text boundary before applying line-start restrictions.
+    /// 只在 [`Platform::Desktop`] 下起作用；[`Platform::Android`] 从不挂出（见 [`Platform`]）。
     pub overflow_punct: bool,
+    /// 自定义制表位（`w:tabs`）：样式链已合并、`clear` 已剔除，按位置升序。
+    ///
+    /// 位置相对**左页边距**（正文区左缘），不是相对缩进——ECMA-376 §17.3.1.37
+    /// 「with respect to the current page margins」（照规范，**未实测**：实测夹具都没有缩进）。
+    pub tabs: Vec<TabStop>,
+    /// 默认制表位间距（`w:defaultTabStop`），twips。`None` 表示文档没写。
+    ///
+    /// 没写时用多少**因平台而异**，由引擎按 [`Platform`] 补（见 [`Engine`] 的
+    /// `default_tab_stop`）：桥接层不知道在模拟谁，所以这里不填一个数冒充「文档写了」。
+    /// 默认制表位只出现在**最后一个自定义制表位之后**（§17.15.1.25）；实测
+    /// `tab-stop-720` 行首制表符停在 720，没有先停在更近的默认档上。
+    pub default_tab_stop: Option<Twips>,
     pub source_node: Option<u32>,
     /// 本段的终止符，通常为段落标记或分节符。
     /// 段内软回车和分页符由 `Run::placeholders` 在实际断行处处理。
@@ -904,15 +923,149 @@ impl Default for Para {
             keep_lines: false,
             page_break_before: false,
             overflow_punct: true,
+            tabs: Vec::new(),
+            default_tab_stop: None,
             source_node: None,
             terminator: crate::oracle::LineTerminator::ParagraphMark,
         }
     }
 }
 
+/// 制表位的对齐方式（`w:tab/@w:val`）。
+///
+/// `start`/`end` 在从左到右的段落里就是 `left`/`right`；`num`（旧式列表制表位）
+/// 按左对齐处理。`clear` 不进这张表——桥接层合并样式链时就把它用掉了。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TabAlign {
+    /// 文字从制表位起排。**已实测**（Android，`tab-stop-720` / `tab-stop-1440`）。
+    #[default]
+    Left,
+    /// 后面那段文字以制表位为中心。**未实测**，照规范。
+    Center,
+    /// 后面那段文字收在制表位上；放不下时制表符不占宽度。
+    /// **放不下的一支已实测**（Android，`tab-right-1440`）；放得下时收在哪只有 `tab-right-fit`
+    /// 的行界可对照，行内落位未测。
+    Right,
+    /// 后面那段文字的第一个 `.` 对齐制表位；没有 `.` 时同右对齐。**未实测**，照规范。
+    Decimal,
+    /// 竖线制表位：只画一条竖线，**不是**制表符的停靠点。竖线本版不画。
+    Bar,
+}
+
+/// 制表符的前导符（`w:tab/@w:leader`）。
+///
+/// 只影响绘制，不影响断行与落位。**本版不画前导符**：Windows 侧量到填充字形的
+/// 步距就是填充字符的推进量，但个数公式已被证否（量具方法 §4），不猜。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TabLeader {
+    #[default]
+    None,
+    Dot,
+    Hyphen,
+    Underscore,
+    Heavy,
+    MiddleDot,
+}
+
+/// 一个自定义制表位。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct TabStop {
+    /// 相对左页边距，twips，可负（落进左边距）。
+    pub pos: Twips,
+    pub align: TabAlign,
+    pub leader: TabLeader,
+}
+
+/// 文档没写 `w:defaultTabStop` 时桌面 Word 的默认制表位间距：720，ECMA-376 §17.15.1.25
+/// 的缺省（rsword 解析器的 `default_tab_stop_or_default` 也给 720）。
+///
+/// **规范值，Mac 上未实测**：`tools/measure` 的采集与本仓库的夹具里一个制表符都没有。
+const DESKTOP_MISSING_DEFAULT_TAB_STOP: Twips = 720;
+
+/// 文档没写 `w:defaultTabStop` 时 Android Word 的默认制表位间距，twips。
+///
+/// **这是拟合值，不是测量值**：它是「用 rsword 现在的窄路径字宽，按整 twips 算术复现实测
+/// 行起点」挑出来的数，绑在本引擎当前的度量上。
+///
+/// 实测（Android Word 16.0.20513，夹具没有 settings.xml，`word_analyse/reports/rsword-diff/tab.md`）：
+/// 行首一个制表符之后，窄路径（5329）放 41 个 `0`（`tab-zeros`）、92 个 `i`（`tab-i`），
+/// 纸页路径（10466）放 84 个 `0`（`tab-paper`）。规范的 720 差得远。
+///
+/// Word 这一档（记作 T）**稳得住的区间是 (123.9, 222.04)**，只用窄路径的数据：
+/// 下界 W/43——`zero-plain` 一行 43 个 `0`、`tab-zeros` 制表符后 41 个；
+/// 上界 W/24——`i-plain` 一行放不下 96 个 `i`（Word 窄路径的 `i` 大于 W/96），
+/// 而 `tab-i` 制表符后放得下 92 个。
+/// `tab.md` 写的 217.7–222.0 把纸页路径的 `0` 宽（`zero-paper`）借到了窄路径上，而两条路径的
+/// 字宽并不相同：窄路径 `i-plain` 每行 95 个 `i`（Word 的 `i` 大于 5329/96 = 55.51），纸页路径
+/// 每行 190 个（不大于 10466/190 = 55.08，`indent.md`）。那个区间不成立。
+///
+/// 为什么是 221：本引擎的 `0` 是 121.64（Calibri 1038/2048 em），要复现 `tab-zeros` 的 41 个，
+/// 这一档必须 ≥ 221（220 + 42 × 121.64 = 5328.9，放得下第 42 个）。往上一直到 248，
+/// 五个依赖它的实测夹具（`tab-zeros`、`tab-i`、`tab-after-a`、`tab-paper` 两个宽度）全都照样
+/// 复现（249 起 `tab-paper@10466` 变成 0、84）——**记分器分不出 221 与 248**，把它钉在 221 的
+/// 只有单元测试。Word 一侧的上界（≈222）来自 `tab-i` 配 Word 自己的窄路径 `i`，
+/// 而本引擎的 `i`（55.08）还复现不了那个宽度（`i-plain` 给 96 而不是 95）。
+///
+/// 若窄路径的推进量将来按像素（1440/778 twips）量化——它能解释 `i-plain` 的 95——
+/// Word 的区间变成 (198.3, 220.5]，这一档**必须挪进去**（比如 220 或 214），不能留在 221：
+/// 那时 221 + 92 × 55.527 = 5329.48 > 5329，`tab-i` 会少一个 `i`。
+///
+/// 不是 Calibri 的 U+0009（落到 glyph 0，121.6），不是 720 按视图比例（×5329/10466）缩成的 366，
+/// 也不是 zh-CN 缺省 420 缩成的 213.9——后者在量化假说下也复现全部窄路径起点，排除不了。
+///
+/// 还没量、能分辨它的夹具（`findings` 的测量队列）：
+/// - 同一份 `tab-zeros` 写上 `w:defaultTabStop` 720 与 1440：照用给 38 / 32，按视图缩放给
+///   41 / 38，不认给 42；
+/// - `0<TAB>` + 90 个 `i`、不带尾巴：默认档是栅格给一行，是固定约 221 宽给 0、1；
+/// - `tab-zeros` 改成 24pt 放在纸页路径（10466）：固定 221 twips 给下一行起点 43，
+///   随字号（约 0.92 em）给 42——现有夹具全是 12pt，分不出它是固定 twips 还是随字号变。
+///
+/// 两条路径（窄路径、纸页路径）用同一个值是**假设**：`tab-paper@paper` 只把 T 限在
+/// (126.6, 248.2]，而纸页路径的横向几何随当前视图宽度变（`indent.md` 的 `wm size` 那一段）。
+const ANDROID_MISSING_DEFAULT_TAB_STOP: Twips = 221;
+
+/// 制表符从 `x`（相对左页边距，twips，精确值）起，停到哪个制表位。
+///
+/// 规则（ECMA-376 §17.3.1.37、§17.15.1.25，加实测）：
+///
+/// 1. 取位置**严格大于** `x` 的最近一个自定义制表位（竖线制表位不算停靠点）。
+///    「最近的自定义制表位」已实测（`tab-stop-720`、`tab-stop-1440`、`tab-right-fit`）；
+///    **严格大于**是假设——没有夹具让笔位恰好落在制表位上而结果有别；
+/// 2. 首行悬挂缩进时，左缩进处另有一个隐含的左对齐制表位——Word 的列表编号靠它。
+///    **未实测**，照 Word 桌面版的已知行为；
+/// 3. 都没有时落到默认制表位：从左页边距起每 `step` 一档（`step` 由调用方按平台补好）。
+///    这一档只可能在所有自定义制表位之后，因为比 `x` 大的自定义制表位已经在第 1 步用掉了。
+///    栅格锚在左页边距是规范的说法，实测只有行首（`x` = 0）一种情形。
+fn next_tab_stop(para: &Para, x: f64, first_line: bool, step: Twips) -> (f64, TabAlign) {
+    // 与制表位恰好重合时去下一个：笔位已经在那里，停在原地等于没有制表符。
+    const EPS: f64 = 1e-6;
+    let hanging = (first_line && para.indent_first_line < 0).then_some(TabStop {
+        pos: para.indent_left,
+        ..TabStop::default()
+    });
+    let custom = para
+        .tabs
+        .iter()
+        .chain(hanging.iter())
+        .filter(|t| t.align != TabAlign::Bar && f64::from(t.pos) > x + EPS)
+        .min_by_key(|t| t.pos);
+    if let Some(t) = custom {
+        return (f64::from(t.pos), t.align);
+    }
+    let step = f64::from(step.max(1));
+    let mut stop = ((x / step).floor() + 1.0) * step;
+    if stop <= x + EPS {
+        stop += step;
+    }
+    (stop, TabAlign::Left)
+}
+
 #[derive(Debug, Clone)]
 pub struct Run {
     pub text: String,
+    /// Omit this run from layout and painting while retaining its UTF-16 source length.
+    /// This models hidden text with display of hidden text disabled, on every platform.
+    pub hidden: bool,
     pub font: FontSpec,
     pub color: Color,
     /// `text` 里每个 [`OBJECT_PLACEHOLDER`] 各是什么，按文档顺序，一一对应。
@@ -991,6 +1144,121 @@ impl PageSetup {
     }
 }
 
+/// 段落拍平之后的一截：断行游标在截上往前走，跨 run 回退时退回去。
+///
+/// 每个 run 按制表符与 [`OBJECT_PLACEHOLDER`] 切开：制表符、占位符各自成一截，其余是文字截
+/// （空的不收）。截按文档顺序排，run 边界不另占位置——**run 边界不是断点**，断不断由两侧字符
+/// 决定（实测 `webhidden` / `specvanish`，`vanish.md`），所以断行只看截的种类与字符，不看 run。
+#[derive(Debug, Clone, Copy)]
+struct Segment {
+    run_index: usize,
+    /// 在 run 文本里的字节区间。
+    start: usize,
+    end: usize,
+    /// 起点在全篇 UTF-16 偏移空间里的下标。
+    source: u32,
+    kind: SegmentKind,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SegmentKind {
+    Text,
+    Tab,
+    /// 一个 [`OBJECT_PLACEHOLDER`]，种类由桥接层带进来（[`Run::placeholders`]）。
+    Placeholder(PlaceholderKind),
+}
+
+/// 把段落拍平成截。`source_base` 是本段首字符在全篇 UTF-16 偏移空间里的下标。
+///
+/// 占位符的种类按 run 内的出现顺序取 [`Run::placeholders`]；对不上的按
+/// [`PlaceholderKind::Object`] 处理——保守方向，不凭空造出分页。
+fn segments(para: &Para, source_base: u32) -> Vec<Segment> {
+    let mut out = Vec::new();
+    let mut source = source_base;
+    for (run_index, run) in para.runs.iter().enumerate() {
+        if run.hidden {
+            source += utf16_len(&run.text);
+            continue;
+        }
+        let mut kinds = run.placeholders.iter().copied();
+        let (mut text_start, mut text_source) = (0, source);
+        for (i, c) in run.text.char_indices() {
+            let kind = match c {
+                '\t' => SegmentKind::Tab,
+                OBJECT_PLACEHOLDER => {
+                    SegmentKind::Placeholder(kinds.next().unwrap_or(PlaceholderKind::Object))
+                }
+                _ => {
+                    source += c.len_utf16() as u32;
+                    continue;
+                }
+            };
+            if i > text_start {
+                out.push(Segment {
+                    run_index,
+                    start: text_start,
+                    end: i,
+                    source: text_source,
+                    kind: SegmentKind::Text,
+                });
+            }
+            out.push(Segment { run_index, start: i, end: i + c.len_utf8(), source, kind });
+            // 制表符与 U+FFFC 都在 BMP 里，各占 1 个 UTF-16 单位。
+            source += 1;
+            (text_start, text_source) = (i + c.len_utf8(), source);
+        }
+        if run.text.len() > text_start {
+            out.push(Segment {
+                run_index,
+                start: text_start,
+                end: run.text.len(),
+                source: text_source,
+                kind: SegmentKind::Text,
+            });
+        }
+    }
+    out
+}
+
+fn utf16_len(text: &str) -> u32 {
+    text.encode_utf16().count() as u32
+}
+
+/// 游标走过第 `at` 截之后停在哪：下一截的起点。
+fn next_segment(segs: &[Segment], at: usize) -> (usize, usize) {
+    (at + 1, segs.get(at + 1).map_or(0, |s| s.start))
+}
+
+/// 游标 (`at`, `byte`) 在全篇 UTF-16 偏移空间里的下标；截走完了就是段末 `end`（不含段落标记）。
+fn cursor_source(para: &Para, segs: &[Segment], at: usize, byte: usize, end: u32) -> u32 {
+    segs.get(at)
+        .map_or(end, |s| s.source + utf16_len(&para.runs[s.run_index].text[s.start..byte]))
+}
+
+/// 从游标起吃掉换行处的空格，跨 run 吃，遇到别的字、制表符、占位符或段末就停。返回停下的游标。
+fn skip_spaces(para: &Para, segs: &[Segment], mut at: usize, mut byte: usize) -> (usize, usize) {
+    while let Some(s) = segs.get(at).filter(|s| s.kind == SegmentKind::Text) {
+        let text = &para.runs[s.run_index].text[byte..s.end];
+        let after = text.trim_start_matches(' ');
+        if !after.is_empty() {
+            return (at, s.end - after.len());
+        }
+        (at, byte) = next_segment(segs, at);
+    }
+    (at, byte)
+}
+
+/// 一截字连一个断点都塞不下时，这一行怎么收（见 `Engine::shortfall`）。
+enum Shortfall {
+    /// 把这一截的前若干字节放上本行（`fit` 切在断点上，或紧急断行按字符切），然后收行。
+    Place(usize, crate::font::TextMetrics),
+    /// 这一截不上本行，就此收行。`eat`：吃掉游标处的空格（见 [`skip_spaces`]）。
+    Close { eat: bool },
+    /// 本行截到第 `piece` 个片段里的 `offset` 字节处（`offset` 为 0 即该片段左侧的交界；
+    /// `piece` 等于片段数就是不截），游标退回那里，再收行。
+    Truncate { piece: usize, offset: usize, eat: bool },
+}
+
 /// 行内一段同字体同色的文字。
 struct LinePiece {
     /// 相对行首的 x，twips。
@@ -1007,6 +1275,45 @@ struct LinePiece {
     /// 断行是唯一知道「切在第几个字符」的地方，所以必须在这里记下；
     /// 事后从文字反推会在重复文本上出错。
     source: (u32, u32),
+    /// 本片段与同一行上的前一片段之间隔着行内对象占位符（[`PlaceholderKind::Object`]）。
+    ///
+    /// 对象两侧可断（UAX #14 的 CB；**假设**，沿用此前的行为，Word 未测），所以这条交界
+    /// 是断点。显式记下来，而不是拿「源区间不相接」去推：源区间的缺口将来还会有别的来源
+    /// （`w:vanish` 的隐藏文字、删除修订），那些缺口**不是**断点——实测隐藏文字两侧照样
+    /// 连着填（`vanish.md`：`vanish` 窄路径 0、73、116）。
+    after_object: bool,
+    /// 本片段是一个制表符时的来历与推进量。制表符**自成一片**（`text` 是 `"\t"`）：
+    /// 它的宽度取决于落在行里哪里、停到哪个制表位，不能和相邻文字一起问度量要。
+    tab: Option<TabPiece>,
+    /// 本片段起点在断行游标里的位置：第几截（[`Segment`]），以及所在 run 文本里的字节偏移。
+    /// 跨 run 回退要把游标退回到某个片段里，靠它。
+    seg: usize,
+    byte: usize,
+}
+
+/// 行内一个制表符。
+#[derive(Debug, Clone, Copy)]
+struct TabPiece {
+    /// 制表符所在 run，以及它之后第一个字节在该 run 文本里的偏移——
+    /// 右／居中／小数点制表位要从这里往后量那段文字。
+    run_index: usize,
+    after: usize,
+    /// 落定后的推进量，单位点。
+    advance_pt: f64,
+    /// 左对齐（含默认档）的停靠点在行尾或行尾之外：制表符只推到行尾，后面的字另起一行。
+    /// 断点紧挨在它之前时制表符**留在本行**、不跟下去；前面是粘着的字（`（<TAB>`）时照样试排，
+    /// 到下一行落得下就跟下去（见 `Engine::shortfall` 的（丙））。
+    past_line_end: bool,
+}
+
+/// 右／居中／小数点制表位后面那段文字的宽度（见 `Engine::tab_segment`）。
+struct TabSegment {
+    /// 整段，twips 精确值。
+    whole: f64,
+    /// 整段，逐片 `measure` 的整 twips 之和——断行侧的口径。
+    whole_twips: Twips,
+    /// 第一个 `.` 之前，twips 精确值。没有 `.` 时同 `whole`。
+    before_point: f64,
 }
 
 /// 排好的一行，尚未定位到页面。
@@ -1018,6 +1325,13 @@ struct PendingLine {
     /// 「可用宽减行宽」，走整 twips 的 `width` 会把残差搬到每个字形上。
     width_pt: f64,
     is_last: bool,
+    /// 本段最后一条排着内容的行：两端对齐不拉伸它。
+    ///
+    /// 平常与 `is_last` 相同。只有移动视图把段末分页符与段落标记拆成两行时
+    /// （[`Engine::splits_page_break_and_mark`]）分页符那行是它、却不是 `is_last`：
+    /// 段落标记那行没有内容，拉伸不着。分页符那行照分页视图不拉伸，落位与分页视图逐点相同。
+    /// 这是**假设**：Android 的窄路径读数只有码元区间，没有横向位置。
+    last_content: bool,
     terminator: crate::oracle::LineTerminator,
     /// Visible spaces for the control characters at this line's end.
     /// A trailing page break and paragraph mark can contribute two together.
@@ -1052,23 +1366,162 @@ struct PendingLine {
     source_end: u32,
 }
 
+/// 模拟哪个平台上的 Word。
+///
+/// 同一份文档在 Mac Word 与 Android Word 上有几条规则实测相反，而两边的夹具形状一样
+/// （最小 docx，没有 settings / styles，也没有 `w:lang`），**文档里没有任何属性能区分**，
+/// 只能由调用方说明在模拟谁。所以平台是引擎的一个显式输入，一处设定、各条规则去读，
+/// 而不是每条规则各开一个开关。
+///
+/// 默认 [`Platform::Desktop`]：本仓库既有的测试与 `tools/measure` 的全部采集都是 Mac Word，
+/// 不说明平台的调用方（svg / wasm / cffi）行为不变。
+///
+/// 读它的规则要在自己的注释里写明哪一边是实测（引夹具 / 报告）、哪一边是假设。目前读它的：
+///
+/// - 文档没写 `w:defaultTabStop` 时的默认制表位（[`Para::default_tab_stop`] 为 `None`）：
+///   桌面 720 是规范值，Android 221 是拟合值（见 `ANDROID_MISSING_DEFAULT_TAB_STOP`）。
+/// - 行末标点挂出（[`Para::overflow_punct`]）：桌面照段落属性挂出单个越界的 `。，）、`
+///   （Mac Word 实测，`docs/PREREG-2026-09-18-kinsoku.md`）；Android 从不挂出，退回前一个
+///   合法断点（`kinsoku.md` 实测 `）`、`。`；`，`、`、`、纸页路径与显式开是假设）。
+///   行首 / 行尾禁则本身两个平台共用一套（`font::linebreak`）。
+///
+/// 禁则不读平台，所以它扩充的表（大多是 Android 的断行类读数）与「西文进 CJK 的边界也查禁则」
+/// 在桌面上同样生效。库的默认因此有几处 **Mac 上未测**的变化，都没有进 Mac 回放与仓库夹具：
+/// 挂出的候选前后两个字读的是同一张表，`22汉。〉10汉` 由挂出的 23 退到 21、`21汉％。10汉`
+/// 由 23 退到 20（见 `font::linebreak` 里 `overflow_punctuation_candidates` 的说明）；
+/// `21汉…。10汉` 原先断在 `…|。`、把 `。` 放到下一行行首（22），现在退到 20。
+/// `tests/kinsoku_android.rs` 的 `desktop_no_longer_hangs_…` 钉着。
+///
+/// 同样的序列拆在两个 run 里、run 边界挨着那处被挡住的挂出时，跨 run 回退（`Engine::shortfall`）
+/// 退回行里更早的断点，与一个 run 里相同：`[21汉％][。10汉]`、`[21汉～][，10汉]` 20，
+/// `[22汉][。〉10汉]`、`[22汉][，…10汉]` 21，`[21汉][％。10汉]` 20（**假设**，Word 未测；
+/// `tests/kinsoku_android.rs` 的 `assumed_…_on_desktop` 钉着）。跨 run 回退落地之前 run 边界
+/// 成了断点，前四种是 22、越界的 `。`、`，` 开下一行，与 Mac 实测的行首禁则相反
+/// （`docs/PREREG-2026-09-18-kinsoku2.md` J-a 4/4）。
+///
+/// 不含制表符（或写了 `w:defaultTabStop`）、也没有越界的收尾标点的文档，两个取值排出来的
+/// 结果逐字节相同。
+///
+/// CJK 回退字体**不在这里读平台**：装不装、装哪个由调用方定（`layout-trace` 在
+/// `--platform android` 下默认装仓库里的 Droid，`mac` 不装），库只按已装的字体选字；
+/// 谁都画不出的 CJK 字符按名义 1 em 画 `.notdef`，两个平台都一样（见 `FontRegistry`）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Platform {
+    /// 桌面 Word。**实测基础只有 Word for Mac 16.112**（`tools/measure` 的采集）；
+    /// Windows Word 未测，按量具方法 §6.6 两者不能互相替代，这里只是沿用同一套规则（假设）。
+    #[default]
+    Desktop,
+    /// Android Word 16.0.20513.20014（word_analyse `findings/android-word-layout.md`；
+    /// 读数在 `reports/diff/*.word.narrow.jsonl` 与 `reports/rsword-diff/*.md`）。
+    Android,
+}
+
+/// 模拟哪种视图。
+///
+/// 视图与平台分开：同一平台的两种视图可以排得不一样，而平台差异不该借视图来表达。
+/// 默认 [`View::Print`]。
+///
+/// 目前读它的规则只有一条：**段末手动分页符与段落标记拆不拆成两行**。
+/// 分页符之后段内再无内容、段落以普通段落标记结束（不是分节符）时：
+///
+/// - [`View::Print`]：段落标记收进分页符那一行，留在翻页前那一页。Mac Word **实测**：
+///   `breaks-sections` 3 组、`vmisc2` 1 组「只有分页符的段」，分页符与段落标记逐字符报
+///   同页同行；`breaks-sections` 里 `'hy'` + 分页符 + 段落标记 3 组也同行。PDF 里两者各画
+///   一个空格、同一基线、都在翻页前那一页——前一个是分页符（Times New Roman），后一个是
+///   段落标记（run 的字体），相隔 144pt（`captures/breaks-sections-2026-09-17/glyphs.json`
+///   页下标 5 的 x=72 / x=216；`vmisc2` 页下标 7、8 同样，后者分页符前有 `'jbefore'`）。
+///   `docs/PREREG-2026-09-17-vmisc2.md` §5.1 把 Times 那个空格读成「无可见 run 的段落标记
+///   用默认字体」，与它自己的采集不符：Times 那个在分页符的位置上，`'jbefore'` 那段也有可见 run。
+///   Android 打印视图是**推断**：`br-page` 第一页 11 条裁剪带、第二页 5 条，与
+///   「10 行 + 合并的一行 | 5 行」相符（拆成两行无论落哪页都会多一条带，`br-column-one` 里
+///   段落标记独占的一行是有带的）；裁剪带不带码元，这一步没有直测。
+/// - [`View::Mobile`]：分页符收行（行终点含分页符），段落标记另起一行。Android Word **实测**：
+///   窄路径 `br-page.word.narrow.jsonl` 排成 `…(306,340),(340,341),(341,342),(342,376)…`，
+///   一份夹具、一处。分页符之前有文字（`'ab'` + 分页符 + 段落标记）、连续几个段末分页符、
+///   以及拆开后段落标记那行落到下一页顶，都是**假设**：Android 只量到「只有分页符的段」，
+///   移动视图又没有页。
+///
+/// 这与 OOXML 兼容项 `w:splitPgBreakAndParaMark`（`w:compat` 下）打开时**行形状相同**，
+/// 但不是它：`br-page.docx` 没有 settings.xml，那一项是关的，移动视图照样拆。那一项是文档设置、
+/// 两种视图都该认；以后桥接层读到它时另作一个输入，生效条件是「移动视图 **或** 兼容项」，
+/// 不要拿它顶替视图（见 `Engine::splits_page_break_and_mark`）。
+///
+/// 分页符后面段内还有文字或对象时两种视图相同：都在分页符处收行，其余内容从下一页起。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum View {
+    /// 分页视图（打印布局）。`tools/measure` 的 Mac 采集与 word_analyse 纸页路径
+    /// （`w3=10466`）都是它。
+    #[default]
+    Print,
+    /// 移动视图：Android Word 的连续重排。word_analyse 的窄路径（`w3=5329`）就是它——
+    /// 这条重排不走打印分页函数 `DoPsLayoutPage`，页记录只剩一条
+    /// （`findings/pagination-path.md`、`findings/page-frame-selector.md`）。
+    ///
+    /// 只在 Android 上量过；与 [`Platform::Desktop`] 组合不拒绝，但没有任何实测依据。
+    /// 移动视图没有页，引擎照样分页，所以这时的页下标只是排版的副产品，不对应 Word。
+    Mobile,
+}
+
 pub struct Engine<'m, M: FontMetrics> {
     metrics: &'m M,
     setup: PageSetup,
     /// 文字环绕的排除区。空则每行可用区间恒为整个正文宽度。
     wrap: WrapContext,
+    /// 模拟哪个平台。见 [`Platform`]。
+    platform: Platform,
+    /// 模拟哪种视图。见 [`View`]。
+    view: View,
 }
 
 impl<'m, M: FontMetrics> Engine<'m, M> {
     pub fn new(metrics: &'m M, setup: PageSetup) -> Engine<'m, M> {
-        Engine { metrics, setup, wrap: WrapContext::new() }
+        Engine::with_wrap(metrics, setup, WrapContext::new())
     }
 
     /// 带环绕区构造。
     ///
     /// 有环绕时每行的可用区间由 `y` 决定，而且可能被劈成多段（图片落在段落中间）。
     pub fn with_wrap(metrics: &'m M, setup: PageSetup, wrap: WrapContext) -> Engine<'m, M> {
-        Engine { metrics, setup, wrap }
+        Engine {
+            metrics,
+            setup,
+            wrap,
+            platform: Platform::default(),
+            view: View::default(),
+        }
+    }
+
+    /// 换一个平台与视图。不调用就是 [`Platform::Desktop`] + [`View::Print`]。
+    ///
+    /// 两者一起给：会读它们的规则（行末标点挂不挂出、缺省制表位、段末分页符拆不拆……）
+    /// 有的看平台、有的看视图，分两次设很容易只设了一半。
+    pub fn with_platform(mut self, platform: Platform, view: View) -> Engine<'m, M> {
+        self.platform = platform;
+        self.view = view;
+        self
+    }
+
+    /// 当前模拟的平台。
+    pub fn platform(&self) -> Platform {
+        self.platform
+    }
+
+    /// 当前模拟的视图。
+    pub fn view(&self) -> View {
+        self.view
+    }
+
+    /// 段末手动分页符之后，段落标记是否另起一行（见 [`View`] 的说明）。
+    ///
+    /// 只看视图：[`View::Mobile`] 拆，[`View::Print`] 不拆。以后读到文档的兼容项
+    /// `w:splitPgBreakAndParaMark` 时，在这里与视图取「或」。
+    ///
+    /// 段落以分节符结束（段内 `w:sectPr`）时不拆，分节符照分页视图收进分页符那一行。
+    /// 这一条是**假设**：Android 只量到以段落标记结束的 `br-page`，OOXML 那个兼容项也只说
+    /// 段落标记；拆开的话分节符那行落到下一页、分节再翻一页，平白多出一页。
+    fn splits_page_break_and_mark(&self, para: &Para) -> bool {
+        self.view == View::Mobile
+            && para.terminator == crate::oracle::LineTerminator::ParagraphMark
     }
 
     /// 某一行可用的横向区间。
@@ -1218,23 +1671,37 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             Align::Right => slack_pt,
         };
 
-        // 两端对齐：除最后一行外，把空隙按片段间隙均摊。
-        let justify_gap = if para.align == Align::Justify
-            && !line.is_last
-            && line.pieces.len() > 1
-        {
-            slack / (line.pieces.len() as Twips - 1)
-        } else {
-            0
-        };
-        let justify_gap_pt = if para.align == Align::Justify
-            && !line.is_last
-            && line.pieces.len() > 1
-        {
-            slack_pt / (line.pieces.len() - 1) as f64
-        } else {
-            0.0
-        };
+        // 两端对齐：除最后一行外，把空隙按**词间**的片段交界均摊。
+        //
+        // 按片段交界摊是既有近似（Word 按空格摊，本引擎未实现，也未测）。只摊在词间交界上：
+        // 交界是断点（[`Self::join_breaks`]），或右侧片段以空白开头——UAX #14 的断点在空格
+        // 之后，但空格之前那条交界同样在两词之间。词内的 run 边界不摊：紧急断行把一个词
+        // 跨 run 填进一行之后，空隙会落在词中间（20 + 30 + 80 个 `0` 分三个 run、5329 宽，
+        // 两端对齐时第 20、21 个 `0` 之间会凭空多出约 98 twips；同样的字排在一个 run 里没有）。
+        //
+        // 也只摊在**最后一个制表符之后**：制表符之前的文字、以及紧跟制表符的那一片，
+        // 已经按制表位定死了位置，再拉开就离开了制表位。没有制表符时 `justify_from` 是 0，
+        // 与原来一致。这条照 Word 的已知行为，**未实测**；而且眼下几乎不起作用——
+        // 空隙只摊在片段交界上，单 run 的行根本不拉伸，只有制表符之后还有多个 run 时才看得出。
+        let justify_from = line
+            .pieces
+            .iter()
+            .rposition(|p| p.tab.is_some())
+            .map_or(0, |i| i + 1);
+        let word_join: Vec<bool> = line
+            .pieces
+            .iter()
+            .enumerate()
+            .map(|(i, p)| {
+                i > justify_from
+                    && (self.join_breaks(&line.pieces[i - 1], p)
+                        || p.text.starts_with([' ', '\t']))
+            })
+            .collect();
+        let gaps = word_join.iter().filter(|&&w| w).count();
+        let justify = para.align == Align::Justify && !line.last_content && gaps > 0;
+        let justify_gap = if justify { slack / gaps as Twips } else { 0 };
+        let justify_gap_pt = if justify { slack_pt / gaps as f64 } else { 0.0 };
 
         // 基线落位：在 1/7200 英寸上加好再交给度量量化到它的栅格。
         // 先取整到 twips 再量化是不行的——0.24pt = 4.8 twips，取整就把栅格点碾碎了。
@@ -1269,11 +1736,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 rise: 0,
                 rise_fine: 0,
                 line: line_index,
+                tab_advance_pt: None,
             }));
         }
+        // 本片段之前（含本片段左侧那条交界）摊到了几份空隙。
+        let mut gaps_before = 0usize;
         for (i, p) in line.pieces.iter().enumerate() {
-            let x = base_x + offset + p.dx + justify_gap * (i as Twips);
-            let x_pt = base_x_pt + offset_pt + p.dx_pt + justify_gap_pt * (i as f64);
+            if word_join[i] {
+                gaps_before += 1;
+            }
+            let x = base_x + offset + p.dx + justify_gap * (gaps_before as Twips);
+            let x_pt = base_x_pt + offset_pt + p.dx_pt + justify_gap_pt * (gaps_before as f64);
             // Only the final fragment carries the line's terminator.
             let terminator = if i == last && append_suffix {
                 line.terminator
@@ -1300,6 +1773,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 rise: (p.rise_fine / FINE_PER_TWIP) as Twips,
                 rise_fine: p.rise_fine,
                 line: line_index,
+                tab_advance_pt: p.tab.map(|t| t.advance_pt),
             }));
         }
 
@@ -1331,8 +1805,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             ));
             for (text, source, terminator) in tails {
                 page.fragments.push(Fragment::Text(TextFragment {
-                    x: base_x + offset + line.width + justify_gap * last as Twips,
-                    x_pt: base_x_pt + offset_pt + line.width_pt + justify_gap_pt * last as f64,
+                    x: base_x + offset + line.width + justify_gap * gaps as Twips,
+                    x_pt: base_x_pt + offset_pt + line.width_pt + justify_gap_pt * gaps as f64,
                     baseline_y: coarse(baseline_fine - line.end_rise_fine),
                     baseline_fine: baseline_fine - line.end_rise_fine,
                     text,
@@ -1344,6 +1818,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     rise: (line.end_rise_fine / FINE_PER_TWIP) as Twips,
                     rise_fine: line.end_rise_fine,
                     line: line_index,
+                    tab_advance_pt: None,
                 }));
             }
         }
@@ -1369,12 +1844,18 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let mut lines: Vec<PendingLine> = Vec::new();
         let paragraph_end = source_base
             + para.runs.iter().map(|r| r.text.encode_utf16().count() as u32).sum::<u32>();
+        let segs = segments(para, source_base);
 
-        // 空段落：高度由段落标记字体决定。
-        if para.runs.iter().all(|r| r.text.is_empty()) {
-            let font = para
+        // Hidden text still owns source positions. Its paragraph mark remains
+        // visible; without a separate mark style, keep the existing font
+        // fallback for an entirely hidden paragraph.
+        if segs.is_empty() {
+            let mark_run = para
                 .runs
-                .first()
+                .iter()
+                .find(|run| !run.hidden)
+                .or_else(|| para.runs.last());
+            let font = mark_run
                 .map(|r| r.font.clone())
                 .unwrap_or_else(|| FontSpec::new("Times New Roman", 24));
             let m = self.metrics.empty_line_metrics(&font);
@@ -1395,23 +1876,27 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 width: 0,
                 width_pt: 0.0,
                 is_last: true,
+                last_content: true,
                 terminator: para.terminator,
                 trailing_glyphs: para.terminator.expected_glyphs(),
                 end_font: font,
-                end_color: para.runs.first().map_or(Color::BLACK, |r| r.color),
-                end_rise_fine: para.runs.first().map_or(0, Run::effective_rise_fine),
+                end_color: mark_run.map_or(Color::BLACK, |r| r.color),
+                end_rise_fine: mark_run.map_or(0, Run::effective_rise_fine),
                 is_first: true,
                 span,
                 page_break_after: false,
                 source_start: source_base,
-                source_end: source_base + 1,
+                source_end: paragraph_end + 1,
             });
             return lines;
         }
 
+        // 段落拍平成截（见 [`Segment`]）：断行游标 (`at`, `byte`) 在截上往前走，
+        // 跨 run 回退时退回本行更早的断点（见 [`Self::shortfall`]）。
+        // 游标：第几截，以及该截所在 run 文本里的字节偏移。
+        let mut at: usize = 0;
+        let mut byte: usize = segs.first().map_or(0, |s| s.start);
         let mut cur: Vec<LinePiece> = Vec::new();
-        // 全篇 UTF-16 偏移游标，作为各片段源区间的起点。从本段基点起算，不从 0。
-        let mut consumed: u32 = source_base;
         // 当前行起点，供空行用（空行没有片段可推）。
         let mut line_start: u32 = source_base;
         let mut cur_w: Twips = 0;
@@ -1424,10 +1909,13 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 与 `cur_natural` 并行的精确值，单位 1/7200 英寸。
         let mut cur_natural_fine: i64 = 0;
         let mut first_line = true;
+        // 本行上一个片段（或行首）之后刚跨过一个行内对象占位符：下一个片段与它之间的交界
+        // 是断点。见 `LinePiece::after_object`。每推一个片段、每收一行都清掉。
+        let mut object_join = false;
         // 行高未知时用来试探区间的估值：取正文字号的自然行高。
         let probe_h = self
             .metrics
-            .measure("", para.runs.first().map(|r| &r.font).unwrap_or(&FontSpec::new("Times New Roman", 24)))
+            .measure("", &para.runs[segs[0].run_index].font)
             .natural_height()
             .max(1);
         let mut cur_y = y;
@@ -1439,45 +1927,59 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 首行缩进吃掉的宽度。
         let mut line_avail = (span.width() - if first_line { para.indent_first_line } else { 0 }).max(1);
 
-        // Run boundaries do not break punctuation adjacency; placeholders do.
-        // Cache the next nonempty run's first character once for the paragraph.
-        let mut next_run_chars = vec![None; para.runs.len()];
-        let mut next_char = None;
-        for (index, run) in para.runs.iter().enumerate().rev() {
-            next_run_chars[index] = next_char;
-            next_char = run.text.chars().next().or(next_char);
-        }
-        for (run_index, run) in para.runs.iter().enumerate() {
-            // rsword 为每个 `w:br` 在 run 文本里放一个 U+FFFC（对象替换符）。
-            // 它是**控制字符，不是文字**：占 1 个源字符位（Word 的 `Range` 数它），
-            // 但既不成字形也不占宽度——Word 导出的 PDF 里一个都没有。
-            //
-            // 不切掉的后果是实测过的：它会被整形器当普通字符画出来，
-            // 12pt 字号下 advance 12.0pt，其后整行字形集体右移；
-            // 一份 11 页夹具上 8 次共凭空占掉 96pt。
-            //
-            // 在这里切而不是在绘制层滤，是因为**断行也不能算它的宽度**：
-            // 只在绘制层滤，行宽照样是错的，而那种错在轨迹里看不出来。
-            // 占位符可能夹在文字中间（实测 `'分页符之前￼分页符之后'`），所以按它切段。
-            let part_count = run.text.split(OBJECT_PLACEHOLDER).count();
-            for (part_index, part) in run.text.split(OBJECT_PLACEHOLDER).enumerate() {
-                if part_index > 0 {
-                    // 不是第一段 ⇒ 前面刚跨过一个占位符：源游标要走 1 个 UTF-16 单位，
-                    // 但不产生片段、不占宽度。
-                    consumed += 1;
+        while let Some(&seg) = segs.get(at) {
+            let run = &para.runs[seg.run_index];
+            match seg.kind {
+                SegmentKind::Placeholder(kind) => {
+                    // 每个 `w:br` / `w:cr` 在 run 文本里是一个 U+FFFC（对象替换符）：分页、分栏是
+                    // 解析器放的，软回车是桥接层把解析器的 `'\n'` 换成的（`bridge::run_text_and_placeholders`）。
+                    // 它是**控制字符，不是文字**：占 1 个源字符位（Word 的 `Range` 数它），
+                    // 但既不成字形也不占宽度——Word 导出的 PDF 里一个都没有。
+                    //
+                    // 不切掉的后果是实测过的：它会被整形器当普通字符画出来，
+                    // 12pt 字号下 advance 12.0pt，其后整行字形集体右移；
+                    // 一份 11 页夹具上 8 次共凭空占掉 96pt。
+                    //
+                    // 在这里切而不是在绘制层滤，是因为**断行也不能算它的宽度**：
+                    // 只在绘制层滤，行宽照样是错的，而那种错在轨迹里看不出来。
+                    // 占位符可能夹在文字中间（实测 `'分页符之前￼分页符之后'`），所以它自成一截。
+                    //
+                    // 源游标走 1 个 UTF-16 单位，但不产生片段、不占宽度。
+                    let consumed = seg.source + 1;
+                    (at, byte) = next_segment(&segs, at);
+
+                    // 软回车紧跟在一条刚按宽度收下的行后面、中间什么都没有（Desktop 把 `。`、`）`
+                    // 挂出行末后当场收行，或末尾空格溢出时）：它收进那一行，不自成一条空行——
+                    // 同一位置的段落标记也是收进那一行的（见末行那一支的条件）。**推断**：
+                    // Word 没有这一形状的读数；拆成两行会凭空多一行，比收进去离 Word 的行数更远。
+                    if kind == PlaceholderKind::LineBreak
+                        && cur.is_empty()
+                        && cur_w == 0
+                        && let Some(last) = lines.last_mut()
+                        && last.terminator == T::Wrapped
+                        && last.source_end == seg.source
+                    {
+                        last.terminator = T::LineBreak;
+                        last.trailing_glyphs += T::LineBreak.expected_glyphs();
+                        last.source_end = consumed;
+                        last.end_font = run.font.clone();
+                        last.end_color = run.color;
+                        last.end_rise_fine = run.effective_rise_fine();
+                        line_start = consumed;
+                        object_join = false;
+                        continue;
+                    }
 
                     // 占位符是什么，决定要不要在此处收行／翻页。种类由桥接层带进来；
-                    // 拿不到就按 `Object` 处理——保守方向，不凭空造出分页。
-                    let kind = run
-                        .placeholders
-                        .get(part_index - 1)
-                        .copied()
-                        .unwrap_or(PlaceholderKind::Object);
-
+                    // 拿不到就按 `Object` 处理——保守方向，不凭空造出分页（见 [`segments`]）。
                     if kind.breaks_line() {
                         let at_end = consumed == paragraph_end;
+                        // 分页符紧跟段落标记：分页视图把段落标记收进本行（Mac `breaks-sections`
+                        // / `vmisc2` 实测）；移动视图不收，段落标记由末行那一支另起一行
+                        // （Android 窄路径 `br-page` 实测）。见 [`View`]。
+                        let keeps_mark = at_end && !self.splits_page_break_and_mark(para);
                         let terminator = if kind.breaks_page() {
-                            T::PageBreak(if at_end && para.terminator == T::ParagraphMark {
+                            T::PageBreak(if keeps_mark && para.terminator == T::ParagraphMark {
                                 B::BeforeMark
                             } else if cur.is_empty() {
                                 B::OwnLine
@@ -1487,11 +1989,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         } else {
                             T::LineBreak
                         };
-                        // Word keeps a paragraph mark immediately after a page
-                        // break on the breaking line (breaks-sections capture).
-                        let ends_paragraph = kind.breaks_page() && at_end;
+                        let ends_paragraph = kind.breaks_page() && keeps_mark;
                         // 收行。空行也要收：`'\u{FFFC}文字'` 这种分页符在段首的情形，
                         // 前面确实是一条空行（Word 也给它一条独立的行记录）。
+                        // 显式换行收下的这一行此后再不回退：退回只在本行之内找断点。
                         let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
                         let h = if cur.is_empty() && cur_w == 0 {
                             // 空行高度由该 run 的字体定，不能取 0——否则后面的行会叠上来。
@@ -1510,6 +2011,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             width: cur_w,
                             width_pt: cur_w_pt,
                             is_last: ends_paragraph,
+                            // 拆开时这行仍是本段最后一行内容（见 `PendingLine::last_content`）。
+                            last_content: kind.breaks_page() && at_end,
                             terminator,
                             trailing_glyphs: terminator.expected_glyphs()
                                 + if ends_paragraph { para.terminator.expected_glyphs() } else { 0 },
@@ -1533,152 +2036,245 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         cur_y += h;
                         span = self.pick_span(para, area, cur_y, h.max(probe_h));
                         line_avail = span.width().max(1);
+                        object_join = false;
+                    } else {
+                        // 行内对象：不收行，但它与后一片段之间的交界是断点。
+                        object_join = true;
                     }
                 }
-            let mut rest: &str = part;
-            while !rest.is_empty() {
-                let remain = (line_avail - cur_w).max(0);
-                let m_all = self.metrics.measure(rest, &run.font);
-
-                if m_all.advance <= remain {
-                    // 整段剩余放得下。
-                    let n = rest.encode_utf16().count() as u32;
+                SegmentKind::Tab => {
+                    // 制表符自成一片：它的宽度取决于落在行里哪里、停到哪个制表位，
+                    // 不能和相邻文字一起问度量要。退回到它之前时游标会再走过它，
+                    // 到新行上重新落位——所以这里不必记「挪下去的制表符」。
+                    let info = TabPiece {
+                        run_index: seg.run_index,
+                        after: seg.end,
+                        advance_pt: 0.0,
+                        past_line_end: false,
+                    };
+                    // 制表位相对左页边距；行首相对它的位置 = 区间起点 + 首行缩进。
+                    let origin = f64::from(
+                        span.start - area.x + if first_line { para.indent_first_line } else { 0 },
+                    );
+                    let (advance, past_line_end, landed_w) =
+                        self.land_tab(para, info, origin, cur_w_pt * 20.0, line_avail, first_line);
+                    let m = self.metrics.measure(" ", &run.font);
                     cur.push(LinePiece {
                         dx: cur_w,
                         dx_pt: cur_w_pt,
-                        text: rest.to_string(),
+                        text: "\t".to_string(),
                         font: run.font.clone(),
                         color: run.color,
                         rise_fine: run.effective_rise_fine(),
-                        source: (consumed, consumed + n),
+                        source: (seg.source, seg.source + 1),
+                        after_object: std::mem::take(&mut object_join),
+                        tab: Some(TabPiece { advance_pt: advance / 20.0, past_line_end, ..info }),
+                        seg: at,
+                        byte: seg.start,
                     });
-                    consumed += n;
-                    cur_w += m_all.advance;
-                    cur_w_pt += self.metrics.advance_pt(rest, &run.font);
-                    cur_ascent = cur_ascent.max(m_all.ascent);
-                    cur_descent = cur_descent.max(m_all.descent);
-                    cur_natural = cur_natural.max(m_all.natural_height());
+                    // 行宽随制表位对齐到精确位置：左对齐制表位落在整 twips 上，
+                    // 不带上前面各片段逐个取整的残差；右／居中／小数点见 `land_tab`。
+                    cur_w = cur_w.max(landed_w);
+                    cur_w_pt += advance / 20.0;
+                    cur_ascent = cur_ascent.max(m.ascent);
+                    cur_descent = cur_descent.max(m.descent);
+                    cur_natural = cur_natural.max(m.natural_height());
                     cur_natural_fine =
-                        cur_natural_fine.max(self.metrics.natural_height_fine(rest, &run.font));
-                    break;
+                        cur_natural_fine.max(self.metrics.natural_height_fine(" ", &run.font));
+                    (at, byte) = next_segment(&segs, at);
                 }
+                SegmentKind::Text => {
+                    // 游标所在这一截剩下的文字（到下一个制表符、占位符或 run 末为止）。
+                    let rest = &run.text[byte..seg.end];
+                    // 游标在全篇 UTF-16 偏移空间里的下标，作为片段源区间的起点
+                    // （从本段基点起算，不从 0）。退回时跟着游标退（[`cursor_source`]）。
+                    let mut consumed = seg.source + utf16_len(&run.text[seg.start..byte]);
+                    if rest.is_empty() {
+                        (at, byte) = next_segment(&segs, at);
+                        continue;
+                    }
+                    let remain = (line_avail - cur_w).max(0);
+                    let m_all = self.metrics.measure(rest, &run.font);
 
-                // 放不下：找能塞进去的最长前缀。
-                let context = OverflowPunctuationContext {
-                    previous: cur.last()
-                        .filter(|piece| piece.source.1 == consumed)
-                        .and_then(|piece| piece.text.chars().last()),
-                    next: if part_index + 1 == part_count {
-                        next_run_chars[run_index].filter(|&ch| ch != OBJECT_PLACEHOLDER)
-                    } else {
-                        None
-                    },
-                };
-                match self.metrics.fit_with_overflow_punctuation_context(
-                    rest, &run.font, remain, para.overflow_punct,
-                    context,
-                ) {
-                    Some((cut, m)) if cut > 0 => {
-                        let piece = &rest[..cut];
-                        let n = piece.encode_utf16().count() as u32;
+                    if m_all.advance <= remain {
+                        // 整截放得下。
                         cur.push(LinePiece {
                             dx: cur_w,
                             dx_pt: cur_w_pt,
-                            text: piece.to_string(),
+                            text: rest.to_string(),
                             font: run.font.clone(),
                             color: run.color,
                             rise_fine: run.effective_rise_fine(),
-                            source: (consumed, consumed + n),
+                            source: (consumed, consumed + utf16_len(rest)),
+                            after_object: std::mem::take(&mut object_join),
+                            tab: None,
+                            seg: at,
+                            byte,
                         });
-                        consumed += n;
-                        cur_w += m.advance;
-                        cur_w_pt += self.metrics.advance_pt(piece, &run.font);
-                        cur_ascent = cur_ascent.max(m.ascent);
-                        cur_descent = cur_descent.max(m.descent);
-                        cur_natural = cur_natural.max(m.natural_height());
-                        cur_natural_fine = cur_natural_fine
-                            .max(self.metrics.natural_height_fine(piece, &run.font));
-                        // 换行处吃掉的空格在源侧**仍然占位**。不记进游标的话，
-                        // 本段后续所有片段的源区间会整体前移，而这种错在几何上
-                        // 看不出来，只会让配对悄悄错位。
-                        let after = rest[cut..].trim_start_matches(' ');
-                        consumed += (rest[cut..].encode_utf16().count()
-                            - after.encode_utf16().count()) as u32;
-                        rest = after;
+                        cur_w += m_all.advance;
+                        cur_w_pt += self.metrics.advance_pt(rest, &run.font);
+                        cur_ascent = cur_ascent.max(m_all.ascent);
+                        cur_descent = cur_descent.max(m_all.descent);
+                        cur_natural = cur_natural.max(m_all.natural_height());
+                        cur_natural_fine =
+                            cur_natural_fine.max(self.metrics.natural_height_fine(rest, &run.font));
+                        (at, byte) = next_segment(&segs, at);
+                        continue;
                     }
-                    _ => {
-                        // 一个断点都塞不下：若本行已有内容就换行重试，否则硬塞一个字符避免死循环。
-                        if cur.is_empty() && cur_w == 0 {
-                            let c = rest.chars().next().expect("rest 非空");
-                            let n = c.len_utf8();
-                            let m = self.metrics.measure(&rest[..n], &run.font);
-                            let u16n = rest[..n].encode_utf16().count() as u32;
+
+                    // 放不下：先在这一截里找能塞进去的最长前缀。
+                    let context = OverflowPunctuationContext {
+                        previous: cur.last()
+                            .filter(|piece| !object_join && piece.tab.is_none())
+                            .and_then(|piece| piece.text.chars().last()),
+                        // 紧跟着的制表符与占位符一样是屏障；run 边界不是。
+                        next: segs
+                            .get(at + 1)
+                            .filter(|s| s.kind == SegmentKind::Text)
+                            .and_then(|s| para.runs[s.run_index].text[s.start..].chars().next()),
+                    };
+                    // 行末标点挂出只在桌面上做：段落 `w:overflowPunct`（桥接层没写时给开）只在
+                    // [`Platform::Desktop`] 下起作用。
+                    // - 桌面：Mac Word 实测挂出单个越界的 `。，）、`（`docs/PREREG-2026-09-18-kinsoku.md`，
+                    //   K-a～K-d 4/4，第一行 38 字）；显式关掉才轮到行首禁则（`kinsoku2`，36 字）。
+                    // - Android：同样没写 `w:overflowPunct` 的最小 docx，越界的 `）`、`。` 都**不**挂出，
+                    //   退回前一个合法断点（word_analyse `reports/rsword-diff/kinsoku.md`，移动视图
+                    //   窄路径 5329 twips：`kinsoku`、`kinsoku-period` 都是 21，不是 23）。
+                    //   以下三条是**假设**，没有夹具：`，`、`、` 同样不挂出（只量了 `）`、`。`）；
+                    //   纸页路径（10466）与移动视图一样不挂出；显式写了 `w:overflowPunct w:val="1"`
+                    //   也不挂出。所以这里只看平台、不看视图。
+                    let hang = para.overflow_punct && self.platform == Platform::Desktop;
+                    let decision = match self.metrics.fit_with_overflow_punctuation_context(
+                        rest, &run.font, remain, hang,
+                        context,
+                    ) {
+                        Some((cut, m)) if cut > 0 => Shortfall::Place(cut, m),
+                        // 一个断点都塞不下。
+                        _ => self.shortfall(para, area, span, remain, &cur, object_join, &segs, at, byte),
+                    };
+                    let (eat, end_run) = match decision {
+                        Shortfall::Place(cut, m) => {
+                            let piece = &rest[..cut];
                             cur.push(LinePiece {
                                 dx: cur_w,
                                 dx_pt: cur_w_pt,
-                                text: rest[..n].to_string(),
+                                text: piece.to_string(),
                                 font: run.font.clone(),
                                 color: run.color,
                                 rise_fine: run.effective_rise_fine(),
-                                source: (consumed, consumed + u16n),
+                                source: (consumed, consumed + utf16_len(piece)),
+                                after_object: std::mem::take(&mut object_join),
+                                tab: None,
+                                seg: at,
+                                byte,
                             });
-                            consumed += u16n;
                             cur_w += m.advance;
-                            cur_w_pt += self.metrics.advance_pt(&rest[..n], &run.font);
+                            cur_w_pt += self.metrics.advance_pt(piece, &run.font);
                             cur_ascent = cur_ascent.max(m.ascent);
                             cur_descent = cur_descent.max(m.descent);
                             cur_natural = cur_natural.max(m.natural_height());
                             cur_natural_fine = cur_natural_fine
-                                .max(self.metrics.natural_height_fine(&rest[..n], &run.font));
-                            rest = &rest[n..];
+                                .max(self.metrics.natural_height_fine(piece, &run.font));
+                            byte += cut;
+                            (true, seg.run_index)
                         }
+                        Shortfall::Close { eat } => (eat, seg.run_index),
+                        Shortfall::Truncate { piece, offset, eat } => {
+                            if let Some(p) = cur.get_mut(piece) {
+                                // 退回：游标回到切口，切口之后的片段（含制表符）到下一行重排。
+                                (at, byte) = (p.seg, p.byte + offset);
+                                if offset > 0 {
+                                    p.text.truncate(offset);
+                                    p.source.1 = p.source.0 + utf16_len(&p.text);
+                                    cur_w = p.dx + self.metrics.measure(&p.text, &p.font).advance;
+                                    cur_w_pt = p.dx_pt + self.metrics.advance_pt(&p.text, &p.font);
+                                    cur.truncate(piece + 1);
+                                } else {
+                                    cur_w = p.dx;
+                                    cur_w_pt = p.dx_pt;
+                                    cur.truncate(piece);
+                                }
+                                // 行高按剩下的片段重算：切走的那部分字体未必与前文相同。
+                                (cur_ascent, cur_descent, cur_natural, cur_natural_fine) =
+                                    self.pieces_vertical(&cur);
+                            }
+                            (eat, segs[at].run_index)
+                        }
+                    };
+                    // 换行处吃掉的空格在源侧**仍然占位**，记进本行。不记进游标的话，
+                    // 本段后续所有片段的源区间会整体前移，而这种错在几何上
+                    // 看不出来，只会让配对悄悄错位。空格跨 run 也照吃，拆不拆 run 下一行
+                    // 都从同一个字起（**假设**：Word 在 run 边界上的行尾空格未测；原先只吃到
+                    // 本 run 末尾，下一行可能以空格开头）。
+                    if eat {
+                        (at, byte) = skip_spaces(para, &segs, at, byte);
                     }
-                }
+                    consumed = cursor_source(para, &segs, at, byte, paragraph_end);
 
-                // 收行。
-                let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
-                lines.push(PendingLine {
-                    height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
-                    baseline: cur_ascent,
-                    pieces: std::mem::take(&mut cur),
-                    width: cur_w,
-                    width_pt: cur_w_pt,
-                    is_last: false,
-                    terminator: T::Wrapped,
-                    trailing_glyphs: 0,
-                    end_font: run.font.clone(),
-                    end_color: run.color,
-                    end_rise_fine: run.effective_rise_fine(),
-                    is_first: first_line,
-                    span,
-                    page_break_after: false,
-                    source_start: line_start,
-                    source_end: consumed,
-                });
-                line_start = consumed;
-                cur_w = 0;
-                cur_w_pt = 0.0;
-                cur_ascent = 0;
-                cur_descent = 0;
-                cur_natural = 0;
-                cur_natural_fine = 0;
-                first_line = false;
-                // 换行：y 推进一行高，可用区间随之可能变化。
-                cur_y += h;
-                span = self.pick_span(para, area, cur_y, h.max(probe_h));
-                line_avail = span.width().max(1);
-            }
+                    // 收行。行尾字体取切口所在的 run（与原先「本截所在 run」同一口径）。
+                    let run = &para.runs[end_run];
+                    if cur.is_empty() && cur_w == 0 {
+                        // 只有行内对象的一行（对象在行首，后面的长串一个字也不上这一行）。
+                        // 对象本身不占宽也不占高，行高按该 run 的字体取，与空行同一口径。
+                        let m = self.metrics.empty_line_metrics(&run.font);
+                        cur_ascent = m.ascent;
+                        cur_descent = m.descent;
+                        cur_natural = m.natural_height();
+                        cur_natural_fine = self.metrics.natural_height_fine("", &run.font);
+                    }
+                    let h = self.line_height(para, cur_ascent + cur_descent, cur_natural);
+                    lines.push(PendingLine {
+                        height_fine: self.line_height_fine(para, cur_ascent + cur_descent, cur_natural_fine),
+                        baseline: cur_ascent,
+                        pieces: std::mem::take(&mut cur),
+                        width: cur_w,
+                        width_pt: cur_w_pt,
+                        is_last: false,
+                        last_content: false,
+                        terminator: T::Wrapped,
+                        trailing_glyphs: 0,
+                        end_font: run.font.clone(),
+                        end_color: run.color,
+                        end_rise_fine: run.effective_rise_fine(),
+                        is_first: first_line,
+                        span,
+                        page_break_after: false,
+                        source_start: line_start,
+                        source_end: consumed,
+                    });
+                    line_start = consumed;
+                    cur_w = 0;
+                    cur_w_pt = 0.0;
+                    cur_ascent = 0;
+                    cur_descent = 0;
+                    cur_natural = 0;
+                    cur_natural_fine = 0;
+                    first_line = false;
+                    object_join = false;
+                    // 换行：y 推进一行高，可用区间随之可能变化。
+                    cur_y += h;
+                    span = self.pick_span(para, area, cur_y, h.max(probe_h));
+                    line_avail = span.width().max(1);
+                }
             }
         }
 
         // 末行。
+        //
+        // 分页符收行而没收下段落标记（只在移动视图拆开段末分页符时发生）：段落标记自成一行，
+        // 与段末软回车之后那条空行同理；它排在翻页之后，所以落到下一页。分页视图下分页符那行
+        // 要么已收下段落标记（`is_last`），要么其后还有内容（`paragraph_end > source_end`），
+        // 这一条不会多出行来。
         if !cur.is_empty()
             || lines.is_empty()
             || lines.last().is_some_and(|l| l.terminator == T::LineBreak)
-            || lines.last().is_some_and(|l| consumed > l.source_end)
+            || lines.last().is_some_and(|l| paragraph_end > l.source_end)
+            || lines.last().is_some_and(|l| l.page_break_after && !l.is_last)
         {
+            let mark_run = para.runs.iter().rev().find(|run| !run.hidden)
+                .expect("nonempty visible paragraph");
             if cur.is_empty() {
-                let font = &para.runs.last().expect("nonempty paragraph").font;
+                let font = &mark_run.font;
                 let m = self.metrics.empty_line_metrics(font);
                 cur_ascent = m.ascent;
                 cur_descent = m.descent;
@@ -1691,27 +2287,494 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 width: cur_w,
                 width_pt: cur_w_pt,
                 is_last: true,
+                last_content: true,
                 terminator: para.terminator,
                 trailing_glyphs: para.terminator.expected_glyphs(),
-                end_font: para.runs.last().expect("nonempty paragraph").font.clone(),
-                end_color: para.runs.last().expect("nonempty paragraph").color,
-                end_rise_fine: para.runs.last().expect("nonempty paragraph").effective_rise_fine(),
+                end_font: mark_run.font.clone(),
+                end_color: mark_run.color,
+                end_rise_fine: mark_run.effective_rise_fine(),
                 is_first: first_line,
                 span,
                 page_break_after: false,
                 source_start: line_start,
-                source_end: consumed + 1,
+                source_end: paragraph_end + 1,
             });
         } else if let Some(last) = lines.last_mut()
             && !last.is_last
         {
             last.is_last = true;
+            last.last_content = true;
             last.terminator = para.terminator;
             last.trailing_glyphs = para.terminator.expected_glyphs();
             last.source_end += 1;
         }
 
         lines
+    }
+
+    /// 游标处这一截字（`segs[at]` 从 `byte` 起）连一个断点都塞不下——普通断行与桌面的挂出都不成——
+    /// 时，这一行怎么收。`remain` 是本行剩下的宽度，`cur` 是本行已排的片段。
+    ///
+    /// 先看行尾与这一截之间的交界。交界是断点（隔着行内对象，或两侧字符照 `break_opportunities`
+    /// 可断）就此收行，这一截整个挪到下一行。否则找本行**行首之后最后一个断点**
+    /// （[`Self::last_break_candidate`]），分三种：
+    ///
+    /// **（甲）有断点、这一截不粘在制表符上：退回那里**（跨 run 回退）。本行截到那个断点（必要时把
+    /// 一个片段切开），游标退回去，切口之后的片段（含制表符）到下一行重排、重新落位。排在一个 run
+    /// 里时 `fit` 本来就退到那里；拆成几个 run 不该换一种断法——**run 边界不是断点**是实测
+    /// （`webhidden`、`specvanish` 20 + 30 + 80 个 `0` 仍是 0、86，`vanish.md`），而断点落在更早的
+    /// run 里、要退回去的情形 Word **未测**（待测：`hello wor` | `ld` + 60 个 `0`、`[22汉][）10汉]`、
+    /// `[22汉][。10汉]`、`[21汉（][10汉]` @5329），这里照「拆不拆 run 断法都一样」推。
+    ///
+    /// **（乙）一个断点都没有、这一截不粘在制表符上：紧急断行**。这一行从行首起就没有断点，
+    /// 挪到下一行也不会有，只能按字符切，切在最后一个放得下的字符之后（切法见
+    /// `FontMetrics::fit_clusters`）。实测 Android Word（`word_analyse/reports/rsword-diff`）：
+    /// 一串 `0` 在 5329 上每行 43 个、10466 上 86 个（`tab.md`、`char-scale.md`）；
+    /// 20 + 30 + 80 个 `0` 分在三个 run 里仍是 86 个（`vanish.md`）——已有内容的行也照样
+    /// 按剩余宽度切。第一个字符就放不下：空行仍收它，避免死循环（**假设**：不出空行）；
+    /// 已有内容的行就此收行。
+    ///
+    /// 「行首之后有更早的断点就断在那里，长串整个挪到下一行」只在制表符上量过：
+    /// `tab-right-1440`（0、1、45：`A` 加 43 个 `0` 超出 5329，只能分两行）与
+    /// `tab-right-fit`（0、4、48：1440 之后空着约 3.9k twips 也没有紧急填满）。
+    /// `tab-after-a`（0、1、43）分不出是不是视觉上的两行，不作依据。
+    /// 空格与 CJK 交界上的同一条规则是**假设**，没有夹具。
+    ///
+    /// 制表符与后面的字之间不断、断点在制表符之前（实测，`tab.md`），所以紧跟在制表符后面、
+    /// 中间一个断点都没有的这个词（「粘在制表符上」，可以跨 run）另有两条。粘着的那截字分两种，
+    /// 决定用不用紧急断行：
+    /// - 空行上也放不下（到第一个断点的那截去掉词后的空格，仍比下一行的整宽宽，
+    ///   比如一长串 `0`）。
+    ///   实测过的制表符夹具全是这一种（`tab.md` 的八份，放不下的那截都是 50～120 个
+    ///   `0`／`i`，比一行长），紧急断行按剩余宽度切（`tab-zeros`：制表符后 41 个 `0`）；
+    /// - 空行上放得下的词（`Sincerely,`、`Date: today`）。**假设**：它不在词中间被切开，
+    ///   也不被推出行尾，而是整个挪到能从头放下它的地方。没有夹具——照上面实测的
+    ///   几条规则硬推（制表符之前可断、之后不可断，行首之后没有断点就按剩余宽度切），
+    ///   Word 会把它切开（行首制表符停在 5040 的 `\tSincerely,` @5329 给 `\tSi` | `ncerely,`）；
+    ///   这里认为那不像 Word，按下面的办法不切。待测：`\t` + 94 个 `i` @5329（照这里 0、1，
+    ///   硬推 0、93），与左对齐 5040 的 `Name:<TAB>Date: today` @5329（照这里 0、6，硬推 0、5、8）。
+    ///
+    /// **（丙）粘在制表符上、制表符之前有断点：退回那里，制表符跟着下去**，到下一行重新落位。
+    /// 实测 `tab-right-1440`（0、1、45）：第二行那 43 个 `0` 得从 x ≤ 98.5 twips 起，
+    /// 比 `A` 的宽（138.87）还小，所以制表符之前确有一次换行，制表符跟着 `0` 下去了；
+    /// `tab-after-a`（0、1、43）、`tab-stop-720`（0、1、39）、`tab-stop-1440`
+    /// （0、1、33、76）的行起点与之一致（`tab.md`）。
+    ///
+    /// 制表符之前那一处交界照 `chars_break(前一个字, Some('\t'))` 判断，不一律当作可断：
+    /// 行尾禁则字后面不记「制表符之前」（`（<TAB>` 之间不断，**假设**，见 `font::linebreak`），
+    /// 那时退到更早的断点，`（` 跟着制表符下去（`20汉（<TAB>Sincerely` @5329 退到 `汉|（`，20；
+    /// 默认档 221 与 720 都是，例外见下面「够不着」一段的末尾）。
+    ///
+    /// 退之前先在下一行试排一次：切口到制表符那一截重新落下之后，制表符停到哪、后面的字上不上得来
+    /// （放得下的词要上来到第一个断点，放不下的长串至少上来一个字）。上不来就不退——退下去只会排出
+    /// 一条只有制表符的行、或把词切开——制表符**留在本行**，字另起一行、前面不带制表符
+    /// （`Name:<TAB>` | `Date: today`、`A<TAB>` | `B C`）。**假设**，未实测。
+    /// 试排按本行的区间估下一行；有环绕时下一行的区间可能不同，那时落到（丁）。
+    ///
+    /// 左对齐停靠点在行尾或行尾之外（`TabPiece::past_line_end`，制表符只推到行尾）分两种：
+    /// - 断点紧挨在制表符之前：不试、不退，制表符留在本行，字另起一行、从行首排
+    ///   （默认档 720 上的 `21汉<TAB>Sincerely` @5329：`21汉<TAB>` | `Sincerely`）。**假设**，未实测
+    ///   （待测：左对齐 6480 的 `A<TAB>000` @5329）。
+    /// - 断点在制表符前那截粘着的字之前（`（<TAB>`）：不退的话 `（` 留在行尾，违反禁则，所以照样
+    ///   试排。本行的停靠点够不着，不等于下一行也够不着：默认档从下一行较前的位置起落得下
+    ///   （默认档 720 的 `20汉（<TAB>Sincerely` @5329：第二行 `（` 240、制表符停到 720，退到
+    ///   `汉|（`，20；两个平台一样）。试排里制表符到下一行仍然够不着（左对齐停靠点在行外，比如
+    ///   6480）就不退，`（` 与制表符留在行尾——**已知偏差**：退下去 `（` 照样停在下一行行尾，
+    ///   还多出一行，禁则在这里让步。**假设**，Word 未测（待测：默认档 720 与左对齐 6480 的
+    ///   `20汉（<TAB>Sincerely` @5329 各一份）。修正之前两种都不退（G6 已记下默认档 720 这条偏差），
+    ///   `20汉（<TAB>Sincerely` 在默认档 720 上给 0、22。
+    ///
+    /// **（丁）粘在制表符上、行首之后一个断点都没有**：制表符前面只有制表符（它们在行首），或只有
+    /// 同样粘在一起的字（`（<TAB>`）。放不下的长串照紧急断行，在制表符之后按剩余宽度切
+    /// （`tab-zeros`，与 `tab-after-a` 第二行一样；`（<TAB>` + 60 个 `0` 一行填满）；放得下的词、
+    /// 或一个字都塞不进剩余宽度时，这一行**收在制表符之后**，字另起一行（左对齐 5760 的
+    /// `\tSincerely,` @5329：`\t` | `Sincerely,`）。这是「除了段末与显式换行之前，没有一行只有
+    /// 制表符」这条**假设**的不变式唯一的例外：只有制表符的行只出现在行首的制表符后面一个字都
+    /// 上不来的时候，（丙）退下去的制表符按上面的试排总有字跟着（环绕区除外）。**假设**，未实测
+    /// （原先当作空行至少收一个字，于是 `S` 画在行尾之外、`Sincerely,` 被切开）。
+    ///
+    /// 「空行上放不放得下」「上不上得来」量的都是**整个词**：已排在制表符之后的片段加上游标起到
+    /// 第一个断点为止的字，跨 run 累加（[`Self::word_ahead`]）。只量这一截的话，词拆在两个 run 里
+    /// 就换一种断法。拆不拆 run 断法都一样是**假设**，Word 未测。
+    ///
+    /// 已知未测的副作用：
+    /// - 本引擎不在 `-`、`/` 后断（UAX #14 的 BA/HY 未实现，Word 在此断不断也未测）。
+    ///   原先 run 边界恰在 `-` 之后时会碰巧收行，现在同一行没有别的断点就紧急填满。
+    /// - `fit` 的前缀宽度含词后的空格，所以行尾余量不足一个空格宽时，「词 + 空格」这个前缀
+    ///   放不下：有更早的断点就退回那里，词挪下去；没有就落到紧急断行，词照收、空格随后吃掉
+    ///   （原先是一行一个字符）。上面判断粘着的字「空行上放不放得下」照的就是这个结果，不是 `fit`。
+    ///   拆成 run 之后同样如此：`…词` | ` 下一词` 退回、挪下去的是 `词`（原先 `词` 留在本行、
+    ///   下一行以那个空格开头）。Word 让行尾空格挂在版心之外，这一条与 Word 未必一致，未测。
+    /// - 下一行更宽（首行缩进、环绕区）时，挪下去本可以放得下整个词；这里照样
+    ///   在本行切。
+    ///
+    /// 原先这里只硬塞一个字符就收行，没有断点的长串于是一行一个码元，
+    /// 直到剩下的尾巴整段放得下（`x`×200 在 5329 上排成 149 行单字加一行 51 个）。
+    #[allow(clippy::too_many_arguments)]
+    fn shortfall(
+        &self,
+        para: &Para,
+        area: Rect,
+        span: Span,
+        remain: Twips,
+        cur: &[LinePiece],
+        object_join: bool,
+        segs: &[Segment],
+        at: usize,
+        byte: usize,
+    ) -> Shortfall {
+        let run = &para.runs[segs[at].run_index];
+        let chunk = &run.text[byte..segs[at].end];
+        // 行尾与这一截之间的交界。隔着行内对象时不吃对象之后的空格：沿用此前的行为，
+        // Word 未测（照 UAX #14 空格之前不断，吃掉才对，但没有夹具）。
+        if object_join {
+            return Shortfall::Close { eat: false };
+        }
+        if cur
+            .last()
+            .is_some_and(|last| self.chars_break(last.text.chars().last(), chunk.chars().next()))
+        {
+            return Shortfall::Close { eat: true };
+        }
+        let candidate = self.last_break_candidate(cur);
+        // 粘着的制表符：本行最后一个制表符，它之后再没有断点。
+        let glued = cur
+            .iter()
+            .rposition(|p| p.tab.is_some())
+            .filter(|&t| candidate.is_none_or(|c| c <= (t, 0)));
+        let Some(t) = glued else {
+            if let Some((piece, offset)) = candidate {
+                // （甲）
+                return Shortfall::Truncate { piece, offset, eat: true };
+            }
+            // （乙）
+            let (cut, m) = self.metrics.fit_clusters(chunk, &run.font, remain);
+            return if cut > 0 && (cur.is_empty() || m.advance <= remain) {
+                Shortfall::Place(cut, m)
+            } else {
+                Shortfall::Close { eat: true }
+            };
+        };
+
+        // 粘在制表符上的整个词。下一行不是首行，没有首行缩进；区间按本行的估。
+        let next_avail = span.width().max(1);
+        let mut word: Vec<(&str, &FontSpec)> =
+            cur[t + 1..].iter().map(|p| (p.text.as_str(), &p.font)).collect();
+        word.extend(self.word_ahead(para, segs, at, byte));
+        let width = |parts: &[(&str, &FontSpec)]| -> Twips {
+            parts.iter().map(|&(text, font)| self.metrics.measure(text, font).advance).sum()
+        };
+        let spaced = width(&word);
+        // 「空行上放得下」照空行实际的排法判断：空行上 `fit` 放不下时走紧急断行，`fit_clusters`
+        // 收下整个词、词后的空格随后吃掉（见「已知未测的副作用」第二条）。所以比的是到第一个断点的
+        // 那截**去掉词后空格**的宽，不能直接问 `fit`——它的前缀含那个空格，行宽只比词宽出不到一个
+        // 空格时，会把空行上不切开的词当成放不下，在制表符之后切开（`\tSincerely, x` 与
+        // `\tSincerely,` 断法不同）。
+        while let Some(last) = word.last_mut() {
+            last.0 = last.0.trim_end_matches(' ');
+            if !last.0.is_empty() {
+                break;
+            }
+            word.pop();
+        }
+        let fits_alone = width(&word) <= next_avail;
+        // 这个词在制表符之后的 `room` 里上不上得来：放得下的词要上来到第一个断点（不切开），
+        // 放不下的长串按紧急断行至少上来一个字。前者照有内容的行的口径，含词后的空格——制表符
+        // 之后不是空行，与 `A Sincerely, x` 里 `Sincerely,` 的空格放不下就整词换行一样。
+        let starts_in = |room: Twips| {
+            if fits_alone {
+                spaced <= room
+            } else {
+                let (text, font) = cur.get(t + 1).map_or((chunk, &run.font), |p| (p.text.as_str(), &p.font));
+                let (cut, m) = self.metrics.fit_clusters(text, font, room);
+                cut > 0 && m.advance <= room
+            }
+        };
+        let after_tab = Shortfall::Truncate { piece: t + 1, offset: 0, eat: false };
+        let Some((piece, offset)) = candidate else {
+            // （丁）
+            if !fits_alone {
+                let (cut, m) = self.metrics.fit_clusters(chunk, &run.font, remain);
+                if cut > 0 && m.advance <= remain {
+                    return Shortfall::Place(cut, m);
+                }
+                // 制表符之后已经上来了字：这就是紧急断行切到的地方。
+                if t + 1 < cur.len() {
+                    return Shortfall::Close { eat: true };
+                }
+            }
+            return after_tab;
+        };
+        // （丙）试排：切口到制表符那一截在下一行上重新落一次。本行停靠点够不着
+        // （`past_line_end`）而断点紧挨在制表符之前时不试、制表符留在本行；断点在制表符前那截
+        // 粘着的字之前（`（<TAB>`）时照试，下一行上仍够不着由试排里的 `past` 拦下。
+        let tab = cur[t].tab.expect("粘着的片段是制表符");
+        let carries = (!tab.past_line_end || (piece, offset) < (t, 0)) && {
+            let origin = f64::from(span.start - area.x);
+            let (mut w, mut w_pt, mut past) = (0, 0.0, false);
+            for (index, p) in cur.iter().enumerate().take(t + 1).skip(piece) {
+                match p.tab {
+                    Some(info) => {
+                        let (advance, past_here, landed_w) =
+                            self.land_tab(para, info, origin, w_pt * 20.0, next_avail, false);
+                        w = w.max(landed_w);
+                        w_pt += advance / 20.0;
+                        past = past_here;
+                    }
+                    None => {
+                        let text = if index == piece { &p.text[offset..] } else { p.text.as_str() };
+                        w += self.metrics.measure(text, &p.font).advance;
+                        w_pt += self.metrics.advance_pt(text, &p.font);
+                    }
+                }
+            }
+            !past && starts_in(next_avail - w.max(0))
+        };
+        if carries { Shortfall::Truncate { piece, offset, eat: true } } else { after_tab }
+    }
+
+    /// 本行**行首之后**最后一个断点：(片段下标, 片段内字节偏移)，偏移 0 表示该片段左侧的交界。
+    ///
+    /// 行首那个位置不算——断在那里就是一条空行。片段内部的断点照 `break_opportunities`，
+    /// 片段之间的交界按两侧字符查同一套断点（[`Self::join_breaks`]），**run 边界本身不是断点**：
+    /// 同一个词拆成几个 run 不该换一种断法（实测 `webhidden`）。制表符之前那一处交界也照两侧字符
+    /// 查（`（<TAB>` 之间不断，见 `font::linebreak`），制表符之后不断。
+    ///
+    /// 隔着行内对象的交界是断点（`LinePiece::after_object`）。对象在行首时也一样：对象占着行首
+    /// 那个源位置，它后面的交界已在行首之后，所以退到那里这一行只收下对象，长串挪到下一行——与
+    /// 对象在行中时同一条规则（**假设**；Word 未测，本引擎的对象不占宽）。
+    ///
+    /// 退回之后留在本行的部分要有字：只剩制表符的一行不算（「没有一行只有制表符」这条**假设**的
+    /// 不变式，见 [`Self::shortfall`] 的（丁））。只剩行内对象、而对象后面是字的那处交界照上一段算。
+    fn last_break_candidate(&self, cur: &[LinePiece]) -> Option<(usize, usize)> {
+        let first_text = cur.iter().position(|p| p.tab.is_none());
+        for (index, piece) in cur.iter().enumerate().rev() {
+            if piece.tab.is_none()
+                && let Some(offset) = self
+                    .metrics
+                    .break_opportunities(&piece.text)
+                    .iter()
+                    .rev()
+                    .map(|b| b.offset)
+                    .find(|&o| o > 0 && o < piece.text.len())
+            {
+                // 串尾那个是 `break_opportunities` 总会给的，不算；交界由下面按两侧字符另查。
+                return Some((index, offset));
+            }
+            let join = match index.checked_sub(1) {
+                Some(left) => self.join_breaks(&cur[left], piece),
+                None => piece.after_object,
+            };
+            let keeps_text = first_text.is_some_and(|f| f < index)
+                || (piece.tab.is_none() && piece.after_object);
+            if join && keeps_text {
+                return Some((index, 0));
+            }
+        }
+        None
+    }
+
+    /// 从游标起、到第一个断点为止的那截字，可以跨 run：逐 run 给出 (文字, 字体)。
+    ///
+    /// 截内照 `break_opportunities`，run 交界照两侧字符（[`Self::chars_break`]）；制表符、占位符与
+    /// 段末都是尽头。断点在空格之后，所以这截字带着词后的空格，与 `fit` 的前缀同一口径。
+    fn word_ahead<'p>(
+        &self,
+        para: &'p Para,
+        segs: &[Segment],
+        mut at: usize,
+        mut byte: usize,
+    ) -> Vec<(&'p str, &'p FontSpec)> {
+        let mut word: Vec<(&'p str, &'p FontSpec)> = Vec::new();
+        while let Some(s) = segs.get(at).filter(|s| s.kind == SegmentKind::Text) {
+            let run = &para.runs[s.run_index];
+            let text = &run.text[byte..s.end];
+            if word
+                .last()
+                .is_some_and(|&(prev, _)| self.chars_break(prev.chars().last(), text.chars().next()))
+            {
+                break;
+            }
+            if let Some(end) = self
+                .metrics
+                .break_opportunities(text)
+                .iter()
+                .map(|b| b.offset)
+                .find(|&o| o > 0 && o < text.len())
+            {
+                word.push((&text[..end], &run.font));
+                break;
+            }
+            word.push((text, &run.font));
+            (at, byte) = next_segment(segs, at);
+        }
+        word
+    }
+
+    /// 同一行上相邻两个片段之间的交界是不是断点。
+    ///
+    /// 隔着行内对象就是（`LinePiece::after_object`）；否则按两侧字符查，与同一 run 内
+    /// 的断法完全一致。源区间不相接**不**算——那不是断点的证据。
+    fn join_breaks(&self, left: &LinePiece, right: &LinePiece) -> bool {
+        right.after_object
+            || self.chars_break(left.text.chars().last(), right.text.chars().next())
+    }
+
+    /// 两个相邻字符之间能不能断：拼成两个字符的串问 `break_opportunities`。
+    ///
+    /// 现有规则只看断点两侧各一个字符，所以这样查与整串一起查给出同一个答案。
+    fn chars_break(&self, prev: Option<char>, following: Option<char>) -> bool {
+        let (Some(prev), Some(following)) = (prev, following) else {
+            return false;
+        };
+        let mut pair = String::with_capacity(8);
+        pair.push(prev);
+        pair.push(following);
+        self.metrics
+            .break_opportunities(&pair)
+            .iter()
+            .any(|b| b.offset == prev.len_utf8())
+    }
+
+    /// 本段的默认制表位间距：文档写了 `w:defaultTabStop` 就照用，没写按平台补。
+    ///
+    /// 桌面 720 是规范值、Mac 上未测；Android 221 是拟合值（见 `ANDROID_MISSING_DEFAULT_TAB_STOP`）。
+    fn default_tab_stop(&self, para: &Para) -> Twips {
+        para.default_tab_stop.unwrap_or(match self.platform {
+            Platform::Desktop => DESKTOP_MISSING_DEFAULT_TAB_STOP,
+            Platform::Android => ANDROID_MISSING_DEFAULT_TAB_STOP,
+        })
+    }
+
+    /// 一个制表符落定：(推进量 twips 精确值, 停靠点是否在行尾或行尾之外, 后面那段的宽度)。
+    /// 断行侧用的整 twips 行宽另由 [`Self::land_tab`] 算。
+    ///
+    /// `x` 是它的起点、`line_end` 是本行右缘，都相对左页边距。
+    ///
+    /// - 左对齐（含默认档）：推进到停靠点。停靠点在行尾或行尾之外时只推到行尾，并如实报告，
+    ///   断行据此让它留在本行（**假设**，未实测）。
+    /// - 右／居中／小数点：停靠点先**夹到行尾**，再减去后面那段（或其一半、或小数点之前的部分），
+    ///   不小于 0；居中与小数点另外不让那段越过行尾（越过就改成收在行尾）。两处夹都是**假设**：
+    ///   Android 上自定义制表位不随视图缩放（`tab-stop-720` / `tab-stop-1440`），所以文档里写在
+    ///   纸页右边距上的右对齐制表位（目录、页眉页脚的「标题<TAB>页码」）在窄路径上全在行外；
+    ///   不夹的话，后面那段怎么也放不下，一行会拆成三行、中间一行只有制表符。夹了之后，
+    ///   放得下的那段收在行尾（待测：右对齐 10466 的 `Title<TAB>12` @5329）；居中那段若照停靠点
+    ///   摆会越出行尾，下一行还是同一个停靠点、同样越出，只能被紧急断行从词中间切开。
+    ///
+    /// 放不下时右对齐制表符不占宽度：实测 `tab-right-1440` 下一行起点 45，
+    /// 即制表符加 43 个 `0`，与没有制表符时每行 43 个相同。
+    ///
+    /// 第三项：右／居中／小数点制表符后面那段的宽度 (精确 twips, 整 twips)；左对齐给 `None`。
+    fn tab_advance(
+        &self,
+        para: &Para,
+        tab: TabPiece,
+        x: f64,
+        line_end: f64,
+        first_line: bool,
+    ) -> (f64, bool, Option<(f64, Twips)>) {
+        let (stop, align) = next_tab_stop(para, x, first_line, self.default_tab_stop(para));
+        let aligned = |share: fn(&TabSegment) -> f64| {
+            let segment = self.tab_segment(para, tab.run_index, tab.after);
+            let room = stop.min(line_end) - x - share(&segment);
+            (
+                room.min(line_end - x - segment.whole).max(0.0),
+                false,
+                Some((segment.whole, segment.whole_twips)),
+            )
+        };
+        match align {
+            TabAlign::Left | TabAlign::Bar if stop >= line_end => ((line_end - x).max(0.0), true, None),
+            TabAlign::Left | TabAlign::Bar => (stop - x, false, None),
+            TabAlign::Right => aligned(|s| s.whole),
+            TabAlign::Center => aligned(|s| s.whole / 2.0),
+            TabAlign::Decimal => aligned(|s| s.before_point),
+        }
+    }
+
+    /// 在行内 `x`（相对行首，twips 精确值）处落一个制表符：
+    /// (推进量 twips 精确值, 停靠点是否在行尾或行尾之外, 落定后的整 twips 行宽)。
+    /// 调用方再与落位前的整 twips 行宽取大：制表符不会往回走。
+    ///
+    /// `origin` 是行首相对左页边距的位置。
+    ///
+    /// 整 twips 行宽是断行判断用的：后面的字逐片用 `measure` 的整 twips 去比「行宽 − 已占」。
+    /// 右／居中／小数点制表符的推进量却是按那段的**精确**宽度倒推的，而整 twips 宽按整形段、
+    /// 按 face 段各自取整，加起来可能比精确值多出 1～2 twips。停靠点在行尾（或夹到行尾）时，
+    /// 只取 `round(x + 推进量)` 会让最后一片差这 1～2 twips 放不下，一行变两行——那段文字
+    /// 跨 run 或跨 face 就会碰上（`Name<TAB>` `John ` `Smith`，右对齐停在行尾）。
+    /// 所以落定的行宽不超过「那段精确终点取整 − 那段整 twips 宽」：两边的量法各自自洽，
+    /// 那段在整 twips 上正好收在它精确收住的地方。落位（`dx_pt`）照旧走精确值。
+    /// 左对齐制表位落在整 twips 上，没有这个问题。
+    fn land_tab(
+        &self,
+        para: &Para,
+        tab: TabPiece,
+        origin: f64,
+        x: f64,
+        line_avail: Twips,
+        first_line: bool,
+    ) -> (f64, bool, Twips) {
+        let (advance, past_line_end, segment) =
+            self.tab_advance(para, tab, origin + x, origin + f64::from(line_avail), first_line);
+        let mut end = (x + advance).round() as Twips;
+        if let Some((exact, twips)) = segment {
+            end = end.min((x + advance + exact).round() as Twips - twips);
+        }
+        (advance, past_line_end, end)
+    }
+
+    /// 右／居中／小数点制表位后面那段文字的宽度。
+    ///
+    /// 「那段」从制表符之后起，到下一个制表符、占位符或段末为止，**跨 run 累加**、
+    /// 各用各的字体量（**假设**，照规范）。不看断行：那段比空当宽时制表符本来就不占宽度，
+    /// 它落不落在本行不改变结论。只在那段在制表位之前就换行时才有差别——未实测，
+    /// 这里不做 Line Services 那种行末回填。小数点只认 `.`，不看语言的小数分隔符。
+    ///
+    /// 各 run 的切片与断行循环里逐片问度量的那些片段是同一批（都切在制表符与占位符上），
+    /// 所以 `whole_twips` 与断行侧逐片 `measure` 的整 twips 之和相等。
+    ///
+    /// 代价：每落位一次（被挪到下一行时再落一次，判断挪不挪时再试一次）就把那段整形一次，
+    /// 不缓存；左对齐制表符不走这里。
+    fn tab_segment(&self, para: &Para, run_index: usize, after: usize) -> TabSegment {
+        let mut whole = 0.0;
+        let mut whole_twips: Twips = 0;
+        let mut before_point = None;
+        for (index, run) in para.runs.iter().enumerate().skip(run_index) {
+            if run.hidden {
+                continue;
+            }
+            let text = if index == run_index { &run.text[after..] } else { run.text.as_str() };
+            let end = text.find(['\t', OBJECT_PLACEHOLDER]).unwrap_or(text.len());
+            let slice = &text[..end];
+            if before_point.is_none()
+                && let Some(point) = slice.find('.')
+            {
+                before_point =
+                    Some(whole + self.metrics.advance_pt(&slice[..point], &run.font) * 20.0);
+            }
+            whole += self.metrics.advance_pt(slice, &run.font) * 20.0;
+            whole_twips += self.metrics.measure(slice, &run.font).advance;
+            if end < text.len() {
+                break;
+            }
+        }
+        TabSegment { whole, whole_twips, before_point: before_point.unwrap_or(whole) }
+    }
+
+    /// 按片段重算一行的纵向量：(ascent, descent, natural, natural_fine)。
+    fn pieces_vertical(&self, pieces: &[LinePiece]) -> (Twips, Twips, Twips, i64) {
+        pieces.iter().fold((0, 0, 0, 0), |(a, d, n, nf), p| {
+            // 制表符按空格量纵向：U+0009 在不少字体里没有字形，选不到 face。
+            let text = if p.tab.is_some() { " " } else { p.text.as_str() };
+            let m = self.metrics.measure(text, &p.font);
+            (
+                a.max(m.ascent),
+                d.max(m.descent),
+                n.max(m.natural_height()),
+                nf.max(self.metrics.natural_height_fine(text, &p.font)),
+            )
+        })
     }
 
     /// 取本行用哪个区间：最宽的那段。整行被占满时退回满宽，
@@ -1824,6 +2887,62 @@ pub struct ShapedRun {
     pub x_advance_pt: f64,
     pub x_offset: Twips,
     pub y_offset: Twips,
+    /// 整形时实际用的字号，0.01pt。`None` 表示就是片段字体的字号。
+    ///
+    /// 小型大写（`w:smallCaps`）让同一个片段里出现两个字号：小写字母换成大写字形、
+    /// 按缩小的字号排。推进量已经按那个字号算了，字形记录与栅格化也得用它，
+    /// 否则画出来是全尺寸的大写。
+    pub size_centipoints: Option<u64>,
+}
+
+/// 字形 `i` 之后要不要加字符间距：它是所在 cluster（源字符组）的最后一个字形。
+///
+/// 间距按 cluster 加，不按字形、也不按 UTF-16 单位：组合符号不该与基字拉开，
+/// 一个代理对也只是一个字符。**这一条是假定**——实测只覆盖了一字形一字符的拉丁文
+/// （`latinspace`），那里三种口径给同一个数。整形器报不出 cluster 时退回逐字形。
+fn is_cluster_end(runs: &[ShapedRun], i: usize) -> bool {
+    match (runs[i].source, runs.get(i + 1).map(|g| g.source)) {
+        (Some(this), Some(Some(next))) => this != next,
+        _ => true,
+    }
+}
+
+/// 一段整形结果里加字符间距的位置数（[`is_cluster_end`] 为真的字形数）。
+///
+/// 度量与落位必须数同一个东西，否则断行按一个宽度、画字按另一个宽度。
+/// 只有 `RealMetrics`（feature `fontenv`）用它；桩度量不整形，按源字符簇数
+/// （`linebreak::cluster_boundaries`），组合序列上与这里给同一个数。
+#[cfg_attr(not(feature = "fontenv"), allow(dead_code))]
+pub(crate) fn spacing_slots(runs: &[ShapedRun]) -> usize {
+    (0..runs.len()).filter(|&i| is_cluster_end(runs, i)).count()
+}
+
+/// 把 `w:w`（横向缩放）与 `w:spacing`（字符间距）落到一段整形结果的推进量上。
+///
+/// 口径与 [`crate::font::FontMetrics::advance_pt`] 相同：字形推进量乘缩放比例，
+/// 每个 cluster 末尾再加间距；**间距不随缩放**。整 twips 的 `x_advance` 按累计精确值
+/// 取整之差重算，与整形器的做法一致，前缀和不漂。两者都是默认值时原样返回。
+///
+/// 整形器本身不做这一步：`RealMetrics::measure` 是在整形结果之上加的，
+/// 整形器也加就会算两遍。
+pub(crate) fn apply_char_spacing(runs: &mut [ShapedRun], font: &FontSpec) {
+    let scaled = font.scale_pct != 100 && font.scale_pct > 0;
+    if !scaled && font.letter_spacing == 0 {
+        return;
+    }
+    let scale = if scaled { f64::from(font.scale_pct) / 100.0 } else { 1.0 };
+    let spacing_pt = f64::from(font.letter_spacing) / f64::from(TWIPS_PER_POINT);
+    let ends: Vec<bool> = (0..runs.len()).map(|i| is_cluster_end(runs, i)).collect();
+    let mut acc_pt = 0.0f64;
+    let mut acc_twips: Twips = 0;
+    for (g, end) in runs.iter_mut().zip(ends) {
+        g.x_advance_pt = g.x_advance_pt * scale + if end { spacing_pt } else { 0.0 };
+        g.x_offset = (f64::from(g.x_offset) * scale).round() as Twips;
+        acc_pt += g.x_advance_pt;
+        let next = (acc_pt * f64::from(TWIPS_PER_POINT)).round() as Twips;
+        g.x_advance = next - acc_twips;
+        acc_twips = next;
+    }
 }
 
 /// 一页的绘制指令。
@@ -1948,7 +3067,22 @@ fn position_glyphs(
     // 精确笔位与 `pen` 并行推进。整形器的分段（按码位换 face）会让每段各自从零
     // 重新取整，走 twips 时那个断点也会漏进来；精确支路没有断点。
     let mut pen_pt = t.x_pt;
-    let runs = shaper.shape(&t.text, &t.font);
+    // 制表符画成一个空格字形，推进量取制表位定下的宽度（见 `TextFragment::tab_advance_pt`）。
+    // 换字符不换长度，源区间的一一对应不受影响。
+    let tab_text;
+    let text = if t.tab_advance_pt.is_some() {
+        tab_text = t.text.replacen('\t', " ", 1);
+        tab_text.as_str()
+    } else {
+        t.text.as_str()
+    };
+    let mut runs = shaper.shape(text, &t.font);
+    // 断行量宽时已含缩放与字符间距（`FontMetrics::measure`），画字也得含，
+    // 否则行宽对了、行内字形却挤在一起。片段末尾补上的终止符字形（段落标记画的空格）
+    // 也照加：它不撑开行宽，只改它自己的推进量。Word 给不给段落标记加间距没测（假定）。
+    // 顺序在制表符改宽之前：制表符那个空格字形的推进量随后整个换成制表位定下的宽度，
+    // 缩放与间距都不作用在它身上（断行里的制表符宽也不含它们，两边一致）。
+    apply_char_spacing(&mut runs, &t.font);
 
     // Shaper clusters remain meaningful for ligatures, combining marks and RTL.
     // A fragment containing omitted source characters still needs a conservative
@@ -1963,7 +3097,15 @@ fn position_glyphs(
 
     runs.into_iter()
         .enumerate()
-        .filter_map(|(i, g)| {
+        .filter_map(|(i, mut g)| {
+            // 片段以制表符开头：它是第一个字形，推进量换成制表位定下的宽度，
+            // 这样后面的字形正好从制表位起画。
+            if i == 0
+                && let Some(advance_pt) = t.tab_advance_pt
+            {
+                g.x_advance = (advance_pt * 20.0).round() as Twips;
+                g.x_advance_pt = advance_pt;
+            }
             let face = faces.get(g.face_index)?.clone();
             let source = t.source.map(|(_, end)| {
                 if span_len == utf16_len
@@ -1981,6 +3123,14 @@ fn position_glyphs(
                     (base, end)
                 }
             });
+            // 整形器报了别的字号（小型大写）才换；否则沿用片段字体，旧的精确字号不动。
+            let (size_half_points, size_centipoints) = match g.size_centipoints {
+                Some(cp) if cp != t.font.effective_size_centipoints() => {
+                    let half = cp / 50 + u64::from(cp % 50 >= 25);
+                    (half.min(u64::from(u32::MAX)) as u32, cp)
+                }
+                _ => (t.font.size_half_points, t.font.effective_size_centipoints()),
+            };
             let out = PositionedGlyph {
                 face,
                 glyph_id: g.glyph_id,
@@ -1991,8 +3141,8 @@ fn position_glyphs(
                 advance_x: g.x_advance,
                 advance_x_pt: g.x_advance_pt,
                 advance_y: 0,
-                size_half_points: t.font.size_half_points,
-                size_centipoints: t.font.effective_size_centipoints(),
+                size_half_points,
+                size_centipoints,
                 source,
             };
             pen += g.x_advance;
