@@ -232,6 +232,24 @@ T 的前七个数值 word 与初始 M 六元组；不生成完整 T，不计算�
 模型采用 IEEE RNE 浮点假设，尚未观测 Word FPCR。`--out` 同样原子拒绝覆盖。
 公式、数值例与边界见[字体记录参考模型](../../docs/FONT-RECORD-REFERENCE-2026-09-27.md)。
 
+### 字体记录后续调整参考
+
+`font_adjustment.py` 重放 mode 2 的十项横纵缩放、显式选择的 ascent 补偿，以及默认
+wrapper 的四个字段覆盖。输入是缩放入口的 F 字段和上下文尺度；不能直接把上一工具
+的初始 M 作为这些字段。示例完全是合成整数，不代表任何字体或 Word 文档状态。
+
+```sh
+python3 tools/measure/font_adjustment.py \
+  --input tools/measure/examples/font-adjustment-synthetic.json \
+  --out artifacts/font-adjustment-new.json
+```
+
+输出 `ARITHMETIC_REFERENCE`，保留每次乘除前的回绕值、舍入结果、补偿后记录、
+复制后的上下文字段和更新后的 M。可选 `h2Source` 会计算字号因子，并要求它与显式
+`project.h2` 一致；省略时不推断来源。所有整数和补偿 bool 都严格检查，重复 JSON
+键和多余字段被拒绝，已有输出（包括悬空符号链接）不会覆盖。输入与源码哈希随报告保存。
+合同与手算样例见[字体调整参考模型](../../docs/FONT-ADJUSTMENT-REFERENCE-2026-09-27.md)。
+
 ### Mac 采集回放
 
 已有采集包可重复回放，不启动 Word：

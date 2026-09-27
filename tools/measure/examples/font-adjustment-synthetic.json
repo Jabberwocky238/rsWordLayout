@@ -1,0 +1,22 @@
+{
+  "schema": "rsword-font-adjustment-input/1",
+  "project": {
+    "pre_scale": {
+      "bc": 300, "c0": 1800, "c4": 400, "c8": 1900, "cc": 200,
+      "d0": 0, "180": 500, "184": 7, "28c": 100, "290": 200, "294": 300
+    },
+    "scale_x": 1440,
+    "scale_y": 2880,
+    "h2": 24,
+    "dx": 2000,
+    "dy": 2000,
+    "initial_m": [1, 2, 3, 11, 5, 13],
+    "c8_correction": false
+  },
+  "h2Source": {
+    "raw0": 2200,
+    "raw_c": 200,
+    "input_size": 24,
+    "denominator": 2000
+  }
+}
