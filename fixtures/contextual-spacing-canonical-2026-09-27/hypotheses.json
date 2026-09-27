@@ -1,0 +1,334 @@
+{
+  "schema": "rsword-contextual-spacing-unmeasured-hypotheses/1",
+  "status": "UNMEASURED",
+  "conditions": [
+    "Declared paragraph styles and direct false overrides must load as specified; actual style identity needs readback.",
+    "Each unique label must remain on one line in one flow region, with the declared fixed line spacing and identical run/mark fonts.",
+    "Origin-step arithmetic assumes stable per-paragraph baseline offset for each compared pair; the mixed-line A/B transition is excluded.",
+    "Raw observed origins may be quantized; preserve raw values and establish a bounded observation tolerance before verdicts.",
+    "A gap or glyph-origin step is not a required extent, page-fit result, or Word acceptance criterion."
+  ],
+  "basis": "Competing models from the local ECMA 17.3.1.9 text/example and the audited old contextual-spacing report; no new Word observations.",
+  "cases": [
+    {
+      "case": "style-only-line-control",
+      "status": "UNMEASURED",
+      "conditionalSameStyleOriginStepTwips": [
+        {
+          "from": "C000",
+          "to": "C001",
+          "stepTwips": 360
+        },
+        {
+          "from": "C002",
+          "to": "C003",
+          "stepTwips": 720
+        }
+      ],
+      "excludedTransition": [
+        "C001",
+        "C002"
+      ]
+    },
+    {
+      "case": "same-style-200-240",
+      "status": "UNMEASURED",
+      "adjacentLabelPairs": [
+        [
+          "C100",
+          "C101"
+        ],
+        [
+          "C101",
+          "C102"
+        ],
+        [
+          "C102",
+          "C103"
+        ]
+      ],
+      "candidates": [
+        {
+          "id": "same-style-subtract-after-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            0,
+            40
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            480,
+            520
+          ]
+        },
+        {
+          "id": "old-report-previous-paragraph-drops-both",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            240,
+            0
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            720,
+            480
+          ]
+        },
+        {
+          "id": "same-style-zero-own-side-before-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            200,
+            240
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            680,
+            720
+          ]
+        }
+      ]
+    },
+    {
+      "case": "different-style-200-240",
+      "status": "UNMEASURED",
+      "adjacentLabelPairs": [
+        [
+          "C200",
+          "C201"
+        ],
+        [
+          "C201",
+          "C202"
+        ],
+        [
+          "C202",
+          "C203"
+        ]
+      ],
+      "candidates": [
+        {
+          "id": "same-style-subtract-after-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            240,
+            240
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            720,
+            720
+          ]
+        },
+        {
+          "id": "old-report-previous-paragraph-drops-both",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            240,
+            0
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            720,
+            480
+          ]
+        },
+        {
+          "id": "same-style-zero-own-side-before-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            240,
+            240
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            720,
+            720
+          ]
+        }
+      ]
+    },
+    {
+      "case": "style-only-contextual-override",
+      "status": "UNMEASURED",
+      "adjacentLabelPairs": [
+        [
+          "C300",
+          "C301"
+        ],
+        [
+          "C301",
+          "C302"
+        ]
+      ],
+      "candidates": [
+        {
+          "id": "same-style-subtract-after-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            40,
+            0
+          ],
+          "conditionalOriginStepTwips": [
+            520,
+            480
+          ]
+        },
+        {
+          "id": "old-report-previous-paragraph-drops-both",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            0,
+            240
+          ],
+          "conditionalOriginStepTwips": [
+            480,
+            720
+          ]
+        },
+        {
+          "id": "same-style-zero-own-side-before-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            240,
+            200
+          ],
+          "conditionalOriginStepTwips": [
+            720,
+            680
+          ]
+        }
+      ]
+    },
+    {
+      "case": "before-phase",
+      "status": "UNMEASURED",
+      "adjacentLabelPairs": [
+        [
+          "C400",
+          "C401"
+        ],
+        [
+          "C401",
+          "C402"
+        ],
+        [
+          "C402",
+          "C403"
+        ]
+      ],
+      "candidates": [
+        {
+          "id": "same-style-subtract-after-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            600,
+            0,
+            600
+          ],
+          "conditionalOriginStepTwips": [
+            1080,
+            480,
+            1080
+          ]
+        },
+        {
+          "id": "old-report-previous-paragraph-drops-both",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            0,
+            600,
+            0
+          ],
+          "conditionalOriginStepTwips": [
+            480,
+            1080,
+            480
+          ]
+        },
+        {
+          "id": "same-style-zero-own-side-before-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            600,
+            0,
+            600
+          ],
+          "conditionalOriginStepTwips": [
+            1080,
+            480,
+            1080
+          ]
+        }
+      ]
+    },
+    {
+      "case": "both-phase",
+      "status": "UNMEASURED",
+      "adjacentLabelPairs": [
+        [
+          "C500",
+          "C501"
+        ],
+        [
+          "C501",
+          "C502"
+        ],
+        [
+          "C502",
+          "C503"
+        ]
+      ],
+      "candidates": [
+        {
+          "id": "same-style-subtract-after-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            200,
+            0,
+            200
+          ],
+          "conditionalOriginStepTwips": [
+            680,
+            480,
+            680
+          ]
+        },
+        {
+          "id": "old-report-previous-paragraph-drops-both",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            0,
+            300,
+            0
+          ],
+          "conditionalOriginStepTwips": [
+            480,
+            780,
+            480
+          ]
+        },
+        {
+          "id": "same-style-zero-own-side-before-max",
+          "status": "UNMEASURED",
+          "hypotheticalGapTwips": [
+            300,
+            100,
+            300
+          ],
+          "conditionalOriginStepTwips": [
+            780,
+            580,
+            780
+          ]
+        }
+      ]
+    }
+  ]
+}

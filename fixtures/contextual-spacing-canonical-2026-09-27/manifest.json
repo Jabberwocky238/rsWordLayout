@@ -1,0 +1,1832 @@
+{
+  "schema": "rsword-contextual-spacing-canonical-source/1",
+  "captureStatus": "UNMEASURED",
+  "generator": "tools/measure/make_contextual_spacing_fixture.py",
+  "generatorSha256": "e5d659da4af3fe7ea82869587a8bcab489053dda2ed95140359d8e273df2ef0b",
+  "fontFamily": "Times New Roman",
+  "fontSizeHalfPoints": 24,
+  "fontIdentityNote": "Declared four-slot family only; actual font bytes require capture binding.",
+  "pPrPropertyOrder": [
+    "pStyle",
+    "keepNext",
+    "keepLines",
+    "pageBreakBefore",
+    "widowControl",
+    "spacing",
+    "contextualSpacing",
+    "jc",
+    "rPr"
+  ],
+  "pPrOptionalProperties": [
+    "spacing",
+    "contextualSpacing"
+  ],
+  "stylePPrPropertyOrder": [
+    "spacing",
+    "contextualSpacing"
+  ],
+  "rPrPropertyOrder": [
+    "rFonts",
+    "vanish",
+    "sz",
+    "szCs"
+  ],
+  "sectPrPropertyOrder": [
+    "type",
+    "pgSz",
+    "pgMar",
+    "cols"
+  ],
+  "pageTwips": [
+    11906,
+    16838
+  ],
+  "bodyHeightTwips": 15398,
+  "marginsTwips": {
+    "top": 720,
+    "right": 720,
+    "bottom": 720,
+    "left": 720,
+    "header": 360,
+    "footer": 360,
+    "gutter": 0
+  },
+  "compatibilityMode": 15,
+  "columns": 1,
+  "docGrid": false,
+  "docDefaults": false,
+  "basedOn": false,
+  "sourceUnit": "UTF-16 code units; half-open ranges include one CR paragraph mark per label.",
+  "inputCascadeStatus": "Derived from the explicitly referenced local paragraph style and direct overrides, not Word readback.",
+  "hypothesesFile": "hypotheses.json",
+  "hypothesesStatus": "UNMEASURED; conditional models separate from source contract.",
+  "zipProfile": {
+    "timestamp": [
+      2026,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    "compression": "deflate",
+    "createSystem": 3,
+    "permissionsOctal": "644"
+  },
+  "cases": [
+    {
+      "name": "style-only-line-control",
+      "file": "style-only-line-control.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Verify style-only line inheritance using same-style adjacent pairs; do not interpret the A/B transition.",
+      "styles": [
+        {
+          "id": "ProbeA",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "360",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        },
+        {
+          "id": "ProbeB",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "720",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        }
+      ],
+      "paragraphCount": 4,
+      "sourceText": "C000\rC001\rC002\rC003\r",
+      "sourceLengthUtf16": 20,
+      "sourceTextUtf16LeSha256": "c618193169a49bf8de0d00e4b4b55d0f41ffb2e5a19cc31d68114966ef556fa6",
+      "anchors": [
+        {
+          "label": "C000",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C001",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C002",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C003",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "label": "C000",
+          "styleId": "ProbeA",
+          "directSpacing": null,
+          "directContextualSpacing": null,
+          "inputCascade": {
+            "spacing": {
+              "before": "0",
+              "after": "0",
+              "line": "360",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C000",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "label": "C001",
+          "styleId": "ProbeA",
+          "directSpacing": null,
+          "directContextualSpacing": null,
+          "inputCascade": {
+            "spacing": {
+              "before": "0",
+              "after": "0",
+              "line": "360",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C001",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "label": "C002",
+          "styleId": "ProbeB",
+          "directSpacing": null,
+          "directContextualSpacing": null,
+          "inputCascade": {
+            "spacing": {
+              "before": "0",
+              "after": "0",
+              "line": "720",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C002",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "label": "C003",
+          "styleId": "ProbeB",
+          "directSpacing": null,
+          "directContextualSpacing": null,
+          "inputCascade": {
+            "spacing": {
+              "before": "0",
+              "after": "0",
+              "line": "720",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C003",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ]
+        }
+      ],
+      "sha256": "99f257e4cdacb69ed057738d36508853c36cbbbdad857deab820dd07d815a0b1",
+      "documentXmlSha256": "2e525a10ec817899fedeaec19e371a4d8156fb4ac036bc76a852358919356387",
+      "stylesXmlSha256": "b787a6ad02972ac17216a2fe0133c47bd5b1976cfe311d507eb33c842d476a32",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "019b3d561be74271120d8bc217504db33edbe741d5f9709a080fb0e1e9b8ff0d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "85524448450edffbd3e45cabaac90f19c56e84e918b109a34a8dead6ac77243e",
+        "word/document.xml": "2e525a10ec817899fedeaec19e371a4d8156fb4ac036bc76a852358919356387",
+        "word/styles.xml": "b787a6ad02972ac17216a2fe0133c47bd5b1976cfe311d507eb33c842d476a32",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "same-style-200-240",
+      "file": "same-style-200-240.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Distinguish subtract-after-max, previous-paragraph suppression, and zero-before-max.",
+      "styles": [
+        {
+          "id": "ProbeA",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        }
+      ],
+      "paragraphCount": 4,
+      "sourceText": "C100\rC101\rC102\rC103\r",
+      "sourceLengthUtf16": 20,
+      "sourceTextUtf16LeSha256": "5a1f02d31fbdd9ef4accc6f61c982fc43a8b988621beda19f1958c33aa00beb4",
+      "anchors": [
+        {
+          "label": "C100",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C101",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C102",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C103",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "label": "C100",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C100",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "label": "C101",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C101",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "label": "C102",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": true,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C102",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "label": "C103",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C103",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ]
+        }
+      ],
+      "sha256": "f17afcb6cd4ef38b29c69e752cc425f8cb632dcda71e566e028a2c591a1afcdf",
+      "documentXmlSha256": "968bb4cb938a5506a433bb00526233e21285f61de6ba3efb20b756a504db9c90",
+      "stylesXmlSha256": "480f772874f41281515c5276c6494254ad7a9e444c202aa94f5af5f0480a6c60",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "019b3d561be74271120d8bc217504db33edbe741d5f9709a080fb0e1e9b8ff0d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "85524448450edffbd3e45cabaac90f19c56e84e918b109a34a8dead6ac77243e",
+        "word/document.xml": "968bb4cb938a5506a433bb00526233e21285f61de6ba3efb20b756a504db9c90",
+        "word/styles.xml": "480f772874f41281515c5276c6494254ad7a9e444c202aa94f5af5f0480a6c60",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "different-style-200-240",
+      "file": "different-style-200-240.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Different explicit style IDs have identical property definitions; test style identity rather than property equality.",
+      "styles": [
+        {
+          "id": "ProbeA",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        },
+        {
+          "id": "ProbeB",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        }
+      ],
+      "paragraphCount": 4,
+      "sourceText": "C200\rC201\rC202\rC203\r",
+      "sourceLengthUtf16": 20,
+      "sourceTextUtf16LeSha256": "4913fabe07a4832c0192b10e7a6585c84887cf9ec47c3868dfcbc9a3495e214c",
+      "anchors": [
+        {
+          "label": "C200",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C201",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C202",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C203",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "label": "C200",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C200",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "label": "C201",
+          "styleId": "ProbeB",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C201",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "label": "C202",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": true,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C202",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "label": "C203",
+          "styleId": "ProbeB",
+          "directSpacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C203",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ]
+        }
+      ],
+      "sha256": "b95d6b5ab9b53ba9f07f6bbc771743f7edd5e6d50bc4bc84ad77f643ac9db2f6",
+      "documentXmlSha256": "a8b1fe6c49a0094a81f3acc9df1baf820897932a81cb7f615bc29b8b67f1bd31",
+      "stylesXmlSha256": "cd98444b3d800bdb6c776db542e54e8567aa713fe250e4ef3f443e4da889f41a",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "019b3d561be74271120d8bc217504db33edbe741d5f9709a080fb0e1e9b8ff0d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "85524448450edffbd3e45cabaac90f19c56e84e918b109a34a8dead6ac77243e",
+        "word/document.xml": "a8b1fe6c49a0094a81f3acc9df1baf820897932a81cb7f615bc29b8b67f1bd31",
+        "word/styles.xml": "cd98444b3d800bdb6c776db542e54e8567aa713fe250e4ef3f443e4da889f41a",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "style-only-contextual-override",
+      "file": "style-only-contextual-override.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Verify style-only spacing/contextual inheritance and a direct false override.",
+      "styles": [
+        {
+          "id": "ProbeA",
+          "spacing": {
+            "before": "240",
+            "after": "200",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": true
+        }
+      ],
+      "paragraphCount": 3,
+      "sourceText": "C300\rC301\rC302\r",
+      "sourceLengthUtf16": 15,
+      "sourceTextUtf16LeSha256": "68b8dcaaf7443f67c62841b87a49d4148cdb6ab3d7a9754b3e7cd548cd14d197",
+      "anchors": [
+        {
+          "label": "C300",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C301",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C302",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "label": "C300",
+          "styleId": "ProbeA",
+          "directSpacing": null,
+          "directContextualSpacing": null,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C300",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "label": "C301",
+          "styleId": "ProbeA",
+          "directSpacing": null,
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C301",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "label": "C302",
+          "styleId": "ProbeA",
+          "directSpacing": null,
+          "directContextualSpacing": null,
+          "inputCascade": {
+            "spacing": {
+              "before": "240",
+              "after": "200",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C302",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ]
+        }
+      ],
+      "sha256": "5e163a9baf9270dbbddd3fef6f0cc1693c39aebd39a706dba89ae6b70327963a",
+      "documentXmlSha256": "c883d41a8b6977bfbae68234e83ece391068a1ece7d74c35ad56b81651fd964b",
+      "stylesXmlSha256": "3d17c92cc1db65542610079cffa3c1545324578830d304df6d1ff6c86494dde8",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "019b3d561be74271120d8bc217504db33edbe741d5f9709a080fb0e1e9b8ff0d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "85524448450edffbd3e45cabaac90f19c56e84e918b109a34a8dead6ac77243e",
+        "word/document.xml": "c883d41a8b6977bfbae68234e83ece391068a1ece7d74c35ad56b81651fd964b",
+        "word/styles.xml": "3d17c92cc1db65542610079cffa3c1545324578830d304df6d1ff6c86494dde8",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "before-phase",
+      "file": "before-phase.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Observe the alternating gap phase directly; the old 22-line capacity count did not distinguish ownership.",
+      "styles": [
+        {
+          "id": "ProbeA",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        }
+      ],
+      "paragraphCount": 4,
+      "sourceText": "C400\rC401\rC402\rC403\r",
+      "sourceLengthUtf16": 20,
+      "sourceTextUtf16LeSha256": "4d3e819293b84a8c0949215aa497e4a5c06a631ecc4af74cac350bcc6c04abfc",
+      "anchors": [
+        {
+          "label": "C400",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C401",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C402",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C403",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "label": "C400",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "600",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": true,
+          "inputCascade": {
+            "spacing": {
+              "before": "600",
+              "after": "0",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C400",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "label": "C401",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "600",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "600",
+              "after": "0",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C401",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "label": "C402",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "600",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": true,
+          "inputCascade": {
+            "spacing": {
+              "before": "600",
+              "after": "0",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C402",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "label": "C403",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "600",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "600",
+              "after": "0",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C403",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ]
+        }
+      ],
+      "sha256": "9022ce4032c211fbd2c255286e2682a5617304e504882a7f1881bc00e995a71b",
+      "documentXmlSha256": "0f54579762667af48cb055a3852d12df3506244cb013249034cf2a40826c8fba",
+      "stylesXmlSha256": "480f772874f41281515c5276c6494254ad7a9e444c202aa94f5af5f0480a6c60",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "019b3d561be74271120d8bc217504db33edbe741d5f9709a080fb0e1e9b8ff0d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "85524448450edffbd3e45cabaac90f19c56e84e918b109a34a8dead6ac77243e",
+        "word/document.xml": "0f54579762667af48cb055a3852d12df3506244cb013249034cf2a40826c8fba",
+        "word/styles.xml": "480f772874f41281515c5276c6494254ad7a9e444c202aa94f5af5f0480a6c60",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    },
+    {
+      "name": "both-phase",
+      "file": "both-phase.docx",
+      "captureStatus": "UNMEASURED",
+      "question": "Distinguish own-side subtraction from the previous-paragraph-drops-both report interpretation.",
+      "styles": [
+        {
+          "id": "ProbeA",
+          "spacing": {
+            "before": "0",
+            "after": "0",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "contextualSpacing": false
+        }
+      ],
+      "paragraphCount": 4,
+      "sourceText": "C500\rC501\rC502\rC503\r",
+      "sourceLengthUtf16": 20,
+      "sourceTextUtf16LeSha256": "3323333c945e049106948c9a818eb4a974adaf9e29a5763b06c71b23675b614a",
+      "anchors": [
+        {
+          "label": "C500",
+          "paragraphIndex": 0,
+          "lineInParagraph": 0,
+          "sourceStart": 0,
+          "textEnd": 4,
+          "sourceEnd": 5,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C501",
+          "paragraphIndex": 1,
+          "lineInParagraph": 0,
+          "sourceStart": 5,
+          "textEnd": 9,
+          "sourceEnd": 10,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C502",
+          "paragraphIndex": 2,
+          "lineInParagraph": 0,
+          "sourceStart": 10,
+          "textEnd": 14,
+          "sourceEnd": 15,
+          "terminator": "PARAGRAPH_MARK"
+        },
+        {
+          "label": "C503",
+          "paragraphIndex": 3,
+          "lineInParagraph": 0,
+          "sourceStart": 15,
+          "textEnd": 19,
+          "sourceEnd": 20,
+          "terminator": "PARAGRAPH_MARK"
+        }
+      ],
+      "paragraphs": [
+        {
+          "index": 0,
+          "label": "C500",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "300",
+            "after": "100",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": true,
+          "inputCascade": {
+            "spacing": {
+              "before": "300",
+              "after": "100",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 0,
+          "sourceEnd": 5,
+          "paragraphMarkOffset": 4,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C500",
+              "sourceStart": 0,
+              "sourceEnd": 4,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 4,
+              "sourceEnd": 5
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "label": "C501",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "300",
+            "after": "100",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "300",
+              "after": "100",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 5,
+          "sourceEnd": 10,
+          "paragraphMarkOffset": 9,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C501",
+              "sourceStart": 5,
+              "sourceEnd": 9,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 9,
+              "sourceEnd": 10
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "label": "C502",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "300",
+            "after": "100",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": true,
+          "inputCascade": {
+            "spacing": {
+              "before": "300",
+              "after": "100",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": true
+          },
+          "sourceStart": 10,
+          "sourceEnd": 15,
+          "paragraphMarkOffset": 14,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C502",
+              "sourceStart": 10,
+              "sourceEnd": 14,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 14,
+              "sourceEnd": 15
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "label": "C503",
+          "styleId": "ProbeA",
+          "directSpacing": {
+            "before": "300",
+            "after": "100",
+            "line": "480",
+            "lineRule": "exact"
+          },
+          "directContextualSpacing": false,
+          "inputCascade": {
+            "spacing": {
+              "before": "300",
+              "after": "100",
+              "line": "480",
+              "lineRule": "exact"
+            },
+            "contextualSpacing": false
+          },
+          "sourceStart": 15,
+          "sourceEnd": 20,
+          "paragraphMarkOffset": 19,
+          "bodyFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "paragraphMarkFont": {
+            "family": "Times New Roman",
+            "sizeHalfPoints": 24,
+            "hidden": false
+          },
+          "keepNext": false,
+          "keepLines": false,
+          "pageBreakBefore": false,
+          "widowControl": false,
+          "runs": [
+            {
+              "kind": "text",
+              "label": "C503",
+              "sourceStart": 15,
+              "sourceEnd": 19,
+              "font": {
+                "family": "Times New Roman",
+                "sizeHalfPoints": 24,
+                "hidden": false
+              }
+            }
+          ],
+          "controls": [
+            {
+              "kind": "PARAGRAPH_MARK",
+              "sourceStart": 19,
+              "sourceEnd": 20
+            }
+          ]
+        }
+      ],
+      "sha256": "31e1752fd61d6ed162edd9181bea3be6a8beb5d6bc44b5cc53675c01013a9f96",
+      "documentXmlSha256": "d0f75ada65c6ccd1fee32540a845944f619a04ddfa7fc081240992ac0593e0cc",
+      "stylesXmlSha256": "480f772874f41281515c5276c6494254ad7a9e444c202aa94f5af5f0480a6c60",
+      "settingsXmlSha256": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac",
+      "packagePartSha256": {
+        "[Content_Types].xml": "019b3d561be74271120d8bc217504db33edbe741d5f9709a080fb0e1e9b8ff0d",
+        "_rels/.rels": "d8b0bad955075e5c5a427fe596520be989739fbcaddd9d837b319ea620740fde",
+        "word/_rels/document.xml.rels": "85524448450edffbd3e45cabaac90f19c56e84e918b109a34a8dead6ac77243e",
+        "word/document.xml": "d0f75ada65c6ccd1fee32540a845944f619a04ddfa7fc081240992ac0593e0cc",
+        "word/styles.xml": "480f772874f41281515c5276c6494254ad7a9e444c202aa94f5af5f0480a6c60",
+        "word/settings.xml": "c5433ebf6c20b3e23c951d038d4422f8c6e291d9ef08866113683a79893f97ac"
+      }
+    }
+  ]
+}

@@ -288,6 +288,9 @@ LOGFONT 原始输出；Lao 的度量反例及六字体相同的默认 charset �
 实现与证据范围见 [段落保留进展](PARAGRAPH-FLOW-2026-09-27.md)。
 同节同区域相邻段的非负段距已改为取较大值，实际推进、keep 预留和栏平衡试排保持一致；
 负段距与分节边界保留旧行为，见[段距折叠](PARAGRAPH-SPACING-2026-09-27.md)。
+`contextualSpacing` 尚未应用；旧报告的样式关系和相位判别存在混淆，不能直接采用
+其中的归属解释。原文件审计与下一批区分输入见
+[上下文段距证据](CONTEXTUAL-SPACING-EVIDENCE-2026-09-27.md)。
 长链的后继前缀承诺、跨页续排与栏平衡恢复已接入同一状态，见
 [keepNext 续排](KEEP-CHAIN-CONTINUATION-2026-09-27.md)；包含末段全文的起页规则仍待实测。
 原 DOCX 配本机 Calibri 复现报告 CP，但缺少原始 widow/keep 采集日志；
