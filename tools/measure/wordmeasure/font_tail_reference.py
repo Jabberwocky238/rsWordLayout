@@ -1,11 +1,13 @@
-"""Explicit 347770 -> alternate dcac/dec4 arithmetic, without native calls.
+"""Alternate dcac/dec4 arithmetic and conditional mode-2 vertical projection.
 
 Evidence: artifacts/font-vertical-alternate-tail-2026-09-27/README.md.
 Inputs are stable values at these read points, not inferred Word properties.
-The result stops before opaque 3482c0, scaling, wrapper updates, and LS.
+The tail-only result stops before later calls; composition has explicit
+stability conditions and does not simulate auxiliary processing or LS.
 """
 
 from .font_adjustment_reference import native_muldiv
+from .font_vertical_reference import project_vertical_fields
 
 MIN_I32, MAX_I32 = -(1 << 31), (1 << 31) - 1
 SPECIAL = frozenset((0x80, 0x81, 0x86, 0x88))
@@ -162,4 +164,40 @@ def project_alternate_tail(*, v_prefix_words, tail_p0, tail_p8, tail_p13,
                "SP1ec is independent; F.cc is neither written nor supplied by this model",
                "No opaque 3482c0, later scaling, correction, wrapper update or LS output",
                "No Word measurement, page-start branch, font identity or DOCX property mapping"],
+    )
+
+
+def project_alternate_mode2(*, v_prefix_words, tail_p0, tail_p8, tail_p13,
+                            metric_byte38, pre_scale_cc, input_size, dy,
+                            scale_y, correction_p0, metric_byte37):
+    """Conditionally connect the alternate tail to mode-2 vertical updates.
+
+    The four tail outputs must reach the scaler unchanged. V's numeric
+    prefix must also survive to the h2 producer, and dy is stable at all
+    three reads. These are explicit path conditions, not inferred facts
+    about a document. pre_scale_cc supplies F.cc at the scaler: the tail's
+    independent stackResult neither initializes nor substitutes for it.
+    """
+    _integer(pre_scale_cc, MIN_I32, MAX_I32, "pre_scale_cc")
+    tail = project_alternate_tail(v_prefix_words=v_prefix_words, tail_p0=tail_p0,
+        tail_p8=tail_p8, tail_p13=tail_p13, metric_byte38=metric_byte38,
+        mode=2, incoming_scale=0, dy=dy)
+    fields = dict(tail["finalFields"], cc=pre_scale_cc)
+    vertical = project_vertical_fields(pre_scale=fields, raw0=v_prefix_words[0],
+        raw_c=v_prefix_words[3], input_size=input_size, dy=dy, scale_y=scale_y,
+        correction_p0=correction_p0, metric_byte37=metric_byte37)
+    return dict(
+        status=STATUS, mode=2,
+        inputs=dict(vPrefixWords=list(v_prefix_words), tailP0=tail_p0,
+                    tailP8=tail_p8, tailP13=tail_p13, metricByte38=metric_byte38,
+                    preScaleCc=pre_scale_cc, inputSize=input_size, dy=dy,
+                    scaleY=scale_y, correctionP0=correction_p0, metricByte37=metric_byte37),
+        tail=tail, **vertical,
+        scope=["Conditional mode-2 composition, not a complete host-call simulation",
+               "V numeric prefix and dy are unchanged at the tail, h2 and scaling read points",
+               "Tail c0/c4/c8/d0 reach the scaler unchanged; cc is an independent supplied value",
+               "Mode-1 incoming scale is unused in mode 2; the nested tail records it as zero",
+               "Auxiliary records and stackResult consumers are not computed here",
+               "Completed F-to-C copy and default-wrapper update have no further metric mutation",
+               "Only three updated M words; no alternate wrapper, LS height or Word pagination claim"],
     )

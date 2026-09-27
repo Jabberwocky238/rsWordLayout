@@ -43,6 +43,54 @@ def test_non_special_default_selector_keeps_split_before_adding_gap(tmp_path):
     assert result["stackResult"] == 0
 
 
+def mode2_inputs():
+    data = inputs()
+    data["schema"] = "rsword-font-tail-mode2-input/1"
+    data["project"].pop("mode")
+    data["project"].pop("incoming_scale")
+    data["project"].update(pre_scale_cc=17, input_size=24, dy=1000,
+                           scale_y=6000, correction_p0=0, metric_byte37=0)
+    return data
+
+
+def test_mode2_cli_preserves_tail_cc_and_stage_provenance(tmp_path):
+    source, out = tmp_path / "input.json", tmp_path / "output.json"
+    data = mode2_inputs()
+    source.write_text(json.dumps(data))
+    assert cli.main(["--input", str(source), "--out", str(out)]) == 0
+    report = json.loads(out.read_text())
+    assert report["schema"] == "rsword-font-tail-mode2-reference/1"
+    assert report["status"] == "ARITHMETIC_REFERENCE"
+    assert report["result"]["updatedMetricWords"] == [950, 350, 1300]
+    assert report["result"]["scaledFields"]["cc"] == 17
+    assert "cc" not in report["result"]["tail"]["finalFields"]
+    assert report["result"]["tail"]["stackResult"] == 0
+    assert report["inputs"] == data
+    assert report["codeSha256"]["verticalModel"] == hashlib.sha256(
+        Path(cli.vertical.__file__).read_bytes()).hexdigest()
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda data: data["project"].pop("pre_scale_cc"),
+    lambda data: data["project"].update(pre_scale_cc=True),
+    lambda data: data["project"].update(mode=2),
+    lambda data: data["project"].update(incoming_scale=0),
+    lambda data: data["project"].update(metric_byte38=0),
+    lambda data: data["project"].update(scale_y=6000.0),
+    lambda data: data.update(schema="rsword-font-tail-input/1"),
+    lambda data: data.update(schema=[]),
+])
+def test_mode2_schema_requires_complete_distinct_contract(tmp_path, mutate):
+    data = mode2_inputs()
+    mutate(data)
+    source, out = tmp_path / "input.json", tmp_path / "output.json"
+    source.write_text(json.dumps(data))
+    with pytest.raises(SystemExit) as error:
+        cli.main(["--input", str(source), "--out", str(out)])
+    assert error.value.code == 2
+    assert not out.exists()
+
+
 @pytest.mark.parametrize("mutate", [
     lambda data: data.update(schema="MEASURED"),
     lambda data: data.update(extra=0),

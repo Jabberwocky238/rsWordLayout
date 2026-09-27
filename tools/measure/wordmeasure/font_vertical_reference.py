@@ -21,6 +21,48 @@ def _i32(value):
     return ((value + (1 << 31)) & 0xffffffff) - (1 << 31)
 
 
+def project_vertical_fields(*, pre_scale, raw0, raw_c, input_size, dy, scale_y,
+                            correction_p0, metric_byte37):
+    """Explicit mode-2 h2, five-field scale, correction and partial M update.
+
+    pre_scale is the record at the scaler, independently of the tail used
+    to produce it. raw0/raw_c are V at the earlier h2 producer. The retained
+    h2 and unchanged dy, completed copy and default-wrapper update are
+    conditions; this function does not simulate intervening calls.
+    """
+    if not isinstance(pre_scale, dict) or set(pre_scale) != set(VERTICAL):
+        raise ValueError("pre_scale must have exactly the five vertical offset keys")
+    for name in VERTICAL:
+        _integer(pre_scale[name], MIN_I32, MAX_I32, "pre_scale." + name)
+    _integer(scale_y, MIN_I32, MAX_I32, "scale_y")
+    _integer(correction_p0, 0, 0xffffffff, "correction_p0")
+    _integer(metric_byte37, 0, 255, "metric_byte37")
+    factor = produce_mode2_h2(raw0=raw0, raw_c=raw_c, input_size=input_size,
+                             denominator=dy)
+    denominator = _i32(dy * 144)
+    conversions = []
+    scaled = {}
+    for offset in VERTICAL:
+        product = _i32(pre_scale[offset] * factor["h2"])
+        value = native_muldiv(scale_y, product, denominator)
+        scaled[offset] = value
+        conversions.append(dict(offset=offset, inputI32=pre_scale[offset],
+                                productI32=product, denominatorI32=denominator,
+                                mulDivInputs=[scale_y, product, denominator], resultI32=value))
+
+    correction = bool(correction_p0 & (1 << 16) and
+                      not correction_p0 & (1 << 15) and metric_byte37 & 1)
+    increment = abs(scale_y) // 36 if correction else 0
+    if scale_y < 0:
+        increment = -increment
+    after = dict(scaled)
+    after["c8"] = _i32(after["c8"] + increment)
+    return dict(preScaleFields=dict(pre_scale), h2Result=factor, conversions=conversions,
+                scaledFields=scaled, c8Correction=correction, c8IncrementI32=increment,
+                afterCorrectionFields=after,
+                updatedMetricWords=[after["c8"], after["c4"], _i32(after["c8"] + after["c4"])])
+
+
 def project_simple_mode2(*, t_prefix_words, tail_p0, tail_p13, metric_byte38,
                          input_size, dy, scale_y, correction_p0, metric_byte37):
     """Project five vertical fields and three updated metric words only.
@@ -65,26 +107,9 @@ def project_simple_mode2(*, t_prefix_words, tail_p0, tail_p13, metric_byte38,
     c0 = _i32(t[1] - t[3]) if subtract_c else t[1]
     pre_scale = {"c0": c0, "c8": _i32(c0 + t[4]) if add_10 else c0,
                  "c4": t[2], "cc": t[3], "d0": 0}
-    factor = produce_mode2_h2(raw0=t[0], raw_c=t[3], input_size=input_size,
-                             denominator=dy)
-    denominator = _i32(dy * 144)
-    conversions = []
-    scaled = {}
-    for offset in VERTICAL:
-        product = _i32(pre_scale[offset] * factor["h2"])
-        value = native_muldiv(scale_y, product, denominator)
-        scaled[offset] = value
-        conversions.append(dict(offset=offset, inputI32=pre_scale[offset],
-                                productI32=product, denominatorI32=denominator,
-                                mulDivInputs=[scale_y, product, denominator], resultI32=value))
-
-    correction = bool(correction_p0 & (1 << 16) and
-                      not correction_p0 & (1 << 15) and metric_byte37 & 1)
-    increment = abs(scale_y) // 36 if correction else 0
-    if scale_y < 0:
-        increment = -increment
-    after = dict(scaled)
-    after["c8"] = _i32(after["c8"] + increment)
+    vertical = project_vertical_fields(pre_scale=pre_scale, raw0=t[0], raw_c=t[3],
+        input_size=input_size, dy=dy, scale_y=scale_y,
+        correction_p0=correction_p0, metric_byte37=metric_byte37)
     return dict(
         status=STATUS, mode=2,
         inputs=dict(tPrefixWords=t, tailP0=tail_p0, tailP13=tail_p13,
@@ -94,10 +119,7 @@ def project_simple_mode2(*, t_prefix_words, tail_p0, tail_p13, metric_byte38,
                       charsetIndex=charset_index, charsetAlternate=charset_alternate,
                       branch="1003477e8"),
         tailArithmetic=dict(subtractVc=subtract_c, addV10=add_10),
-        preScaleFields=pre_scale, h2Result=factor, conversions=conversions,
-        scaledFields=scaled, c8Correction=correction, c8IncrementI32=increment,
-        afterCorrectionFields=after,
-        updatedMetricWords=[after["c8"], after["c4"], _i32(after["c8"] + after["c4"])],
+        **vertical,
         scope=["Bound RTARC/RTDWRITEFONT provider T equals V at its output call",
                "T numeric prefix is unchanged through the modeled tail and h2 read points",
                "Post-rewrite V38 and the two P0 snapshots are explicit, not inferred",

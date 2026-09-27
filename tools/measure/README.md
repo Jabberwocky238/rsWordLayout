@@ -284,6 +284,11 @@ stackResult。它不填写 F.cc 或最终 M，不推断 DOCX 字号或活动分�
 严格整数检查与禁止覆盖输出沿用其它参考工具；完整合同见
 [字体替代尾模型](../../docs/FONT-TAIL-REFERENCE-2026-09-27.md)。
 
+新增 `rsword-font-tail-mode2-input/1` 可将该尾部条件连接到 h2、五字段纵向缩放、
+c8 补偿和三个 M 更新量。它固定 mode 2，要求独立的 `pre_scale_cc`，并明确要求
+有关字段在中间调用间保持有效。示例为 `examples/font-tail-mode2.json`，沿用上述命令；
+合同与逐分量舍入反例见[替代尾纵向连接](../../docs/FONT-TAIL-MODE2-2026-09-27.md)。
+
 ### PTS Simple 容纳与末行裁减参考
 
 `simple_fit.py` 用显式原生整数重放 Simple 分支的容纳检查。输入 `fit` 必须包含
