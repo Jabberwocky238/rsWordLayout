@@ -1,0 +1,30 @@
+{
+  "name": "rs-word-layout",
+  "description": "rsWordLayout: DOCX layout engine (pages, lines, glyph positions) with a WebGL2 renderer, compiled to WebAssembly with wasm-bindgen JS bindings",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jabberwocky238/rsWordLayout.git",
+    "directory": "crates/webgl"
+  },
+  "keywords": ["docx", "word", "layout", "webgl", "wasm", "webassembly"],
+  "type": "module",
+  "main": "rsword_layout_webgl.js",
+  "types": "rsword_layout_webgl.d.ts",
+  "exports": {
+    ".": {
+      "types": "./rsword_layout_webgl.d.ts",
+      "default": "./rsword_layout_webgl.js"
+    },
+    "./rsword_layout_webgl_bg.wasm": "./rsword_layout_webgl_bg.wasm",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "rsword_layout_webgl.js",
+    "rsword_layout_webgl.d.ts",
+    "rsword_layout_webgl_bg.wasm",
+    "rsword_layout_webgl_bg.wasm.d.ts",
+    "README.md"
+  ],
+  "sideEffects": false
+}
