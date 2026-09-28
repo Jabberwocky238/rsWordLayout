@@ -16,6 +16,7 @@ pub mod font;
 mod oracle;
 mod oracle_json;
 mod paragraph_mark;
+mod session;
 mod table;
 
 // ---- 几何：坐标一律 twips，没有像素 ----
@@ -69,6 +70,12 @@ pub use document::{
     document_from_json,
 };
 pub use load::{LoadedDocument, load_document, merge_sibling_run_props};
+
+// ---- 文档会话：各入口共用的装载 → 排版 → 绘制 ----
+pub use session::{
+    AnchorReport, DiagnosticCode, DocumentSession, LayoutOptions, PreparedDocument,
+    SessionDiagnostic, SessionError, SessionErrorKind, WrapPolicy,
+};
 
 // ---- 近似度量桩，**不可用于真实排版** ----
 

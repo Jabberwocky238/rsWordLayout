@@ -221,6 +221,16 @@ pub struct LayoutDocument {
 }
 
 impl LayoutDocument {
+    /// 有没有可排版的内容：主文段落或受支持的表格。
+    ///
+    /// 只看 `paras` 会把只有一张表的文档当成空的（表后缺尾段时 `paras` 为空，
+    /// 引擎照样排得出表格）。受支持的表格至少一行、每行一格、每格至少一个段落
+    /// （`table.rs` 的投影条件），所以这与「正文段落加表格单元格段落非空」等价。
+    /// 缺尾段的诊断照留，这里不替 Word 修文档。
+    pub fn has_layout_content(&self) -> bool {
+        !self.paras.is_empty() || !self.tables.is_empty()
+    }
+
     /// Declared document switch. Missing or invalid input is `None`; only an
     /// explicit true swaps the template's side margins on physical pages 2, 4, ...
     pub fn mirror_margins(&self) -> Option<bool> {

@@ -103,9 +103,8 @@ use std::path::PathBuf;
 
 use rsword_layout_core::font::FontRegistry;
 use rsword_layout_core::{
-    Engine, LayoutRecord, Para, Platform, RealMetrics, SimpleMetrics, TextShaper,
-    TraceMeta, VerticalGrid, View, load_document, paint_document,
-    to_trace_json,
+    LayoutOptions, LayoutRecord, Para, Platform, PreparedDocument, TraceMeta, VerticalGrid, View,
+    WrapPolicy, to_trace_json,
 };
 use skrifa::MetadataProvider;
 
@@ -388,7 +387,9 @@ fn landing(registry: &FontRegistry, paras: &[Para]) -> Landing {
 /// 装回退链。只在 `--font` 装上了东西、且文档里确有回退链要管的 eastAsia 字符
 /// （判据见 [`Trigger`]）时才装：没有正文字体时走的是桩度量，回退字体轮不到。
 /// 链上每个 face 只在它的 cmap 盖得住**还缺着**的字符时才注册（与 fontenv 的 `covers`
-/// 同一口径：字形 id 非零），盖不住的不装——装了也不改结果，却会改字体指纹。
+/// 同一口径：字形 id 非零），盖不住的不装——装了会改字体指纹。「装了也不改结果」对段落标记
+/// **不成立**：缺字扫描不看段落标记，带 eastAsia 提示的标记空格在全装时会落到回退字体
+/// （`fixtures/table.docx`，见 `docs/SHARED-FONT-SESSION-2026-09-28.md`）。
 /// 已是 `--font` 的 face 不进回退链（`FontRegistry::add_fallback` 不降级），它盖得住的字符
 /// 仍算缺着，留给链上后面的 face；轨迹里记一句，不静默。
 ///
@@ -539,8 +540,24 @@ fn metrics_note(
     format!("{metrics}；平台 {platform}，视图 {view}；行末标点 {overflow}")
 }
 
+/// `--metrics` 的取值：`true` 是要近似桩。没给就是 real。
+///
+/// `simple` 不读字体，所以不许与 `--font` 同用：近似度量排出的行配上真字体整形的字形，
+/// 行与字形两边对不上，却看着像一份有字形的轨迹。
+fn stub_requested(args: &Args) -> Result<bool, String> {
+    match args.metrics.as_deref() {
+        None | Some("real") => Ok(false),
+        Some("simple") if !args.fonts.is_empty() => Err(
+            "--metrics simple 不读字体，不能与 --font 同用：近似度量的行配不上真字体整形的字形".into(),
+        ),
+        Some("simple") => Ok(true),
+        Some(other) => Err(format!("--metrics 只接受 simple / real，收到 {other}")),
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = parse_args(std::env::args().skip(1))?;
+    let stub = stub_requested(&args)?;
     // 回退链当场定、路径当场核：拼错的路径不该等到文档里真有缺字才报。
     let mut warnings = fallback_warnings(&args);
     let chain = fallback_chain(
@@ -555,26 +572,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output = args.output.unwrap_or_else(|| "trace.json".to_string());
 
     let bytes = std::fs::read(&input)?;
-    // 不直接 `SessionTable::document()`：并排的 `w:rPr` 解析器只留最后一个，见 `load_document`。
-    let loaded = load_document(&bytes)?;
-    if loaded.merged_run_props > 0 {
-        eprintln!(
-            "合并了 {} 处并排的 w:rPr（原文件不合 schema；解析器原本只留最后一个）",
-            loaded.merged_run_props
-        );
-    }
-    if let Some(error) = &loaded.merge_error {
-        eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
-    }
-    let mut document = loaded.layout_document();
-    document.apply_page_overrides(rsword_layout_core::PageOverrides {
+    // 与 SVG CLI 同一个文档会话。不直接 `SessionTable::document()`：并排的 `w:rPr`
+    // 解析器只留最后一个，`PreparedDocument::load` 先把它们并起来。
+    let mut prepared = PreparedDocument::load(&bytes)?;
+    let overrides = prepared.apply_page_overrides(rsword_layout_core::PageOverrides {
         margin: args.margin,
         page_width: args.page_width,
         content_width: args.content_width,
-    })?;
-    for diagnostic in &document.diagnostics {
-        eprintln!("layout: {diagnostic}");
+    });
+    for diagnostic in prepared.diagnostics() {
+        eprintln!("{diagnostic}");
     }
+    overrides?;
+    let document = prepared.document();
     // 表格单元格里的段落也要参与缺字扫描，否则回退字体只按正文挑。
     let paras: Vec<Para> = document.paras.iter()
         .chain(document.tables.iter().flat_map(|table| &table.rows)
@@ -583,16 +593,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .collect();
     let paras = &paras;
     let skipped = document.skipped_blocks;
-    if paras.is_empty() {
+    if !prepared.has_layout_content() {
         return Err("没有可排版的段落".into());
     }
 
     // 装字体。没有整形器时 `paint_document` 不产字形序列，
     // 轨迹里就只有行、没有字形——那种轨迹过不了比较器的字形层，所以要说清楚。
     let mut registry = FontRegistry::new();
-    let mut families: Vec<String> = Vec::new();
     for path in &args.fonts {
-        let data = std::fs::read(path)?;
+        let data = std::fs::read(path).map_err(|e| format!("字体读不到 {}：{e}", path.display()))?;
         let mut index = 0u32;
         loop {
             match registry.add(data.clone(), index) {
@@ -610,9 +619,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let fallback_note = load_fallback(&mut registry, paras, &chain)?;
     if !fallback_note.is_empty() {
         eprintln!("{}", fallback_note.trim_start_matches('；'));
-    }
-    if !registry.is_empty() {
-        families = registry.face_ids();
     }
 
     // §6.2 的核查。放在排版之后、写出之前都行，但**必须在写出之前**。
@@ -636,13 +642,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some("none") | None => VerticalGrid::None,
         Some(other) => return Err(format!("--vertical-grid 只接受 mac / none，收到 {other}").into()),
     };
-    let use_stub = args.metrics.as_deref() == Some("simple") || registry.is_empty();
+    // 一个字体都没装上时也走桩——轨迹的 `metrics` 栏与 stdout 都会说。
+    let use_stub = stub || registry.is_empty();
 
     // 度量的**性质**要随数走：差值的来源常常就在这一栏里。
     let metrics_note = metrics_note(use_stub, grid, args.platform, args.view, &fallback_note);
 
-    // `Engine<M: FontMetrics>` 是泛型（度量在断行热路径上，不该走动态分发），
-    // 所以这里分两支实例化，而不是传 trait object。
     let setup = document.sections[0].setup;
     eprintln!(
         "版心 {} twips（页 {}，左右边距 {} / {}）",
@@ -652,37 +657,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         setup.margins.right
     );
 
-    let pages = if use_stub {
-        Engine::new(&SimpleMetrics, setup)
-            .with_platform(args.platform, args.view)
-            .layout_document(&document)
+    // 排版与绘制都在会话里：真度量时量宽、整形与字形记录用同一个注册表。
+    let options = LayoutOptions { platform: args.platform, view: args.view, wrap: WrapPolicy::None };
+    let session = if use_stub {
+        prepared.layout_approximate(&options)
     } else {
-        let real = RealMetrics::new(&registry).with_vertical_grid(grid);
-        Engine::new(&real, setup)
-            .with_platform(args.platform, args.view)
-            .layout_document(&document)
-    };
-
-    let shaper: Option<&dyn TextShaper> =
-        if registry.is_empty() { None } else { Some(&registry) };
-    let record = LayoutRecord::from_paint(&paint_document(&pages, shaper, &families));
+        prepared.layout_with_fonts(registry, grid, &options)
+    }
+    .map_err(|e| e.to_string())?;
+    for diagnostic in session.layout_diagnostics() {
+        eprintln!("{diagnostic}");
+    }
+    let record = LayoutRecord::from_paint(&session.paint());
 
     let meta = TraceMeta {
         engine: format!("rsword-layout-core {}", env!("CARGO_PKG_VERSION")),
         metrics: metrics_note,
-        glyph_origin_method: if registry.is_empty() {
+        glyph_origin_method: if session.is_approximate() {
             "none: no shaper registered, glyph sequences are empty".into()
         } else {
             "shaped: positions come from the shaper's own output (rustybuzz)".into()
         },
         source: input.clone(),
-        font_fingerprint: registry.fingerprint().map(str::to_string),
+        font_fingerprint: session.font_fingerprint().map(str::to_string),
     };
 
+    let document = session.document();
     let mut trace: serde_json::Value = serde_json::from_str(&to_trace_json(&record, &meta))?;
     trace["layoutInput"] = document.trace_metadata();
     if !document.tables.is_empty() {
-        trace["tableLayout"] = table_layout(&pages);
+        trace["tableLayout"] = table_layout(session.pages());
     }
     std::fs::write(&output, serde_json::to_string_pretty(&trace)?)?;
 
@@ -694,7 +698,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         record.page_count(),
         record.glyph_count()
     );
-    if registry.is_empty() {
+    if session.is_approximate() {
         println!("**没装字体**：轨迹里只有行、没有字形，过不了比较器的字形层（用 --font 指定）");
     }
     if skipped > 0 {
@@ -734,10 +738,23 @@ fn table_layout(pages: &[rsword_layout_core::Page]) -> serde_json::Value {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rsword_layout_core::PageSetup;
+    use rsword_layout_core::{Engine, PageSetup, RealMetrics, paint_document};
 
     fn parse(argv: &[&str]) -> Result<Args, String> {
         parse_args(argv.iter().map(|s| s.to_string()))
+    }
+
+    #[test]
+    fn metrics_choice_is_explicit() {
+        assert_eq!(stub_requested(&parse(&["in.docx"]).unwrap()), Ok(false));
+        assert_eq!(stub_requested(&parse(&["--metrics", "real", "in.docx"]).unwrap()), Ok(false));
+        assert_eq!(stub_requested(&parse(&["--metrics", "simple", "in.docx"]).unwrap()), Ok(true));
+        // 近似度量不读字体：给了字体就是要字形，两边对不上，拒绝而不是悄悄配一套 shaper。
+        let mixed = stub_requested(&parse(&["--metrics", "simple", "--font", "a.ttf", "in.docx"]).unwrap());
+        assert!(mixed.unwrap_err().contains("不能与 --font 同用"));
+        // 拼错的取值原来悄悄当 real。
+        let typo = stub_requested(&parse(&["--metrics", "rael", "in.docx"]).unwrap());
+        assert!(typo.unwrap_err().contains("只接受 simple / real"));
     }
 
     #[test]

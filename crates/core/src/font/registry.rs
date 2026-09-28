@@ -2,7 +2,8 @@
 //!
 //! 把三个东西绑在同一套 face 标识上，缺一不可：
 //!
-//! - `docx_layout::fontenv` —— 按码位查覆盖、选 face，缺字报 `FONT_MISSING`；
+//! - `docx_layout::fontenv` —— 按码位查覆盖（选 face 走本模块自己的槽规则，不走
+//!   `FontEnvironment::select`，所以不产生它的 `FONT_MISSING`；缺字由会话的诊断数）；
 //! - `RustybuzzShaper`      —— 整形，产出 glyph id；
 //! - `SkrifaRasterizer`     —— 按 glyph id 栅格化。
 //!
@@ -497,6 +498,33 @@ impl FontRegistry {
         )
     }
 
+    /// 一个源字符在 [`FontRegistry::shape_text`] 里的下场，给会话的缺字诊断数。
+    ///
+    /// 与 `shape_text` 同一口径：选中 face 就是 [`CharCoverage::Face`]；选不中的 CJK
+    /// 画名义 `.notdef`（[`CharCoverage::Nominal`]）；选不中的其他成字形字符被跳过、
+    /// 不占宽度（[`CharCoverage::Dropped`]）；不成字形的字符（[`is_invisible`]）不算缺字。
+    /// 按**源字符**判，`w:caps` 下显示字符换了 face 的情形（`face_for_display`）不在内。
+    pub(crate) fn char_coverage(&self, font: &FontSpec, ch: char) -> CharCoverage {
+        if is_invisible(ch) {
+            return CharCoverage::Invisible;
+        }
+        match self.face_for_char(font, ch) {
+            Some((face, false)) => CharCoverage::Face(face),
+            Some((_, true)) => CharCoverage::Nominal,
+            None => CharCoverage::Dropped,
+        }
+    }
+
+    /// `face` 属于 `family`（按族名或字体表里的完整名 / PostScript 名，同 [`FontRegistry::covers_family`]）
+    /// 时，给它的（字重，是否斜体）；不属于或没注册返回 `None`。
+    pub(crate) fn family_face_style(&self, face: &str, family: &str) -> Option<(u16, bool)> {
+        let id = self.id_of.get(face)?;
+        let want = normalize_family(family);
+        let info = self.env.as_ref()?.faces().find(|f| f.id() == id)?;
+        let named = self.names.get(&want).is_some_and(|ids| ids.contains(id));
+        (named || info.families().contains(&want)).then(|| (info.weight(), info.italic()))
+    }
+
     /// 按 face 标识查它的 cmap 是否覆盖 `ch`。
     fn face_covers(&self, face: &str, ch: char) -> bool {
         match (self.env.as_ref(), self.id_of.get(face)) {
@@ -504,6 +532,19 @@ impl FontRegistry {
             _ => false,
         }
     }
+}
+
+/// [`FontRegistry::char_coverage`] 的结果。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CharCoverage {
+    /// 有 face 画它（face 标识）。
+    Face(String),
+    /// 谁都画不出的 CJK：名义 1 em 的 `.notdef`。
+    Nominal,
+    /// 谁都画不出、也没有名义宽度：跳过，不占宽度。
+    Dropped,
+    /// 不成字形（控制、格式、默认可忽略码位）：本来就不画，不算缺字。
+    Invisible,
 }
 
 /// 不成字形的字符：控制字符（Cc）、对象占位符 U+FFFC、格式字符（Cf）、默认可忽略码位

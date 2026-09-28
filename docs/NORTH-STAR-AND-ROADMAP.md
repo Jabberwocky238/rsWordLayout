@@ -76,7 +76,7 @@ Android print 是不同用例，不能混算。配置至少绑定：文档哈希
 | PTS 对应职责 | 页面/栏续排、keep/widow、段距折叠、镜像边距、受限连续分节平衡 | exact 首原点、部分字体自然高度、docGrid、容量相关尾部裁减、复杂连续节 |
 | 表格 | 单格行、显式 exact 行高、零左右 cell margin、无可见边框的真实正文与行边界续排 | 多格、内容决定行高、样式/边框/边距、行内拆分、重复表头、与 keep/栏平衡组合 |
 | 绘制 | PaintList；SVG 可选择近似文字与定位轮廓两种模式；GPU 等后端框架 | GPU 字形横向比例及图形状态/裁剪尚未消费，通用路径绘制有限；跨后端完整验收待补 |
-| 嵌入入口 | Rust、C ABI、WASM 会话和多个渲染后端 | C ABI/WASM 构建会话仍固定 SimpleMetrics；诊断和字体生命周期合同不统一 |
+| 嵌入入口 | Rust、C ABI、WASM 会话和多个渲染后端；SVG CLI 与 layout-trace 经共享文档会话（R02） | C ABI/WASM 构建会话仍固定 SimpleMetrics 并丢弃诊断；WebGL 字体集与会话生命周期未接 |
 | 多 story/对象 | 部分锚定环绕几何；控制与对象占位源记录 | 脚注、页眉页脚占位、编号正文外标记、完整图片/浮动对象布局与绘制 |
 
 实现范围以源码和对应专题为准。尤其“支持 exact”表示有实现路径，不表示已解决
@@ -227,6 +227,11 @@ R07 至 R09 从 [表格当前合同与拒绝条件](TABLE-FLOW-2026-09-27.md)出
 
 R01 首版已交付：60 例清单 v1、面板与分层归因，见
 [验收面板](ACCEPTANCE-PANEL-2026-09-27.md)；当前严格整文档通过 0/60。
+
+R02 已交付：`PreparedDocument` → `DocumentSession` 持有字体快照、度量模式与诊断，SVG CLI 与
+layout-trace 都已改用；Mac 25 份、Android 11 份与验收 17 份轨迹逐字节不变，见
+[共享文档会话](SHARED-FONT-SESSION-2026-09-28.md)。回退字体的两种装法（render 全装、
+layout-trace 按缺字装）留作入口策略，已证实在段落标记上排得不同。
 
 R01 每例至少保存 case ID、合同、支持/证据状态、比较器及结果绑定，按 case ID
 去重，功能族标签可以重叠。R04 每轮只追必要的一项输入；provider、请求单位、尺度、

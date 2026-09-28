@@ -1,17 +1,14 @@
 //! `render [--text-mode text|outlines] [--font path[#index]] <input.docx> [output.html]`
 //!
 //! 端到端链路：rsword 解析 → 桥接成段落 → 布局引擎排版 → **矢量**绘制指令 → SVG。
+//! 解析、排版与绘制都经 [`rsword_layout_core::PreparedDocument`] 建的文档会话，与 `layout-trace` 同一条路。
 //!
 //! Text mode keeps the original selectable browser text and approximate metrics.
 //! Outline mode uses explicit fonts for measurement, shaping and vector contours.
 
 use std::path::PathBuf;
 
-use rsword::model::Document;
-use rsword::package::Package;
-use rsword_layout_core::{
-    AnchorScan, Engine, SimpleMetrics, load_document, paint_document,
-};
+use rsword_layout_core::{LayoutOptions, PreparedDocument, WrapPolicy};
 use rsword_layout_svg::render_html;
 
 const USAGE: &str = "Usage: render [options] <input.docx> [output.html]\n\
@@ -100,15 +97,11 @@ impl Args {
     }
 }
 
+/// 按命令行装字体：正文字体全部先装，回退字体按声明顺序装（全装，不看文档缺不缺字）。
+/// 任何一个读不到、装不进都停：宁可不出结果，也不悄悄换字体。
 #[cfg(feature = "fontenv")]
-fn render_outlines(
-    args: &Args,
-    document: &rsword_layout_core::LayoutDocument,
-    wrap: rsword_layout_core::WrapContext,
-    title: &str,
-) -> Result<(rsword_layout_core::PaintList, String), Box<dyn std::error::Error>> {
-    use rsword_layout_core::font::{FontRegistry, RealMetrics};
-    let mut fonts = FontRegistry::new();
+fn load_fonts(args: &Args) -> Result<rsword_layout_core::font::FontRegistry, String> {
+    let mut fonts = rsword_layout_core::font::FontRegistry::new();
     for (sources, fallback) in [(&args.fonts, false), (&args.fallback_fonts, true)] {
         for source in sources {
             let bytes = std::fs::read(&source.path)
@@ -118,12 +111,7 @@ fn render_outlines(
             result.map_err(|error| format!("{}#{}: {error}", source.path.display(), source.index))?;
         }
     }
-    let metrics = RealMetrics::new(&fonts);
-    let engine = Engine::with_wrap(&metrics, document.sections[0].setup, wrap);
-    let pages = engine.layout_document(document);
-    let list = paint_document(&pages, Some(&fonts), &fonts.face_ids());
-    let html = rsword_layout_svg::render_outlined_html(&list, &fonts, title)?;
-    Ok((list, html))
+    Ok(fonts)
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -138,60 +126,68 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let bytes = std::fs::read(&args.input)?;
 
-    // 1. 解析。段落走 JSON 投影，环绕走 Rust 模型——锚定几何不在 JSON 里。
-    // 并排的 `w:rPr` 解析器只留最后一个，`load_document` 先把它们并起来。
-    let loaded = load_document(&bytes)?;
-    if let Some(error) = &loaded.merge_error {
-        eprintln!("并排 w:rPr 的合并失败，按解析器原样的 JSON 排：{error}");
+    // 1. 解析与桥接。并排的 `w:rPr` 解析器只留最后一个，`PreparedDocument::load` 先把它们并起来。
+    let prepared = PreparedDocument::load(&bytes)?;
+    for diagnostic in prepared.diagnostics() {
+        eprintln!("{diagnostic}");
     }
-    // 2. 桥接。
-    let document = loaded.layout_document();
-    for diagnostic in &document.diagnostics {
-        eprintln!("layout: {diagnostic}");
-    }
-    if document.paras.is_empty() {
+    if !prepared.has_layout_content() {
         return Err("没有可排版的段落".into());
     }
 
-    // 3. 提取文字环绕区。
-    let setup = document.sections[0].setup;
-    let content = setup.content_area();
-    let mut pkg = Package::open(&bytes)?;
-    let model = Document::rebuild(&mut pkg)?;
-    let scan = match pkg.dom(model.main_part)? {
-        Some(dom) => AnchorScan::from_document(&model, dom, content),
-        None => AnchorScan::default(),
-    };
-
-    let title = args.input.file_name().unwrap_or(args.input.as_os_str()).to_string_lossy();
-    // Measurement, shaping and contours share the explicit font registry.
-    let scan_len = scan.wrap.len();
-    let (list, html) = match args.mode {
-        TextMode::Text => {
-            let metrics = SimpleMetrics;
-            let engine = Engine::with_wrap(&metrics, setup, scan.wrap);
-            let pages = engine.layout_document(&document);
-            let list = paint_document(&pages, None, &[]);
-            let html = render_html(&list, &title);
-            (list, html)
-        }
+    // 2. 排版。环绕区在会话里扫（锚定几何走 rsword 的 Rust 模型，不在 JSON 里）；
+    // 轮廓模式的量宽、整形与轮廓共用会话持有的同一个字体注册表。
+    let options = LayoutOptions { wrap: WrapPolicy::Anchors, ..LayoutOptions::default() };
+    let session = match args.mode {
+        TextMode::Text => prepared.layout_approximate(&options).map_err(|e| e.to_string())?,
         #[cfg(feature = "fontenv")]
-        TextMode::Outlines => render_outlines(&args, &document, scan.wrap, &title)?,
+        TextMode::Outlines => {
+            let fonts = load_fonts(&args)?;
+            prepared
+                .layout_with_fonts(fonts, rsword_layout_core::VerticalGrid::None, &options)
+                .map_err(|e| e.to_string())?
+        }
+        #[cfg(not(feature = "fontenv"))]
+        TextMode::Outlines => unreachable!("feature availability was checked before loading"),
+    };
+    for diagnostic in session.layout_diagnostics() {
+        eprintln!("{diagnostic}");
+    }
+
+    // 3. 绘制。
+    let title = args.input.file_name().unwrap_or(args.input.as_os_str()).to_string_lossy();
+    let list = session.paint();
+    let html = match args.mode {
+        TextMode::Text => render_html(&list, &title),
+        #[cfg(feature = "fontenv")]
+        TextMode::Outlines => {
+            let fonts = session.fonts().expect("outline sessions carry their fonts");
+            rsword_layout_svg::render_outlined_html(&list, fonts, &title)?
+        }
         #[cfg(not(feature = "fontenv"))]
         TextMode::Outlines => unreachable!("feature availability was checked before loading"),
     };
     std::fs::write(&args.output, html)?;
 
+    let document = session.document();
     let cmds: usize = list.pages.iter().map(|p| p.cmds.len()).sum();
-    println!("段落 {} · 页 {} · 绘制指令 {}", document.paras.len(), list.page_count(), cmds);
+    println!(
+        "段落 {}（表格 {}）· 页 {} · 绘制指令 {}",
+        document.paras.len(),
+        document.tables.len(),
+        list.page_count(),
+        cmds
+    );
     let skipped = document.skipped_blocks;
     if skipped > 0 {
-        println!("跳过非文本块 {skipped}（表格 / 绘图等，本版未实现）");
+        println!("跳过非文本块 {skipped}（不支持的表格 / 绘图等，见 layout 诊断）");
     }
-    println!(
-        "环绕区 {} · 锚定未支持 {} · 不绕排 {}",
-        scan_len, scan.skipped, scan.not_wrapping
-    );
+    if let Some(scan) = session.anchors() {
+        println!(
+            "环绕区 {} · 锚定未支持 {} · 不绕排 {}",
+            scan.regions, scan.skipped, scan.not_wrapping
+        );
+    }
     let mode = match args.mode {
         TextMode::Text => "近似文本，可选择文字",
         TextMode::Outlines => "定位字形轮廓，不含可选择文字",

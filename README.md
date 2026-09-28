@@ -55,7 +55,7 @@ cargo run -p rsword-layout-svg --features fontenv --bin render -- \
 [北极星与开发规划](docs/NORTH-STAR-AND-ROADMAP.md)。
 共享 PTS/LS 内核的后续开发顺序、证据和验收条件见
 [开发路线](docs/SHARED-PTS-LS-DEVELOPMENT-2026-09-27.md)。正式 DOCX 入口使用
-`load_document(...).layout_document()`：样式继承后的属性与文档节几何一起传给共用排版器。
+`load_document(...).layout_document()`（CLI 经 `PreparedDocument::load` 调它）：样式继承后的属性与文档节几何一起传给共用排版器。
 `w:vanish` 隐藏内容不排版，但保留 UTF-16 源位置。
 
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
@@ -76,7 +76,9 @@ y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefor
 - 表格已支持单格、显式 exact 行高、零左右 cell margin 和无可见边框的受限形状，
   包含真实 cell 正文和行边界续排；多格、内容行高、样式及复杂续排仍待实现，见
   [表格进展](docs/TABLE-FLOW-2026-09-27.md)。
-- C ABI 与 WASM 会话当前仍使用 `SimpleMetrics`；真实字体排版贯穿各宿主入口是近期目标。
+- SVG CLI 与 `layout-trace` 经同一个文档会话（`PreparedDocument` → `DocumentSession`）装载、排版和绘制，
+  见 [共享文档会话](docs/SHARED-FONT-SESSION-2026-09-28.md)；C ABI、WASM 与 WebGL 仍使用 `SimpleMetrics`
+  排版并丢弃诊断，改用同一会话是下一步（R03）。
 - 未实现：docGrid、脚注、跨多栏组 keepNext、连续节页面几何切换、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
 
 ## 许可

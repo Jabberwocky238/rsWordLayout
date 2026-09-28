@@ -50,6 +50,8 @@ pub use raster::{
 mod registry;
 #[cfg(feature = "fontenv")]
 pub use registry::FontRegistry;
+#[cfg(feature = "fontenv")]
+pub(crate) use registry::CharCoverage;
 
 #[cfg(feature = "fontenv")]
 mod real;

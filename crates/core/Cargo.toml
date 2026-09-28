@@ -45,6 +45,16 @@ name = "repr_c"
 path = "tests/repr_c.rs"
 
 [[test]]
+name = "session"
+path = "tests/session.rs"
+
+[[test]]
+name = "layout_trace_cli"
+path = "tests/layout_trace_cli.rs"
+# 跑 `layout-trace` 二进制，它要 fontenv。
+required-features = ["fontenv"]
+
+[[test]]
 name = "slots"
 path = "tests/slots.rs"
 
