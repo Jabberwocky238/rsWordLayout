@@ -1,18 +1,19 @@
 name: npm
 
-# rs-word-layout：wasm + wasm-bindgen JS 绑定，全部来自 crates/webgl（见其 README）。
-# 版本号取 crates/webgl/Cargo.toml；该版本在 npm 上还不存在时才构建并发布，已存在则整个作业跳过。
-# 改版本号 = 发版。带 `-` 的预发布版本（0.2.0-rc.1）发到 dist-tag `next`，其余发到 `latest`。
+# @jabberwocky238/rs-word-layout：wasm + wasm-bindgen JS 绑定，全部来自 crates/webgl（见其 README），
+# 发布到 GitHub Packages（npm.pkg.github.com）。版本号取 crates/webgl/Cargo.toml；该版本在注册表上
+# 还不存在时才构建并发布，已存在则整个作业跳过。改版本号 = 发版。
+# 带 `-` 的预发布版本（0.2.0-rc.1）发到 dist-tag `next`，其余发到 `latest`。
 #
-# 需要两个仓库 secret：
-#   NPM_TOKEN          npm 自动化 / 细粒度 token，对 rs-word-layout 有发布权
+# 发布用 workflow 自带的 GITHUB_TOKEN；另需仓库 secret
 #   DOCX_LAYOUT_TOKEN  能读私有仓库 LilLeapo/docx-layout 的 token（contents: read）
 #
 # 根 Cargo.toml 以 `path = "../docx-layout/..."` 依赖 docx-layout，所以两个仓库并排检出到
 # $GITHUB_WORKSPACE/rsWordLayout 与 $GITHUB_WORKSPACE/docx-layout。
 on:
   push:
-    branches: [main]
+    # npm-publish：首发用的发布分支，合进 main 后可从这里删掉
+    branches: [main, npm-publish]
   workflow_dispatch:
     inputs:
       docx_layout_ref:
@@ -21,7 +22,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # npm provenance
+  packages: write
 
 concurrency:
   group: npm-publish
@@ -47,16 +48,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@jabberwocky238'
       - name: Version gate
         id: gate
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           name=$(node -p "require('./crates/webgl/package.json').name")
           version=$(node crates/webgl/pack.mjs version)
           echo "name=$name" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           if [[ "$(npm view "$name@$version" version 2>/dev/null)" == "$version" ]]; then
-            echo "::notice::$name@$version 已在 npm 上，跳过"
+            echo "::notice::$name@$version 已在注册表上，跳过"
             echo "publish=false" >> "$GITHUB_OUTPUT"
           else
             echo "publish=true" >> "$GITHUB_OUTPUT"
@@ -94,9 +98,9 @@ jobs:
       - name: Publish
         if: steps.gate.outputs.publish == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.gate.outputs.version }}
         run: |
           tag=latest
           [[ "$VERSION" == *-* ]] && tag=next
-          npm publish crates/webgl/pkg --provenance --access public --tag "$tag"
+          npm publish crates/webgl/pkg --tag "$tag"

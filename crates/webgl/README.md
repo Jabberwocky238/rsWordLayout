@@ -1,11 +1,11 @@
-# `rsword-layout-webgl` · WebGL2 后端 / npm `rs-word-layout`
+# `rsword-layout-webgl` · WebGL2 后端 / npm `@jabberwocky238/rs-word-layout`
 
-rsWordLayout 的 wasm 入口，也是 npm 包 [`rs-word-layout`](https://www.npmjs.com/package/rs-word-layout)
+rsWordLayout 的 wasm 入口，也是 GitHub Packages 上 npm 包 `@jabberwocky238/rs-word-layout`
 的全部来源：wasm + wasm-bindgen 胶水（`--target web`）+ 类型声明，不含原生后端。
 布局会话与 WebGL2 渲染器在同一个 wasm 模块里（两个模块的线性内存互不相通，JS 无法跨模块传对象）。
 
 ```js
-import init, { FontSet, LayoutSession, WebGlRenderer } from 'rs-word-layout'
+import init, { FontSet, LayoutSession, WebGlRenderer } from '@jabberwocky238/rs-word-layout'
 
 await init() // 浏览器 / 打包器：按 import.meta.url 取同目录的 rsword_layout_webgl_bg.wasm
 // Node：import { initSync } …; initSync({ module: fs.readFileSync(wasm 路径) })
@@ -35,13 +35,22 @@ wasm-bindgen target/wasm32-unknown-unknown/release/rsword_layout_webgl.wasm --ou
 
 `wasm-bindgen-cli` 必须与 Cargo.lock 里的 `wasm-bindgen` 同版本（`scripts/prepare-webgl.sh` 会检查）。
 
-## npm 发布
+## 安装与发布
+
+包在 GitHub Packages（`npm.pkg.github.com`），安装需要带 `read:packages` 的 GitHub token：
+
+```ini
+# .npmrc
+@jabberwocky238:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
 
 包的元数据在本目录 `package.json`（不写 `version`）；**版本号就是本 crate `Cargo.toml` 的
-`version`**。`.github/workflows/npm.yml` 在 `main` 每次推送时检查 `rs-word-layout@<版本>`：
-npm 上已有则跳过，没有则构建、组装、冒烟并发布。改版本号即发版；带 `-` 的预发布版本发到
-dist-tag `next`。需要仓库 secret `NPM_TOKEN`，以及能读私有仓库 LilLeapo/docx-layout 的
-`DOCX_LAYOUT_TOKEN`。
+`version`**。`.github/workflows/npm.yml` 在 `main` 每次推送时检查 `@jabberwocky238/rs-word-layout@<版本>`：
+注册表上已有则跳过，没有则构建、组装、冒烟并发布。改版本号即发版；带 `-` 的预发布版本发到
+dist-tag `next`。用 workflow 自带的 `GITHUB_TOKEN` 发布；另需能读私有仓库
+LilLeapo/docx-layout 的仓库 secret `DOCX_LAYOUT_TOKEN`。
 
 本地组装与冒烟（不发布）：
 
