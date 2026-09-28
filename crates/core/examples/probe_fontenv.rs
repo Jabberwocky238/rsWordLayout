@@ -1,11 +1,11 @@
-//! 探针：确认 docx-layout 的 fontenv 能用在本仓库里。
+//! 探针：确认 `font::fontenv` 能读本机字体并按码位选字。
 //!
 //! 验证全 Unicode fallback 需要的三件事：
 //!   1. 能读系统字体文件并识别族名/字重/斜体
 //!   2. select() 按码位走完 fallback 链，并说明为什么选了它
 //!   3. fingerprint() 稳定，保证同一字体集给出同一布局
 
-use docx_layout::fontenv::{FontEnvironmentBuilder, normalize_family};
+use rsword_layout_core::font::fontenv::{FontEnvironmentBuilder, normalize_family};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("normalize_family(\"Times New Roman\") = {:?}", normalize_family("Times New Roman"));

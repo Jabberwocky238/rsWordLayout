@@ -97,17 +97,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "docx-layout"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "sha2",
- "skrifa",
- "unicode-normalization",
-]
-
-[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -290,11 +279,13 @@ dependencies = [
 name = "rsword-layout-core"
 version = "0.1.0"
 dependencies = [
- "docx-layout",
  "rsword",
  "rustybuzz",
+ "serde",
  "serde_json",
+ "sha2",
  "skrifa",
+ "unicode-normalization",
  "zeno",
 ]
 

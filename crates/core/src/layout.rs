@@ -464,7 +464,7 @@ pub enum PaintOp {
 /// 存 `glyph_id` 而非字符：连字与阿拉伯语形态没有对应的单个 `char`。
 #[derive(Debug, Clone, PartialEq)]
 pub struct PositionedGlyph {
-    /// 字体标识，与 `docx_layout::fontenv` 的 `FaceId::sha256()` 对齐。
+    /// 字体标识，与 `font::fontenv` 的 `FaceId::sha256()` 对齐。
     pub face: String,
     pub glyph_id: u32,
     /// 笔位，twips。

@@ -14,7 +14,7 @@
 //! 是因为 wasm 目标要能编译。
 //!
 //! 字体选择与 fallback 不在这里：一次 shaping 只针对一个 face，跨字体的回退
-//! 由调用方按 `docx_layout::fontenv` 的覆盖查询先切好段再逐段 shape。
+//! 由调用方按 `font::fontenv` 的覆盖查询先切好段再逐段 shape。
 
 use std::collections::HashMap;
 
@@ -27,7 +27,7 @@ use crate::layout::{TWIPS_PER_POINT, Twips};
 /// rustybuzz 整形器。
 ///
 /// 字体按 `face` 标识注册，须与 [`GlyphKey::face`] 以及栅格化器用的是同一套标识——
-/// 建议统一用 `docx_layout::fontenv` 的 `FaceId::sha256()`。
+/// 建议统一用 `font::fontenv` 的 `FaceId::sha256()`。
 #[derive(Default)]
 pub struct RustybuzzShaper {
     /// (face 标识, 字节, TTC 序号)。用有序表而非哈希表：
@@ -242,7 +242,7 @@ impl RustybuzzShaper {
 impl TextShaper for RustybuzzShaper {
     fn shape(&self, text: &str, font: &FontSpec) -> Vec<ShapedRun> {
         // FontSpec::family 是 OOXML 里的字体名，未必等于注册时用的 face 标识；
-        // 先直接试，再退到默认 face。真正的按族选字体应走 docx-layout 的 fontenv。
+        // 先直接试，再退到默认 face。真正的按族选字体应走 `font::fontenv`。
         let face = self
             .by_name
             .get(&font.family)

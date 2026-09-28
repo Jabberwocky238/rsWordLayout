@@ -2,7 +2,7 @@
 //!
 //! 把三个东西绑在同一套 face 标识上，缺一不可：
 //!
-//! - `docx_layout::fontenv` —— 按码位查覆盖、选 face，缺字报 `FONT_MISSING`；
+//! - [`super::fontenv`] —— 按码位查覆盖、选 face，缺字报 `FONT_MISSING`；
 //! - `RustybuzzShaper`      —— 整形，产出 glyph id；
 //! - `SkrifaRasterizer`     —— 按 glyph id 栅格化。
 //!
@@ -17,7 +17,7 @@ use super::{FontSlots, FontSpec, RustybuzzShaper, SkrifaRasterizer, SlotKind};
 use crate::layout::ShapedRun;
 use crate::layout::TextShaper;
 use crate::layout::{OBJECT_PLACEHOLDER, TWIPS_PER_POINT, Twips};
-use docx_layout::fontenv::{FaceId, FontEnvironment, FontEnvironmentBuilder, normalize_family};
+use super::fontenv::{FaceId, FontEnvironment, FontEnvironmentBuilder, normalize_family};
 use skrifa::{FontRef, MetadataProvider, string::StringId};
 
 /// 已注册的字体集合。

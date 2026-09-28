@@ -1,3 +1,12 @@
+# Third-party notices
+
+## font::fontenv
+
+`crates/core/src/font/fontenv.rs` and `fixtures/fonts/synthetic/` derive from
+[docx-layout](https://github.com/LilLeapo/docx-layout) `8e81e76`, dual-licensed MIT OR Apache-2.0.
+Its MIT notice:
+
+```text
 The MIT License (MIT)
 
 Copyright (c) 2026 docx-layout contributors
@@ -19,3 +28,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```

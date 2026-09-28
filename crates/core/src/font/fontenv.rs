@@ -1,10 +1,11 @@
-//! Immutable font ownership and deterministic lookup; no Word synthesis policy.
+//! 字体环境：不可变的字体所有权与确定性查找（按码位覆盖查询、face 选择、环境指纹），
+//! 不含 Word 的字体合成策略。源自 LilLeapo/docx-layout `8e81e76` 的 fontenv（MIT OR Apache-2.0）。
 //! ```compile_fail
-//! use docx_layout::fontenv::FontEnvironment;
+//! use rsword_layout_core::font::fontenv::FontEnvironment;
 //! let env = FontEnvironment {};
 //! ```
-use crate::digest::{bytes_sha256, canonical_json, digest};
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 use skrifa::{FontRef, MetadataProvider, attribute::Style, string::StringId};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -210,12 +211,32 @@ impl FontEnvironment {
         }
     }
 }
+/// JSON object keys are ordered by serde_json's BTreeMap representation.
+fn canonical_json(value: &impl Serialize) -> Vec<u8> {
+    serde_json::to_vec(&serde_json::to_value(value).expect("finite validated data"))
+        .expect("serializable value")
+}
+
+/// Length-prefixed domain and parts prevent cross-type and concatenation aliases.
+fn digest(domain: &str, parts: &[&[u8]]) -> String {
+    let mut hash = Sha256::new();
+    for part in std::iter::once(domain.as_bytes()).chain(parts.iter().copied()) {
+        hash.update((part.len() as u64).to_be_bytes());
+        hash.update(part);
+    }
+    format!("{:x}", hash.finalize())
+}
+
+fn bytes_sha256(bytes: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(bytes))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    const REGULAR: &[u8] = include_bytes!("../../fixtures/fonts/regular.ttf");
-    const ITALIC: &[u8] = include_bytes!("../../fixtures/fonts/italic.ttf");
-    const FALLBACK: &[u8] = include_bytes!("../../fixtures/fonts/fallback.ttf");
+    const REGULAR: &[u8] = include_bytes!("../../../../fixtures/fonts/synthetic/regular.ttf");
+    const ITALIC: &[u8] = include_bytes!("../../../../fixtures/fonts/synthetic/italic.ttf");
+    const FALLBACK: &[u8] = include_bytes!("../../../../fixtures/fonts/synthetic/fallback.ttf");
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
     #[cfg_attr(not(target_arch = "wasm32"), test)]
     fn f06_order_ownership_and_coverage() {
@@ -258,7 +279,7 @@ mod tests {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test::wasm_bindgen_test)]
     #[cfg_attr(not(target_arch = "wasm32"), test)]
     fn f06_collection_face_identity() {
-        let bytes = include_bytes!("../../fixtures/fonts/two-faces.ttc");
+        let bytes = include_bytes!("../../../../fixtures/fonts/synthetic/two-faces.ttc");
         let mut builder = FontEnvironmentBuilder::new();
         let a = builder.add(bytes.to_vec(), 0).unwrap();
         let b = builder.add(bytes.to_vec(), 1).unwrap();

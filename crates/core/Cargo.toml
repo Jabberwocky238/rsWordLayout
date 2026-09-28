@@ -21,6 +21,7 @@ path = "examples/dump.rs"
 [[example]]
 name = "probe_fontenv"
 path = "examples/probe_fontenv.rs"
+required-features = ["fontenv"]
 
 [[example]]
 name = "probe_fonts"
@@ -166,13 +167,15 @@ shape = ["dep:rustybuzz"]
 # skrifa 读轮廓 + zeno 栅格化。栅格化要知道目标 DPI，但它是**无状态纯函数**
 # （同一 key 同一结果），故留在 core；有状态的图集缓存才归 rsword-layout-gpu。
 raster = ["dep:skrifa", "dep:zeno"]
-# 按码位选字体与 fallback，来自 docx-layout 的 fontenv。
-fontenv = ["shape", "raster"]
+# 按码位选字体与 fallback（`font::fontenv`）：覆盖查询、face 选择、环境指纹。
+fontenv = ["shape", "raster", "dep:serde", "dep:sha2", "dep:unicode-normalization"]
 
 [dependencies]
 rsword = { workspace = true }
 serde_json = { workspace = true }
-docx-layout = { workspace = true }
+serde = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
+unicode-normalization = { workspace = true, optional = true }
 skrifa = { workspace = true, optional = true }
 zeno = { workspace = true, optional = true }
 rustybuzz = { workspace = true, optional = true }

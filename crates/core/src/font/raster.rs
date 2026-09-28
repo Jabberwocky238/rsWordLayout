@@ -6,7 +6,7 @@
 //! 覆盖率位图。两边的命令一一对应，中间的 [`PenBridge`] 只是转接。
 //!
 //! 字体数据由调用方提供。全 Unicode 的字体选择与 fallback 交给
-//! `docx_layout::fontenv`——那里有按码位的覆盖查询与环境指纹，
+//! `font::fontenv`——那里有按码位的覆盖查询与环境指纹，
 //! 本模块只负责「给定 face 与 glyph id，画出位图」。
 //!
 //! # 三项影响清晰度的设置
@@ -136,7 +136,7 @@ pub enum HintingMode {
 /// 同一 key 必须给出同一结果——图集会缓存，结果不稳定会导致画面抖动。
 pub trait Rasterizer {
     /// 栅格化一个字形。返回 `None` 表示该字体画不出这个字形，
-    /// 调用方应当先做 fallback（见 docx-layout 的 `fontenv::select`）再交给图集。
+    /// 调用方应当先做 fallback（见 `font::fontenv` 的 `select`）再交给图集。
     fn rasterize(&mut self, key: &GlyphKey) -> Option<RasterGlyph>;
 }
 
@@ -188,7 +188,7 @@ pub struct FaceData {
 /// skrifa + zeno 栅格化器。
 ///
 /// 按 `GlyphKey::face` 查字体数据，所以调用方要先用同一套 face 标识注册字体——
-/// 建议直接用 `docx_layout::fontenv` 的 `FaceId::sha256()`，两边就对得上。
+/// 建议直接用 `font::fontenv` 的 `FaceId::sha256()`，两边就对得上。
 #[derive(Default)]
 pub struct SkrifaRasterizer {
     faces: HashMap<String, FaceData>,

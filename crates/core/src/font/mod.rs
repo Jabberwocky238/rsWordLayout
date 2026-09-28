@@ -18,7 +18,7 @@
 //!
 //! - `shape` —— rustybuzz 整形
 //! - `raster` —— skrifa 读轮廓 + zeno 栅格化
-//! - `fontenv` —— 按码位选字体与 fallback（依赖 docx-layout）
+//! - `fontenv` —— 按码位选字体与 fallback（[`fontenv`] 模块）
 
 mod spec;
 pub mod caps;
@@ -45,6 +45,9 @@ pub use raster::{
     FaceData, GlyphKey, GlyphMetrics, HintingMode, RasterFormat, RasterGlyph, Rasterizer,
     SkrifaRasterizer,
 };
+
+#[cfg(feature = "fontenv")]
+pub mod fontenv;
 
 #[cfg(feature = "fontenv")]
 mod registry;
