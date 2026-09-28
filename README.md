@@ -76,9 +76,10 @@ y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefor
 - 表格已支持单格、显式 exact 行高、零左右 cell margin 和无可见边框的受限形状，
   包含真实 cell 正文和行边界续排；多格、内容行高、样式及复杂续排仍待实现，见
   [表格进展](docs/TABLE-FLOW-2026-09-27.md)。
-- SVG CLI 与 `layout-trace` 经同一个文档会话（`PreparedDocument` → `DocumentSession`）装载、排版和绘制，
-  见 [共享文档会话](docs/SHARED-FONT-SESSION-2026-09-28.md)；C ABI、WASM 与 WebGL 仍使用 `SimpleMetrics`
-  排版并丢弃诊断，改用同一会话是下一步（R03）。
+- SVG CLI、`layout-trace`、C ABI、WASM 与 WebGL 经同一个文档会话（`PreparedDocument` → `DocumentSession`）
+  装载、排版和绘制，同输入的规范化结果（`layout_json`）逐字节相同，见
+  [共享文档会话](docs/SHARED-FONT-SESSION-2026-09-28.md) 与 [绑定层接入](docs/BINDING-SESSION-2026-09-28.md)。
+  C ABI 与 WASM 的真字体排版要开 `fontenv` 特性；C 侧帧还没有字形图集。
 - 未实现：docGrid、脚注、跨多栏组 keepNext、连续节页面几何切换、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
 
 ## 许可

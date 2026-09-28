@@ -142,6 +142,22 @@ const TABLE: &str = concat!(
 );
 
 #[test]
+fn layout_json_carries_mode_tables_and_diagnostics() {
+    let bytes = docx(TABLE);
+    let session = approximate(&bytes, LayoutOptions::default());
+    let value: serde_json::Value = serde_json::from_str(&session.layout_json()).unwrap();
+    assert_eq!(value["schema"], "rsword-layout-result/1");
+    assert_eq!(value["metrics"], "approximate");
+    assert_eq!(value["verticalGrid"], serde_json::Value::Null);
+    assert_eq!(value["tableLayout"], session.table_layout());
+    assert_eq!(value["layoutInput"], session.document().trace_metadata());
+    assert_eq!(value["diagnostics"].as_array().unwrap().len(), session.diagnostics().len());
+    assert_eq!(value["pages"][0]["lines"].as_array().unwrap().len(), 2, "两行表格，没有尾段");
+    // 同输入再建一次，逐字节相同。
+    assert_eq!(approximate(&bytes, LayoutOptions::default()).layout_json(), session.layout_json());
+}
+
+#[test]
 fn a_table_without_a_tail_paragraph_is_laid_out_and_still_reported() {
     // Word 要求表后有一个段落；缺了照样排表，诊断照留，不替文档补尾段。
     let bytes = docx(TABLE);
@@ -251,6 +267,54 @@ mod fonts {
         assert_eq!(session.vertical_grid(), Some(grid));
         assert_eq!(session.fonts().unwrap().fallback_faces(), registry.fallback_faces());
         assert!(!codes(&session).contains(&DiagnosticCode::MetricsApproximate));
+    }
+
+    #[test]
+    fn pages_paint_the_same_one_at_a_time() {
+        let session = PreparedDocument::load(&fixture("cjk-plain.docx"))
+            .unwrap()
+            .layout_with_fonts(sans_with_droid(), VerticalGrid::None, &LayoutOptions::default())
+            .unwrap();
+        let whole = session.paint();
+        let pages = PaintList { pages: (0..session.pages().len()).map(|i| session.paint_page(i).unwrap()).collect() };
+        assert_eq!(trace(&pages, None), trace(&whole, None));
+        assert!(session.paint_page(session.pages().len()).is_none());
+    }
+
+    #[test]
+    fn same_fonts_tells_roles_apart_where_the_fingerprint_cannot() {
+        let session = PreparedDocument::load(&fixture("cjk-plain.docx"))
+            .unwrap()
+            .layout_with_fonts(sans_with_droid(), VerticalGrid::None, &LayoutOptions::default())
+            .unwrap();
+        assert!(session.same_fonts(&sans_with_droid()));
+        // 同样两份字体，Droid 当正文字体：指纹相同，角色不同。
+        let mut primaries = FontRegistry::new();
+        primaries.add(font("LiberationSans-Regular.ttf"), 0).unwrap();
+        primaries.add(font("DroidSansFallbackFull.ttf"), 0).unwrap();
+        assert_eq!(primaries.fingerprint(), session.font_fingerprint());
+        assert!(!session.same_fonts(&primaries));
+        let approximate = approximate(&fixture("cjk-plain.docx"), LayoutOptions::default());
+        assert!(!approximate.same_fonts(&sans_with_droid()));
+    }
+
+    #[test]
+    fn font_sources_replay_an_identical_registry() {
+        let mut sources = rsword_layout_core::FontSources::new();
+        sources.add(font("LiberationSans-Regular.ttf"), 0).unwrap();
+        sources.add_fallback(font("DroidSansFallbackFull.ttf"), 0).unwrap();
+        sources.add(font("DejaVuSans.ttf"), 0).unwrap();
+        let built = sources.build();
+        assert_eq!(built.face_ids(), sources.registry().face_ids());
+        assert_eq!(built.fallback_faces(), sources.registry().fallback_faces());
+        assert_eq!(built.fingerprint(), sources.registry().fingerprint());
+        let session = PreparedDocument::load(&fixture("cjk-plain.docx"))
+            .unwrap()
+            .layout_with_fonts(built, VerticalGrid::None, &LayoutOptions::default())
+            .unwrap();
+        assert!(session.same_fonts(sources.registry()));
+        assert_eq!(sources.add(b"garbage".to_vec(), 0), Err("FONT_INVALID"));
+        assert!(session.same_fonts(sources.registry()), "装不进去的字体不改字体集");
     }
 
     #[test]

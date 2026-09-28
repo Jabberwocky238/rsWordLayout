@@ -686,7 +686,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut trace: serde_json::Value = serde_json::from_str(&to_trace_json(&record, &meta))?;
     trace["layoutInput"] = document.trace_metadata();
     if !document.tables.is_empty() {
-        trace["tableLayout"] = table_layout(session.pages());
+        trace["tableLayout"] = session.table_layout();
     }
     std::fs::write(&output, serde_json::to_string_pretty(&trace)?)?;
 
@@ -707,32 +707,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("已写出 {output}");
     Ok(())
-}
-
-/// 表格行盒的引擎记账，twips。行号是页内行号，与 `pages[].lines[].index` 相同。
-/// 这是引擎的诊断，不是 Word 实测的行盒。
-fn table_layout(pages: &[rsword_layout_core::Page]) -> serde_json::Value {
-    use serde_json::json;
-    json!({
-        "unit": "twips",
-        "status": "engine diagnostic, not measured Word geometry",
-        "pages": pages.iter().enumerate().map(|(index, page)| json!({
-            "page": index,
-            "rows": page.table_rows.iter().map(|row| json!({
-                "table": row.table,
-                "row": row.row,
-                "column": row.column,
-                "rect": [row.rect.x, row.rect.y, row.rect.width, row.rect.height],
-                "topFine": row.top_fine,
-                "heightFine": row.height_fine,
-                "cells": row.cells.iter().map(|cell| json!({
-                    "source": [cell.source.0, cell.source.1],
-                    "lines": [cell.lines.start, cell.lines.end],
-                    "overflowFine": cell.overflow_fine,
-                })).collect::<Vec<_>>(),
-            })).collect::<Vec<_>>(),
-        })).collect::<Vec<_>>(),
-    })
 }
 
 #[cfg(test)]

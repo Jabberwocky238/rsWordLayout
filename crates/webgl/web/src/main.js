@@ -34,21 +34,24 @@ async function boot() {
 }
 
 // 默认字体集：运行时 fetch，不编进 wasm——二进制因此保持在 ~3.9MB，
-// 字体则可被浏览器缓存。覆盖不全时 fontenv 会报 FONT_MISSING 而非画错。
+// 字体则可被浏览器缓存。缺字不会静默画错：会话的诊断里报出来（见 diagnostics_json）。
+// Droid 走回退链：当正文字体装的话，它会按内容哈希抢走拉丁字母。
 const DEFAULT_FONTS = [
-  './fonts/DejaVuSans.ttf',           // 拉丁/希腊/西里尔
-  './fonts/DroidSansFallbackFull.ttf' // CJK 及大量回退字形
+  { url: './fonts/DejaVuSans.ttf', fallback: false },          // 拉丁/希腊/西里尔
+  { url: './fonts/DroidSansFallbackFull.ttf', fallback: true } // CJK 及大量回退字形
 ]
 let fontNote = '无字体'
 
 async function loadFonts() {
   fonts = new FontSet()
   let ok = 0
-  for (const url of DEFAULT_FONTS) {
+  for (const { url, fallback } of DEFAULT_FONTS) {
     try {
       const res = await fetch(url)
       if (!res.ok) { console.warn('字体取不到', url, res.status); continue }
-      fonts.add_font(new Uint8Array(await res.arrayBuffer()), 0)
+      const bytes = new Uint8Array(await res.arrayBuffer())
+      if (fallback) fonts.add_fallback(bytes, 0)
+      else fonts.add_font(bytes, 0)
       ok++
     } catch (e) {
       console.warn('字体加载失败', url, e)
@@ -112,6 +115,10 @@ function draw() {
   els.canvas.style.height = Math.round(layoutH * zoom) + 'px'
 
   renderer.clear(1, 1, 1)
+  if (session.is_approximate) {
+    log('没有字体，只能近似排版，画不出文字。')
+    return
+  }
   session.render_page(renderer, fonts, page, renderDpi)
 
   els.pageinfo.textContent = `${page + 1} / ${total}`
@@ -129,7 +136,8 @@ function draw() {
     `第 ${page + 1}/${total} 页 · 版面 ${Math.round(layoutW)}×${Math.round(layoutH)}` +
       `（不随缩放变）· 位图 ${Math.round(w)}×${Math.round(h)} · ` +
       `缩放 ${zoom.toFixed(2)}× · 栅格 DPI ${Math.round(renderDpi)}`,
-    `\n片段 ${frags} · 字形缓存 ${fonts.glyph_count} 个 · ${fontNote}`,
+    `\n片段 ${frags} · 字形缓存 ${fonts.glyph_count} 个 · ${fontNote}` +
+      ` · 诊断 ${JSON.parse(session.diagnostics_json()).length} 条（见控制台）`,
   )
 }
 
@@ -139,7 +147,12 @@ async function load(file) {
   try {
     log(`读取 ${file.name} …`)
     const bytes = new Uint8Array(await file.arrayBuffer())
-    const next = new LayoutSession(bytes, Number(els.dpi.value))
+    // 用字体集排版：量宽、整形与绘制同一套字体。没有字体时只能近似排版，画不出文字。
+    const next = fonts.is_empty
+      ? new LayoutSession(bytes, Number(els.dpi.value))
+      : LayoutSession.withFonts(bytes, Number(els.dpi.value), fonts)
+    const diagnostics = JSON.parse(next.diagnostics_json())
+    for (const d of diagnostics) console.info(d.code, d.message)
     // 新会话建成功之后再替换旧的，失败时保留当前画面。
     session?.free()
     session = next

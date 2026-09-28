@@ -357,13 +357,13 @@ pub use browser::WebGlRenderer;
 
 #[cfg(target_arch = "wasm32")]
 mod js_api {
+    use rsword_layout_core::{FontSources, VerticalGrid};
     use rsword_layout_gpu::{GlyphAtlas, Viewport};
     use rsword_layout_wasm::LayoutSession as CoreSession;
     use wasm_bindgen::prelude::*;
 
     use crate::browser::WebGlRenderer;
     use crate::fonts::RegistrySource;
-    use rsword_layout_core::font::FontRegistry;
 
     /// 字形图集边长。2048² 的单通道图集是 4MB 纹素，能放约四千个 32px 字形——
     /// 一页文档通常几百个不同字形，足够，满了会按货架淘汰最久未用的。
@@ -371,9 +371,12 @@ mod js_api {
 
     /// 字体集。与 [`LayoutSession`] 分开，因为字体的生命周期更长：
     /// 换一份 docx 不该重新下载与解析字体。
+    ///
+    /// 排版时会话取字体集当下的快照（`LayoutSession.withFonts`）；之后再往字体集里加字体，
+    /// 已排好的会话画不了——`render_page` 会拒绝，要重排。
     #[wasm_bindgen]
     pub struct FontSet {
-        registry: FontRegistry,
+        fonts: FontSources,
         atlas: GlyphAtlas,
     }
 
@@ -382,29 +385,35 @@ mod js_api {
         #[wasm_bindgen(constructor)]
         pub fn new() -> FontSet {
             FontSet {
-                registry: FontRegistry::new(),
+                fonts: FontSources::new(),
                 atlas: GlyphAtlas::new(ATLAS_SIDE, ATLAS_SIDE),
             }
         }
 
-        /// 注册一份字体（TTF/OTF/TTC 的原始字节）。返回它的内容哈希。
+        /// 注册一份正文字体（TTF/OTF/TTC 的原始字节）。返回它的 face 标识（内容哈希）。
         ///
         /// `index` 是 TTC 里的子字体序号，普通 TTF/OTF 传 0。
         pub fn add_font(&mut self, bytes: &[u8], index: u32) -> Result<String, JsValue> {
-            self.registry
-                .add(bytes.to_vec(), index)
-                .map_err(|e| JsValue::from_str(e))
+            self.fonts.add(bytes.to_vec(), index).map_err(JsValue::from_str)
+        }
+
+        /// 把一份字体接到回退链末尾：只给 eastAsia 槽里画不出的字符查。
+        ///
+        /// CJK 回退字体（如 Droid Sans Fallback）该走这里：当正文字体注册的话，它会参与
+        /// 「任意覆盖」查找，按内容哈希排前时连拉丁字母也一并抢走。
+        pub fn add_fallback(&mut self, bytes: &[u8], index: u32) -> Result<String, JsValue> {
+            self.fonts.add_fallback(bytes.to_vec(), index).map_err(JsValue::from_str)
         }
 
         /// 字体环境指纹：字体集变了它就变。
         #[wasm_bindgen(getter)]
         pub fn fingerprint(&self) -> Option<String> {
-            self.registry.fingerprint().map(str::to_owned)
+            self.fonts.registry().fingerprint().map(str::to_owned)
         }
 
         #[wasm_bindgen(getter)]
         pub fn is_empty(&self) -> bool {
-            self.registry.is_empty()
+            self.fonts.registry().is_empty()
         }
 
         /// 当前图集里缓存了多少字形。
@@ -428,7 +437,9 @@ mod js_api {
 
     #[wasm_bindgen]
     impl LayoutSession {
-        /// 解析并排版。`dpi`：96 = CSS 像素，192 = 2x HiDPI；传 0 或负数按 96 处理。
+        /// 近似排版（不读字体）。`dpi`：96 = CSS 像素，192 = 2x HiDPI；传 0 或负数按 96 处理。
+        ///
+        /// 近似会话没有字形，`render_page` 画不了文字；要画用 [`LayoutSession::with_fonts`]。
         #[wasm_bindgen(constructor)]
         pub fn new(docx: &[u8], dpi: f32) -> Result<LayoutSession, JsValue> {
             CoreSession::build(docx, dpi)
@@ -436,9 +447,29 @@ mod js_api {
                 .map_err(|e| JsValue::from_str(&e))
         }
 
+        /// 用字体集当下的字体排版：量宽、整形与绘制都用这一套。
+        #[wasm_bindgen(js_name = withFonts)]
+        pub fn with_fonts(docx: &[u8], dpi: f32, fonts: &FontSet) -> Result<LayoutSession, JsValue> {
+            CoreSession::build_with_fonts(
+                docx,
+                dpi,
+                &fonts.fonts,
+                VerticalGrid::None,
+                &rsword_layout_core::LayoutOptions::default(),
+            )
+            .map(|inner| LayoutSession { inner })
+            .map_err(|e| JsValue::from_str(&e))
+        }
+
         #[wasm_bindgen(getter)]
         pub fn page_count(&self) -> usize {
             self.inner.page_count()
+        }
+
+        /// 近似会话（不读字体、没有字形）。
+        #[wasm_bindgen(getter)]
+        pub fn is_approximate(&self) -> bool {
+            self.inner.is_approximate()
         }
 
         /// 某页在指定 DPI 下的像素宽高 `[w, h]`；越界返回空数组。
@@ -464,14 +495,25 @@ mod js_api {
             self.inner.oracle_summary(index)
         }
 
+        /// 全部诊断，JSON 数组 `[{"code", "message"}]`。
+        pub fn diagnostics_json(&self) -> String {
+            self.inner.diagnostics_json()
+        }
+
+        /// 规范化的布局结果（`rsword-layout-result/1`），与原生同输入逐字节相同。
+        pub fn layout_json(&self) -> String {
+            self.inner.layout_json()
+        }
+
         /// 把某页画到渲染器上。
         ///
         /// 分三步，顺序不能换：
-        ///   1. core 产出**矢量**绘制指令（twips，整形已做，无像素）；
+        ///   1. 会话产出**矢量**绘制指令（twips，整形用排版时的同一套字体，无像素）；
         ///   2. gpu 按 `Viewport` 栅格化成顶点，过程中按需往图集填字形；
         ///   3. 图集有脏区域就先传纹理，再绘制。
         ///
-        /// DPI 只在第 2 步进入——这正是重构后 core 与设备解耦的体现。
+        /// `fonts` 只用来栅格化，必须就是排版时的那套字体：近似会话、或字体集在排版之后
+        /// 变了，都拒绝，不拿一套不匹配的字体去画。
         pub fn render_page(
             &self,
             r: &WebGlRenderer,
@@ -480,19 +522,29 @@ mod js_api {
             dpi: f32,
         ) -> Result<(), JsValue> {
             let dpi = if dpi > 0.0 { dpi } else { 96.0 };
+            let session = self.inner.session();
+            if session.is_approximate() {
+                return Err(JsValue::from_str(
+                    "近似会话没有字形，画不了文字：用 LayoutSession.withFonts(docx, dpi, fonts) 排版",
+                ));
+            }
+            if !session.same_fonts(fonts.fonts.registry()) {
+                return Err(JsValue::from_str(
+                    "字体集在排版之后变了：用 LayoutSession.withFonts 重新排版",
+                ));
+            }
 
-            // 1. 矢量指令。整形要借 registry，先取出 face 列表供 paint 层回查。
-            let faces = fonts.registry.face_ids();
+            // 1. 矢量指令。
             let page = self
                 .inner
-                .paint(index, Some(&fonts.registry), &faces)
+                .paint(index)
                 .ok_or_else(|| JsValue::from_str(&format!("页号越界：{index}")))?;
 
             // 2. 栅格化。建帧过程会按需填图集，所以必须先建帧再上传纹理。
             let vp = Viewport::from_page(page.width, page.height, dpi);
-            let FontSet { registry, atlas } = fonts;
+            let FontSet { fonts: sources, atlas } = fonts;
             let source = RegistrySource {
-                registry: std::cell::RefCell::new(registry),
+                rasterizer: std::cell::RefCell::new(sources.rasterizer()),
                 atlas: std::cell::RefCell::new(atlas),
             };
             let frame = rsword_layout_gpu::build_page(&page, &vp, Some(&source));

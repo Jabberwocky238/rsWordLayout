@@ -15,11 +15,20 @@
 //!
 //! `RslSession` 不是线程安全的：同一个指针不要在多个线程里并发使用。
 //! 不同的 session 之间互不影响。
+//!
+//! # 排版
+//!
+//! 与 SVG CLI、`layout-trace` 同一个核心会话（`PreparedDocument` → `DocumentSession`）。
+//! [`rsl_session_new`] 是近似模式（不读字体）；[`rsl_session_new_ex`] 可以带字体集
+//! （`fontenv` 特性下的 [`rsl_fonts_new`]）与选项。诊断随会话交出（[`rsl_diagnostic_count`]），
+//! 建会话失败时并进 [`rsl_last_error`] 的文字，一条一行。
+//! [`rsl_layout_json`] 给规范化的布局结果，同输入与 Rust 侧逐字节相同。
+//!
+//! 帧（[`rsl_frame_copy`]）目前只有矩形类几何：本库还不给 C 侧字形图集，字形批次为空。
 
 use std::ffi::{CStr, CString, c_char, c_int, c_void};
 
-use rsword_layout_core::Page;
-use rsword_layout_core::paint_page;
+use rsword_layout_core::{DocumentSession, LayoutOptions, Platform, PreparedDocument, View, WrapPolicy};
 use rsword_layout_gpu::{Frame, Viewport, build_page};
 
 /// 错误码。0 为成功，负值为失败。
@@ -67,13 +76,127 @@ pub unsafe extern "C" fn rsl_string_free(s: *mut c_char) {
 
 /// 一次布局会话。对 C 侧是不透明指针。
 pub struct RslSession {
-    doc: Vec<Page>,
+    session: DocumentSession,
     dpi: f32,
+    /// 诊断的 C 字符串，与会话同寿：`rsl_diagnostic_*` 返回的指针指向这里。
+    diagnostics: Vec<(CString, CString)>,
 }
 
-/// 解析并排版一份 docx。
+/// 平台：桌面 Word（默认）。
+pub const RSL_PLATFORM_DESKTOP: c_int = 0;
+/// 平台：Android Word。
+pub const RSL_PLATFORM_ANDROID: c_int = 1;
+/// 视图：分页视图（默认）。
+pub const RSL_VIEW_PRINT: c_int = 0;
+/// 视图：移动视图。
+pub const RSL_VIEW_MOBILE: c_int = 1;
+/// 不按锚定对象绕排（默认）。
+pub const RSL_WRAP_NONE: c_int = 0;
+/// 按锚定对象绕排（近似，见核心 `WrapPolicy::Anchors`）。
+pub const RSL_WRAP_ANCHORS: c_int = 1;
+/// 纵向不量化（默认）。
+pub const RSL_GRID_NONE: c_int = 0;
+/// 纵向量化到 Mac Word 的 1/300 英寸栅格（含回测规则）。只用于真字体。
+pub const RSL_GRID_MAC: c_int = 1;
+
+/// 版面选项。全零即默认：桌面、分页视图、不绕排、不量化。
+#[derive(Debug, Clone, Copy, Default)]
+#[repr(C)]
+pub struct RslOptions {
+    pub platform: c_int,
+    pub view: c_int,
+    pub wrap: c_int,
+    pub vertical_grid: c_int,
+}
+
+impl RslOptions {
+    fn layout(&self) -> Result<LayoutOptions, String> {
+        let platform = match self.platform {
+            RSL_PLATFORM_DESKTOP => Platform::Desktop,
+            RSL_PLATFORM_ANDROID => Platform::Android,
+            other => return Err(format!("platform 取值无效：{other}")),
+        };
+        let view = match self.view {
+            RSL_VIEW_PRINT => View::Print,
+            RSL_VIEW_MOBILE => View::Mobile,
+            other => return Err(format!("view 取值无效：{other}")),
+        };
+        let wrap = match self.wrap {
+            RSL_WRAP_NONE => WrapPolicy::None,
+            RSL_WRAP_ANCHORS => WrapPolicy::Anchors,
+            other => return Err(format!("wrap 取值无效：{other}")),
+        };
+        if !matches!(self.vertical_grid, RSL_GRID_NONE | RSL_GRID_MAC) {
+            return Err(format!("vertical_grid 取值无效：{}", self.vertical_grid));
+        }
+        Ok(LayoutOptions { platform, view, wrap })
+    }
+}
+
+/// 字体集：按声明顺序记下字体与角色，每建一个会话取一份快照。对 C 侧是不透明指针。
 ///
-/// 失败返回 NULL，原因用 [`rsl_last_error`] 取。
+/// 会话建好之后再往字体集里加字体，不影响已有的会话。
+pub struct RslFonts {
+    #[cfg(feature = "fontenv")]
+    fonts: rsword_layout_core::FontSources,
+}
+
+/// 新建空字体集。用 [`rsl_fonts_free`] 释放。
+#[cfg(feature = "fontenv")]
+#[unsafe(no_mangle)]
+pub extern "C" fn rsl_fonts_new() -> *mut RslFonts {
+    Box::into_raw(Box::new(RslFonts { fonts: rsword_layout_core::FontSources::new() }))
+}
+
+/// 释放字体集。
+///
+/// # Safety
+/// `f` 必须来自 [`rsl_fonts_new`] 且尚未释放，或为 NULL。
+#[cfg(feature = "fontenv")]
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_fonts_free(f: *mut RslFonts) {
+    if !f.is_null() {
+        drop(unsafe { Box::from_raw(f) });
+    }
+}
+
+/// 装一份字体（TTF/OTF/TTC 原始字节）。`index` 是 TTC 子字体序号；`fallback` 非零时接到
+/// 回退链末尾（只给 eastAsia 槽里画不出的字符查），否则是正文字体。
+/// 失败返回 [`RSL_ERR_FAILED`]，错误码（如 `FONT_INVALID`）用 [`rsl_last_error`] 取。
+///
+/// # Safety
+/// `f` 必须是有效的字体集指针；`data` 必须指向至少 `len` 字节的可读内存。
+#[cfg(feature = "fontenv")]
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_fonts_add(
+    f: *mut RslFonts,
+    data: *const u8,
+    len: usize,
+    index: u32,
+    fallback: c_int,
+) -> c_int {
+    let Some(f) = (unsafe { f.as_mut() }) else {
+        set_error("fonts 为空指针");
+        return RSL_ERR_NULL;
+    };
+    if data.is_null() {
+        set_error("data 为空指针");
+        return RSL_ERR_NULL;
+    }
+    let bytes = unsafe { std::slice::from_raw_parts(data, len) }.to_vec();
+    let result = if fallback != 0 { f.fonts.add_fallback(bytes, index) } else { f.fonts.add(bytes, index) };
+    match result {
+        Ok(_) => RSL_OK,
+        Err(code) => {
+            set_error(code);
+            RSL_ERR_FAILED
+        }
+    }
+}
+
+/// 解析并近似排版一份 docx（不读字体，默认选项）。
+///
+/// 失败返回 NULL，原因（含随错误交出的诊断）用 [`rsl_last_error`] 取。
 ///
 /// # Safety
 /// `data` 必须指向至少 `len` 字节的可读内存。
@@ -83,12 +206,31 @@ pub unsafe extern "C" fn rsl_session_new(
     len: usize,
     dpi: f32,
 ) -> *mut RslSession {
+    unsafe { rsl_session_new_ex(data, len, dpi, std::ptr::null(), std::ptr::null()) }
+}
+
+/// 解析并排版一份 docx。`fonts` 为 NULL 时近似排版；否则用它当下的快照排真字体。
+/// `options` 为 NULL 时用默认选项。
+///
+/// 失败返回 NULL，原因（含随错误交出的诊断）用 [`rsl_last_error`] 取。
+///
+/// # Safety
+/// `data` 必须指向至少 `len` 字节的可读内存；`fonts`、`options` 必须有效或为 NULL。
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_session_new_ex(
+    data: *const u8,
+    len: usize,
+    dpi: f32,
+    fonts: *const RslFonts,
+    options: *const RslOptions,
+) -> *mut RslSession {
     if data.is_null() {
         set_error("data 为空指针");
         return std::ptr::null_mut();
     }
     let bytes = unsafe { std::slice::from_raw_parts(data, len) };
-    match build_session(bytes, dpi) {
+    let options = unsafe { options.as_ref() }.copied().unwrap_or_default();
+    match build_session(bytes, dpi, unsafe { fonts.as_ref() }, &options) {
         Ok(s) => Box::into_raw(Box::new(s)),
         Err(e) => {
             set_error(e);
@@ -97,26 +239,109 @@ pub unsafe extern "C" fn rsl_session_new(
     }
 }
 
-fn build_session(docx: &[u8], dpi: f32) -> Result<RslSession, String> {
-    use rsword_layout_core::load_document;
-    use rsword_layout_core::{Engine, PageSetup};
-    use rsword_layout_core::SimpleMetrics;
-
-    // 与 layout-trace 同一个入口：并排的 `w:rPr` 解析器只留最后一个，`load_document` 先把它们
-    // 并起来。直接 `SessionTable::document()` 的话，同一份 docx 换个入口就排得不一样。
-    // 合并失败时它交回原样的 JSON（`merge_error`），这里没有告警通道，照原样排。
-    let loaded = load_document(docx).map_err(|e| format!("解析失败：{e}"))?;
-    let document = loaded.layout_document();
-    if document.paras.is_empty() {
-        return Err("文档里没有可排版的段落".into());
+fn build_session(
+    docx: &[u8],
+    dpi: f32,
+    fonts: Option<&RslFonts>,
+    options: &RslOptions,
+) -> Result<RslSession, String> {
+    let layout = options.layout()?;
+    // 与 layout-trace 同一个入口：并排的 `w:rPr` 解析器只留最后一个，`PreparedDocument::load`
+    // 先把它们并起来；合并失败、投影诊断都进会话诊断。
+    let prepared = PreparedDocument::load(docx).map_err(|e| format!("解析失败：{e}"))?;
+    let session = match fonts {
+        None if options.vertical_grid != RSL_GRID_NONE => {
+            return Err("vertical_grid 只用于真字体：近似排版不量化".into());
+        }
+        None => prepared.layout_approximate(&layout),
+        #[cfg(feature = "fontenv")]
+        Some(f) => {
+            let grid = match options.vertical_grid {
+                RSL_GRID_MAC => rsword_layout_core::VerticalGrid::MacWordThreeHundredthsInch,
+                _ => rsword_layout_core::VerticalGrid::None,
+            };
+            prepared.layout_with_fonts(f.fonts.build(), grid, &layout)
+        }
+        #[cfg(not(feature = "fontenv"))]
+        // 不开 fontenv 时 C 侧造不出字体集；传进来的只能是坏指针，报错而不是 panic 过边界。
+        Some(_) => return Err("本库没有 fontenv 特性，不支持字体集".into()),
     }
-
-    let metrics = SimpleMetrics;
-    let engine = Engine::new(&metrics, PageSetup::a4());
+    .map_err(|e| e.report())?;
+    let c = |s: &str| CString::new(s).unwrap_or_else(|_| c"诊断含 NUL 字节".into());
+    let diagnostics = session
+        .diagnostics()
+        .iter()
+        .map(|d| (c(d.code.as_str()), c(&d.message)))
+        .collect();
     Ok(RslSession {
-        doc: engine.layout_document(&document),
+        session,
         dpi: if dpi > 0.0 { dpi } else { 96.0 },
+        diagnostics,
     })
+}
+
+/// 诊断条数。空指针返回 0。
+///
+/// # Safety
+/// `s` 必须是有效的会话指针或 NULL。
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_diagnostic_count(s: *const RslSession) -> usize {
+    unsafe { s.as_ref() }.map_or(0, |s| s.diagnostics.len())
+}
+
+/// 第 `index` 条诊断的码（如 `GLYPH_NOMINAL`，稳定）。越界或空指针返回 NULL。
+/// 指针在会话释放前有效，不要释放它。
+///
+/// # Safety
+/// `s` 必须是有效的会话指针或 NULL。
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_diagnostic_code(s: *const RslSession, index: usize) -> *const c_char {
+    unsafe { s.as_ref() }
+        .and_then(|s| s.diagnostics.get(index))
+        .map_or(std::ptr::null(), |(code, _)| code.as_ptr())
+}
+
+/// 第 `index` 条诊断的原文（UTF-8）。越界或空指针返回 NULL。指针在会话释放前有效。
+///
+/// # Safety
+/// `s` 必须是有效的会话指针或 NULL。
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_diagnostic_message(s: *const RslSession, index: usize) -> *const c_char {
+    unsafe { s.as_ref() }
+        .and_then(|s| s.diagnostics.get(index))
+        .map_or(std::ptr::null(), |(_, message)| message.as_ptr())
+}
+
+/// 近似会话（不读字体、没有字形）返回 1，真字体返回 0，空指针返回 -1。
+///
+/// # Safety
+/// `s` 必须是有效的会话指针或 NULL。
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_session_is_approximate(s: *const RslSession) -> c_int {
+    match unsafe { s.as_ref() } {
+        Some(s) => c_int::from(s.session.is_approximate()),
+        None => -1,
+    }
+}
+
+/// 规范化的布局结果（JSON，schema `rsword-layout-result/1`），同输入与 Rust 侧逐字节相同。
+/// 返回的字符串用 [`rsl_string_free`] 释放；空指针返回 NULL。
+///
+/// # Safety
+/// `s` 必须是有效的会话指针或 NULL。
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rsl_layout_json(s: *const RslSession) -> *mut c_char {
+    let Some(s) = (unsafe { s.as_ref() }) else {
+        set_error("session 为空指针");
+        return std::ptr::null_mut();
+    };
+    match CString::new(s.session.layout_json()) {
+        Ok(json) => json.into_raw(),
+        Err(_) => {
+            set_error("布局结果含 NUL 字节");
+            std::ptr::null_mut()
+        }
+    }
 }
 
 /// 释放会话。
@@ -137,7 +362,7 @@ pub unsafe extern "C" fn rsl_session_free(s: *mut RslSession) {
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsl_page_count(s: *const RslSession) -> usize {
     match unsafe { s.as_ref() } {
-        Some(s) => s.doc.len(),
+        Some(s) => s.session.pages().len(),
         None => 0,
     }
 }
@@ -161,7 +386,7 @@ pub unsafe extern "C" fn rsl_page_size(
         set_error("输出指针为空");
         return RSL_ERR_NULL;
     }
-    let Some(p) = s.doc.get(index) else {
+    let Some(p) = s.session.pages().get(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
@@ -180,7 +405,7 @@ pub unsafe extern "C" fn rsl_page_size(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rsl_fragment_count(s: *const RslSession, index: usize) -> usize {
     match unsafe { s.as_ref() } {
-        Some(s) => s.doc.get(index).map_or(0, |p| p.fragments.len()),
+        Some(s) => s.session.pages().get(index).map_or(0, |p| p.fragments.len()),
         None => 0,
     }
 }
@@ -205,14 +430,14 @@ pub unsafe extern "C" fn rsl_frame_sizes(
         set_error("输出指针为空");
         return RSL_ERR_NULL;
     }
-    let Some(page) = s.doc.get(index) else {
+    let Some(page) = s.session.paint_page(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
     // 先转成矢量绘制指令，再按 viewport 栅格化——分辨率只在后一步进入。
     // 没有 GlyphSource：文字批次为空，只产出矩形类几何。
-    let vp = Viewport::from_page(page.size.width, page.size.height, s.dpi);
-    let f = build_page(&paint_page(page, None, &[]), &vp, None);
+    let vp = Viewport::from_page(page.width, page.height, s.dpi);
+    let f = build_page(&page, &vp, None);
     unsafe {
         *out_vertex_bytes = f.vertex_bytes();
         *out_index_bytes = f.index_bytes();
@@ -252,12 +477,12 @@ pub unsafe extern "C" fn rsl_frame_copy(
         set_error("session 为空指针");
         return RSL_ERR_NULL;
     };
-    let Some(page) = s.doc.get(index) else {
+    let Some(page) = s.session.paint_page(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
-    let vp = Viewport::from_page(page.size.width, page.size.height, s.dpi);
-    let f = build_page(&paint_page(page, None, &[]), &vp, None);
+    let vp = Viewport::from_page(page.width, page.height, s.dpi);
+    let f = build_page(&page, &vp, None);
 
     if vertices_cap < f.vertex_bytes() || indices_cap < f.index_bytes()
         || batches_cap < f.batches.len()
@@ -333,7 +558,7 @@ pub unsafe extern "C" fn rsl_page_ortho(
         set_error("输出指针为空");
         return RSL_ERR_NULL;
     }
-    let Some(p) = s.doc.get(index) else {
+    let Some(p) = s.session.pages().get(index) else {
         set_error(format!("页号越界：{index}"));
         return RSL_ERR_RANGE;
     };
@@ -389,8 +614,8 @@ mod tests {
     #[test]
     fn session_goes_through_load_document() {
         // 同一份 docx 换个入口不该排得不一样：这里的字符间距要与 layout-trace 一样到位。
-        let session = build_session(&double_rpr_docx(), 96.0).unwrap();
-        let spacing: Vec<_> = session.doc[0]
+        let session = build_session(&double_rpr_docx(), 96.0, None, &Default::default()).unwrap();
+        let spacing: Vec<_> = session.session.pages()[0]
             .fragments
             .iter()
             .filter_map(|f| match f {

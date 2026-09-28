@@ -6,6 +6,11 @@ rust-version.workspace = true
 license.workspace = true
 publish = false
 
+[features]
+default = []
+# 真字体排版（`LayoutSession::build_with_fonts`）。不开时只有近似模式。
+fontenv = ["rsword-layout-core/fontenv"]
+
 [dependencies]
 rsword-layout-core = { workspace = true }
 rsword = { workspace = true }

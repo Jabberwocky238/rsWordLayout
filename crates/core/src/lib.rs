@@ -76,6 +76,8 @@ pub use session::{
     AnchorReport, DiagnosticCode, DocumentSession, LayoutOptions, PreparedDocument,
     SessionDiagnostic, SessionError, SessionErrorKind, WrapPolicy,
 };
+#[cfg(feature = "fontenv")]
+pub use session::FontSources;
 
 // ---- 近似度量桩，**不可用于真实排版** ----
 

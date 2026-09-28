@@ -11,5 +11,6 @@ wasm 因此保持 1.8MB 左右，字体则可被浏览器缓存、可按需只�
 两者都允许再分发且不传染。选它们而不是文泉驿微米黑，是因为后者是
 Apache-2.0 或 GPL-3+ 双许可，随产品分发要先选定一条并保留相应声明。
 
-字形选择不按文件名硬编码：由 `docx_layout::fontenv` 按码位查覆盖，
-缺字时报 `FONT_MISSING` 而不是默默画错。
+字形选择不按文件名硬编码：按 Word 的槽规则与码位覆盖选 face（`FontRegistry`）。
+缺字不默默画错：会话诊断报出（`GLYPH_NOMINAL` / `GLYPH_DROPPED`，`diagnostics_json`）。
+Droid 以回退字体注册（`add_fallback`），只接 eastAsia 槽里画不出的字符。

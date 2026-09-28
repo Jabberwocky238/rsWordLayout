@@ -28,9 +28,11 @@ use rsword::package::Package;
 use crate::anchor::AnchorScan;
 use crate::document::{LayoutDocument, PageOverrides};
 use crate::layout::{
-    Engine, FaceId, Page, PageSetup, PaintList, Platform, TextShaper, View, WrapContext,
-    paint_document,
+    Engine, FaceId, Page, PageSetup, PaintList, PaintPage, Platform, TextShaper, View, WrapContext,
+    paint_document, paint_page,
 };
+use crate::oracle::LayoutRecord;
+use crate::oracle_json::{TraceMeta, to_trace_json};
 #[cfg(feature = "fontenv")]
 use crate::layout::Para;
 use crate::font::{FontMetrics, SimpleMetrics};
@@ -166,6 +168,21 @@ impl fmt::Display for SessionError {
 }
 
 impl std::error::Error for SessionError {}
+
+impl SessionError {
+    /// 错误原因加上随错误交出的诊断，一条一行（`CODE: 原文`）。给没有单独诊断通道的宿主
+    /// （C ABI 的 `rsl_last_error`、WASM 抛给 JS 的字符串）用，诊断不因失败而丢。
+    pub fn report(&self) -> String {
+        let mut out = self.to_string();
+        for diagnostic in &self.diagnostics {
+            out.push('\n');
+            out.push_str(diagnostic.code.as_str());
+            out.push_str(": ");
+            out.push_str(&diagnostic.message);
+        }
+        out
+    }
+}
 
 /// 已装载、已投影的文档，等着定度量。
 ///
@@ -497,12 +514,202 @@ impl DocumentSession {
         paint_document(&self.pages, self.shaper(), &self.faces)
     }
 
+    /// 一页的绘制指令，与 [`DocumentSession::paint`] 的那一页相同。越界返回 `None`。
+    pub fn paint_page(&self, index: usize) -> Option<PaintPage> {
+        self.pages.get(index).map(|page| paint_page(page, self.shaper(), &self.faces))
+    }
+
+    /// 这个会话是否正是用 `fonts` 这套字体排的：face 集合与注册顺序、回退链的成员与次序都相同。
+    ///
+    /// 字体指纹不含角色与次序，只比指纹会放过「同一组 face 换了角色」。宿主拿一个
+    /// 比会话活得长的字体集去栅格化时（WebGL 的图集），先用这个核：字体集在排版之后变了，
+    /// 就得重排，不能拿旧的布局配新的字体。近似会话没有字体，恒为 `false`。
+    #[cfg(feature = "fontenv")]
+    pub fn same_fonts(&self, fonts: &FontRegistry) -> bool {
+        self.fonts.as_ref().is_some_and(|(own, _)| {
+            own.face_ids() == fonts.face_ids()
+                && own.fallback_faces() == fonts.fallback_faces()
+                && own.fingerprint() == fonts.fingerprint()
+        })
+    }
+
+    /// 表格行盒的引擎记账，twips。行号是页内行号，与轨迹 `pages[].lines[].index` 相同。
+    /// 这是引擎的诊断，不是 Word 实测的行盒。
+    pub fn table_layout(&self) -> serde_json::Value {
+        use serde_json::json;
+        json!({
+            "unit": "twips",
+            "status": "engine diagnostic, not measured Word geometry",
+            "pages": self.pages.iter().enumerate().map(|(index, page)| json!({
+                "page": index,
+                "rows": page.table_rows.iter().map(|row| json!({
+                    "table": row.table,
+                    "row": row.row,
+                    "column": row.column,
+                    "rect": [row.rect.x, row.rect.y, row.rect.width, row.rect.height],
+                    "topFine": row.top_fine,
+                    "heightFine": row.height_fine,
+                    "cells": row.cells.iter().map(|cell| json!({
+                        "source": [cell.source.0, cell.source.1],
+                        "lines": [cell.lines.start, cell.lines.end],
+                        "overflowFine": cell.overflow_fine,
+                    })).collect::<Vec<_>>(),
+                })).collect::<Vec<_>>(),
+            })).collect::<Vec<_>>(),
+        })
+    }
+
+    /// 规范化的布局结果，给跨入口比较用（schema `rsword-layout-result/1`）。
+    ///
+    /// 同一份 DOCX、同一套字体与选项，从 Rust、C ABI 或 WASM 建会话，这份 JSON 逐字节相同。
+    /// 含：模式与选项；字体快照（指纹、face 注册顺序、回退链）；轨迹的全部页、行、源区间与字形
+    /// （`rsword-layout-trace/1` 的 `pages`）；布局输入（`layoutInput`）；有表格时的行盒；
+    /// 全部诊断。不含任何宿主相关的东西（路径、DPI）。
+    pub fn layout_json(&self) -> String {
+        use serde_json::json;
+        let meta = TraceMeta {
+            engine: format!("rsword-layout-core {}", env!("CARGO_PKG_VERSION")),
+            metrics: String::new(),
+            glyph_origin_method: String::new(),
+            source: String::new(),
+            font_fingerprint: self.font_fingerprint().map(str::to_string),
+        };
+        let trace: serde_json::Value = serde_json::from_str(&to_trace_json(
+            &LayoutRecord::from_paint(&self.paint()),
+            &meta,
+        ))
+        .expect("trace JSON is valid");
+        let platform = match self.options.platform {
+            Platform::Desktop => "desktop",
+            Platform::Android => "android",
+        };
+        let view = match self.options.view {
+            View::Print => "print",
+            View::Mobile => "mobile",
+        };
+        let wrap = match self.options.wrap {
+            WrapPolicy::None => "none",
+            WrapPolicy::Anchors => "anchors",
+        };
+        let fallback_faces: Vec<FaceId> = self.fallback_faces();
+        let mut out = json!({
+            "schema": "rsword-layout-result/1",
+            "engine": trace["engine"],
+            "metrics": if self.is_approximate() { "approximate" } else { "real" },
+            "verticalGrid": self.vertical_grid_name(),
+            "platform": platform,
+            "view": view,
+            "wrap": wrap,
+            "fontFingerprint": trace["fontFingerprint"],
+            "faces": self.faces,
+            "fallbackFaces": fallback_faces,
+            "notdefGlyphs": trace["notdefGlyphs"],
+            "unassignedGlyphs": trace["unassignedGlyphs"],
+            "pages": trace["pages"],
+            "layoutInput": self.document.trace_metadata(),
+            "diagnostics": self.diagnostics.iter().map(|d| json!({
+                "code": d.code.as_str(),
+                "message": d.message,
+            })).collect::<Vec<_>>(),
+        });
+        if !self.document.tables.is_empty() {
+            out["tableLayout"] = self.table_layout();
+        }
+        serde_json::to_string_pretty(&out).expect("layout JSON is valid")
+    }
+
+    fn fallback_faces(&self) -> Vec<FaceId> {
+        #[cfg(feature = "fontenv")]
+        if let Some((fonts, _)) = &self.fonts {
+            return fonts.fallback_faces().to_vec();
+        }
+        Vec::new()
+    }
+
+    fn vertical_grid_name(&self) -> Option<&'static str> {
+        #[cfg(feature = "fontenv")]
+        if let Some((_, grid)) = &self.fonts {
+            return Some(match grid {
+                VerticalGrid::None => "none",
+                VerticalGrid::MacWordThreeHundredthsInch => "mac",
+            });
+        }
+        None
+    }
+
     fn shaper(&self) -> Option<&dyn TextShaper> {
         #[cfg(feature = "fontenv")]
         if let Some((fonts, _)) = &self.fonts {
             return Some(fonts);
         }
         None
+    }
+}
+
+/// 宿主持有的字体集：按声明顺序记下每份字体与它的角色，能重放出一份完全相同的注册表。
+///
+/// `FontRegistry` 不能克隆，而会话要把注册表按值收走。比文档活得长的宿主字体集
+/// （WebGL 的 `FontSet`、C ABI 的 `RslFonts`）就存在这里：每建一个会话 [`FontSources::build`]
+/// 一份新的注册表交进去——注册是确定的，同样的字节、序号与角色按同样的顺序装，
+/// face 表、回退链与指纹都相同（[`DocumentSession::same_fonts`] 核的就是这三样）。
+///
+/// 自己也留一份注册表，装的时候就核字体（坏字节当场报错），并给图集栅格化用
+/// （[`FontSources::rasterizer`]）。代价是字节多存一份。
+#[cfg(feature = "fontenv")]
+pub struct FontSources {
+    entries: Vec<(Vec<u8>, u32, bool)>,
+    registry: FontRegistry,
+}
+
+#[cfg(feature = "fontenv")]
+impl Default for FontSources {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "fontenv")]
+impl FontSources {
+    pub fn new() -> Self {
+        Self { entries: Vec::new(), registry: FontRegistry::new() }
+    }
+
+    /// 装一份正文字体。错误码与 [`FontRegistry::add`] 相同（如 `FONT_INVALID`）。
+    pub fn add(&mut self, bytes: Vec<u8>, index: u32) -> Result<String, &'static str> {
+        let face = self.registry.add(bytes.clone(), index)?;
+        self.entries.push((bytes, index, false));
+        Ok(face)
+    }
+
+    /// 把一份字体接到回退链末尾，见 [`FontRegistry::add_fallback`]。
+    pub fn add_fallback(&mut self, bytes: Vec<u8>, index: u32) -> Result<String, &'static str> {
+        let face = self.registry.add_fallback(bytes.clone(), index)?;
+        self.entries.push((bytes, index, true));
+        Ok(face)
+    }
+
+    /// 当前的注册表，只读。
+    pub fn registry(&self) -> &FontRegistry {
+        &self.registry
+    }
+
+    /// 重放出一份新的注册表，交给 [`PreparedDocument::layout_with_fonts`]。
+    pub fn build(&self) -> FontRegistry {
+        let mut out = FontRegistry::new();
+        for (bytes, index, fallback) in &self.entries {
+            let result = if *fallback {
+                out.add_fallback(bytes.clone(), *index)
+            } else {
+                out.add(bytes.clone(), *index)
+            };
+            result.expect("font bytes were accepted when first added");
+        }
+        out
+    }
+
+    /// 给图集栅格化用。只交出 [`crate::font::Rasterizer`]：能画字形，不能增删字体。
+    pub fn rasterizer(&mut self) -> &mut dyn crate::font::Rasterizer {
+        self.registry.rasterizer_mut()
     }
 }
 

@@ -18,7 +18,7 @@ rsword-layout-gpu = { workspace = true }
 #   wasm32  → rsword-layout-wasm（同为 wasm 目标，类型直接传递，无需跨 ABI）
 #   其余    → rsword-layout-cffi（原生构建下走 C ABI，便于宿主程序共用同一份布局）
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-rsword-layout-wasm = { workspace = true }
+rsword-layout-wasm = { workspace = true, features = ["fontenv"] }
 # 浏览器里要真的画出字：core 管整形（与分辨率无关），gpu 管栅格化。
 rsword-layout-core = { workspace = true, features = ["fontenv"] }
 rsword-layout-gpu = { workspace = true, features = ["raster"] }
