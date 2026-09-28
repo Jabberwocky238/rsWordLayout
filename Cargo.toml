@@ -9,6 +9,7 @@ members = [
   "crates/vulkan",
   "crates/opengl",
   "crates/webgl",
+  "crates/docx-layout",
 ]
 
 [workspace.package]
@@ -18,17 +19,20 @@ license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 rsword = { git = "https://github.com/LilLeapo/rsWordParser.git", rev = "399e36a3c645e9b9001531fb06969f8ce5347e1f" }
-# 字体环境与布局契约来自 docx-layout（MIT OR Apache-2.0）：
-# 它的 fontenv 用 skrifa 读 OpenType，提供按码位的覆盖查询与环境指纹，
+# 字体环境来自 LilLeapo/docx-layout 的 fontenv（MIT OR Apache-2.0），已并入 crates/docx-layout：
+# 它用 skrifa 读 OpenType，提供按码位的覆盖查询与环境指纹，
 # 正是全 Unicode 字体 fallback 需要的东西，不必在本仓库重造。
-docx-layout = { path = "../docx-layout/crates/docx-layout" }
-docx-layout-contract = { path = "../docx-layout/crates/docx-layout-contract" }
+docx-layout = { path = "crates/docx-layout" }
 rsword-layout-core = { path = "crates/core" }
 rsword-layout-gpu = { path = "crates/gpu" }
 rsword-layout-svg = { path = "crates/svg" }
 rsword-layout-wasm = { path = "crates/wasm" }
 rsword-layout-cffi = { path = "crates/cffi" }
 serde_json = "1"
+# 以下三项随 crates/docx-layout 并入，钉住它原仓库的版本。
+serde = { version = "=1.0.228", features = ["derive"] }
+sha2 = "=0.10.9"
+unicode-normalization = "=0.1.24"
 # skrifa 只给字形轮廓，不做光栅化（它自己的依赖仅 bytemuck + core_maths）。
 # zeno 是配套的 2D 路径光栅化器，OutlinePen 与它的 PathBuilder 天然对接。
 skrifa = "=0.44.0"

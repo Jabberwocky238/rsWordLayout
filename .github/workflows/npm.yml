@@ -4,21 +4,12 @@ name: npm
 # 发布到 GitHub Packages（npm.pkg.github.com）。版本号取 crates/webgl/Cargo.toml；该版本在注册表上
 # 还不存在时才构建并发布，已存在则整个作业跳过。改版本号 = 发版。
 # 带 `-` 的预发布版本（0.2.0-rc.1）发到 dist-tag `next`，其余发到 `latest`。
-#
-# 发布用 workflow 自带的 GITHUB_TOKEN；另需仓库 secret
-#   DOCX_LAYOUT_TOKEN  能读私有仓库 LilLeapo/docx-layout 的 token（contents: read）
-#
-# 根 Cargo.toml 以 `path = "../docx-layout/..."` 依赖 docx-layout，所以两个仓库并排检出到
-# $GITHUB_WORKSPACE/rsWordLayout 与 $GITHUB_WORKSPACE/docx-layout。
+# 用 workflow 自带的 GITHUB_TOKEN 发布，不需要额外 secret。
 on:
   push:
     # npm-publish：首发用的发布分支，合进 main 后可从这里删掉
     branches: [main, npm-publish]
   workflow_dispatch:
-    inputs:
-      docx_layout_ref:
-        description: 'docx-layout 的 ref（默认用下方 env 钉住的提交）'
-        required: false
 
 permissions:
   contents: read
@@ -31,20 +22,15 @@ concurrency:
 defaults:
   run:
     shell: bash
-    working-directory: rsWordLayout
 
 env:
   CARGO_TERM_COLOR: always
-  # path 依赖没有版本锁；发布件用哪个 docx-layout 由这里钉住，升级时一并改。
-  DOCX_LAYOUT_REF: 8e81e76bbfb307c186d9ec77a3bce6e54e586c6d
 
 jobs:
   publish:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: rsWordLayout
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -66,20 +52,12 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
       - if: steps.gate.outputs.publish == 'true'
-        uses: actions/checkout@v4
-        with:
-          repository: LilLeapo/docx-layout
-          ref: ${{ inputs.docx_layout_ref || env.DOCX_LAYOUT_REF }}
-          token: ${{ secrets.DOCX_LAYOUT_TOKEN }}
-          path: docx-layout
-      - if: steps.gate.outputs.publish == 'true'
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
       - if: steps.gate.outputs.publish == 'true'
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: rsWordLayout
           key: npm-wasm
       - name: Install matching wasm-bindgen
         if: steps.gate.outputs.publish == 'true'

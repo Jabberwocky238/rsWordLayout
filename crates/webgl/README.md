@@ -26,8 +26,6 @@ session.render_page(renderer, fonts, 0, 96)
 
 ## 构建
 
-依赖旁路检出的 docx-layout（根 `Cargo.toml` 的 `path = "../docx-layout/..."`）。
-
 ```sh
 cargo build -p rsword-layout-webgl --target wasm32-unknown-unknown --release --locked
 wasm-bindgen target/wasm32-unknown-unknown/release/rsword_layout_webgl.wasm --out-dir crates/webgl/pkg --target web
@@ -49,8 +47,7 @@ wasm-bindgen target/wasm32-unknown-unknown/release/rsword_layout_webgl.wasm --ou
 包的元数据在本目录 `package.json`（不写 `version`）；**版本号就是本 crate `Cargo.toml` 的
 `version`**。`.github/workflows/npm.yml` 在 `main` 每次推送时检查 `@jabberwocky238/rs-word-layout@<版本>`：
 注册表上已有则跳过，没有则构建、组装、冒烟并发布。改版本号即发版；带 `-` 的预发布版本发到
-dist-tag `next`。用 workflow 自带的 `GITHUB_TOKEN` 发布；另需能读私有仓库
-LilLeapo/docx-layout 的仓库 secret `DOCX_LAYOUT_TOKEN`。
+dist-tag `next`。用 workflow 自带的 `GITHUB_TOKEN` 发布，不需要额外 secret。
 
 本地组装与冒烟（不发布）：
 

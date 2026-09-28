@@ -173,7 +173,6 @@ fontenv = ["shape", "raster"]
 rsword = { workspace = true }
 serde_json = { workspace = true }
 docx-layout = { workspace = true }
-docx-layout-contract = { workspace = true }
 skrifa = { workspace = true, optional = true }
 zeno = { workspace = true, optional = true }
 rustybuzz = { workspace = true, optional = true }
