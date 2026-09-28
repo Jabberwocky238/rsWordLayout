@@ -49,6 +49,44 @@ cargo run -p rsword-layout-svg --features fontenv --bin render -- \
 这保证的是引擎绘制指令的输出一致性，不代表已有 Word 排版差异已消除，见
 [SVG 字形定位](docs/SVG-POSITIONING-2026-09-27.md)。
 
+## JS 安装
+
+wasm + JS 绑定发布在 GitHub Packages：`@jabberwocky238/rs-word-layout`。GitHub Packages 装包也要认证，
+需要一个带 `read:packages` 的 GitHub token：
+
+```sh
+gh auth refresh -h github.com -s read:packages   # 或新建勾选 read:packages 的 PAT
+export GITHUB_TOKEN=$(gh auth token)
+```
+
+项目根目录的 `.npmrc`（token 从环境变量读，别把 token 写进文件）：
+
+```ini
+@jabberwocky238:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+```sh
+npm install @jabberwocky238/rs-word-layout
+```
+
+```js
+import init, { FontSet, LayoutSession, WebGlRenderer } from '@jabberwocky238/rs-word-layout'
+
+await init()
+const session = new LayoutSession(docxBytes, 96) // 96 = CSS 像素，192 = 2x HiDPI
+const fonts = new FontSet()
+fonts.add_font(fontBytes, 0) // 字体由宿主提供，包里不带
+session.render_page(new WebGlRenderer('canvas-id'), fonts, 0, 96)
+```
+
+- 浏览器 / 打包器：`init()` 不带参数，胶水按 `import.meta.url` 取同目录的 `rsword_layout_webgl_bg.wasm`。
+  Vite 要把包排除在依赖预构建之外，否则开发模式下找不到 wasm：
+  `optimizeDeps: { exclude: ['@jabberwocky238/rs-word-layout'] }`。
+- Node：`initSync({ module: readFileSync(createRequire(import.meta.url).resolve('@jabberwocky238/rs-word-layout/rsword_layout_webgl_bg.wasm')) })`。
+- 布局会话与 WebGL2 渲染器在同一个 wasm 模块里；接口详见 [crates/webgl](crates/webgl/README.md)。
+- 版本号跟 `crates/webgl/Cargo.toml`，由 [npm.yml](.github/workflows/npm.yml) 自动发布。
+
 ## 状态
 
 项目的长期目标、阶段出口和近期任务见

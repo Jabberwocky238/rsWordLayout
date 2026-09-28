@@ -43,6 +43,11 @@ wasm-bindgen target/wasm32-unknown-unknown/release/rsword_layout_webgl.wasm --ou
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
+```sh
+export GITHUB_TOKEN=$(gh auth token)   # 先 gh auth refresh -h github.com -s read:packages
+npm install @jabberwocky238/rs-word-layout
+```
+
 
 包的元数据在本目录 `package.json`（不写 `version`）；**版本号就是本 crate `Cargo.toml` 的
 `version`**。`.github/workflows/npm.yml` 在 `main` 每次推送时检查 `@jabberwocky238/rs-word-layout@<版本>`：
