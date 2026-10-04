@@ -59,8 +59,10 @@ cargo run -p rsword-layout-svg --features fontenv --bin render -- \
 `w:vanish` 隐藏内容不排版，但保留 UTF-16 源位置。
 
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
-y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进、
+y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进
+（含字符单位 `*Chars`；移动视图按视图宽比例缩）、`w:fitText`（整截不可拆）、
 节页面尺寸与边距、换页后重新断行和环绕查询、SVG 后端。
+与 word_analyse 最新一轮读数的对照见 [P0 轮对齐](docs/WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md)。
 等宽与显式不等宽栏共用断行器，支持自动换栏、独立栏断，以及相同页面几何下的
 连续分节末页栏平衡和同页多个栏组，
 详见 [多栏进展](docs/COLUMN-FLOW-2026-09-27.md)。
@@ -80,7 +82,10 @@ y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefor
   装载、排版和绘制，同输入的规范化结果（`layout_json`）逐字节相同，见
   [共享文档会话](docs/SHARED-FONT-SESSION-2026-09-28.md) 与 [绑定层接入](docs/BINDING-SESSION-2026-09-28.md)。
   C ABI 与 WASM 的真字体排版要开 `fontenv` 特性；C 侧帧还没有字形图集。
-- 未实现：docGrid、脚注、跨多栏组 keepNext、连续节页面几何切换、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则。
+- 未实现：docGrid、脚注、跨多栏组 keepNext、连续节页面几何切换、完整浮动锚定、页眉页脚占位、编号标记绘制、完整连续分节规则、
+  行单位段距（`beforeLines` / `afterLines`）、`contextualSpacing`。
+- Android 打印视图的 auto 行高 / docGrid 读数来自**没声明字体**的夹具，手机按自己的缺省字体排，
+  不能拿 Calibri 去拟合；见 [P0 轮对齐](docs/WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md) §4。
 
 ## 许可
 

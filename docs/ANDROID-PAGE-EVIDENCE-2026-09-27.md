@@ -1,5 +1,10 @@
 # Android 页数证据审计与 docGrid 边界
 
+后续更新（2026-10-04）：本文已指出九份夹具没有声明字体与字号。进一步的对照显示，字号阶梯、
+docGrid 阈值与 P0 轮的像素度量三组读数共同指向「手机缺省 11pt、单倍约 1.352 em 的字体」，
+下文按 Calibri 12pt 自然高度做的预测因此不是这批夹具的正确输入，见
+[P0 轮对齐](WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md) §4。
+
 本轮只读 `../word_analyse` 的夹具和既有日志，没有启动 Word、采集新读数或修改原始材料。
 新增 `tools/measure/wordmeasure/android_pages.py` 与单日志入口
 `tools/measure/android_pages.py`，把页容器读数作为独立证据处理。
