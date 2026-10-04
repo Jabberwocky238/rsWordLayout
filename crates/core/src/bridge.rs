@@ -31,6 +31,15 @@ pub(crate) struct EffectiveProperties {
     pub marks: BTreeMap<u32, Value>,
     pub tabs: BTreeMap<u32, Vec<TabStop>>,
     pub recovered_blocks: BTreeMap<u32, Value>,
+    /// 缺省段落样式的 id：没写 `w:pStyle` 的段落就是这个样式（contextualSpacing 比样式用）。
+    pub default_para_style: Option<String>,
+    /// 每段实际的段落样式 id，给 contextualSpacing 比样式用：`w:pStyle` 指向文档里没有的样式时
+    /// 是缺省段落样式（Word 把找不到的样式当缺省样式）。
+    pub para_styles: BTreeMap<u32, Option<String>>,
+}
+
+fn node_id(node: &Value) -> Option<u32> {
+    u32::try_from(node.get("node")?.as_u64()?).ok()
 }
 
 fn node_props<'a>(node: &Value, props: &'a BTreeMap<u32, Value>) -> Option<&'a Value> {
@@ -952,6 +961,12 @@ fn project_text_block(
     let (line_rule, line_value, space_before, space_after) =
         read_spacing(props, before, after);
     let (space_before_lines, space_after_lines) = read_spacing_lines(props);
+    let para_style = match effective {
+        Some(e) => node_id(block)
+            .and_then(|node| e.para_styles.get(&node).cloned())
+            .unwrap_or_else(|| e.default_para_style.clone()),
+        None => style_id.map(str::to_string),
+    };
 
     // 必须在 runs 被 move 进 Para 之前算好。
     let terminator = pick_terminator(has_sect_pr);
@@ -967,6 +982,8 @@ fn project_text_block(
         space_after,
         space_before_lines,
         space_after_lines,
+        contextual_spacing: props.get("contextualSpacing").is_some_and(as_bool),
+        style_id: para_style,
         line_rule,
         line_value,
         keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),

@@ -957,6 +957,16 @@ pub struct Para {
     /// （`after-lines` 26 行）。`linesAndChars` 与 `snapToChars` 网格只按规范推，未测。
     pub space_before_lines: Option<i32>,
     pub space_after_lines: Option<i32>,
+    /// `w:contextualSpacing`（有效值）：前一段同样式时不要自己的段前，后一段同样式时不要自己的段后。
+    ///
+    /// 只管本段自己那一侧，不动相邻段的；去掉的段后仍按原值抵下一段的段前（行间是
+    /// `max(0, 下一段段前 − 本段原段后)`，`both-phase` 段前 300、段后 100 时带开关的段之后是 200）。Android 打印视图实测（2026-10-04，五份页容量夹具，
+    /// 见 `docs/WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md` 补测第 8 条）：全部带开关时段后 240、段前 240
+    /// 都不再占地方（32、31 段一页，不实现是 21）；只有后一段带开关、或只有前一段带开关时，不带开关那段
+    /// 的段距照留（25 段，「任一段的开关管两侧」给 32）；两种样式交替时不去（21）。
+    pub contextual_spacing: bool,
+    /// 段落样式 id（没写 `w:pStyle` 时是缺省段落样式），给 [`Self::contextual_spacing`] 比样式用。
+    pub style_id: Option<String>,
     pub line_rule: LineRule,
     /// 配合 `line_rule` 的值。
     pub line_value: Twips,
@@ -1007,6 +1017,8 @@ impl Default for Para {
             space_after: 0,
             space_before_lines: None,
             space_after_lines: None,
+            contextual_spacing: false,
+            style_id: None,
             line_rule: LineRule::Auto,
             line_value: 240,
             keep_next: false,
@@ -2032,6 +2044,36 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     }
                     if let Some(lines) = para.space_after_lines {
                         para.space_after = twips(lines);
+                    }
+                }
+            }
+        }
+        // 同样式的相邻段落去掉带 contextualSpacing 那段自己的段距（见 `Para::contextual_spacing`）。
+        // 中间隔着表格的两段不算相邻。
+        if paras.iter().any(|p| p.contextual_spacing) {
+            let adjacent = |i: usize| {
+                paras[i - 1].style_id == paras[i].style_id
+                    && !document.tables.iter().any(|t| t.before_para == i)
+            };
+            let drops: Vec<(bool, bool)> = (0..paras.len())
+                .map(|i| {
+                    let own = paras[i].contextual_spacing;
+                    (own && i > 0 && adjacent(i), own && i + 1 < paras.len() && adjacent(i + 1))
+                })
+                .collect();
+            // 去掉的段后仍按原值抵下一段的段前：段距是「上一段的段后，加上下一段段前超出它的部分」，
+            // 段后不占地方了，超出的部分照算（`both-phase`：段前 300、段后 100，带开关的段之后是 200）。
+            let declared_after: Vec<Twips> = paras.iter().map(|p| p.space_after).collect();
+            let paras = paras.to_mut();
+            for (i, (before, after)) in drops.into_iter().enumerate() {
+                if before {
+                    paras[i].space_before = 0;
+                }
+                if after {
+                    paras[i].space_after = 0;
+                    let next = &mut paras[i + 1];
+                    if declared_after[i] >= 0 && next.space_before >= 0 {
+                        next.space_before = (next.space_before - declared_after[i]).max(0);
                     }
                 }
             }

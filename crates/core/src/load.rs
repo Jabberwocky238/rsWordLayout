@@ -285,11 +285,20 @@ fn document_with_main_part(
 }
 
 fn effective_properties(session: &EditSession) -> EffectiveProperties {
-    let document = session.document();
+    let unrelated_styles;
+    let document = if styles_unrelated(session) {
+        unrelated_styles = Document { styles: None, ..session.document().clone() };
+        &unrelated_styles
+    } else {
+        session.document()
+    };
     let resolver = Resolver::new(document);
     let cx = ProjCx { pkg: session.package(), display: false };
     let default_style = resolver.default_style(StyleType::Paragraph).and_then(|s| s.id());
-    let mut effective = EffectiveProperties::default();
+    let mut effective = EffectiveProperties {
+        default_para_style: default_style.map(str::to_string),
+        ..EffectiveProperties::default()
+    };
     // 399e36a 的编辑模型会把段落样式 vanish 的整段归为 protected/invisible，
     // 连字符样式或 toggle 合成后可见的 run 也不保留。仅为布局重建这些段的 typed IR：
     // 分类阶段屏蔽样式 vanish，实际属性仍由未改动的原始 Resolver 计算。
@@ -316,6 +325,9 @@ fn effective_properties(session: &EditSession) -> EffectiveProperties {
             _ => continue,
         };
         let style = para.style_id.as_deref().or(default_style);
+        let defined = para.style_id.as_deref()
+            .filter(|&id| !resolver.chain(id, StyleType::Paragraph).is_empty());
+        effective.para_styles.insert(para.node.0, defined.or(default_style).map(str::to_string));
         let list = match &para.kind {
             TextKind::ListItem { list } => Some(list),
             _ => None,
@@ -365,6 +377,18 @@ fn effective_properties(session: &EditSession) -> EffectiveProperties {
     let mark = resolver.run(default_style, None, &RunProps::default());
     effective.marks.insert(node, layout_run_props(&resolver, &mark, &cx));
     effective
+}
+
+/// 样式 part 不是由主文档的关系引到的（例如只挂在包根 `_rels/.rels` 上）：Word 不加载它。
+///
+/// 钉住的解析器找不到关系时按约定路径 `word/styles.xml` 兜底；Word 不这样。Android 打印视图实测
+/// （2026-10-04）：同一个 `styles.xml`（样式 `Big` 精确行距 720，段落只写 `w:pStyle`）由主文档关系
+/// 引到时每页 21 段，只由包根关系引到时 30 段——`Big` 没有生效。word_analyse 的 `context-mixed` /
+/// `context-height` 就是这种包，两种 `w:pStyle` 在 Word 里都落到缺省样式，contextualSpacing 照同样式去段距。
+fn styles_unrelated(session: &EditSession) -> bool {
+    let package = session.package();
+    session.document().styles.is_some()
+        && package.related(package.main_part(), RelType::Styles).next().is_none()
 }
 
 fn recover_style_hidden_paragraphs(session: &EditSession) -> BTreeMap<rsword::xml::NodeId, Block> {
