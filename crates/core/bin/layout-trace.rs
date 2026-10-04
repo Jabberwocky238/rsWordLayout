@@ -522,22 +522,28 @@ fn metrics_note(
         format!("SimpleMetrics (近似桩：按字符类别给固定宽度，不读字体文件{fallback})")
     } else {
         format!(
-            "RealMetrics (读字体 + rustybuzz 整形；纵向栅格 {}{fallback})",
+            "RealMetrics (读字体 + rustybuzz 整形；纵向栅格 {}{}{fallback})",
             match grid {
                 VerticalGrid::None => "无",
                 VerticalGrid::MacWordThreeHundredthsInch => "Mac Word 1/300 英寸（含回测规则）",
+            },
+            // 与会话同一判据（`session::horizontal_grid`）：只有 Android 移动视图按设备像素量。
+            if platform == Platform::Android && view == View::Mobile {
+                "；横向按设备像素（每英寸 778）"
+            } else {
+                ""
             }
         )
     };
-    let (platform, overflow) = match platform {
-        Platform::Desktop => ("mac", "按 w:overflowPunct 挂出"),
-        Platform::Android => ("android", "不挂出"),
+    let (platform, overflow, spaces) = match platform {
+        Platform::Desktop => ("mac", "按 w:overflowPunct 挂出", ""),
+        Platform::Android => ("android", "不挂出", "；行尾空格不计宽"),
     };
     let view = match view {
         View::Print => "print",
         View::Mobile => "mobile",
     };
-    format!("{metrics}；平台 {platform}，视图 {view}；行末标点 {overflow}")
+    format!("{metrics}；平台 {platform}，视图 {view}；行末标点 {overflow}{spaces}")
 }
 
 /// `--metrics` 的取值：`true` 是要近似桩。没给就是 real。
@@ -809,6 +815,7 @@ mod tests {
         );
         assert!(note.starts_with("RealMetrics"), "{note}");
         assert!(note.contains("1/300"), "{note}");
+        assert!(note.contains("横向按设备像素（每英寸 778）"), "{note}");
         assert!(note.contains("平台 android，视图 mobile"), "{note}");
         // 回退链那一句记在度量的括号里，平台与视图仍在后面。
         let note = metrics_note(
@@ -819,7 +826,7 @@ mod tests {
             "；回退",
         );
         assert!(note.contains("纵向栅格 无；回退)"), "{note}");
-        assert!(note.ends_with("平台 android，视图 print；行末标点 不挂出"), "{note}");
+        assert!(note.ends_with("平台 android，视图 print；行末标点 不挂出；行尾空格不计宽"), "{note}");
     }
 
     const MISSING: &str = "/nonexistent/rsword-no-such-font.ttf";
@@ -1328,7 +1335,7 @@ mod tests {
         assert!(note.ends_with("行末标点 按 w:overflowPunct 挂出"), "{note}");
         for view in [View::Print, View::Mobile] {
             let note = metrics_note(true, VerticalGrid::None, Platform::Android, view, "");
-            assert!(note.ends_with("行末标点 不挂出"), "{note}");
+            assert!(note.ends_with("行末标点 不挂出；行尾空格不计宽"), "{note}");
         }
     }
 

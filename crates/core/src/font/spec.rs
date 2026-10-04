@@ -404,6 +404,28 @@ pub trait FontMetrics {
         best
     }
 
+    /// 与 [`Self::fit`] 相同，只是断点之前的**行尾空格不计**：前缀去掉末尾空格之后放得下就收，
+    /// 空格挂在行宽之外。返回的度量仍含那些空格（它们属于本行）。
+    ///
+    /// Android Word 实测（窄路径，word_analyse `char-scale.md`）：`latinscale` 第三行
+    /// [130, 197) 按设备像素量（[`super::HorizontalGrid`]）去掉行尾空格是 2874 像素、带上是 2897，
+    /// 行宽 2879；Word 收到 197，只有空格不计才放得下。引擎在 Android 上用这一条，桌面仍用
+    /// [`Self::fit`]：Mac 采集里没有能区分两者的行。
+    fn fit_hanging_spaces(&self, text: &str, font: &FontSpec, max_width: Twips) -> Option<(usize, TextMetrics)> {
+        let mut best = None;
+        for op in self.break_opportunities(text) {
+            if op.offset == 0 {
+                continue;
+            }
+            let visible = text[..op.offset].trim_end_matches(' ');
+            if self.measure(visible, font).advance > max_width {
+                break;
+            }
+            best = Some(op.offset);
+        }
+        best.map(|end| (end, self.measure(&text[..end], font)))
+    }
+
     /// Fit with the observed single CJK closing-punctuation overflow enabled.
     ///
     /// Only U+3002, U+FF0C, U+FF09 and U+3001 may overflow, after a CJK character

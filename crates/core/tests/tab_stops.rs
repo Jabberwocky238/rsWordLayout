@@ -493,7 +493,12 @@ fn fits_empty_line<M: FontMetrics>(metrics: &M, word: &str, font: &FontSpec, emp
 /// 两种口径的宽度不要混用。「空行上放不放得下」去掉词后的空格（[`fits_empty_line`]）：
 /// 空行上词照收、空格随后吃掉。「制表符之后上不上得来」（第 1 条的 `room`）含词后的空格：
 /// 制表符之后不是空行，照有内容的行的口径，空格放不下整词就换行。
-fn tab_violations<M: FontMetrics>(metrics: &M, p: &Para, width: Twips, pages: &[Page]) -> Vec<String> {
+///
+/// `spaces_hang`：行尾空格挂在行宽之外（Android，`Engine::trailing_spaces_hang`）时，「越出行尾」只量
+/// 片段去掉末尾空格之后的部分——挂出去的空格本来就在行尾之外。
+fn tab_violations<M: FontMetrics>(
+    metrics: &M, p: &Para, width: Twips, pages: &[Page], spaces_hang: bool,
+) -> Vec<String> {
     // 区间宽不小于 0（`Span::width`）；空行（不是首行）的宽度与引擎判断「空行上放不放得下」同一口径。
     let span = (width - p.indent_left - p.indent_right).max(0);
     let empty = span.max(1);
@@ -514,8 +519,9 @@ fn tab_violations<M: FontMetrics>(metrics: &M, p: &Para, width: Twips, pages: &[
                 && !text.text.is_empty()
                 && text.terminator == LineTerminator::Wrapped
             {
-                let end = (text.x_pt + metrics.advance_pt(&text.text, &text.font)) * 20.0;
-                if end > line_end + 1.0 {
+                let visible = if spaces_hang { text.text.trim_end_matches(' ') } else { text.text.as_str() };
+                let end = (text.x_pt + metrics.advance_pt(visible, &text.font)) * 20.0;
+                if !visible.is_empty() && end > line_end + 1.0 {
                     bad.push(format!("制表符后的 {:?} 越出行尾：{end} > {line_end}", text.text));
                 }
             }
@@ -723,7 +729,7 @@ fn check_tab_cases<M: FontMetrics>(metrics: &M, cases: &[(Para, Twips)]) {
             let pages = Engine::new(metrics, setup(*width))
                 .with_platform(platform, View::Print)
                 .layout(std::slice::from_ref(p));
-            let bad = tab_violations(metrics, p, *width, &pages);
+            let bad = tab_violations(metrics, p, *width, &pages, platform == Platform::Android);
             let text: Vec<&str> = p.runs.iter().map(|r| r.text.as_str()).collect();
             assert!(bad.is_empty(), "{text:?} tabs {:?} @{width} {platform:?}: {bad:?}", p.tabs);
         }

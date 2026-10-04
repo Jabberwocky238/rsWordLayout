@@ -25,7 +25,7 @@ use super::spec::{
     BreakOpportunity, FINE_PER_TWIP, FontMetrics, FontSpec, LineFontMetrics, MeasuredFontSpan,
     TextMetrics,
 };
-use crate::layout::{Twips, spacing_slots};
+use crate::layout::{TWIPS_PER_POINT, Twips, spacing_slots};
 
 /// 纵向量化栅格。
 ///
@@ -64,6 +64,29 @@ impl VerticalGrid {
     }
 }
 
+/// 横向推进量的设备栅格。
+///
+/// Android Word 的移动视图（窄路径）按设备像素量字宽。证据三条，各自独立：
+///
+/// - 视图宽的换算 `w3 = (1440 × rect + 389) / 778`（word_analyse Q15，动态）：窄路径的
+///   5329 twips 就是 2879 个每英寸 778 的像素；
+/// - P0-1b 在同一设备上读到的 run 度量（12.5／18／24／30pt 的 ascent、descent）逐个等于
+///   `ppem = round(pt × 778 / 72)`、`round(win 度量 × ppem / upem) + 8`，每英寸 777 或 779 都对不全；
+/// - 窄路径的单字读数：`i-plain` 每行 95 个 `i`（精确宽度给 96，按像素给 95）、`w:w=80` 的 `0`
+///   每行 55 个（精确比例给 54，像素宽 66 截断到 52 给 55），其余单字读数两种量法都对。
+///
+/// 纸页路径（打印视图）**不**按这个像素量：`zero-paper` 每行 86 个 `0`、无缩进 190 个 `i`，
+/// 按 778 dpi 的像素宽都放不下（85、188）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum HorizontalGrid {
+    /// 不量化：推进量取字体的精确值。
+    #[default]
+    None,
+    /// 每英寸 `per_inch` 个设备像素：字号按像素取整成 ppem，每个字形的推进量取整到像素，
+    /// `w:w` 缩放按整数截断，字符间距按像素取整后加在 cluster 末尾。
+    DevicePixels { per_inch: u32 },
+}
+
 /// 字体声明的纵向量，字体单位。
 #[derive(Debug, Clone, Copy)]
 struct FaceVertical {
@@ -85,6 +108,7 @@ struct FaceVertical {
 pub struct RealMetrics<'r> {
     registry: &'r FontRegistry,
     grid: VerticalGrid,
+    horizontal: HorizontalGrid,
     vertical: RefCell<BTreeMap<String, Option<FaceVertical>>>,
 }
 
@@ -93,8 +117,28 @@ impl<'r> RealMetrics<'r> {
         RealMetrics {
             registry,
             grid: VerticalGrid::None,
+            horizontal: HorizontalGrid::None,
             vertical: RefCell::new(BTreeMap::new()),
         }
+    }
+
+    /// 开启横向的设备像素栅格（见 [`HorizontalGrid`]）。
+    pub fn with_horizontal_grid(mut self, grid: HorizontalGrid) -> RealMetrics<'r> {
+        self.horizontal = grid;
+        self
+    }
+
+    pub fn horizontal_grid(&self) -> HorizontalGrid {
+        self.horizontal
+    }
+
+    /// 整形，开了像素栅格时把推进量落到像素上（缩放与字符间距随之在像素上做完）。
+    fn shaped(&self, text: &str, font: &FontSpec) -> Vec<crate::layout::ShapedRun> {
+        let mut runs = self.registry.shape_text(text, font);
+        if let HorizontalGrid::DevicePixels { per_inch } = self.horizontal {
+            quantize_to_pixels(&mut runs, font, per_inch);
+        }
+        runs
     }
 
     /// 开启纵向量化。**先读 [`VerticalGrid`] 的限定**：其中两条是回测，不是已验证的规则。
@@ -256,6 +300,61 @@ impl<'r> RealMetrics<'r> {
     }
 }
 
+/// 把一段整形结果的推进量落到每英寸 `per_inch` 的设备像素上（见 [`HorizontalGrid`]）。
+///
+/// 每个字形：`ppem = round(字号 × per_inch / 72)`，`px = round(推进量 / em × ppem)`；
+/// 有 `w:w` 时 `px = px × pct / 100`（整数截断）；cluster 末尾再加 `round(间距 × per_inch / 1440)`。
+/// 像素宽换回点之后，整 twips 的推进量按累计值取整之差重算，与整形器同一手法。
+/// 字距、缩放都在这里做完，所以调用方不再 `apply_spacing`。
+fn quantize_to_pixels(runs: &mut [crate::layout::ShapedRun], font: &FontSpec, per_inch: u32) {
+    let per_inch = f64::from(per_inch);
+    let ends: Vec<bool> = (0..runs.len()).map(|i| crate::layout::is_cluster_end(runs, i)).collect();
+    let scale = (font.scale_pct != 100 && font.scale_pct > 0).then_some(i64::from(font.scale_pct));
+    let spacing_px = (f64::from(font.letter_spacing) * per_inch / 1440.0).round() as i64;
+    let (mut acc_pt, mut acc_twips) = (0.0f64, 0);
+    for (g, end) in runs.iter_mut().zip(ends) {
+        let size_pt = g.size_centipoints.unwrap_or_else(|| font.effective_size_centipoints()) as f64 / 100.0;
+        let mut px = if size_pt > 0.0 {
+            let ppem = (size_pt * per_inch / 72.0).round();
+            (g.x_advance_pt / size_pt * ppem).round() as i64
+        } else {
+            0
+        };
+        if let Some(pct) = scale {
+            px = px * pct / 100;
+        }
+        if end {
+            px += spacing_px;
+        }
+        g.x_advance_pt = px as f64 * 72.0 / per_inch;
+        acc_pt += g.x_advance_pt;
+        let next = (acc_pt * f64::from(TWIPS_PER_POINT)).round() as Twips;
+        g.x_advance = next - acc_twips;
+        acc_twips = next;
+    }
+}
+
+/// 绘制用的整形器：内层整形之后按 [`HorizontalGrid::DevicePixels`] 落到像素上，与断行同一口径。
+///
+/// 缩放与字符间距在像素上一并做完（[`crate::layout::TextShaper::applies_char_spacing`]），
+/// 绘制不再加一次；否则行宽按像素、行内字形按精确宽，两边对不上。
+pub(crate) struct PixelShaper<'s> {
+    pub inner: &'s dyn crate::layout::TextShaper,
+    pub per_inch: u32,
+}
+
+impl crate::layout::TextShaper for PixelShaper<'_> {
+    fn shape(&self, text: &str, font: &FontSpec) -> Vec<crate::layout::ShapedRun> {
+        let mut runs = self.inner.shape(text, font);
+        quantize_to_pixels(&mut runs, font, self.per_inch);
+        runs
+    }
+
+    fn applies_char_spacing(&self) -> bool {
+        true
+    }
+}
+
 impl FontMetrics for RealMetrics<'_> {
     fn boundary_spacing(
         &self, left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
@@ -263,11 +362,15 @@ impl FontMetrics for RealMetrics<'_> {
         super::linebreak::autospace_dn_boundary(left, left_font, right, right_font)
     }
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
-        let shaped = self.registry.shape_text(text, font);
+        let shaped = self.shaped(text, font);
         let advance: i64 = shaped.iter().map(|g| i64::from(g.x_advance)).sum();
         let autospace = super::linebreak::autospace_dn(text, font).fit_twips;
+        let advance = match self.horizontal {
+            HorizontalGrid::None => self.apply_spacing(advance, spacing_slots(&shaped), font),
+            HorizontalGrid::DevicePixels { .. } => advance as Twips,
+        };
         TextMetrics {
-            advance: self.apply_spacing(advance, spacing_slots(&shaped), font) + autospace,
+            advance: advance + autospace,
             ..self.vertical_for(text, font)
         }
     }
@@ -345,10 +448,13 @@ impl FontMetrics for RealMetrics<'_> {
     }
 
     fn advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
-        let shaped = self.registry.shape_text(text, font);
+        let shaped = self.shaped(text, font);
         let advance: f64 = shaped.iter().map(|g| g.x_advance_pt).sum();
         let autospace = super::linebreak::autospace_dn(text, font).paint_pt;
-        self.apply_spacing_pt(advance, spacing_slots(&shaped), font) + autospace
+        match self.horizontal {
+            HorizontalGrid::None => self.apply_spacing_pt(advance, spacing_slots(&shaped), font) + autospace,
+            HorizontalGrid::DevicePixels { .. } => advance + autospace,
+        }
     }
 
     fn quantize_baseline_fine(&self, y_fine: i64) -> i64 {

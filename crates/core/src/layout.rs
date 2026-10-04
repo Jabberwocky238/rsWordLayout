@@ -2520,8 +2520,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     // admit a zero-width prefix without room for its boundary.
                     let remain = (line_avail - cur_w).max(0) - leading_spacing.fit_twips;
                     let m_all = self.text_metrics(rest, &run.font);
+                    // 行尾空格挂出时，截尾的空格不参与判断：去掉它们放得下就整截放下，
+                    // 下一截在空格之后的交界处收行。
+                    let fits_whole = m_all.advance <= remain
+                        || (self.trailing_spaces_hang()
+                            && rest.ends_with(' ')
+                            && self.text_metrics(rest.trim_end_matches(' '), &run.font).advance <= remain);
 
-                    if m_all.advance <= remain {
+                    if fits_whole {
                         // 整截放得下。
                         cur.push(LinePiece {
                             dx: cur_w + leading_spacing.fit_twips,
@@ -2571,10 +2577,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                         // 与紧急断行（整截一个 cluster）收行。见 [`FontSpec::fit_text`]。
                         self.shortfall(para, area, span, remain, &cur, object_join, &segs, at, byte)
                     } else {
-                        match self.metrics.fit_with_overflow_punctuation_context(
-                            rest, &run.font, remain, hang,
-                            context,
-                        ) {
+                        // Android 从不挂出标点（`hang` 恒假），那一支只剩普通的 fit；换成行尾空格挂出的版本。
+                        let fitted = if self.trailing_spaces_hang() {
+                            self.metrics.fit_hanging_spaces(rest, &run.font, remain)
+                        } else {
+                            self.metrics.fit_with_overflow_punctuation_context(
+                                rest, &run.font, remain, hang,
+                                context,
+                            )
+                        };
+                        match fitted {
                             // The fitter validates the signed budget: a negative
                             // advance may cover incoming-spacing debt, and a valid
                             // punctuation overflow may exceed that budget afterward.
@@ -2894,7 +2906,10 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             }
             word.pop();
         }
-        let fits_alone = width(&word) <= next_avail;
+        let trimmed = width(&word);
+        let fits_alone = trimmed <= next_avail;
+        // 行尾空格挂出时，制表符之后上不上得来同样不计词后的空格。
+        let spaced = if self.trailing_spaces_hang() { trimmed } else { spaced };
         // 这个词在制表符之后的 `room` 里上不上得来：放得下的词要上来到第一个断点（不切开），
         // 放不下的长串按紧急断行至少上来一个字。前者照有内容的行的口径，含词后的空格——制表符
         // 之后不是空行，与 `A Sincerely, x` 里 `Sincerely,` 的空格放不下就整词换行一样。
@@ -3064,6 +3079,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             .break_opportunities(&pair)
             .iter()
             .any(|b| b.offset == prev.len_utf8())
+    }
+
+    /// 行尾空格是否挂在行宽之外、不参与放不放得下的判断（见 [`FontMetrics::fit_hanging_spaces`]）。
+    ///
+    /// Android 实测（窄路径 `latinscale`），两种视图共用：断行在两条路径上是同一套代码，纸页路径的
+    /// 读数与这一条相容（打印视图的 161 个读数一个不变）。桌面没有能区分的读数，照旧计入空格。
+    fn trailing_spaces_hang(&self) -> bool {
+        self.platform == Platform::Android
     }
 
     /// 一截 run 文字的度量，按 [`FontSpec::fit_text`] 换掉推进量：带 fitText 的 run 整截恰好
@@ -3389,6 +3412,13 @@ pub trait TextShaper {
     ///
     /// 返回空表示无法整形（字体缺失等）；调用方不应把它当作「这段文字不占宽度」。
     fn shape(&self, text: &str, font: &FontSpec) -> Vec<ShapedRun>;
+
+    /// 推进量里是否已含 `w:w` 缩放与 `w:spacing` 字符间距。默认否：绘制照
+    /// `apply_char_spacing` 补上。设备像素栅格（[`crate::font::HorizontalGrid`]）在整形时按像素
+    /// 一并做完，绘制不能再加一次。
+    fn applies_char_spacing(&self) -> bool {
+        false
+    }
 }
 
 /// 整形结果里的一个字形。
@@ -3422,7 +3452,7 @@ pub struct ShapedRun {
 /// 间距按 cluster 加，不按字形、也不按 UTF-16 单位：组合符号不该与基字拉开，
 /// 一个代理对也只是一个字符。**这一条是假定**——实测只覆盖了一字形一字符的拉丁文
 /// （`latinspace`），那里三种口径给同一个数。整形器报不出 cluster 时退回逐字形。
-fn is_cluster_end(runs: &[ShapedRun], i: usize) -> bool {
+pub(crate) fn is_cluster_end(runs: &[ShapedRun], i: usize) -> bool {
     match (runs[i].source, runs.get(i + 1).map(|g| g.source)) {
         (Some(this), Some(Some(next))) => this != next,
         _ => true,
@@ -3661,7 +3691,10 @@ fn position_glyphs(
     // 也照加：它不撑开行宽，只改它自己的推进量。Word 给不给段落标记加间距没测（假定）。
     // 顺序在制表符改宽之前：制表符那个空格字形的推进量随后整个换成制表位定下的宽度，
     // 缩放与间距都不作用在它身上（断行里的制表符宽也不含它们，两边一致）。
-    apply_char_spacing(&mut runs, &t.font);
+    // 整形器已按设备像素做完这两步时不再加。
+    if !shaper.applies_char_spacing() {
+        apply_char_spacing(&mut runs, &t.font);
+    }
     apply_boundary_spacing(&mut runs, t);
     apply_fit_text(&mut runs, &t.font);
 

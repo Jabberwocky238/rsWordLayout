@@ -56,4 +56,6 @@ pub(crate) use registry::CharCoverage;
 #[cfg(feature = "fontenv")]
 mod real;
 #[cfg(feature = "fontenv")]
-pub use real::{RealMetrics, VerticalGrid};
+pub use real::{HorizontalGrid, RealMetrics, VerticalGrid};
+#[cfg(feature = "fontenv")]
+pub(crate) use real::PixelShaper;

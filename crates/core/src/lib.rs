@@ -87,4 +87,4 @@ pub use font::RustybuzzShaper;
 
 // ---- 真度量：读字体文件（feature `fontenv`）----
 #[cfg(feature = "fontenv")]
-pub use font::{RealMetrics, VerticalGrid};
+pub use font::{HorizontalGrid, RealMetrics, VerticalGrid};

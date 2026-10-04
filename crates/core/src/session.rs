@@ -39,7 +39,7 @@ use crate::font::{FontMetrics, SimpleMetrics};
 use crate::load::load_document;
 
 #[cfg(feature = "fontenv")]
-use crate::font::{CharCoverage, FontRegistry, RealMetrics, VerticalGrid};
+use crate::font::{CharCoverage, FontRegistry, HorizontalGrid, RealMetrics, VerticalGrid};
 
 /// 文字环绕从哪来。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -307,9 +307,13 @@ impl<'a> PreparedDocument<'a> {
         }
         let mut layout = self.begin(options)?;
         layout.diagnostics.extend(coverage_diagnostics(&layout.document, &fonts));
-        let pages = layout.run(&RealMetrics::new(&fonts).with_vertical_grid(vertical_grid), options);
+        let metrics = RealMetrics::new(&fonts)
+            .with_vertical_grid(vertical_grid)
+            .with_horizontal_grid(horizontal_grid(options));
+        let pages = layout.run(&metrics, options);
         let mut session = layout.finish(pages, *options, fonts.face_ids());
         session.fonts = Some((fonts, vertical_grid));
+        session.horizontal = horizontal_grid(options);
         Ok(session)
     }
 
@@ -367,6 +371,22 @@ impl<'a> PreparedDocument<'a> {
     }
 }
 
+/// Android 移动视图按设备像素量字宽（[`HorizontalGrid`]）；其余平台与视图不量化。
+///
+/// 每英寸 778 像素是 word_analyse 唯一一台设备（b0e3d198）上读到的换算常数（Q15 的
+/// `w3 = (1440 × rect + 389) / 778`，P0-1b 的 run 度量）；别的设备未测。
+#[cfg(feature = "fontenv")]
+fn horizontal_grid(options: &LayoutOptions) -> HorizontalGrid {
+    match (options.platform, options.view) {
+        (Platform::Android, View::Mobile) => HorizontalGrid::DevicePixels { per_inch: ANDROID_MOBILE_PIXELS_PER_INCH },
+        _ => HorizontalGrid::None,
+    }
+}
+
+/// 见 [`horizontal_grid`]。
+#[cfg(feature = "fontenv")]
+pub const ANDROID_MOBILE_PIXELS_PER_INCH: u32 = 778;
+
 /// 扫描锚定对象。锚定几何只在 rsword 的 Rust 模型里，得重开一次包。
 fn scan_anchors(bytes: &[u8], setup: PageSetup) -> Result<AnchorScan, String> {
     let mut package = Package::open(bytes).map_err(|e| e.to_string())?;
@@ -404,6 +424,8 @@ impl Layout {
             faces,
             #[cfg(feature = "fontenv")]
             fonts: None,
+            #[cfg(feature = "fontenv")]
+            horizontal: HorizontalGrid::None,
             anchors: self.anchors,
             diagnostics: self.diagnostics,
             input_diagnostics: self.input_diagnostics,
@@ -431,6 +453,9 @@ pub struct DocumentSession {
     faces: Vec<FaceId>,
     #[cfg(feature = "fontenv")]
     fonts: Option<(FontRegistry, VerticalGrid)>,
+    /// 断行量字宽用的横向栅格；绘制按同一栅格整形（见 [`Self::paint`]）。
+    #[cfg(feature = "fontenv")]
+    horizontal: HorizontalGrid,
     anchors: Option<AnchorReport>,
     diagnostics: Vec<SessionDiagnostic>,
     input_diagnostics: usize,
@@ -511,12 +536,13 @@ impl DocumentSession {
 
     /// 整篇的绘制指令。整形用排版时的同一个注册表；近似模式不整形，字形序列为空但保留原文。
     pub fn paint(&self) -> PaintList {
-        paint_document(&self.pages, self.shaper(), &self.faces)
+        self.with_paint_shaper(|shaper| paint_document(&self.pages, shaper, &self.faces))
     }
 
     /// 一页的绘制指令，与 [`DocumentSession::paint`] 的那一页相同。越界返回 `None`。
     pub fn paint_page(&self, index: usize) -> Option<PaintPage> {
-        self.pages.get(index).map(|page| paint_page(page, self.shaper(), &self.faces))
+        let page = self.pages.get(index)?;
+        Some(self.with_paint_shaper(|shaper| paint_page(page, shaper, &self.faces)))
     }
 
     /// 这个会话是否正是用 `fonts` 这套字体排的：face 集合与注册顺序、回退链的成员与次序都相同。
@@ -612,6 +638,10 @@ impl DocumentSession {
                 "message": d.message,
             })).collect::<Vec<_>>(),
         });
+        #[cfg(feature = "fontenv")]
+        if let HorizontalGrid::DevicePixels { per_inch } = self.horizontal {
+            out["horizontalGrid"] = json!({ "devicePixelsPerInch": per_inch });
+        }
         if !self.document.tables.is_empty() {
             out["tableLayout"] = self.table_layout();
         }
@@ -635,6 +665,15 @@ impl DocumentSession {
             });
         }
         None
+    }
+
+    /// 绘制用的整形器：开了设备像素栅格时包一层，让字形推进量与断行量的宽同一口径。
+    fn with_paint_shaper<R>(&self, paint: impl FnOnce(Option<&dyn TextShaper>) -> R) -> R {
+        #[cfg(feature = "fontenv")]
+        if let (Some(inner), HorizontalGrid::DevicePixels { per_inch }) = (self.shaper(), self.horizontal) {
+            return paint(Some(&crate::font::PixelShaper { inner, per_inch }));
+        }
+        paint(self.shaper())
     }
 
     fn shaper(&self) -> Option<&dyn TextShaper> {
