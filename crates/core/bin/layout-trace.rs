@@ -537,7 +537,7 @@ fn metrics_note(
     };
     let (platform, overflow, spaces) = match platform {
         Platform::Desktop => ("mac", "按 w:overflowPunct 挂出", ""),
-        Platform::Android => ("android", "不挂出", "；行尾空格不计宽"),
+        Platform::Android => ("android", "不挂出", "；行尾空格不计宽；字距调整不看 w:kern"),
     };
     let view = match view {
         View::Print => "print",
@@ -826,7 +826,7 @@ mod tests {
             "；回退",
         );
         assert!(note.contains("纵向栅格 无；回退)"), "{note}");
-        assert!(note.ends_with("平台 android，视图 print；行末标点 不挂出；行尾空格不计宽"), "{note}");
+        assert!(note.ends_with("平台 android，视图 print；行末标点 不挂出；行尾空格不计宽；字距调整不看 w:kern"), "{note}");
     }
 
     const MISSING: &str = "/nonexistent/rsword-no-such-font.ttf";
@@ -1335,7 +1335,7 @@ mod tests {
         assert!(note.ends_with("行末标点 按 w:overflowPunct 挂出"), "{note}");
         for view in [View::Print, View::Mobile] {
             let note = metrics_note(true, VerticalGrid::None, Platform::Android, view, "");
-            assert!(note.ends_with("行末标点 不挂出；行尾空格不计宽"), "{note}");
+            assert!(note.ends_with("行末标点 不挂出；行尾空格不计宽；字距调整不看 w:kern"), "{note}");
         }
     }
 

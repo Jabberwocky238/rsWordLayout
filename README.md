@@ -61,7 +61,7 @@ cargo run -p rsword-layout-svg --features fontenv --bin render -- \
 已实现：段落断行（西文按词 / CJK 按字 + 行首禁则）、行高（`auto` / `atLeast` / `exact`）、
 y 游标分页、`widowControl`、`keepNext` 链 / `keepLines` / `pageBreakBefore`、四种对齐、首行与悬挂缩进
 （含字符单位 `*Chars`；移动视图按视图宽比例缩）、`w:fitText`（整截不可拆）、
-Android 移动视图按设备像素（每英寸 778）量字宽、Android 行尾空格不计宽、
+Android 移动视图按设备像素（每英寸 778）量字宽、Android 行尾空格不计宽、Android 不看 `w:kern` 总做字距调整、
 节页面尺寸与边距、换页后重新断行和环绕查询、SVG 后端。
 与 word_analyse 最新一轮读数的对照见 [P0 轮对齐](docs/WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md)。
 等宽与显式不等宽栏共用断行器，支持自动换栏、独立栏断，以及相同页面几何下的

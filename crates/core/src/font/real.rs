@@ -109,6 +109,7 @@ pub struct RealMetrics<'r> {
     registry: &'r FontRegistry,
     grid: VerticalGrid,
     horizontal: HorizontalGrid,
+    kerning_always: bool,
     vertical: RefCell<BTreeMap<String, Option<FaceVertical>>>,
 }
 
@@ -118,6 +119,7 @@ impl<'r> RealMetrics<'r> {
             registry,
             grid: VerticalGrid::None,
             horizontal: HorizontalGrid::None,
+            kerning_always: false,
             vertical: RefCell::new(BTreeMap::new()),
         }
     }
@@ -132,11 +134,18 @@ impl<'r> RealMetrics<'r> {
         self.horizontal
     }
 
+    /// 不论 `w:kern`，总是按字体做字距调整（GPOS `kern`）。见 [`kerning_font`]。
+    pub fn with_kerning_always(mut self, always: bool) -> RealMetrics<'r> {
+        self.kerning_always = always;
+        self
+    }
+
     /// 整形，开了像素栅格时把推进量落到像素上（缩放与字符间距随之在像素上做完）。
     fn shaped(&self, text: &str, font: &FontSpec) -> Vec<crate::layout::ShapedRun> {
-        let mut runs = self.registry.shape_text(text, font);
+        let font = kerning_font(font, self.kerning_always);
+        let mut runs = self.registry.shape_text(text, &font);
         if let HorizontalGrid::DevicePixels { per_inch } = self.horizontal {
-            quantize_to_pixels(&mut runs, font, per_inch);
+            quantize_to_pixels(&mut runs, &font, per_inch);
         }
         runs
     }
@@ -334,24 +343,43 @@ fn quantize_to_pixels(runs: &mut [crate::layout::ShapedRun], font: &FontSpec, pe
     }
 }
 
-/// 绘制用的整形器：内层整形之后按 [`HorizontalGrid::DevicePixels`] 落到像素上，与断行同一口径。
+/// 字距调整总是开时，度量与绘制整形用的字体。
 ///
-/// 缩放与字符间距在像素上一并做完（[`crate::layout::TextShaper::applies_char_spacing`]），
-/// 绘制不再加一次；否则行宽按像素、行内字形按精确宽，两边对不上。
-pub(crate) struct PixelShaper<'s> {
-    pub inner: &'s dyn crate::layout::TextShaper,
-    pub per_inch: u32,
+/// Android Word 不写 `w:kern` 也做字距调整：`kern-off`（Calibri 12pt 的 `AVAV…`，纸页 10466）与写了
+/// `w:kern` 的 `kern-on` 一样每行 82 个字母。按 Calibri 的 GPOS（A→V −89、V→A −96 字体单位）两个方向
+/// 都调，82 个字母宽 10399 twips、84 个宽 10652，正好是 82；不调是 76。Mac Word 不写 `w:kern` 就不调
+/// （`B11` 的两个 `1`，见 [`FontSpec::kerning`]），所以这是平台差异。写了大于字号的 `w:kern` 阈值时
+/// Android 调不调未测，这里一律调。
+fn kerning_font(font: &FontSpec, always: bool) -> std::borrow::Cow<'_, FontSpec> {
+    if always && !font.kerning {
+        std::borrow::Cow::Owned(FontSpec { kerning: true, ..font.clone() })
+    } else {
+        std::borrow::Cow::Borrowed(font)
+    }
 }
 
-impl crate::layout::TextShaper for PixelShaper<'_> {
+/// 绘制用的整形器：与断行同一口径地整形——字距调整总是开时照开，像素栅格时把推进量落到像素上。
+///
+/// 像素栅格的缩放与字符间距在整形里一并做完（[`crate::layout::TextShaper::applies_char_spacing`]），
+/// 绘制不再加一次；否则行宽按像素、行内字形按精确宽，两边对不上。
+pub(crate) struct PaintShaper<'s> {
+    pub inner: &'s dyn crate::layout::TextShaper,
+    pub pixels: Option<u32>,
+    pub kerning_always: bool,
+}
+
+impl crate::layout::TextShaper for PaintShaper<'_> {
     fn shape(&self, text: &str, font: &FontSpec) -> Vec<crate::layout::ShapedRun> {
-        let mut runs = self.inner.shape(text, font);
-        quantize_to_pixels(&mut runs, font, self.per_inch);
+        let font = kerning_font(font, self.kerning_always);
+        let mut runs = self.inner.shape(text, &font);
+        if let Some(per_inch) = self.pixels {
+            quantize_to_pixels(&mut runs, &font, per_inch);
+        }
         runs
     }
 
     fn applies_char_spacing(&self) -> bool {
-        true
+        self.pixels.is_some()
     }
 }
 

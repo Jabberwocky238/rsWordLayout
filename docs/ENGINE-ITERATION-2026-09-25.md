@@ -744,7 +744,8 @@ run 的拆法写成 `[…][…]`，`@5329` 指窄路径版心宽。
 后续更新（2026-10-04）：下表的 fittext 三份与 `ind-*` 已接入（`w:fitText`、字符单位缩进、
 移动视图缩进缩放）；纸页路径的缩进读数取自移动视图状态，乘上视图比例后逐行复现。`i-plain`、
 `zero-scale` 与 `latinscale` 由移动视图的设备像素字宽加 Android 行尾空格不计宽解释（「已知的亚 twip
-字宽问题」与「80% 反常」都是像素取整）。见 [P0 轮对齐](WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md)。
+字宽问题」与「80% 反常」都是像素取整）。`kern-off` 由 Android 总做字距调整解释：Calibri 的 GPOS
+在 A→V 与 V→A 两个方向都调，正好给 82。见 [P0 轮对齐](WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md)。
 
 记分器里还有 2 个用例没过：STARTS 1 个（i-plain），EXT 1 个（zero-scale）。加上不计分、但有 Word 起点的用例，都在下表里。
 

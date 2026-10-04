@@ -58,4 +58,4 @@ mod real;
 #[cfg(feature = "fontenv")]
 pub use real::{HorizontalGrid, RealMetrics, VerticalGrid};
 #[cfg(feature = "fontenv")]
-pub(crate) use real::PixelShaper;
+pub(crate) use real::PaintShaper;

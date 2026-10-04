@@ -309,11 +309,13 @@ impl<'a> PreparedDocument<'a> {
         layout.diagnostics.extend(coverage_diagnostics(&layout.document, &fonts));
         let metrics = RealMetrics::new(&fonts)
             .with_vertical_grid(vertical_grid)
-            .with_horizontal_grid(horizontal_grid(options));
+            .with_horizontal_grid(horizontal_grid(options))
+            .with_kerning_always(kerning_always(options));
         let pages = layout.run(&metrics, options);
         let mut session = layout.finish(pages, *options, fonts.face_ids());
         session.fonts = Some((fonts, vertical_grid));
         session.horizontal = horizontal_grid(options);
+        session.kerning_always = kerning_always(options);
         Ok(session)
     }
 
@@ -383,6 +385,13 @@ fn horizontal_grid(options: &LayoutOptions) -> HorizontalGrid {
     }
 }
 
+/// Android Word 不看 `w:kern`，总做字距调整（`kern-off` 与 `kern-on` 同为每行 82 个字母，见
+/// `font::real` 的 `kerning_font`）；桌面照 `w:kern` 的阈值。
+#[cfg(feature = "fontenv")]
+fn kerning_always(options: &LayoutOptions) -> bool {
+    options.platform == Platform::Android
+}
+
 /// 见 [`horizontal_grid`]。
 #[cfg(feature = "fontenv")]
 pub const ANDROID_MOBILE_PIXELS_PER_INCH: u32 = 778;
@@ -426,6 +435,8 @@ impl Layout {
             fonts: None,
             #[cfg(feature = "fontenv")]
             horizontal: HorizontalGrid::None,
+            #[cfg(feature = "fontenv")]
+            kerning_always: false,
             anchors: self.anchors,
             diagnostics: self.diagnostics,
             input_diagnostics: self.input_diagnostics,
@@ -456,6 +467,9 @@ pub struct DocumentSession {
     /// 断行量字宽用的横向栅格；绘制按同一栅格整形（见 [`Self::paint`]）。
     #[cfg(feature = "fontenv")]
     horizontal: HorizontalGrid,
+    /// 不论 `w:kern` 总做字距调整（Android）；断行与绘制同一口径。
+    #[cfg(feature = "fontenv")]
+    kerning_always: bool,
     anchors: Option<AnchorReport>,
     diagnostics: Vec<SessionDiagnostic>,
     input_diagnostics: usize,
@@ -642,6 +656,10 @@ impl DocumentSession {
         if let HorizontalGrid::DevicePixels { per_inch } = self.horizontal {
             out["horizontalGrid"] = json!({ "devicePixelsPerInch": per_inch });
         }
+        #[cfg(feature = "fontenv")]
+        if self.kerning_always {
+            out["kerning"] = json!("always");
+        }
         if !self.document.tables.is_empty() {
             out["tableLayout"] = self.table_layout();
         }
@@ -670,8 +688,14 @@ impl DocumentSession {
     /// 绘制用的整形器：开了设备像素栅格时包一层，让字形推进量与断行量的宽同一口径。
     fn with_paint_shaper<R>(&self, paint: impl FnOnce(Option<&dyn TextShaper>) -> R) -> R {
         #[cfg(feature = "fontenv")]
-        if let (Some(inner), HorizontalGrid::DevicePixels { per_inch }) = (self.shaper(), self.horizontal) {
-            return paint(Some(&crate::font::PixelShaper { inner, per_inch }));
+        if let Some(inner) = self.shaper() {
+            let pixels = match self.horizontal {
+                HorizontalGrid::DevicePixels { per_inch } => Some(per_inch),
+                HorizontalGrid::None => None,
+            };
+            if pixels.is_some() || self.kerning_always {
+                return paint(Some(&crate::font::PaintShaper { inner, pixels, kerning_always: self.kerning_always }));
+            }
         }
         paint(self.shaper())
     }
