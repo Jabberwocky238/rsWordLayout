@@ -81,7 +81,7 @@ use std::collections::BTreeMap;
 use rsword::model::{Block, Document, Inline, ProtectedKind, TextKind};
 use rsword::package::{Package, RelType};
 use rsword::resolve::{EffectiveRunProps, Resolver};
-use rsword::semantic::props::{Codec, Ctx, RunProps, StyleType, codec::OnOff};
+use rsword::semantic::props::{Codec, Ctx, ParaProps, RunProps, StyleType, codec::OnOff};
 use rsword::xml::{Dom, LocalName, QName};
 use serde_json::Value;
 
@@ -351,6 +351,19 @@ fn effective_properties(session: &EditSession) -> EffectiveProperties {
             }
         }
     }
+    // 正文以表格结尾时 Word 补的那个空段（见 `LayoutDocument::implied_final_para`）：
+    // 缺省段落样式、没有直接属性。
+    let node = crate::bridge::IMPLIED_PARA_NODE;
+    effective.paras.insert(node, resolver.para(default_style, None, &ParaProps::default()).props.to_json(&cx));
+    let chain = default_style.map(|id| resolver.chain(id, StyleType::Paragraph)).unwrap_or_default();
+    let tabs = document.styles.as_ref().and_then(|styles| styles.doc_default_ppr())
+        .into_iter()
+        .chain(chain.iter().rev().filter_map(|style| style.ppr.as_ref()))
+        .filter_map(|props| props.tabs.as_ref())
+        .map(|tabs| tabs.to_json(&cx));
+    effective.tabs.insert(node, merge_layout_tabs(tabs));
+    let mark = resolver.run(default_style, None, &RunProps::default());
+    effective.marks.insert(node, layout_run_props(&resolver, &mark, &cx));
     effective
 }
 

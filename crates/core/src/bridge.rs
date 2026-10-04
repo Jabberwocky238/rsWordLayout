@@ -854,6 +854,21 @@ pub(crate) fn project_paragraphs(
     (paras, skipped)
 }
 
+/// 有效属性表里留给「Word 补的尾段」的节点号：缺省段落样式、没有直接属性的空段。
+/// 真实 DOM 节点号到不了这里。
+pub(crate) const IMPLIED_PARA_NODE: u32 = u32::MAX;
+
+/// 正文以表格结尾时 Word 补的空段，按缺省段落样式投影；不对应源文档的任何节点
+/// （`source_node` 为 `None`）。见 `LayoutDocument::implied_final_para`。
+pub(crate) fn project_implied_paragraph(doc: &Value, effective: Option<&EffectiveProperties>) -> Para {
+    let block = serde_json::json!({
+        "kind": "text",
+        "node": IMPLIED_PARA_NODE,
+        "facts": { "hasSectPr": true },
+    });
+    Para { source_node: None, ..project_text_block(doc, &block, effective, false, default_tab_stop(doc)) }
+}
+
 /// Text blocks of a table cell, projected like main-story paragraphs. `None`
 /// when a block is not a paragraph (for example a nested table).
 pub(crate) fn project_cell_paragraphs(

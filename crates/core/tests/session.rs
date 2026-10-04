@@ -152,21 +152,28 @@ fn layout_json_carries_mode_tables_and_diagnostics() {
     assert_eq!(value["tableLayout"], session.table_layout());
     assert_eq!(value["layoutInput"], session.document().trace_metadata());
     assert_eq!(value["diagnostics"].as_array().unwrap().len(), session.diagnostics().len());
-    assert_eq!(value["pages"][0]["lines"].as_array().unwrap().len(), 2, "两行表格，没有尾段");
+    assert_eq!(value["pages"][0]["lines"].as_array().unwrap().len(), 3, "两行表格，加排版补的尾段");
     // 同输入再建一次，逐字节相同。
     assert_eq!(approximate(&bytes, LayoutOptions::default()).layout_json(), session.layout_json());
 }
 
 #[test]
 fn a_table_without_a_tail_paragraph_is_laid_out_and_still_reported() {
-    // Word 要求表后有一个段落；缺了照样排表，诊断照留，不替文档补尾段。
+    // Word 要求表后有一个段落；缺了照样排表，诊断照留。源文档的段落不改，
+    // 排版时接上 Word 补的缺省空段（`LayoutDocument::implied_final_para`）。
     let bytes = docx(TABLE);
     let prepared = PreparedDocument::load(&bytes).unwrap();
     assert!(prepared.document().paras.is_empty());
     assert!(prepared.has_layout_content(), "只看 paras 会把只有表格的文档当成空的");
 
+    assert!(prepared.document().implied_final_para.as_ref().is_some_and(|para| para.source_node.is_none()));
+
     let session = prepared.layout_approximate(&LayoutOptions::default()).unwrap();
     assert_eq!(session.pages()[0].table_rows.len(), 2);
+    let record = LayoutRecord::from_paint(&session.paint());
+    let tail = record.pages[0].lines.last().unwrap();
+    let source = tail.source.as_ref().unwrap();
+    assert_eq!((source.start, source.end), (20, 21), "尾段接在表格的 20 个源单位之后");
     assert!(session.diagnostics().iter().any(|d| d.code == DiagnosticCode::DocumentInput
         && d.message.contains("table has no following paragraph")), "{:?}", session.diagnostics());
 }

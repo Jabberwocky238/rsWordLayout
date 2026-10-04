@@ -2008,8 +2008,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 paras.to_mut()[previous].keep_next = false;
             }
         }
+        // 正文以表格结尾时接上 Word 补的空段（见 `LayoutDocument::implied_final_para`）。
+        let mut sections = std::borrow::Cow::Borrowed(&document.sections[..]);
+        if let Some(para) = &document.implied_final_para
+            && let Some(last) = sections.to_mut().last_mut()
+            && last.para_range.end == paras.len()
+        {
+            paras.to_mut().push(para.clone());
+            last.para_range.end += 1;
+        }
         // 行单位段距按所在节换成 twips（见 `Para::space_before_lines`）。
-        for section in &document.sections {
+        for section in sections.iter() {
             let unit = section_line_unit(section);
             let Some(range) = paras.get(section.para_range.clone()) else { continue };
             if range.iter().all(|p| p.space_before_lines.is_none() && p.space_after_lines.is_none()) {
@@ -2030,7 +2039,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         // 移动视图按视图宽与声明版心宽之比缩段落缩进（见 `LayoutDocument::mobile_indent_scale`）。
         // 只缩正文段落；表格单元格里的段落在移动视图下怎么排没测，照原样。
         if self.view == View::Mobile {
-            for (index, section) in document.sections.iter().enumerate() {
+            for (index, section) in sections.iter().enumerate() {
                 let (laid, declared) = document.mobile_indent_scale(index);
                 if laid == declared {
                     continue;
@@ -2055,7 +2064,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             view: self.view,
             compatibility: document.compatibility,
         }
-        .layout_sections(&paras, &document.tables, &document.sections, document.mirror_margins() == Some(true))
+        .layout_sections(&paras, &document.tables, &sections, document.mirror_margins() == Some(true))
     }
 
     /// 把一行放到页面上，处理水平对齐。

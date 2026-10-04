@@ -210,6 +210,14 @@ pub struct LayoutDocument {
     pub paras: Vec<Para>,
     /// Supported main-story tables in source order, anchored between paragraphs.
     pub tables: Vec<LayoutTable>,
+    /// 正文以表格结尾时 Word 补的空段（缺省段落样式），排版时接在最后一节末尾。
+    ///
+    /// 源文档里没有这一段，`paras` 也不含它；只在 `Engine::layout_document` 里排上，
+    /// 缺尾段的诊断照留。依据（Android 打印视图，word_analyse `reports/rsword-diff/table*.md`）：
+    /// 30 行行高 503 的表剩 308 twips 是 1 页、504 剩 278 是 2 页，`table30-h510`／`h506`、
+    /// `table32-rowh` 也是 2 页——表后多出一段约 300 twips 高的空段才放得下这组读数；
+    /// 文档自己带尾段的 `table32-tail` 是 1 页。
+    pub implied_final_para: Option<Para>,
     pub sections: Vec<LayoutSection>,
     pub compatibility: DocumentCompatibility,
     pub skipped_blocks: usize,
@@ -575,6 +583,7 @@ pub(crate) fn document_from_json_with(
         block["kind"] == "protected" && block["protectedKind"]["kind"] == "sectionProps"
     };
     let mut tables = Vec::new();
+    let mut implied_final_para = None;
     for (block_index, block) in main.iter().enumerate() {
         if block["kind"] != "table" {
             continue;
@@ -582,7 +591,10 @@ pub(crate) fn document_from_json_with(
         match project_table(doc, block, block_index, prefix[block_index], effective) {
             Ok(table) => {
                 let next = main[block_index + 1..].iter().find(|block| !is_section_props(block));
-                if next.is_none_or(|next| next["kind"] != "text") {
+                if next.is_none() {
+                    diagnostics.push(format!("block {block_index}: table has no following paragraph; Word requires one; layout appends Word's default empty paragraph, which is not in the source"));
+                    implied_final_para = Some(crate::bridge::project_implied_paragraph(doc, effective));
+                } else if next.is_some_and(|next| next["kind"] != "text") {
                     diagnostics.push(format!("block {block_index}: table has no following paragraph; Word requires one and its document repair is not modeled"));
                 }
                 if let Some(previous) = table.before_para.checked_sub(1)
@@ -760,6 +772,7 @@ pub(crate) fn document_from_json_with(
     LayoutDocument {
         paras,
         tables,
+        implied_final_para,
         sections,
         compatibility: DocumentCompatibility::default(),
         skipped_blocks,
