@@ -747,6 +747,15 @@ fn read_spacing(props: &Value, def_before: Twips, def_after: Twips)
     (rule, line, num("before").unwrap_or(def_before), num("after").unwrap_or(def_after))
 }
 
+/// `w:beforeLines` / `w:afterLines`（1/100 行）；零或没写给 `None`，退回 twips 值（见 `Para::space_before_lines`）。
+fn read_spacing_lines(props: &Value) -> (Option<i32>, Option<i32>) {
+    let lines = |k: &str| {
+        props.get("spacing").and_then(|sp| sp.get(k)).and_then(Value::as_i64)
+            .filter(|&v| v != 0).map(|v| v.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32)
+    };
+    (lines("beforeLines"), lines("afterLines"))
+}
+
 /// 按计数约定定本段的终止符。
 ///
 /// 优先级与各自画几个字形的依据见量具方法 §4：
@@ -926,6 +935,7 @@ fn project_text_block(
     let (indent_left, indent_right, indent_first_line) = read_indent(props, char_unit);
     let (line_rule, line_value, space_before, space_after) =
         read_spacing(props, before, after);
+    let (space_before_lines, space_after_lines) = read_spacing_lines(props);
 
     // 必须在 runs 被 move 进 Para 之前算好。
     let terminator = pick_terminator(has_sect_pr);
@@ -939,6 +949,8 @@ fn project_text_block(
         indent_first_line,
         space_before,
         space_after,
+        space_before_lines,
+        space_after_lines,
         line_rule,
         line_value,
         keep_next: keep_next || props.get("keepNext").map(as_bool).unwrap_or(false),

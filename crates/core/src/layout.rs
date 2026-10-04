@@ -948,6 +948,15 @@ pub struct Para {
     pub indent_first_line: Twips,
     pub space_before: Twips,
     pub space_after: Twips,
+    /// `w:beforeLines` / `w:afterLines`：段距的行单位（1/100 行），非零时优先于 `space_before` /
+    /// `space_after`。一行多长取决于所在节，由 [`Engine::layout_document`] 按节换成 twips：
+    /// 有行网格（`w:docGrid` 的 `lines` / `linesAndChars`）时是 `w:linePitch`，没有时是 240 twips，
+    /// 与字号无关。实测（Android Word 打印视图，exact 480、`beforeLines=100`）：无网格 12pt 与 24pt
+    /// 都是每页 21 行（240），`linePitch=312` 时 19 行（312）；`beforeLines=50` 是 25 行（120）；
+    /// 同时写 twips 与行单位时行单位优先（`before-both`、`after-both` 32 行）；页末段后不计
+    /// （`after-lines` 26 行）。`linesAndChars` 与 `snapToChars` 网格只按规范推，未测。
+    pub space_before_lines: Option<i32>,
+    pub space_after_lines: Option<i32>,
     pub line_rule: LineRule,
     /// 配合 `line_rule` 的值。
     pub line_value: Twips,
@@ -996,6 +1005,8 @@ impl Default for Para {
             indent_first_line: 0,
             space_before: 0,
             space_after: 0,
+            space_before_lines: None,
+            space_after_lines: None,
             line_rule: LineRule::Auto,
             line_value: 240,
             keep_next: false,
@@ -1222,6 +1233,15 @@ impl PageSetup {
 
     pub fn content_area(&self) -> Rect {
         self.margins.shrink(&Rect::new(0, 0, self.size.width, self.size.height))
+    }
+}
+
+/// 段距行单位的一行（twips）：节有行网格时是 `w:linePitch`，否则 240。见 `Para::space_before_lines`。
+fn section_line_unit(section: &crate::LayoutSection) -> Twips {
+    use crate::GridKind;
+    match (section.grid.kind(), section.grid.line_pitch()) {
+        (Ok(Some(GridKind::Lines | GridKind::LinesAndChars)), Ok(Some(pitch))) if pitch > 0 => pitch,
+        _ => 240,
     }
 }
 
@@ -1986,6 +2006,25 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 && paras[previous].keep_next
             {
                 paras.to_mut()[previous].keep_next = false;
+            }
+        }
+        // 行单位段距按所在节换成 twips（见 `Para::space_before_lines`）。
+        for section in &document.sections {
+            let unit = section_line_unit(section);
+            let Some(range) = paras.get(section.para_range.clone()) else { continue };
+            if range.iter().all(|p| p.space_before_lines.is_none() && p.space_after_lines.is_none()) {
+                continue;
+            }
+            if let Some(range) = paras.to_mut().get_mut(section.para_range.clone()) {
+                for para in range {
+                    let twips = |lines: i32| (f64::from(lines) * f64::from(unit) / 100.0).round() as Twips;
+                    if let Some(lines) = para.space_before_lines {
+                        para.space_before = twips(lines);
+                    }
+                    if let Some(lines) = para.space_after_lines {
+                        para.space_after = twips(lines);
+                    }
+                }
             }
         }
         // 移动视图按视图宽与声明版心宽之比缩段落缩进（见 `LayoutDocument::mobile_indent_scale`）。
