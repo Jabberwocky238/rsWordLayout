@@ -996,6 +996,7 @@ fn project_text_block(
         keep_lines: props.get("keepLines").map(as_bool).unwrap_or(false),
         widow_control: props.get("widowControl").map(as_bool).unwrap_or(false),
         snap_to_grid: props.get("snapToGrid").and_then(Value::as_bool),
+        grid_pitch: None,
         // 两个来源：段落属性 `w:pageBreakBefore`，以及本段是「另起一页」的分节起点。
         // 引擎侧对首页为空的情形已有保护，所以文档开头的那个节不会多出一张空页。
         page_break_before: starts_section_page

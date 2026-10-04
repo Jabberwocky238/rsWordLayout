@@ -435,6 +435,8 @@ fn page_overrides_do_not_change_grid_declarations_or_snap_inputs() {
     assert_eq!(doc.sections[0].grid, grid);
 }
 
+/// 网格只在 Android 打印视图、有效的行网格、没写 `snapToGrid=false` 时改排版（`grid_lines.rs`）；
+/// 其余组合照旧。
 #[test]
 fn retaining_grid_inputs_does_not_change_current_layout_in_any_mode() {
     let mut source = input(None);
@@ -454,7 +456,7 @@ fn retaining_grid_inputs_does_not_change_current_layout_in_any_mode() {
             json!({"kind": "linesAndChars", "linePitch": 297, "charSpace": -17}),
             json!({"kind": {"raw": "bad"}, "linePitch": 0}),
         ] {
-            source["sections"][0]["props"]["docGrid"] = grid;
+            source["sections"][0]["props"]["docGrid"] = grid.clone();
             for snap in [Value::Null, json!(false), json!(true)] {
                 for para in source["main"].as_array_mut().unwrap() {
                     if snap.is_null() {
@@ -463,10 +465,12 @@ fn retaining_grid_inputs_does_not_change_current_layout_in_any_mode() {
                         para["props"]["snapToGrid"] = snap.clone();
                     }
                 }
-                assert_eq!(
-                    format!("{:?}", engine.layout_document(&document_from_json(&source))),
-                    pages
-                );
+                let applies = platform == Platform::Android
+                    && view == View::Print
+                    && grid["kind"].is_string()
+                    && snap != json!(false);
+                let laid = format!("{:?}", engine.layout_document(&document_from_json(&source)));
+                assert_eq!(laid != pages, applies, "{platform:?} {view:?} {grid} {snap}");
             }
         }
     }

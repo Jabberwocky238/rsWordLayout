@@ -980,6 +980,12 @@ pub struct Para {
     /// Effective paragraph grid participation; absence remains an unresolved default.
     /// Document grid metrics are retained separately and are not yet applied.
     pub snap_to_grid: Option<bool>,
+    /// 本段落在其上的行网格步距（twips），由 `Engine::layout_document` 按所在节填；`None` 不对齐网格。
+    ///
+    /// 只在 Android 打印视图、节的 `w:docGrid` 是 `lines` / `linesAndChars`、本段 auto 单倍行距且没写
+    /// `snapToGrid=false` 时填。行高取不小于单倍高的最小整数倍步距；页末一行只要单倍高加上
+    /// 多出部分的一半（文字居中在网格行里）。见 [`Engine::line_vertical`]。
+    pub grid_pitch: Option<Twips>,
     /// `w:pageBreakBefore`。
     pub page_break_before: bool,
     /// `w:overflowPunct`: allow a supported closing CJK punctuation glyph
@@ -1025,6 +1031,7 @@ impl Default for Para {
             keep_lines: false,
             widow_control: false,
             snap_to_grid: None,
+            grid_pitch: None,
             page_break_before: false,
             overflow_punct: true,
             tabs: Vec::new(),
@@ -2137,6 +2144,34 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     let next = &mut paras[i + 1];
                     if declared_after[i] >= 0 && next.space_before >= 0 {
                         next.space_before = (next.space_before - declared_after[i]).max(0);
+                    }
+                }
+            }
+        }
+        // Android 的行网格：给对齐网格的段落记上所在节的步距（见 `Para::grid_pitch`）。
+        // 连续分节换了网格的两节照装载诊断不用网格（换网格的时机没测）。移动视图没有页，没有读数，不用。
+        if self.platform == Platform::Android && self.view == View::Print {
+            let switches = |a: &crate::LayoutSection, b: &crate::LayoutSection| {
+                matches!(b.kind, crate::SectionStart::Continuous | crate::SectionStart::NextColumn) && a.grid != b.grid
+            };
+            for (index, section) in sections.iter().enumerate() {
+                let pitch = match (section.grid.kind(), section.grid.line_pitch()) {
+                    (Ok(Some(crate::GridKind::Lines | crate::GridKind::LinesAndChars)), Ok(Some(pitch))) if pitch > 0 => pitch,
+                    _ => continue,
+                };
+                if index.checked_sub(1).is_some_and(|prev| switches(&sections[prev], section))
+                    || sections.get(index + 1).is_some_and(|next| switches(section, next))
+                {
+                    continue;
+                }
+                if let Some(range) = paras.to_mut().get_mut(section.para_range.clone()) {
+                    for para in range {
+                        if para.snap_to_grid != Some(false)
+                            && para.line_rule == LineRule::Auto
+                            && matches!(para.line_value, 240 | 0)
+                        {
+                            para.grid_pitch = Some(pitch);
+                        }
                     }
                 }
             }
@@ -3494,8 +3529,22 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     /// （Android 打印视图，等线 11pt 单倍 298 twips，版心 15398）：2 倍 26 行、3 倍 17 行，
     /// 即 `1 + floor((15398 − 单倍) / 步长)`；按整步长要放得下是 25、17（`longpage-auto-double`、
     /// `longpage-auto-triple`）。桌面没有读数，照旧。
+    ///
+    /// Android 行网格（[`Para::grid_pitch`]）：步长是不小于单倍高（取到整 twips 比较）的最小整数倍
+    /// 步距，页末一行只要 `单倍高 + (步长 − 单倍高) / 2`。实测（Android 打印视图，等线 11pt 单倍 298，
+    /// 版心 15398；`reports/rsword-diff/docgrid.md`、`findings/pagination-path.md`）：`longpage-grid*` 18 档
+    /// 与 `dg-decide-*` 9 份全部由这一条给出——297 加倍 26 行、298 不加倍 51 行、99 是 4 倍 39 行、
+    /// 151 是 2 倍 50 行、312 是 49 行。末行所需写成 `单倍高 + α(步长 − 单倍高)` 时这些读数只允许
+    /// α ∈ (0.071, 0.531]（α = 0 错 151 与 290，α = 1 错 99、297 与三份 `dg-decide`），这里取居中的 ½。
     fn line_vertical(&self, para: &Para, content: Twips, natural_fine: i64) -> VerticalExtent {
         let height = self.line_height_fine(para, content, natural_fine);
+        if let Some(pitch) = para.grid_pitch {
+            let pitch_fine = i64::from(pitch) * FINE_PER_TWIP;
+            let single_twips = (height + FINE_PER_TWIP / 2) / FINE_PER_TWIP;
+            let multiple = ((single_twips * FINE_PER_TWIP + pitch_fine - 1) / pitch_fine).max(1);
+            let step = multiple * pitch_fine;
+            return VerticalExtent { advance_fine: step, required_fine: height + (step - height).max(0) / 2 };
+        }
         if self.platform == Platform::Android && para.line_rule == LineRule::Auto && para.line_value > 240 {
             let single = natural_fine.max(i64::from(content) * FINE_PER_TWIP);
             return VerticalExtent { advance_fine: height, required_fine: single.min(height) };
