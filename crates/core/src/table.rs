@@ -54,8 +54,10 @@ impl LayoutTableCell {
 #[derive(Debug, Clone)]
 pub struct LayoutTableRow {
     pub source_node: Option<u32>,
-    /// Exact `w:trHeight`; content neither grows nor is clipped to it.
-    pub height: Twips,
+    /// Exact `w:trHeight`; content neither grows nor is clipped to it. `None`
+    /// when the row declares no height: the row is as tall as its tallest cell's
+    /// content (paragraph lines and spacing).
+    pub height: Option<Twips>,
     pub cells: Vec<LayoutTableCell>,
 }
 
@@ -87,6 +89,7 @@ impl LayoutTable {
             "rows": self.rows.iter().map(|row| json!({
                 "sourceNode": row.source_node,
                 "exactHeight": row.height,
+                "heightRule": if row.height.is_some() { "exact" } else { "content" },
                 "cells": row.cells.iter().map(|cell| json!({
                     "sourceNode": cell.source_node,
                     "paragraphs": cell.paras.len(),
@@ -97,7 +100,7 @@ impl LayoutTable {
     }
 }
 
-pub(crate) const TABLE_POLICY: &str = "supported shape only: no table style, single-cell rows, exact row heights, explicit zero cell margins, nil/none borders, paragraph-only cells; table width from tblW (pct of the flow region or dxa) at the region's left edge; rows do not split and move whole to the next region; cell content taller than the row is painted unclipped and reported as overflow";
+pub(crate) const TABLE_POLICY: &str = "supported shape only: no table style, single-cell rows, exact or undeclared (content-height) row heights, explicit zero cell margins, nil/none borders, paragraph-only cells; table width from tblW (pct of the flow region or dxa) at the region's left edge; rows do not split and move whole to the next region; cell content taller than the row is painted unclipped and reported as overflow";
 pub(crate) const SOURCE_POLICY: &str = "each cell paragraph consumes text plus one mark unit and each cell one end unit; matches the tablepage print FormatLine starts only for single-cell single-paragraph rows";
 
 fn node(value: &Value) -> Option<u32> {
@@ -189,11 +192,18 @@ fn project(
         no_revisions(row, &what)?;
         keys_within(&row["props"], &format!("{what} trPr"), &["height"])?;
         let height = &row["props"]["height"];
-        if height["hRule"] != "exact" {
-            return Err(format!("{what} height rule is not exact"));
-        }
-        let height = height["val"].as_i64().and_then(|v| Twips::try_from(v).ok()).filter(|v| *v > 0)
-            .ok_or_else(|| format!("{what} exact height is not positive"))?;
+        // 没写 `w:trHeight` 的行随内容高。Android 打印视图实测（`findings/pagination-path.md`）：
+        // 每格一段精确 480 的单列表，24、28、30、31 行一页，32 行两页（31 × 480 加表后补的空段放得下，
+        // 32 × 480 = 15360 再加空段放不下）。`atLeast` / `auto` 带值的行没有读数，照旧不排。
+        let height = if height.is_null() {
+            None
+        } else {
+            if height["hRule"] != "exact" {
+                return Err(format!("{what} height rule is not exact"));
+            }
+            Some(height["val"].as_i64().and_then(|v| Twips::try_from(v).ok()).filter(|v| *v > 0)
+                .ok_or_else(|| format!("{what} exact height is not positive"))?)
+        };
         let cells = row["cells"].as_array().map(Vec::as_slice).unwrap_or(&[]);
         if cells.len() != 1 {
             return Err(format!("{what} has {} cells; only single-cell rows are supported", cells.len()));

@@ -13,6 +13,16 @@ fn docx(rows: usize, height: u32, tail: bool) -> Vec<u8> {
     let row = format!(
         r#"<w:tr><w:trPr><w:trHeight w:val="{height}" w:hRule="exact"/></w:trPr><w:tc><w:p><w:r><w:t>x</w:t></w:r></w:p></w:tc></w:tr>"#
     );
+    docx_rows(&row, rows, tail)
+}
+
+/// 没写行高、每格一段精确 480 的行（word_analyse `table24`…`table32` 的形状）。
+fn docx_content(rows: usize) -> Vec<u8> {
+    let row = r#"<w:tr><w:tc><w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="480" w:lineRule="exact"/></w:pPr><w:r><w:t>R</w:t></w:r></w:p></w:tc></w:tr>"#;
+    docx_rows(row, rows, false)
+}
+
+fn docx_rows(row: &str, rows: usize, tail: bool) -> Vec<u8> {
     let table = format!(
         r#"<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr>{}</w:tbl>"#,
         row.repeat(rows)
@@ -60,4 +70,19 @@ fn the_source_document_keeps_no_paragraphs() {
     let prepared = PreparedDocument::load(&bytes).unwrap();
     assert!(prepared.document().paras.is_empty(), "补的尾段只在排版时接上");
     assert!(prepared.document().implied_final_para.is_some());
+}
+
+/// 没写行高的行随内容高。Word（Android 打印视图，`findings/pagination-path.md`）：24、28、30、31 行一页，
+/// 32 行两页——31 × 480 加补的空段放得下，32 × 480 = 15360 再加空段放不下。
+#[test]
+fn rows_without_a_declared_height_grow_to_their_content() {
+    for (rows, expected) in [(24, 1), (31, 1), (32, 2)] {
+        assert_eq!(pages(&docx_content(rows)), expected, "{rows} 行");
+    }
+    let bytes = docx_content(2);
+    let prepared = PreparedDocument::load(&bytes).unwrap();
+    assert_eq!(prepared.document().tables[0].rows[0].height, None);
+    let options = LayoutOptions { platform: Platform::Android, view: View::Print, wrap: WrapPolicy::None };
+    let session = prepared.layout_approximate(&options).unwrap();
+    assert_eq!(session.pages()[0].table_rows[0].height_fine, 480 * 5);
 }

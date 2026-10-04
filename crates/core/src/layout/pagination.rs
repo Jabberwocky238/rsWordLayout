@@ -332,7 +332,13 @@ impl<M: FontMetrics> Engine<'_, M> {
         flow.paragraph_after = None;
         let mut source = source_base;
         for (row_index, row) in table.rows.iter().enumerate() {
-            let height = fine(row.height);
+            let height = match row.height {
+                Some(height) => fine(height),
+                None => {
+                    let area = flow.regions.area();
+                    self.row_content_fine(row, Rect::new(area.x, area.y, table.width.resolve(area.width), area.height), flow.cursor_fine)
+                }
+            };
             while flow.cursor_fine + height > flow.bottom()
                 && (!flow.regions.is_empty(flow.line_index) || flow.regions.is_partial())
             {
@@ -340,7 +346,7 @@ impl<M: FontMetrics> Engine<'_, M> {
             }
             let area = flow.regions.area();
             let top = flow.cursor_fine;
-            let rect = Rect::new(area.x, coarse(top), table.width.resolve(area.width), row.height);
+            let rect = Rect::new(area.x, coarse(top), table.width.resolve(area.width), coarse(height));
             let mut cells = Vec::with_capacity(row.cells.len());
             for cell in &row.cells {
                 let cell_start = source;
@@ -387,6 +393,27 @@ impl<M: FontMetrics> Engine<'_, M> {
             });
         }
         source - source_base
+    }
+
+    /// 没写行高的行：最高那一格的内容高（各段的行推进量与段距，段距照段落间的折叠）。
+    /// 按行顶 `top` 断行（环绕区间随位置变），返回高度。
+    fn row_content_fine(&self, row: &crate::LayoutTableRow, rect: Rect, top: i64) -> i64 {
+        row.cells.iter().map(|cell| {
+            let mut cursor = top;
+            let mut after: Option<Twips> = None;
+            for para in &cell.paras {
+                cursor += after.map_or(fine(para.space_before), |after| {
+                    paragraph_gap_fine(after, para.space_before) - fine(after)
+                });
+                let start = LineCursor { source: 0, first: true };
+                for line in self.break_paragraph_at(para, rect, cursor, 0, start) {
+                    cursor += line.vertical.advance_fine;
+                }
+                cursor += fine(para.space_after);
+                after = Some(para.space_after);
+            }
+            cursor - top
+        }).max().unwrap_or(0)
     }
 
     fn balance_band(
