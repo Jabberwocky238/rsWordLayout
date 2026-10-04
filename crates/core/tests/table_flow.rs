@@ -228,9 +228,10 @@ fn unsupported_table_shapes_remain_omitted_and_reported() {
             r#"<w:tbl>{TABLE_PR}<w:tr><w:trPr><w:trHeight w:val="480" w:hRule="exact"/></w:trPr><w:tc>{}</w:tc><w:tc>{}</w:tc></w:tr></w:tbl>"#,
             cell_paragraph("a"), cell_paragraph("b"))),
         ("atLeast height", table(1).replace(r#"w:hRule="exact""#, r#"w:hRule="atLeast""#)),
-        ("default cell margins", table(1).replace(
-            r#"<w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar>"#, "")),
-        ("visible border", table(1).replace(r#"<w:top w:val="nil"/>"#, r#"<w:top w:val="single" w:sz="4"/>"#)),
+        ("percent cell margin", table(1).replace(r#"<w:left w:w="0" w:type="dxa"/>"#, r#"<w:left w:w="0" w:type="pct"/>"#)),
+        // 可见边框只在没写行高的行上有读数（`talltable-080`）；写了精确行高的照旧不排。
+        ("visible border on an exact row", table(1).replace(r#"<w:top w:val="nil"/>"#, r#"<w:top w:val="single" w:sz="4"/>"#)),
+        ("double border", table(1).replace(r#"<w:top w:val="nil"/>"#, r#"<w:top w:val="double" w:sz="4"/>"#)),
         ("table style", table(1).replace("<w:tblPr>", r#"<w:tblPr><w:tblStyle w:val="TableGrid"/>"#)),
     ];
     for (name, table) in cases {
@@ -304,4 +305,13 @@ fn a_multi_column_band_with_table_rows_is_not_replayed() {
         assert!(pair[0].1 < pair[1].0 + 2 && pair[0].0 < pair[1].0, "ordered, no duplicates: {sources:?}");
     }
     assert!(page_text(&pages[0]).contains("Single"));
+}
+
+#[test]
+fn undeclared_cell_margins_take_the_table_defaults() {
+    let table = table(1).replace(
+        r#"<w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar>"#, "");
+    let doc = document(&format!("{table}{TAIL}{}", section(16838)));
+    assert_eq!(doc.tables.len(), 1);
+    assert_eq!(doc.tables[0].margins, rsword_layout_core::CellMargins { left: 108, right: 108, top: 0, bottom: 0 });
 }

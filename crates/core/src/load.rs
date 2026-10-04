@@ -297,6 +297,7 @@ fn effective_properties(session: &EditSession) -> EffectiveProperties {
     let default_style = resolver.default_style(StyleType::Paragraph).and_then(|s| s.id());
     let mut effective = EffectiveProperties {
         default_para_style: default_style.map(str::to_string),
+        no_styles: document.styles.is_none(),
         ..EffectiveProperties::default()
     };
     // 399e36a 的编辑模型会把段落样式 vanish 的整段归为 protected/invisible，

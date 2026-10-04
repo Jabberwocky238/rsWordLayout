@@ -965,6 +965,9 @@ pub struct Para {
     /// 都不再占地方（32、31 段一页，不实现是 21）；只有后一段带开关、或只有前一段带开关时，不带开关那段
     /// 的段距照留（25 段，「任一段的开关管两侧」给 32）；两种样式交替时不去（21）。
     pub contextual_spacing: bool,
+    /// 段后是桥接层补的 0：包里没有样式 part，段落有效属性也没写 `w:after` / `w:afterLines`。
+    /// Android 上换成 Word 的缺省段后 160 twips（见 [`ANDROID_DEFAULT_SPACE_AFTER`]）。
+    pub space_after_is_fallback: bool,
     /// 段落样式 id（没写 `w:pStyle` 时是缺省段落样式），给 [`Self::contextual_spacing`] 比样式用。
     pub style_id: Option<String>,
     pub line_rule: LineRule,
@@ -1024,6 +1027,7 @@ impl Default for Para {
             space_before_lines: None,
             space_after_lines: None,
             contextual_spacing: false,
+            space_after_is_fallback: false,
             style_id: None,
             line_rule: LineRule::Auto,
             line_value: 240,
@@ -1257,6 +1261,13 @@ impl PageSetup {
 
 /// 段距行单位的一行（twips）：节有行网格时是 `w:linePitch`，否则 240。见 `Para::space_before_lines`。
 const ANDROID_DEFAULT_FAMILY: &str = "DengXian";
+
+/// 包里没有样式 part 时 Android Word 给没写段后的段落的缺省段后，twips（8pt）。
+///
+/// 依据（2026-10-04 补测第 10、11 条，Android 打印视图）：60 段精确 480、不写段前段后的 `sp-default`
+/// 一页 24 段（段后 0 是 32，160 是 `1 + floor((15398 − 480) / 640)` = 24）；`talltable-080`（格内段落不写段后）
+/// 一页 21 行，格内写明段后 0 是 28 行——差的正是每行 160。有样式 part 而文档默认值不写段后的情形没测，不换。
+const ANDROID_DEFAULT_SPACE_AFTER: Twips = 160;
 
 /// Android Word 的缺省字体：等线（DengXian，云字体）11pt。
 ///
@@ -2086,6 +2097,24 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 }
             }
         }
+        // Android 的缺省段后（见 [`ANDROID_DEFAULT_SPACE_AFTER`]），正文与表格单元格都换。
+        if self.platform == Platform::Android {
+            if paras.iter().any(|p| p.space_after_is_fallback) {
+                for para in paras.to_mut().iter_mut().filter(|p| p.space_after_is_fallback) {
+                    para.space_after = ANDROID_DEFAULT_SPACE_AFTER;
+                }
+            }
+            let cell_paras = |t: &crate::LayoutTable| t.rows.iter().flat_map(|r| &r.cells).flat_map(|c| &c.paras)
+                .any(|p| p.space_after_is_fallback);
+            if tables.iter().any(cell_paras) {
+                for para in tables.to_mut().iter_mut()
+                    .flat_map(|t| &mut t.rows).flat_map(|r| &mut r.cells).flat_map(|c| &mut c.paras)
+                    .filter(|p| p.space_after_is_fallback)
+                {
+                    para.space_after = ANDROID_DEFAULT_SPACE_AFTER;
+                }
+            }
+        }
         // 正文以表格结尾时接上 Word 补的空段（见 `LayoutDocument::implied_final_para`）。
         let mut sections = std::borrow::Cow::Borrowed(&document.sections[..]);
         if let Some(para) = &document.implied_final_para
@@ -2095,6 +2124,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let mut para = para.clone();
             if self.platform == Platform::Android {
                 para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
+                if para.space_after_is_fallback {
+                    para.space_after = ANDROID_DEFAULT_SPACE_AFTER;
+                }
             }
             paras.to_mut().push(para);
             last.para_range.end += 1;

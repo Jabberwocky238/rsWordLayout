@@ -64,7 +64,7 @@ pub use anchor::AnchorScan;
 pub use bridge::paras_from_document;
 pub use grid::{DocumentGrid, GridKind};
 pub use paragraph_mark::ParagraphMarkProperties;
-pub use table::{LayoutTable, LayoutTableCell, LayoutTableRow, TableWidth};
+pub use table::{CellMargins, LayoutTable, LayoutTableCell, LayoutTableRow, TableWidth};
 pub use document::{
     ColumnLayout, ColumnSpec, DocumentCompatibility, LayoutDocument, LayoutSection, PageOverrides, SectionStart,
     document_from_json,

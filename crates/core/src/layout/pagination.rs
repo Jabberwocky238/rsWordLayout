@@ -332,11 +332,20 @@ impl<M: FontMetrics> Engine<'_, M> {
         flow.paragraph_after = None;
         let mut source = source_base;
         for (row_index, row) in table.rows.iter().enumerate() {
+            let m = table.margins;
+            // 格内文字的区间：表宽减去左右单元格边距。
+            let text_rect = |area: Rect, y: Twips, h: Twips| {
+                let width = table.width.resolve(area.width);
+                Rect::new(area.x + m.left, y, (width - m.left - m.right).max(1), h)
+            };
+            // 文字从行顶的边框与上边距之下开始。
+            let inset = fine(row.border_above + m.top);
             let height = match row.height {
                 Some(height) => fine(height),
                 None => {
                     let area = flow.regions.area();
-                    self.row_content_fine(row, Rect::new(area.x, area.y, table.width.resolve(area.width), area.height), flow.cursor_fine)
+                    inset + self.row_content_fine(row, text_rect(area, area.y, area.height), flow.cursor_fine + inset)
+                        + fine(m.bottom)
                 }
             };
             while flow.cursor_fine + height > flow.bottom()
@@ -347,11 +356,12 @@ impl<M: FontMetrics> Engine<'_, M> {
             let area = flow.regions.area();
             let top = flow.cursor_fine;
             let rect = Rect::new(area.x, coarse(top), table.width.resolve(area.width), coarse(height));
+            let cell_text = text_rect(area, coarse(top), coarse(height));
             let mut cells = Vec::with_capacity(row.cells.len());
             for cell in &row.cells {
                 let cell_start = source;
                 let first_line = flow.line_index;
-                let mut cursor = top;
+                let mut cursor = top + inset;
                 let mut content_bottom = top;
                 let mut after: Option<Twips> = None;
                 for para in &cell.paras {
@@ -360,7 +370,7 @@ impl<M: FontMetrics> Engine<'_, M> {
                     });
                     let start = LineCursor { source, first: true };
                     // Hard breaks inside a cell only end lines here.
-                    for line in self.break_paragraph_at(para, rect, cursor, source, start) {
+                    for line in self.break_paragraph_at(para, cell_text, cursor, source, start) {
                         self.place_line(&mut flow.page, &line, para, cursor, flow.line_index);
                         flow.page.line_columns.push(flow.regions.column());
                         content_bottom = content_bottom.max(cursor + line.vertical.required_fine);

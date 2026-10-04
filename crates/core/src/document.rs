@@ -603,6 +603,9 @@ pub(crate) fn document_from_json_with(
                 {
                     diagnostics.push(format!("block {block_index}: keepNext from the preceding paragraph into a table is not implemented; the link is not applied"));
                 }
+                if table.visible_borders {
+                    diagnostics.push(format!("block {block_index}: table borders take row height but are not painted"));
+                }
                 tables.push(table);
             }
             Err(reason) => diagnostics.push(format!("block {block_index}: table not laid out: {reason}; omitted from the trace")),

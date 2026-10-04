@@ -58,7 +58,20 @@ pub struct LayoutTableRow {
     /// when the row declares no height: the row is as tall as its tallest cell's
     /// content (paragraph lines and spacing).
     pub height: Option<Twips>,
+    /// Width of the visible border above this row (`top` for the first row,
+    /// `insideH` after it), added to a content-height row. Zero for nil/none.
+    pub border_above: Twips,
     pub cells: Vec<LayoutTableCell>,
+}
+
+/// Cell margins in twips. Undeclared sides take Word's table defaults: 108 at
+/// the left and right, 0 at the top and bottom.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CellMargins {
+    pub left: Twips,
+    pub right: Twips,
+    pub top: Twips,
+    pub bottom: Twips,
 }
 
 #[derive(Debug, Clone)]
@@ -69,6 +82,10 @@ pub struct LayoutTable {
     pub before_para: usize,
     pub source_node: Option<u32>,
     pub width: TableWidth,
+    pub margins: CellMargins,
+    /// Whether any border is visible. Visible borders take vertical space
+    /// (see [`LayoutTableRow::border_above`]) but are not painted.
+    pub visible_borders: bool,
     pub rows: Vec<LayoutTableRow>,
 }
 
@@ -89,6 +106,7 @@ impl LayoutTable {
             "rows": self.rows.iter().map(|row| json!({
                 "sourceNode": row.source_node,
                 "exactHeight": row.height,
+                "borderAbove": row.border_above,
                 "heightRule": if row.height.is_some() { "exact" } else { "content" },
                 "cells": row.cells.iter().map(|cell| json!({
                     "sourceNode": cell.source_node,
@@ -100,7 +118,7 @@ impl LayoutTable {
     }
 }
 
-pub(crate) const TABLE_POLICY: &str = "supported shape only: no table style, single-cell rows, exact or undeclared (content-height) row heights, explicit zero cell margins, nil/none borders, paragraph-only cells; table width from tblW (pct of the flow region or dxa) at the region's left edge; rows do not split and move whole to the next region; cell content taller than the row is painted unclipped and reported as overflow";
+pub(crate) const TABLE_POLICY: &str = "supported shape only: no table style, single-cell rows, exact or undeclared (content-height) row heights, cell margins (undeclared: 108 left/right, 0 top/bottom), nil/none borders or single borders on content-height rows (border width adds to the row; borders are not painted), tblW auto from a dxa tcW, paragraph-only cells; table width from tblW (pct of the flow region or dxa) at the region's left edge; rows do not split and move whole to the next region; cell content taller than the row is painted unclipped and reported as overflow";
 pub(crate) const SOURCE_POLICY: &str = "each cell paragraph consumes text plus one mark unit and each cell one end unit; matches the tablepage print FormatLine starts only for single-cell single-paragraph rows";
 
 fn node(value: &Value) -> Option<u32> {
@@ -129,8 +147,16 @@ fn number(value: &Value) -> Option<i64> {
     value.get("w").and_then(|w| w.get("number")).and_then(Value::as_i64)
 }
 
-fn table_width(props: &Value) -> Result<TableWidth, String> {
+fn table_width(props: &Value, first_cell: &Value) -> Result<TableWidth, String> {
     let width = &props["width"];
+    // `tblW auto` with a fixed-width cell: the single cell's `tcW` sets the width.
+    if width["kind"] == "auto" {
+        let cell = &first_cell["props"]["width"];
+        return match (cell["kind"].as_str(), number(cell)) {
+            (Some("dxa"), Some(w)) if w > 0 => Ok(TableWidth::Dxa(w as Twips)),
+            _ => Err("tblW auto without a positive dxa tcW needs content sizing".into()),
+        };
+    }
     let value = number(width).ok_or("tblW is missing or not numeric (auto width needs content sizing)")?;
     match width["kind"].as_str() {
         Some("pct") => u32::try_from(value).ok().filter(|v| *v > 0).map(TableWidth::Pct)
@@ -141,51 +167,69 @@ fn table_width(props: &Value) -> Result<TableWidth, String> {
     }
 }
 
-fn check_margins(props: &Value) -> Result<(), String> {
+/// Undeclared sides take TableNormal's built-in margins (108 left/right, 0
+/// top/bottom). `talltable-080` (no `tblCellMar`) and its copy with all four
+/// margins written as zero lay out the same number of rows per page.
+fn read_margins(props: &Value) -> Result<CellMargins, String> {
     let margins = &props["cellMargins"];
-    // TableNormal's built-in side margins are nonzero; require explicit zeros.
-    for (sides, required) in [(&["start", "left"][..], true), (&["end", "right"][..], true),
-        (&["top"][..], false), (&["bottom"][..], false)]
-    {
-        let declared = sides.iter().find_map(|side| margins.get(*side));
-        match declared {
-            None if !required => {}
-            None => return Err(format!("cell margin {} is not declared as zero", sides[0])),
-            Some(margin) => {
-                if margin["kind"] != "dxa" || number(margin) != Some(0) {
-                    return Err(format!("cell margin {} is not zero dxa", sides[0]));
-                }
-            }
+    let side = |sides: &[&str], default: Twips| -> Result<Twips, String> {
+        match sides.iter().find_map(|side| margins.get(*side)) {
+            None => Ok(default),
+            Some(margin) if margin["kind"] == "dxa" => number(margin)
+                .and_then(|v| Twips::try_from(v).ok()).filter(|v| *v >= 0)
+                .ok_or_else(|| format!("cell margin {} is not a nonnegative dxa", sides[0])),
+            Some(_) => Err(format!("cell margin {} is not dxa", sides[0])),
         }
-    }
-    Ok(())
+    };
+    Ok(CellMargins {
+        left: side(&["start", "left"], 108)?,
+        right: side(&["end", "right"], 108)?,
+        top: side(&["top"], 0)?,
+        bottom: side(&["bottom"], 0)?,
+    })
 }
 
-fn check_borders(props: &Value) -> Result<(), String> {
-    let Some(borders) = props.get("borders") else { return Ok(()) };
+/// Visible borders: only `single` is measured. Returns the widths in twips of
+/// the `top` and `insideH` borders (`sz` is in eighths of a point) and whether
+/// any border is visible.
+fn read_borders(props: &Value) -> Result<(Twips, Twips, bool), String> {
+    let Some(borders) = props.get("borders") else { return Ok((0, 0, false)) };
     let Some(borders) = borders.as_object() else { return Err("borders is not an object".into()) };
-    for (side, border) in borders {
-        if !matches!(border["val"].as_str(), Some("nil" | "none")) {
-            return Err(format!("{side} border is visible"));
+    let mut visible = false;
+    let mut width = |side: &str| -> Result<Twips, String> {
+        let Some(border) = borders.get(side) else { return Ok(0) };
+        match border["val"].as_str() {
+            Some("nil" | "none") => Ok(0),
+            Some("single") => {
+                visible = true;
+                let sz = border["sz"].as_i64().unwrap_or(2).clamp(2, 96);
+                Ok((sz * 20 / 8) as Twips)
+            }
+            other => Err(format!("{side} border {other:?} is not supported")),
         }
+    };
+    let top = width("top")?;
+    let inside = width("insideH")?;
+    for side in ["bottom", "start", "left", "end", "right", "insideV"] {
+        width(side)?;
     }
-    Ok(())
+    Ok((top, inside, visible))
 }
 
 fn project(
     doc: &Value,
     block: &Value,
     effective: Option<&EffectiveProperties>,
-) -> Result<(TableWidth, Vec<LayoutTableRow>), String> {
+) -> Result<(TableWidth, CellMargins, bool, Vec<LayoutTableRow>), String> {
     keys_within(block, "table", &["grid", "kind", "node", "props", "revisions", "rows"])?;
     no_revisions(block, "table")?;
     let props = &block["props"];
     keys_within(props, "tblPr", &["width", "borders", "cellMargins"])?;
-    let width = table_width(props)?;
-    check_margins(props)?;
-    check_borders(props)?;
     let rows = block["rows"].as_array().filter(|rows| !rows.is_empty())
         .ok_or("table has no rows")?;
+    let width = table_width(props, &rows[0]["cells"][0])?;
+    let margins = read_margins(props)?;
+    let (border_top, border_inside, visible_borders) = read_borders(props)?;
     rows.iter().enumerate().map(|(ri, row)| {
         let what = format!("row {ri}");
         keys_within(row, &what, &["cells", "node", "props", "revisions"])?;
@@ -219,8 +263,13 @@ fn project(
                 .ok_or_else(|| format!("{what} cell contains a non-paragraph block"))?;
             Ok(LayoutTableCell { source_node: node(cell), paras })
         }).collect::<Result<Vec<_>, String>>()?;
-        Ok(LayoutTableRow { source_node: node(row), height, cells })
-    }).collect::<Result<Vec<_>, String>>().map(|rows| (width, rows))
+        // 可见边框只在随内容高的行上有读数（`talltable-080` 一组）；写了行高的行边框占不占行高没测。
+        if visible_borders && height.is_some() {
+            return Err(format!("{what} has an exact height and visible borders"));
+        }
+        let border_above = if ri == 0 { border_top } else { border_inside };
+        Ok(LayoutTableRow { source_node: node(row), height, border_above, cells })
+    }).collect::<Result<Vec<_>, String>>().map(|rows| (width, margins, visible_borders, rows))
 }
 
 /// Project one main-story table block, or explain why it stays omitted.
@@ -234,6 +283,6 @@ pub(crate) fn project_table(
     if let Some(style) = block.get("styleId") {
         return Err(format!("table style {style} is not applied"));
     }
-    let (width, rows) = project(doc, block, effective)?;
-    Ok(LayoutTable { block_index, before_para, source_node: node(block), width, rows })
+    let (width, margins, visible_borders, rows) = project(doc, block, effective)?;
+    Ok(LayoutTable { block_index, before_para, source_node: node(block), width, margins, visible_borders, rows })
 }

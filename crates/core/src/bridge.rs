@@ -36,6 +36,8 @@ pub(crate) struct EffectiveProperties {
     /// 每段实际的段落样式 id，给 contextualSpacing 比样式用：`w:pStyle` 指向文档里没有的样式时
     /// 是缺省段落样式（Word 把找不到的样式当缺省样式）。
     pub para_styles: BTreeMap<u32, Option<String>>,
+    /// 包里没有（或 Word 不加载）样式 part：段距没有文档默认值可继承。
+    pub no_styles: bool,
 }
 
 fn node_id(node: &Value) -> Option<u32> {
@@ -967,6 +969,9 @@ fn project_text_block(
     let (line_rule, line_value, space_before, space_after) =
         read_spacing(props, before, after);
     let (space_before_lines, space_after_lines) = read_spacing_lines(props);
+    let space_after_is_fallback = effective.is_some_and(|e| e.no_styles)
+        && props.get("spacing").and_then(|sp| sp.get("after")).is_none_or(Value::is_null)
+        && space_after_lines.is_none();
     let para_style = match effective {
         Some(e) => node_id(block)
             .and_then(|node| e.para_styles.get(&node).cloned())
@@ -988,6 +993,7 @@ fn project_text_block(
         space_after,
         space_before_lines,
         space_after_lines,
+        space_after_is_fallback,
         contextual_spacing: props.get("contextualSpacing").is_some_and(as_bool),
         style_id: para_style,
         line_rule,
