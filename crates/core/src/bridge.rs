@@ -559,17 +559,59 @@ fn read_align(props: &Value) -> Align {
 }
 
 /// `w:ind` → (左, 右, 首行)。`hanging` 是负的首行缩进，与 `firstLine` 互斥。
-fn read_indent(props: &Value) -> (Twips, Twips, Twips) {
+///
+/// 字符单位（`startChars` / `endChars` / `firstLineChars` / `hangingChars`，1/100 字符）
+/// **非零时优先**于同一边的 twips 值；一个字符是 `char_unit` twips（调用方给的字号，1 em）。
+/// 实测（Android Word 纸页路径，`indent.md`）：`left=720` + `leftChars=100`、
+/// `firstLine=720` + `firstLineChars=100` 都按字符单位排；`leftChars` / `rightChars` 每行都缩、
+/// `firstLineChars` 只缩首行；每百份与 12pt 的一个 em（240 twips）成同一比例（该路径上整体
+/// 乘了视图比例，见 [`crate::LayoutDocument::mobile_indent_scale`]）。写成 0 退回 twips 值：
+/// Word 写 `w:firstLineChars="0"` 清掉样式继承来的字符缩进，这一条是**假设**，没有夹具。
+/// 字符单位与 twips 分属不同层时（样式写字符、直接属性写 twips）照样字符优先，与
+/// MS-OI29500 2.1.60 对行单位段距的说明同向，Word 未测。悬挂一侧（`hangingChars`、`hanging`）
+/// 优先于首行一侧，沿用原来 `hanging` 胜 `firstLine` 的次序。
+fn read_indent(props: &Value, char_unit: Twips) -> (Twips, Twips, Twips) {
     let ind = match props.get("indent") {
         Some(v) => v,
         None => return (0, 0, 0),
     };
     let num = |k: &str| ind.get(k).and_then(Value::as_i64).unwrap_or(0) as Twips;
+    let chars = |k: &str| {
+        ind.get(k).and_then(Value::as_i64).filter(|&v| v != 0)
+            .map(|v| (v as f64 * f64::from(char_unit) / 100.0).round() as Twips)
+    };
     // start/end 是 Strict 的写法，left/right 是 Transitional 的。
-    let left = if ind.get("start").is_some() { num("start") } else { num("left") };
-    let right = if ind.get("end").is_some() { num("end") } else { num("right") };
-    let first = if ind.get("hanging").is_some() { -num("hanging") } else { num("firstLine") };
+    let twips_side = |strict: &str, transitional: &str| {
+        if ind.get(strict).is_some() { num(strict) } else { num(transitional) }
+    };
+    let left = chars("startChars").or_else(|| chars("leftChars"))
+        .unwrap_or_else(|| twips_side("start", "left"));
+    let right = chars("endChars").or_else(|| chars("rightChars"))
+        .unwrap_or_else(|| twips_side("end", "right"));
+    let first = if let Some(hanging) = chars("hangingChars") {
+        -hanging
+    } else if ind.get("hanging").is_some() {
+        -num("hanging")
+    } else {
+        chars("firstLineChars").unwrap_or_else(|| num("firstLine"))
+    };
     (left, right, first)
+}
+
+/// 字符单位缩进的一个字符有多宽（twips）：第一个可见 run 的字号（空段落是按段落标记属性补的那个
+/// run），没有就用 `fallback_half_points`。一个字符取 1 em。
+///
+/// 取正文字号而不取段落标记字号，是**偏向数据的假设**：实测夹具（`indent.md`）的正文 run 写了
+/// 12pt、段落标记什么都没写，Word 的每百份与 240 twips 成比例。标记按 Word 自己的缺省字号排；
+/// 那个缺省若是 11pt（auto 行高读数在这一假设下才能用同一个字体比例解释，见
+/// `docs/WORD-ANALYSE-P0-ALIGNMENT-2026-10-04.md`），按标记就是 220、与读数不符。
+/// 标记字号与正文字号不同的夹具 Word 没测过。
+fn indent_char_unit(runs: &[Run], fallback_half_points: u32) -> Twips {
+    let half_points = runs
+        .iter()
+        .find(|run| !run.hidden)
+        .map_or(fallback_half_points, |run| run.font.size_half_points);
+    (half_points.saturating_mul(10)).min(Twips::MAX as u32) as Twips
 }
 
 /// `w:defaultTabStop`（`settings.defaultTabStop`），twips。没写、或不是正数时给 `None`。
@@ -880,7 +922,8 @@ fn project_text_block(
     for run in &mut runs {
         run.font.auto_space_dn = auto_space_dn;
     }
-    let (indent_left, indent_right, indent_first_line) = read_indent(props);
+    let char_unit = indent_char_unit(&runs, size);
+    let (indent_left, indent_right, indent_first_line) = read_indent(props, char_unit);
     let (line_rule, line_value, space_before, space_after) =
         read_spacing(props, before, after);
 

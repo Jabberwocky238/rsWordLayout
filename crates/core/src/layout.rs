@@ -1988,6 +1988,26 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 paras.to_mut()[previous].keep_next = false;
             }
         }
+        // 移动视图按视图宽与声明版心宽之比缩段落缩进（见 `LayoutDocument::mobile_indent_scale`）。
+        // 只缩正文段落；表格单元格里的段落在移动视图下怎么排没测，照原样。
+        if self.view == View::Mobile {
+            for (index, section) in document.sections.iter().enumerate() {
+                let (laid, declared) = document.mobile_indent_scale(index);
+                if laid == declared {
+                    continue;
+                }
+                let scale = |value: Twips| {
+                    (f64::from(value) * f64::from(laid) / f64::from(declared)).round() as Twips
+                };
+                if let Some(range) = paras.to_mut().get_mut(section.para_range.clone()) {
+                    for para in range {
+                        para.indent_left = scale(para.indent_left);
+                        para.indent_right = scale(para.indent_right);
+                        para.indent_first_line = scale(para.indent_first_line);
+                    }
+                }
+            }
+        }
         Engine {
             metrics: self.metrics,
             setup: self.setup,

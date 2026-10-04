@@ -218,6 +218,9 @@ pub struct LayoutDocument {
     pub source_warnings: Vec<Value>,
     mirror_margins: Option<bool>,
     overrides: PageOverrides,
+    /// 第一次套页面覆盖之前各节声明的版心宽，供移动视图按比例缩缩进
+    /// （[`Self::mobile_indent_scale`]）。没套过覆盖时是 `None`。
+    declared_widths: Option<Vec<Twips>>,
 }
 
 impl LayoutDocument {
@@ -279,11 +282,37 @@ impl LayoutDocument {
                 Ok(setup)
             })
             .collect::<Result<Vec<_>, String>>()?;
+        if self.declared_widths.is_none() {
+            self.declared_widths =
+                Some(self.sections.iter().map(|section| section.setup.content_area().width).collect());
+        }
         for (section, setup) in self.sections.iter_mut().zip(setups) {
             section.setup = setup;
         }
         self.overrides = overrides;
         Ok(())
+    }
+
+    /// 移动视图里第 `index` 节段落缩进的缩放比：(排版用的版心宽, 文档声明的版心宽)。
+    ///
+    /// 移动视图（Android 窄路径）按视图宽重排，段落缩进随之按比例缩：`ind-left` 左缩进 720，
+    /// 窄路径每行 40 个 `0`（不缩是 37，没有缩进是 43），有效缩进约 339–414 twips；
+    /// 同期纸页路径五档左缩进（720／1000／1440／5000／9600）的有效比例共同落在 0.507–0.519，
+    /// 与 5329 / 10466 = 0.509 相容，`wm size` 改窄视图后比例跟着变（word_analyse
+    /// `reports/rsword-diff/indent.md`）。所以比例取视图宽与纸页版心宽之比，不是常数。
+    /// 引擎的移动视图由页面覆盖给出视图宽（`--content-width`），声明宽是覆盖之前的版心宽。
+    ///
+    /// 没套过覆盖、或覆盖之后节被换过（个数对不上）时给 (1, 1)，不缩。
+    pub fn mobile_indent_scale(&self, index: usize) -> (Twips, Twips) {
+        let declared = self.declared_widths.as_ref()
+            .filter(|widths| widths.len() == self.sections.len())
+            .and_then(|widths| widths.get(index).copied());
+        match (declared, self.sections.get(index)) {
+            (Some(declared), Some(section)) if declared > 0 => {
+                (section.setup.content_area().width, declared)
+            }
+            _ => (1, 1),
+        }
     }
 
     /// Input provenance for a trace; coordinates are twips, not trace points.
@@ -738,5 +767,6 @@ pub(crate) fn document_from_json_with(
         source_warnings: doc["warnings"].as_array().cloned().unwrap_or_default(),
         mirror_margins,
         overrides: PageOverrides::default(),
+        declared_widths: None,
     }
 }
