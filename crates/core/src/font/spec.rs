@@ -59,6 +59,15 @@ pub struct FontSpec {
     /// 整体偏 0.45pt。rustybuzz 不传 feature 时默认**开**，所以必须显式关掉，
     /// 不能靠不传。
     pub kerning: bool,
+    /// `w:fitText`：这个 run 的全部可见文字合起来恰好占这么宽（twips），并且**不可拆开**。
+    ///
+    /// 度量提供者照常量自然宽度，不看这一项；断行侧（`Engine` 的片段度量）把整截的推进量
+    /// 换成它，绘制侧把差额摊到字间。实测（Android Word 纸页 10466，Calibri 12pt，
+    /// word_analyse `reports/rsword-diff/fittext.md`）：40 个 `0` 压到 2000 下一行从 109 起、
+    /// 拉到 8000 从 60 起、设成 12000（宽于版心）时整截独占一行 0、10、50——三份都是
+    /// 「整截当一个 cluster、按紧急断行收」的结果，所以这里把它当一个不可拆的单位。
+    /// 同一 `w:id` 的几个 run 由桥接层按字符数分摊总宽（近似，未测）。
+    pub fit_text: Option<Twips>,
 }
 
 /// `w:rFonts` 的四个字体槽。
@@ -237,6 +246,7 @@ impl FontSpec {
             auto_space_dn: true,
             caps: Caps::None,
             kerning: false,
+            fit_text: None,
         }
     }
 }
@@ -470,8 +480,8 @@ pub trait FontMetrics {
     /// 第一个簇就放不下时仍返回它，此时度量超出 `max_width`——空行要靠它前进，
     /// 已有内容的行由调用方决定不收。「空行至少收一个单位」本身没有直接测过；
     /// `fittext-over`（`fittext.md`，0、10、50）是部分支持：一个 12000 twips 宽的
-    /// fitText run 独占一行、溢出也收。fitText 尚未实现，实现时整个 fitText run 应当是
-    /// **一个**簇，而不是绕过本方法——绕过就丢了第一行在第 10 个字之后的那一刀。
+    /// fitText run 独占一行、溢出也收。fitText 的 run 不进本方法：断行侧把整截当**一个**簇
+    /// （`Engine::fit_clusters_atomic`），第一行在第 10 个字之后的那一刀照样由紧急断行切出。
     /// 空串返回 `(0, measure(""))`。
     /// 默认实现逐簇线性试探，遇到第一个放不下的就停，与 [`Self::fit`] 同一口径。
     fn fit_clusters(&self, text: &str, font: &FontSpec, max_width: Twips) -> (usize, TextMetrics) {

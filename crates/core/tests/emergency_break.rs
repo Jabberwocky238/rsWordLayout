@@ -15,7 +15,7 @@
 //!   `tab-after-a`（0、1、43）分不出是不是视觉上的两行，不作依据。空格与 CJK 交界上的
 //!   同一条规则是**假设**，对应的测试以 `assumed_` 开头。
 //! - `fittext-over`（`fittext.md`，0、10、50）部分支持「空行至少收一个单位」：一个超宽的
-//!   fitText run 独占一行。fitText 未实现；实现时整个 fitText run 应当是一个簇。
+//!   fitText run 独占一行。整个 fitText run 是一个簇，见 `tests/fit_text.rs`。
 //! - `italic-a` 不可评：macOS 文件系统不分大小写，`italic-A.docx` 覆盖了它，
 //!   盘上那份其实是 100 个斜体 `A`。
 //!

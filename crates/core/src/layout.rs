@@ -1420,6 +1420,11 @@ fn coarse(value: i64) -> Twips {
     (value as f64 / FINE_PER_TWIP as f64).round() as Twips
 }
 
+/// 终止符（段落标记、分页符等）画的空格不属于前面那段 fitText：目标宽只摊在 run 的文字上。
+fn tail_font(font: &FontSpec) -> FontSpec {
+    FontSpec { fit_text: None, ..font.clone() }
+}
+
 /// Source ownership is independent of the spaces used to paint a control.
 /// A wrapped boundary has an empty source range; a nonpainting control does not.
 #[derive(Clone)]
@@ -1436,7 +1441,7 @@ impl LineTail {
         Self {
             source,
             spaces: terminator.expected_glyphs(),
-            font: run.font.clone(),
+            font: tail_font(&run.font),
             color: run.color,
             rise_fine: run.effective_rise_fine(),
         }
@@ -1454,9 +1459,9 @@ impl LineTail {
         {
             // Autospace is a paragraph measurement condition, not mark rPr.
             style.font.auto_space_dn = font.auto_space_dn;
-            (style.font, style.rise_fine)
+            (tail_font(&style.font), style.rise_fine)
         } else {
-            (font.clone(), rise_fine)
+            (tail_font(font), rise_fine)
         };
         let color = if para.terminator == crate::oracle::LineTerminator::ParagraphMark {
             para.mark.paint_color().unwrap_or(color)
@@ -2079,10 +2084,12 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let baseline_y = coarse(baseline_fine);
         let last = line.pieces.len().saturating_sub(1);
         let tails = line.paint_tails();
+        // fitText 的片段不并终止符：绘制要把整截摊到目标宽，并进来的空格会被一起摊开。
         let append_suffix = line.pieces.last().zip(tails.first()).is_some_and(|(p, tail)| {
             p.source.1 == tail.source.0
                 && tail.maps_spaces_to_source()
                 && (p.tab.is_none() || tails.len() == 1)
+                && p.font.fit_text.is_none()
                 && p.font == tail.font
                 && p.color == tail.color
                 && p.rise_fine == tail.rise_fine
@@ -2492,7 +2499,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     // Keep negative debt: clamping after the subtraction could
                     // admit a zero-width prefix without room for its boundary.
                     let remain = (line_avail - cur_w).max(0) - leading_spacing.fit_twips;
-                    let m_all = self.metrics.measure(rest, &run.font);
+                    let m_all = self.text_metrics(rest, &run.font);
 
                     if m_all.advance <= remain {
                         // 整截放得下。
@@ -2512,7 +2519,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             byte,
                         });
                         cur_w += leading_spacing.fit_twips + m_all.advance;
-                        cur_w_pt += leading_spacing.paint_pt + self.metrics.advance_pt(rest, &run.font);
+                        cur_w_pt += leading_spacing.paint_pt + self.text_advance_pt(rest, &run.font);
                         (at, byte) = next_segment(&segs, at);
                         continue;
                     }
@@ -2539,16 +2546,22 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                     //   纸页路径（10466）与移动视图一样不挂出；显式写了 `w:overflowPunct w:val="1"`
                     //   也不挂出。所以这里只看平台、不看视图。
                     let hang = para.overflow_punct && self.platform == Platform::Desktop;
-                    let decision = match self.metrics.fit_with_overflow_punctuation_context(
-                        rest, &run.font, remain, hang,
-                        context,
-                    ) {
-                        // The fitter validates the signed budget: a negative
-                        // advance may cover incoming-spacing debt, and a valid
-                        // punctuation overflow may exceed that budget afterward.
-                        Some((cut, m)) if cut > 0 => Shortfall::Place(cut, m),
-                        // 一个断点都塞不下。
-                        _ => self.shortfall(para, area, span, remain, &cur, object_join, &segs, at, byte),
+                    let decision = if run.font.fit_text.is_some() {
+                        // fitText 的整截不可拆：不在截内找断点，也不挂出，直接按交界、更早的断点
+                        // 与紧急断行（整截一个 cluster）收行。见 [`FontSpec::fit_text`]。
+                        self.shortfall(para, area, span, remain, &cur, object_join, &segs, at, byte)
+                    } else {
+                        match self.metrics.fit_with_overflow_punctuation_context(
+                            rest, &run.font, remain, hang,
+                            context,
+                        ) {
+                            // The fitter validates the signed budget: a negative
+                            // advance may cover incoming-spacing debt, and a valid
+                            // punctuation overflow may exceed that budget afterward.
+                            Some((cut, m)) if cut > 0 => Shortfall::Place(cut, m),
+                            // 一个断点都塞不下。
+                            _ => self.shortfall(para, area, span, remain, &cur, object_join, &segs, at, byte),
+                        }
                     };
                     let (eat, end_run) = match decision {
                         Shortfall::Place(cut, m) => {
@@ -2569,7 +2582,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 byte,
                             });
                             cur_w += leading_spacing.fit_twips + m.advance;
-                            cur_w_pt += leading_spacing.paint_pt + self.metrics.advance_pt(piece, &run.font);
+                            cur_w_pt += leading_spacing.paint_pt + self.text_advance_pt(piece, &run.font);
                             byte += cut;
                             (true, seg.run_index)
                         }
@@ -2581,9 +2594,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                                 if offset > 0 {
                                     p.text.truncate(offset);
                                     p.source.1 = p.source.0 + utf16_len(&p.text);
-                                    p.measured = self.metrics.measure(&p.text, &p.font);
+                                    p.measured = self.text_metrics(&p.text, &p.font);
                                     cur_w = p.dx + p.measured.advance;
-                                    cur_w_pt = p.dx_pt + self.metrics.advance_pt(&p.text, &p.font);
+                                    cur_w_pt = p.dx_pt + self.text_advance_pt(&p.text, &p.font);
                                     cur.truncate(piece + 1);
                                 } else {
                                     cur_w = p.dx - p.leading_spacing.fit_twips;
@@ -2823,7 +2836,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 return Shortfall::Truncate { piece, offset, eat: true };
             }
             // （乙）
-            let (cut, m) = self.metrics.fit_clusters(chunk, &run.font, remain);
+            let (cut, m) = self.fit_clusters_atomic(chunk, &run.font, remain);
             return if cut > 0 && (cur.is_empty() || m.advance <= remain) {
                 Shortfall::Place(cut, m)
             } else {
@@ -2841,7 +2854,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let mut width = 0;
             for &(text, font) in parts {
                 width += self.spacing_before(previous, text, font).fit_twips
-                    + self.metrics.measure(text, font).advance;
+                    + self.text_metrics(text, font).advance;
                 if let Some(last) = text.chars().last() {
                     previous = Some((last, font));
                 }
@@ -2870,7 +2883,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 spaced <= room
             } else {
                 let (text, font) = cur.get(t + 1).map_or((chunk, &run.font), |p| (p.text.as_str(), &p.font));
-                let (cut, m) = self.metrics.fit_clusters(text, font, room);
+                let (cut, m) = self.fit_clusters_atomic(text, font, room);
                 cut > 0 && m.advance <= room
             }
         };
@@ -2878,7 +2891,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         let Some((piece, offset)) = candidate else {
             // （丁）
             if !fits_alone {
-                let (cut, m) = self.metrics.fit_clusters(chunk, &run.font, remain);
+                let (cut, m) = self.fit_clusters_atomic(chunk, &run.font, remain);
                 if cut > 0 && m.advance <= remain {
                     return Shortfall::Place(cut, m);
                 }
@@ -2913,8 +2926,8 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                             previous = None;
                         }
                         let spacing = self.spacing_before(previous, text, &p.font);
-                        w += spacing.fit_twips + self.metrics.measure(text, &p.font).advance;
-                        w_pt += spacing.paint_pt + self.metrics.advance_pt(text, &p.font);
+                        w += spacing.fit_twips + self.text_metrics(text, &p.font).advance;
+                        w_pt += spacing.paint_pt + self.text_advance_pt(text, &p.font);
                         if let Some(last) = text.chars().last() {
                             previous = Some((last, &p.font));
                         }
@@ -2942,7 +2955,9 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     fn last_break_candidate(&self, cur: &[LinePiece]) -> Option<(usize, usize)> {
         let first_text = cur.iter().position(|p| p.tab.is_none());
         for (index, piece) in cur.iter().enumerate().rev() {
+            // fitText 的整截不可拆（[`FontSpec::fit_text`]），不在它里面找断点；它两侧的交界照常。
             if piece.tab.is_none()
+                && piece.font.fit_text.is_none()
                 && let Some(offset) = self
                     .metrics
                     .break_opportunities(&piece.text)
@@ -2988,12 +3003,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             {
                 break;
             }
-            if let Some(end) = self
-                .metrics
-                .break_opportunities(text)
-                .iter()
-                .map(|b| b.offset)
-                .find(|&o| o > 0 && o < text.len())
+            // fitText 的整截不可拆，整截都是这个词的一部分。
+            if run.font.fit_text.is_none()
+                && let Some(end) = self
+                    .metrics
+                    .break_opportunities(text)
+                    .iter()
+                    .map(|b| b.offset)
+                    .find(|&o| o > 0 && o < text.len())
             {
                 word.push((&text[..end], &run.font));
                 break;
@@ -3027,6 +3044,37 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             .break_opportunities(&pair)
             .iter()
             .any(|b| b.offset == prev.len_utf8())
+    }
+
+    /// 一截 run 文字的度量，按 [`FontSpec::fit_text`] 换掉推进量：带 fitText 的 run 整截恰好
+    /// 占那么宽。度量提供者只给自然宽度，纵向量照用。断行侧量片段、量 run 文字处都走这里，
+    /// fitText 的整截才在每个口径下同宽；带宽的截只会整截地量（不可拆，见 [`Self::fit_clusters_atomic`]）。
+    fn text_metrics(&self, text: &str, font: &FontSpec) -> TextMetrics {
+        let mut metrics = self.metrics.measure(text, font);
+        if let Some(width) = font.fit_text
+            && !text.is_empty()
+        {
+            metrics.advance = width;
+        }
+        metrics
+    }
+
+    /// [`Self::text_metrics`] 的精确推进量，单位点。
+    fn text_advance_pt(&self, text: &str, font: &FontSpec) -> f64 {
+        match font.fit_text {
+            Some(width) if !text.is_empty() => f64::from(width) / f64::from(TWIPS_PER_POINT),
+            _ => self.metrics.advance_pt(text, font),
+        }
+    }
+
+    /// 紧急断行的切法（`FontMetrics::fit_clusters`），带 fitText 的 run 整截只算**一个** cluster：
+    /// 总是交回整截，由调用方照「空行至少收一个 cluster、有内容的行放不下就收行」决定收不收。
+    /// 实测 `fittext-over`（`fittext.md`）：10 个 `0` 之后 12000 宽的那截不切开，整截独占下一行。
+    fn fit_clusters_atomic(&self, text: &str, font: &FontSpec, max_width: Twips) -> (usize, TextMetrics) {
+        if font.fit_text.is_some() {
+            return (text.len(), self.text_metrics(text, font));
+        }
+        self.metrics.fit_clusters(text, font, max_width)
     }
 
     /// 本段的默认制表位间距：文档写了 `w:defaultTabStop` 就照用，没写按平台补。
@@ -3144,14 +3192,22 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             let spacing = self.spacing_before(previous, slice, &run.font);
             whole += spacing.paint_pt * 20.0;
             whole_twips += spacing.fit_twips;
+            let slice_pt = self.text_advance_pt(slice, &run.font);
             if before_point.is_none()
                 && let Some(point) = slice.find('.')
             {
-                before_point =
-                    Some(whole + self.metrics.advance_pt(&slice[..point], &run.font) * 20.0);
+                // fitText 的整截按自然宽度的比例落小数点（不可拆的截里没有别的量法）。
+                let natural = self.metrics.advance_pt(slice, &run.font);
+                let prefix = self.metrics.advance_pt(&slice[..point], &run.font);
+                let prefix = if run.font.fit_text.is_some() && natural > 0.0 {
+                    slice_pt * prefix / natural
+                } else {
+                    prefix
+                };
+                before_point = Some(whole + prefix * 20.0);
             }
-            whole += self.metrics.advance_pt(slice, &run.font) * 20.0;
-            whole_twips += self.metrics.measure(slice, &run.font).advance;
+            whole += slice_pt * 20.0;
+            whole_twips += self.text_metrics(slice, &run.font).advance;
             if let Some(last) = slice.chars().last() {
                 previous = Some((last, &run.font));
             }
@@ -3391,6 +3447,33 @@ pub(crate) fn apply_char_spacing(runs: &mut [ShapedRun], font: &FontSpec) {
     }
 }
 
+/// [`FontSpec::fit_text`]：把整截的推进量拉到（压到）目标宽，与断行量的宽一致。
+///
+/// 差额均摊在 cluster 之间（最后一个 cluster 之后不摊），只有一个 cluster 时全加在它后面。
+/// 这是**假设**：Word 的读数只有断行（整截的宽），没有截内字形的位置。
+/// 带 fitText 的片段不并终止符（`place_line` 的 `append_suffix`），所以这里摊的只是 run 的文字。
+fn apply_fit_text(runs: &mut [ShapedRun], font: &FontSpec) {
+    let Some(width) = font.fit_text else { return };
+    if runs.is_empty() {
+        return;
+    }
+    let natural: f64 = runs.iter().map(|g| g.x_advance_pt).sum();
+    let delta = f64::from(width) / f64::from(TWIPS_PER_POINT) - natural;
+    let ends: Vec<usize> = (0..runs.len()).filter(|&i| is_cluster_end(runs, i)).collect();
+    let slots = if ends.len() > 1 { &ends[..ends.len() - 1] } else { &ends[..] };
+    let share = delta / slots.len() as f64;
+    for &i in slots {
+        runs[i].x_advance_pt += share;
+    }
+    let (mut points, mut twips) = (0.0, 0);
+    for glyph in runs.iter_mut() {
+        points += glyph.x_advance_pt;
+        let next = (points * f64::from(TWIPS_PER_POINT)).round() as Twips;
+        glyph.x_advance = next - twips;
+        twips = next;
+    }
+}
+
 /// Consume retained source endpoints, without re-deciding spacing policy.
 /// Supported clusters are valid, non-overlapping UTF-16 ranges in source order
 /// (a cluster may produce several glyphs). Events inside merged clusters, or
@@ -3560,6 +3643,7 @@ fn position_glyphs(
     // 缩放与间距都不作用在它身上（断行里的制表符宽也不含它们，两边一致）。
     apply_char_spacing(&mut runs, &t.font);
     apply_boundary_spacing(&mut runs, t);
+    apply_fit_text(&mut runs, &t.font);
 
     // Shaper clusters remain meaningful for ligatures, combining marks and RTL.
     // A fragment containing omitted source characters still needs a conservative

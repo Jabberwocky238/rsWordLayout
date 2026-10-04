@@ -132,7 +132,63 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         auto_space_dn: true,
         caps: read_caps(props),
         kerning: kern_threshold > 0 && size_centipoints >= kern_threshold.saturating_mul(50),
+        fit_text: read_fit_text(props).map(|(width, _)| width),
     }.with_size_centipoints(size_centipoints)
+}
+
+/// `w:fitText` → (目标宽 twips, `w:id`)。`load.rs` 从原 DOM 补进有效属性 JSON（解析器没建模）。
+/// 不是正数的宽按没写处理。
+fn read_fit_text(props: &Value) -> Option<(Twips, Option<i64>)> {
+    let fit = props.get("fitText")?;
+    let width = fit.get("val").and_then(Value::as_i64).filter(|&v| v > 0)?;
+    Some((width.min(i64::from(Twips::MAX)) as Twips, fit.get("id").and_then(Value::as_i64)))
+}
+
+/// 把同一 `w:fitText` 区的总宽分到区内各 run 上，并去掉断行侧排不了的区。
+///
+/// `w:id` 把几个 run 连成一个区，区的宽是 `w:val`（ECMA-376 §17.3.2.14）；没有 `w:id` 的 run
+/// 各自成区。断行把每个带宽的 run 当一个不可拆的单位（见 [`FontSpec::fit_text`]），所以区跨
+/// 几个 run 时这里按各 run 的 UTF-16 长度分摊总宽，余数按最大余数法补，合计恰为 `w:val`。
+/// 按长度分摊是**近似**：Word 按什么分、区内 run 交界能不能断，都没测（实测夹具全是单 run 区）。
+///
+/// 区里有制表符或对象占位符时整区不按 fitText 排：断行在那里把 run 切成几截，
+/// 一个宽度分不到几截上。隐藏的 run 不占宽，也不参与分摊。
+fn distribute_fit_text(runs: &mut [Run], ids: &[Option<i64>]) {
+    let mut start = 0;
+    while start < runs.len() {
+        let mut end = start + 1;
+        if let (Some(_), Some(id)) = (runs[start].font.fit_text, ids[start]) {
+            while end < runs.len() && runs[end].font.fit_text.is_some() && ids[end] == Some(id) {
+                end += 1;
+            }
+        }
+        let group = &mut runs[start..end];
+        let Some(total) = group[0].font.fit_text else {
+            start = end;
+            continue;
+        };
+        if group.iter().any(|run| run.text.contains(['\t', OBJECT_PLACEHOLDER])) {
+            group.iter_mut().for_each(|run| run.font.fit_text = None);
+        } else if group.len() > 1 {
+            let lengths: Vec<i64> = group
+                .iter()
+                .map(|run| if run.hidden { 0 } else { i64::from(crate::layout::utf16_len(&run.text)) })
+                .collect();
+            let sum: i64 = lengths.iter().sum::<i64>().max(1);
+            let total = i64::from(total);
+            let mut shares: Vec<i64> = lengths.iter().map(|&len| total * len / sum).collect();
+            let mut order: Vec<usize> = (0..shares.len()).collect();
+            order.sort_by_key(|&k| std::cmp::Reverse(total * lengths[k] % sum));
+            let short = total - shares.iter().sum::<i64>();
+            for &k in order.iter().take(short.max(0) as usize) {
+                shares[k] += 1;
+            }
+            for (run, share) in group.iter_mut().zip(shares) {
+                run.font.fit_text = (!run.hidden && share > 0).then_some(share as Twips);
+            }
+        }
+        start = end;
+    }
 }
 
 /// Resolver output can be sparse. Do not invent host defaults for an
@@ -438,18 +494,20 @@ fn placeholders_by_order(segments: &[Value], text: &str) -> Vec<PlaceholderKind>
     if out.len() == want { out } else { vec![PlaceholderKind::Object; want] }
 }
 
-/// 递归收集一个块里的所有 run 文本。
+/// 递归收集一个块里的所有 run 文本。`fit_ids` 与 `out` 一一对应，记各 run 的 `w:fitText` 的
+/// `w:id`（见 [`distribute_fit_text`]）。
 fn collect_runs(
     inlines: &Value,
     base_size: u32,
     base_bold: bool,
     effective: Option<&EffectiveProperties>,
     out: &mut Vec<Run>,
+    fit_ids: &mut Vec<Option<i64>>,
 ) {
     match inlines {
         Value::Array(items) => {
             for it in items {
-                collect_runs(it, base_size, base_bold, effective, out);
+                collect_runs(it, base_size, base_bold, effective, out, fit_ids);
             }
         }
         Value::Object(_) => {
@@ -475,13 +533,14 @@ fn collect_runs(
                         rise: (rise_fine / FINE_PER_TWIP) as Twips,
                         rise_fine: Some(rise_fine),
                     });
+                    fit_ids.push(read_fit_text(props).and_then(|(_, id)| id));
                 }
             } else if kind == "field" {
                 if let Some(r) = inlines.get("result") {
-                    collect_runs(r, base_size, base_bold, effective, out);
+                    collect_runs(r, base_size, base_bold, effective, out, fit_ids);
                 }
             } else if let Some(inner) = inlines.get("inlines") {
-                collect_runs(inner, base_size, base_bold, effective, out);
+                collect_runs(inner, base_size, base_bold, effective, out, fit_ids);
             }
         }
         _ => {}
@@ -785,9 +844,11 @@ fn project_text_block(
         .unwrap_or(false);
 
     let mut runs = Vec::new();
+    let mut fit_ids = Vec::new();
     if let Some(inlines) = block.get("inlines") {
-        collect_runs(inlines, size, bold, effective, &mut runs);
+        collect_runs(inlines, size, bold, effective, &mut runs, &mut fit_ids);
     }
+    distribute_fit_text(&mut runs, &fit_ids);
 
     let mark = crate::ParagraphMarkProperties::from_json(
         block.get("props").and_then(|props| props.get("rpr")),

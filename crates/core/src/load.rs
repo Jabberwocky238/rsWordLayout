@@ -82,7 +82,7 @@ use rsword::model::{Block, Document, Inline, ProtectedKind, TextKind};
 use rsword::package::{Package, RelType};
 use rsword::resolve::{EffectiveRunProps, Resolver};
 use rsword::semantic::props::{Codec, Ctx, RunProps, StyleType, codec::OnOff};
-use rsword::xml::{LocalName, QName};
+use rsword::xml::{Dom, LocalName, QName};
 use serde_json::Value;
 
 use crate::bridge::{EffectiveProperties, merge_layout_tabs, project_paragraphs};
@@ -338,7 +338,13 @@ fn effective_properties(session: &EditSession) -> EffectiveProperties {
             match inline {
                 Inline::Run(run) => {
                     let props = resolver.run(style, run.props.style.as_deref(), &run.props);
-                    effective.runs.insert(run.node.0, layout_run_props(&resolver, &props, &cx));
+                    let mut json = layout_run_props(&resolver, &props, &cx);
+                    if let Some(fit) = fit_text_json(session.dom(), &run.props)
+                        && let Some(out) = json.as_object_mut()
+                    {
+                        out.insert("fitText".to_string(), fit);
+                    }
+                    effective.runs.insert(run.node.0, json);
                 }
                 Inline::Field { result, .. } => pending.extend(result),
                 Inline::Atom(_) => {}
@@ -372,6 +378,24 @@ fn recover_style_hidden_paragraphs(session: &EditSession) -> BTreeMap<rsword::xm
         .filter(|block| matches!(block, Block::Text(_)) && candidates.contains(&block.node()))
         .map(|block| (block.node(), block))
         .collect()
+}
+
+/// run 自己写的 `w:fitText` → `{"val": twips, "id": n}`（`id` 可缺）。
+///
+/// 钉住的解析器（399e36a）只建模了单元格的 `w:tcFitText`，run 级的 `w:fitText` 留在
+/// `RunProps::raw_unmodeled` 里、声明值 JSON 也不带，所以照 [`document_compatibility`] 的办法
+/// 直接读原 DOM。只读直接属性：字符样式里的 `w:fitText` 看不到（Word 未测，夹具里也没有）。
+/// `w:val` 只认整数 twips；带单位的写法（`ST_UniversalMeasure`）不认，按没写处理。
+fn fit_text_json(dom: &Dom, props: &RunProps) -> Option<Value> {
+    let &node = props.raw_unmodeled.iter()
+        .find(|&&node| dom.name(node) == Some(QName::w(LocalName::FitText)))?;
+    let number = |name| dom.attr_value(node, QName::w(name)).and_then(|v| v.trim().parse::<i64>().ok());
+    let mut out = serde_json::Map::new();
+    out.insert("val".to_string(), number(LocalName::Val)?.into());
+    if let Some(id) = number(LocalName::Id) {
+        out.insert("id".to_string(), id.into());
+    }
+    Some(Value::Object(out))
 }
 
 /// 保持 run JSON 字段形状，主题引用另解析为布局实际读取的四个字体槽。
