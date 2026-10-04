@@ -77,6 +77,8 @@ fn slot_selection_differs_from_single_family() {
         caps: Caps::None,
         kerning: false,
         kern_declared: false,
+        family_is_fallback: false,
+        size_is_fallback: false,
         fit_text: None,
     };
     assert_eq!(font.family_for('A'), "Times New Roman");
@@ -108,6 +110,8 @@ fn missing_slot_falls_back_to_family() {
         caps: Caps::None,
         kerning: false,
         kern_declared: false,
+        family_is_fallback: false,
+        size_is_fallback: false,
         fit_text: None,
     };
     assert_eq!(

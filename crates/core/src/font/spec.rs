@@ -64,6 +64,12 @@ pub struct FontSpec {
     /// Android Word 不写 `w:kern` 也调字距，写了就照阈值（见 `font::real` 的 `kerning_font`），
     /// 所以光有 [`Self::kerning`] 分不开「没写」与「写了但字号不到」。
     pub kern_declared: bool,
+    /// 字体名是不是桥接层补的缺省值：有效属性的四个字体槽一个都没写（含样式、文档默认与主题）。
+    ///
+    /// Android 上这种 run 由 Word 的缺省字体排（`Engine::layout_document` 换成等线），桌面照旧。
+    pub family_is_fallback: bool,
+    /// 字号是不是桥接层补的缺省值（有效属性里没有 `w:sz`）。Android 上换成 11pt，桌面照旧 12pt。
+    pub size_is_fallback: bool,
     /// `w:fitText`：这个 run 的全部可见文字合起来恰好占这么宽（twips），并且**不可拆开**。
     ///
     /// 度量提供者照常量自然宽度，不看这一项；断行侧（`Engine` 的片段度量）把整截的推进量
@@ -252,6 +258,8 @@ impl FontSpec {
             caps: Caps::None,
             kerning: false,
             kern_declared: false,
+            family_is_fallback: false,
+            size_is_fallback: false,
             fit_text: None,
         }
     }
@@ -352,6 +360,13 @@ pub trait FontMetrics {
         &self, _left: char, _left_font: &FontSpec, _right: char, _right_font: &FontSpec,
     ) -> SpacingAdvance {
         SpacingAdvance::default()
+    }
+
+    /// Whether text in `family` is measured with that family's own face rather
+    /// than a substitute. Layout uses it to decide whether a platform default
+    /// font can replace a bridge fallback. The default is no.
+    fn has_family(&self, _family: &str) -> bool {
+        false
     }
 
     /// Pair adjustment (kerning) between the last character of one line piece and

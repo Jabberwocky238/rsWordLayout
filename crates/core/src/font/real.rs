@@ -18,7 +18,7 @@
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 
-use skrifa::{FontRef, MetadataProvider};
+use skrifa::{FontRef, MetadataProvider, raw::TableProvider};
 
 use super::registry::FontRegistry;
 use super::spec::{
@@ -95,7 +95,19 @@ struct FaceVertical {
     /// 正值。
     descent: f64,
     line_gap: f64,
+    /// OS/2 `ulCodePageRange1` 声明了东亚代码页（第 17–21 位：日、简中、韩、繁中、韩 Johab）。
+    east_asian: bool,
 }
+
+/// Android 上声明了东亚代码页的字体，单倍行高乘的系数（「N7」：hhea 行高 × 1.3）。
+///
+/// 依据（Android 打印视图）：不写字体的夹具 Word 用等线 11pt 排（2026-10-04 补测：`longpage-auto12pt`
+/// 页 0 是 47 行、进程映射里是 `DengXian-54497409372.ttf`）。等线的 hhea（与 win、typo 相同）是
+/// 2134 / 2048 = 1.0420 em，乘 1.3 是 1.3546 em：字号阶梯要求的 1.3507–1.3578 em、docGrid 297 加倍
+/// 298 不加倍要求的 (297, 298] twips（11pt 下 298.0）、表后空段要求的 (296, 302] 都落在里面；
+/// 不乘是 229 twips，哪一条都对不上。Mac 上同一条规则由 `docs/PREREG-2026-09-18-cjk-plain.md` 的 Z2
+/// 测过（宋体 4/4 字号），桌面这里尚未启用。1.3 怎么分到升部、降部没测，这里按比例放大三项。
+const EAST_ASIAN_LINE_SCALE: f64 = 1.3;
 
 /// 读字体文件的度量实现。
 ///
@@ -110,6 +122,7 @@ pub struct RealMetrics<'r> {
     grid: VerticalGrid,
     horizontal: HorizontalGrid,
     kerning_by_default: bool,
+    east_asian_line_scale: bool,
     vertical: RefCell<BTreeMap<String, Option<FaceVertical>>>,
 }
 
@@ -120,6 +133,7 @@ impl<'r> RealMetrics<'r> {
             grid: VerticalGrid::None,
             horizontal: HorizontalGrid::None,
             kerning_by_default: false,
+            east_asian_line_scale: false,
             vertical: RefCell::new(BTreeMap::new()),
         }
     }
@@ -138,6 +152,12 @@ impl<'r> RealMetrics<'r> {
     /// 与 [`FontMetrics::piece_boundary_kern`] 的实现。
     pub fn with_kerning_by_default(mut self, always: bool) -> RealMetrics<'r> {
         self.kerning_by_default = always;
+        self
+    }
+
+    /// 声明了东亚代码页的字体按 [`EAST_ASIAN_LINE_SCALE`] 放大单倍行高（Android）。
+    pub fn with_east_asian_line_scale(mut self, on: bool) -> RealMetrics<'r> {
+        self.east_asian_line_scale = on;
         self
     }
 
@@ -175,11 +195,15 @@ impl<'r> RealMetrics<'r> {
                 skrifa::instance::LocationRef::default(),
             );
             let upem = f64::from(m.units_per_em);
+            let east_asian = font.os2().ok()
+                .and_then(|os2| os2.ul_code_page_range_1())
+                .is_some_and(|pages| pages & (0b1_1111 << 17) != 0);
             (upem > 0.0).then_some(FaceVertical {
                 upem,
                 ascent: f64::from(m.ascent),
                 descent: f64::from(m.descent).abs(),
                 line_gap: f64::from(m.leading),
+                east_asian,
             })
         })();
         self.vertical
@@ -211,9 +235,10 @@ impl<'r> RealMetrics<'r> {
                 continue;
             };
             found = true;
-            ascent = ascent.max(v.ascent / v.upem * em);
-            descent = descent.max(v.descent / v.upem * em);
-            line_gap = line_gap.max(v.line_gap / v.upem * em);
+            let scale = if self.east_asian_line_scale && v.east_asian { EAST_ASIAN_LINE_SCALE } else { 1.0 };
+            ascent = ascent.max(v.ascent / v.upem * em * scale);
+            descent = descent.max(v.descent / v.upem * em * scale);
+            line_gap = line_gap.max(v.line_gap / v.upem * em * scale);
         }
         found.then_some((ascent, descent, line_gap))
     }
@@ -391,6 +416,10 @@ impl FontMetrics for RealMetrics<'_> {
         &self, left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
     ) -> super::SpacingAdvance {
         super::linebreak::autospace_dn_boundary(left, left_font, right, right_font)
+    }
+
+    fn has_family(&self, family: &str) -> bool {
+        self.registry.has_family(family)
     }
 
     /// Android 上跨片段（跨 run）照样调字距：两侧度量属性相同、开了字距调整时，补上分开整形

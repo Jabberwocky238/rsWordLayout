@@ -118,6 +118,10 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
     let bold = props.get("bold").map(as_bool).unwrap_or(base_bold);
     let italic = props.get("italic").map(as_bool).unwrap_or(false);
     let slots = read_slots(props.get("fonts"));
+    let family_is_fallback = slots.ascii.is_none()
+        && slots.h_ansi.is_none()
+        && slots.east_asia.is_none()
+        && slots.cs.is_none();
     // `family` 保留为 ascii 槽的值，供只认单一字体的调用方使用。
     let family = slots
         .ascii
@@ -142,6 +146,8 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         caps: read_caps(props),
         kerning: kern_threshold > 0 && size_centipoints >= kern_threshold.saturating_mul(50),
         kern_declared: props.get("kern").is_some_and(|value| !value.is_null()),
+        family_is_fallback,
+        size_is_fallback: props.get("size").is_none_or(Value::is_null),
         fit_text: read_fit_text(props).map(|(width, _)| width),
     }.with_size_centipoints(size_centipoints)
 }

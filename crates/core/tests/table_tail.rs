@@ -1,8 +1,8 @@
 //! 正文以表格结尾时 Word 补的尾段（`LayoutDocument::implied_final_para`）。
 //!
 //! Word 实测（Android Word 打印视图，版心高 15398，无边框单列表，精确行高；word_analyse
-//! `reports/rsword-diff/table*.md`）：30 行 × 503 剩 308 twips 是 1 页，30 行 × 504 剩 278 twips
-//! 是 2 页；文档自己带尾段时（`table32-tail`）不再多补。
+//! `reports/rsword-diff/table*.md`）：30 行 × 500、503 剩 398、308 twips 是 1 页，30 行 × 504、510
+//! 剩 278、98 twips 是 2 页；文档自己带尾段时（`table32-tail`）不再多补。
 
 use rsword::package::Package;
 use rsword_layout_core::{LayoutOptions, LayoutRecord, Platform, PreparedDocument, View, WrapPolicy};
@@ -20,6 +20,10 @@ fn docx(rows: usize, height: u32, tail: bool) -> Vec<u8> {
     let tail = if tail { "<w:p/>" } else { "" };
     let sect = r#"<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>"#;
     let mut package = Package::open(&rsword::save::blank_docx(None).unwrap()).unwrap();
+    // 与 word_analyse 的表格夹具同形：不带任何样式与文档默认值。
+    if let Some(styles) = package.find_name("word/styles.xml") {
+        package.replace_part_xml(styles, &format!(r#"<w:styles xmlns:w="{W}"/>"#)).unwrap();
+    }
     let main = package.main_part();
     package
         .replace_part_xml(main, &format!(r#"<w:document xmlns:w="{W}"><w:body>{table}{tail}{sect}</w:body></w:document>"#))
@@ -35,8 +39,10 @@ fn pages(bytes: &[u8]) -> usize {
 
 #[test]
 fn a_body_final_table_is_followed_by_an_implied_empty_paragraph() {
-    assert_eq!(pages(&docx(30, 503, false)), 1, "剩 308 twips，补的尾段放得下");
-    assert_eq!(pages(&docx(30, 504, false)), 2, "剩 278 twips，补的尾段换到下一页");
+    // 用离空段高度远的两档（`table30-h500` 1 页、`table30-h510` 2 页）：近似度量下空段的高
+    // 不是等线的 298，503 / 504 那一对只分得开 (278, 308] 之间的空段。
+    assert_eq!(pages(&docx(30, 500, false)), 1, "剩 398 twips，补的尾段放得下");
+    assert_eq!(pages(&docx(30, 510, false)), 2, "剩 98 twips，补的尾段换到下一页");
 }
 
 #[test]

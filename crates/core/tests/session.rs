@@ -260,7 +260,9 @@ mod fonts {
         // 原来 layout-trace 的装法：同一个注册表量宽、整形、出字形记录。
         let registry = sans_with_droid();
         let document = PreparedDocument::load(&bytes).unwrap().document().clone();
-        let real = RealMetrics::new(&registry).with_vertical_grid(grid);
+        let real = RealMetrics::new(&registry)
+            .with_vertical_grid(grid)
+            .with_east_asian_line_scale(true);
         let pages = Engine::new(&real, document.sections[0].setup)
             .with_platform(Platform::Android, View::Print)
             .layout_document(&document);

@@ -1249,6 +1249,46 @@ impl PageSetup {
 }
 
 /// 段距行单位的一行（twips）：节有行网格时是 `w:linePitch`，否则 240。见 `Para::space_before_lines`。
+const ANDROID_DEFAULT_FAMILY: &str = "DengXian";
+
+/// Android Word 的缺省字体：等线（DengXian，云字体）11pt。
+///
+/// 依据（2026-10-04 补测，Android 打印视图）：word_analyse 的纵向夹具都不写字体，其中显式 `w:sz=24`
+/// 的 `longpage-auto12pt` 页 0 是 47 行（「缺省 11pt」的预测；「12pt 起跳」51 行）；打开不写字体
+/// 的夹具时进程映射的是 `DengXian-54497409372.ttf`；不写字体的一串数字窄路径每行 45 个、打印视图
+/// 90 个，与等线 11pt 的字宽相符。只换桥接层补的缺省值（[`FontSpec::family_is_fallback`]、
+/// [`FontSpec::size_is_fallback`]），文档写了的照用。上下标的字号随之按比例缩。
+///
+/// 量不了等线时（`default_face` 为假：没装这个字体），没写字体的 run 字体、字号都照原来的替身排
+/// ——拿别的字体按 11pt 排只会更远；写了字体、没写字号的 run 照样换成 11pt。
+fn android_default_font(font: &mut FontSpec, default_face: bool) {
+    const FAMILY: &str = ANDROID_DEFAULT_FAMILY;
+    const SIZE_HALF_POINTS: u32 = 22;
+    if font.family_is_fallback {
+        if !default_face {
+            return;
+        }
+        font.family = FAMILY.to_string();
+        let hint = font.slots.hint;
+        font.slots = crate::font::FontSlots {
+            ascii: Some(FAMILY.to_string()),
+            h_ansi: Some(FAMILY.to_string()),
+            east_asia: Some(FAMILY.to_string()),
+            cs: Some(FAMILY.to_string()),
+            hint,
+        };
+        font.family_is_fallback = false;
+    }
+    if font.size_is_fallback {
+        if let Some(centipoints) = font.size_centipoints {
+            font.size_centipoints =
+                Some(centipoints * u64::from(SIZE_HALF_POINTS) / u64::from(font.size_half_points.max(1)));
+        }
+        font.size_half_points = SIZE_HALF_POINTS;
+        font.size_is_fallback = false;
+    }
+}
+
 fn section_line_unit(section: &crate::LayoutSection) -> Twips {
     use crate::GridKind;
     match (section.grid.kind(), section.grid.line_pitch()) {
@@ -2020,13 +2060,36 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 paras.to_mut()[previous].keep_next = false;
             }
         }
+        // Android 上没写字体、字号的 run 用 Word 的缺省字体与字号（见 [`android_default_font`]）。
+        let mut tables = std::borrow::Cow::Borrowed(&document.tables[..]);
+        let default_face = self.metrics.has_family(ANDROID_DEFAULT_FAMILY);
+        if self.platform == Platform::Android {
+            let fallback = |p: &Para| p.runs.iter().any(|r| r.font.family_is_fallback || r.font.size_is_fallback);
+            if paras.iter().any(fallback) || document.implied_final_para.as_ref().is_some_and(fallback) {
+                for para in paras.to_mut() {
+                    para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
+                }
+            }
+            let cells = |t: &crate::LayoutTable| t.rows.iter().flat_map(|r| &r.cells).flat_map(|c| &c.paras).any(fallback);
+            if tables.iter().any(cells) {
+                for para in tables.to_mut().iter_mut()
+                    .flat_map(|t| &mut t.rows).flat_map(|r| &mut r.cells).flat_map(|c| &mut c.paras)
+                {
+                    para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
+                }
+            }
+        }
         // 正文以表格结尾时接上 Word 补的空段（见 `LayoutDocument::implied_final_para`）。
         let mut sections = std::borrow::Cow::Borrowed(&document.sections[..]);
         if let Some(para) = &document.implied_final_para
             && let Some(last) = sections.to_mut().last_mut()
             && last.para_range.end == paras.len()
         {
-            paras.to_mut().push(para.clone());
+            let mut para = para.clone();
+            if self.platform == Platform::Android {
+                para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
+            }
+            paras.to_mut().push(para);
             last.para_range.end += 1;
         }
         // 行单位段距按所在节换成 twips（见 `Para::space_before_lines`）。
@@ -2106,7 +2169,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
             view: self.view,
             compatibility: document.compatibility,
         }
-        .layout_sections(&paras, &document.tables, &sections, document.mirror_margins() == Some(true))
+        .layout_sections(&paras, &tables, &sections, document.mirror_margins() == Some(true))
     }
 
     /// 把一行放到页面上，处理水平对齐。
@@ -3426,8 +3489,18 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
 
     /// The legacy line box has equal advance and required extent. Grid policies
     /// can later change these independently without replacing pagination math.
+    ///
+    /// Android：auto 行距大于单倍时，页末一行只要单倍高放得下，推进量仍是整个倍数。实测
+    /// （Android 打印视图，等线 11pt 单倍 298 twips，版心 15398）：2 倍 26 行、3 倍 17 行，
+    /// 即 `1 + floor((15398 − 单倍) / 步长)`；按整步长要放得下是 25、17（`longpage-auto-double`、
+    /// `longpage-auto-triple`）。桌面没有读数，照旧。
     fn line_vertical(&self, para: &Para, content: Twips, natural_fine: i64) -> VerticalExtent {
-        VerticalExtent::uniform(self.line_height_fine(para, content, natural_fine))
+        let height = self.line_height_fine(para, content, natural_fine);
+        if self.platform == Platform::Android && para.line_rule == LineRule::Auto && para.line_value > 240 {
+            let single = natural_fine.max(i64::from(content) * FINE_PER_TWIP);
+            return VerticalExtent { advance_fine: height, required_fine: single.min(height) };
+        }
+        VerticalExtent::uniform(height)
     }
 
     /// 按 `w:spacing` 规则算行高的精确值，单位 1/7200 英寸。

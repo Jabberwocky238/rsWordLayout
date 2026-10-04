@@ -181,6 +181,11 @@ impl FontRegistry {
         self.select(font.family_for(ch), ch, font.bold, font.italic, east_asia)
     }
 
+    /// 装没装这个族（族名或 face 名对得上、画得出 `A`）。不查回退链。
+    pub fn has_family(&self, family: &str) -> bool {
+        self.slot_face(family, 'A', false, false).is_some()
+    }
+
     /// 只给族名时选 face。没有 `FontSpec` 就没有 `w:hint`：
     /// 字符归不归 eastAsia 槽（查不查回退链）按不带 hint 的分区算。
     pub fn select_face(&self, family: &str, ch: char, bold: bool, italic: bool) -> Option<String> {

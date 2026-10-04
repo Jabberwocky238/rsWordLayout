@@ -310,7 +310,8 @@ impl<'a> PreparedDocument<'a> {
         let metrics = RealMetrics::new(&fonts)
             .with_vertical_grid(vertical_grid)
             .with_horizontal_grid(horizontal_grid(options))
-            .with_kerning_by_default(kerning_by_default(options));
+            .with_kerning_by_default(kerning_by_default(options))
+            .with_east_asian_line_scale(options.platform == Platform::Android);
         let pages = layout.run(&metrics, options);
         let mut session = layout.finish(pages, *options, fonts.face_ids());
         session.fonts = Some((fonts, vertical_grid));
