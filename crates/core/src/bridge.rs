@@ -132,6 +132,7 @@ fn run_font(props: &Value, base_size: u32, base_bold: bool) -> FontSpec {
         auto_space_dn: true,
         caps: read_caps(props),
         kerning: kern_threshold > 0 && size_centipoints >= kern_threshold.saturating_mul(50),
+        kern_declared: props.get("kern").is_some_and(|value| !value.is_null()),
         fit_text: read_fit_text(props).map(|(width, _)| width),
     }.with_size_centipoints(size_centipoints)
 }

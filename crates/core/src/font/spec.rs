@@ -59,6 +59,11 @@ pub struct FontSpec {
     /// 整体偏 0.45pt。rustybuzz 不传 feature 时默认**开**，所以必须显式关掉，
     /// 不能靠不传。
     pub kerning: bool,
+    /// 有效属性里写没写 `w:kern`（不论值）。
+    ///
+    /// Android Word 不写 `w:kern` 也调字距，写了就照阈值（见 `font::real` 的 `kerning_font`），
+    /// 所以光有 [`Self::kerning`] 分不开「没写」与「写了但字号不到」。
+    pub kern_declared: bool,
     /// `w:fitText`：这个 run 的全部可见文字合起来恰好占这么宽（twips），并且**不可拆开**。
     ///
     /// 度量提供者照常量自然宽度，不看这一项；断行侧（`Engine` 的片段度量）把整截的推进量
@@ -246,6 +251,7 @@ impl FontSpec {
             auto_space_dn: true,
             caps: Caps::None,
             kerning: false,
+            kern_declared: false,
             fit_text: None,
         }
     }
@@ -343,6 +349,18 @@ pub trait FontMetrics {
     /// shapers must return glyph advances before this spacing is applied.
     /// The default leaves an opaque provider's measurement policy unchanged.
     fn boundary_spacing(
+        &self, _left: char, _left_font: &FontSpec, _right: char, _right_font: &FontSpec,
+    ) -> SpacingAdvance {
+        SpacingAdvance::default()
+    }
+
+    /// Pair adjustment (kerning) between the last character of one line piece and
+    /// the first of the next, which shaping applies when the two are shaped together
+    /// and loses when they are shaped apart — adjacent pieces are, for example runs
+    /// that differ only in color. Layout adds it only at piece boundaries, after
+    /// [`Self::boundary_spacing`]; `measure` already includes it inside a piece.
+    /// The default adds nothing.
+    fn piece_boundary_kern(
         &self, _left: char, _left_font: &FontSpec, _right: char, _right_font: &FontSpec,
     ) -> SpacingAdvance {
         SpacingAdvance::default()

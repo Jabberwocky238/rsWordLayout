@@ -3313,8 +3313,14 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         &self, previous: Option<(char, &FontSpec)>, text: &str, font: &FontSpec,
     ) -> SpacingAdvance {
         match (previous, text.chars().next()) {
-            (Some((left, left_font)), Some(right)) =>
-                self.metrics.boundary_spacing(left, left_font, right, font),
+            (Some((left, left_font)), Some(right)) => {
+                let spacing = self.metrics.boundary_spacing(left, left_font, right, font);
+                let kern = self.metrics.piece_boundary_kern(left, left_font, right, font);
+                SpacingAdvance {
+                    fit_twips: spacing.fit_twips + kern.fit_twips,
+                    paint_pt: spacing.paint_pt + kern.paint_pt,
+                }
+            }
             _ => SpacingAdvance::default(),
         }
     }

@@ -109,7 +109,7 @@ pub struct RealMetrics<'r> {
     registry: &'r FontRegistry,
     grid: VerticalGrid,
     horizontal: HorizontalGrid,
-    kerning_always: bool,
+    kerning_by_default: bool,
     vertical: RefCell<BTreeMap<String, Option<FaceVertical>>>,
 }
 
@@ -119,7 +119,7 @@ impl<'r> RealMetrics<'r> {
             registry,
             grid: VerticalGrid::None,
             horizontal: HorizontalGrid::None,
-            kerning_always: false,
+            kerning_by_default: false,
             vertical: RefCell::new(BTreeMap::new()),
         }
     }
@@ -134,15 +134,16 @@ impl<'r> RealMetrics<'r> {
         self.horizontal
     }
 
-    /// 不论 `w:kern`，总是按字体做字距调整（GPOS `kern`）。见 [`kerning_font`]。
-    pub fn with_kerning_always(mut self, always: bool) -> RealMetrics<'r> {
-        self.kerning_always = always;
+    /// 没写 `w:kern` 时也按字体做字距调整（GPOS `kern`），并且跨 run 调。见 [`kerning_font`]
+    /// 与 [`FontMetrics::piece_boundary_kern`] 的实现。
+    pub fn with_kerning_by_default(mut self, always: bool) -> RealMetrics<'r> {
+        self.kerning_by_default = always;
         self
     }
 
     /// 整形，开了像素栅格时把推进量落到像素上（缩放与字符间距随之在像素上做完）。
     fn shaped(&self, text: &str, font: &FontSpec) -> Vec<crate::layout::ShapedRun> {
-        let font = kerning_font(font, self.kerning_always);
+        let font = kerning_font(font, self.kerning_by_default);
         let mut runs = self.registry.shape_text(text, &font);
         if let HorizontalGrid::DevicePixels { per_inch } = self.horizontal {
             quantize_to_pixels(&mut runs, &font, per_inch);
@@ -343,15 +344,17 @@ fn quantize_to_pixels(runs: &mut [crate::layout::ShapedRun], font: &FontSpec, pe
     }
 }
 
-/// 字距调整总是开时，度量与绘制整形用的字体。
+/// Android 上度量与绘制整形用的字体：没写 `w:kern` 也调字距，写了就照阈值。
 ///
 /// Android Word 不写 `w:kern` 也做字距调整：`kern-off`（Calibri 12pt 的 `AVAV…`，纸页 10466）与写了
 /// `w:kern` 的 `kern-on` 一样每行 82 个字母。按 Calibri 的 GPOS（A→V −89、V→A −96 字体单位）两个方向
 /// 都调，82 个字母宽 10399 twips、84 个宽 10652，正好是 82；不调是 76。Mac Word 不写 `w:kern` 就不调
-/// （`B11` 的两个 `1`，见 [`FontSpec::kerning`]），所以这是平台差异。写了大于字号的 `w:kern` 阈值时
-/// Android 调不调未测，这里一律调。
+/// （`B11` 的两个 `1`，见 [`FontSpec::kerning`]），所以这是平台差异。
+///
+/// 写了的阈值照样算数（2026-10-04 打印视图补测）：41 个 `AV` 一段，不调 11277 twips、调了 10399，
+/// 纸页 10466。`w:kern w:val="48"`（24pt，大于 12pt）两行、末行 6 个字母；不写一行；`w:kern="2"` 一行。
 fn kerning_font(font: &FontSpec, always: bool) -> std::borrow::Cow<'_, FontSpec> {
-    if always && !font.kerning {
+    if always && !font.kerning && !font.kern_declared {
         std::borrow::Cow::Owned(FontSpec { kerning: true, ..font.clone() })
     } else {
         std::borrow::Cow::Borrowed(font)
@@ -365,12 +368,12 @@ fn kerning_font(font: &FontSpec, always: bool) -> std::borrow::Cow<'_, FontSpec>
 pub(crate) struct PaintShaper<'s> {
     pub inner: &'s dyn crate::layout::TextShaper,
     pub pixels: Option<u32>,
-    pub kerning_always: bool,
+    pub kerning_by_default: bool,
 }
 
 impl crate::layout::TextShaper for PaintShaper<'_> {
     fn shape(&self, text: &str, font: &FontSpec) -> Vec<crate::layout::ShapedRun> {
-        let font = kerning_font(font, self.kerning_always);
+        let font = kerning_font(font, self.kerning_by_default);
         let mut runs = self.inner.shape(text, &font);
         if let Some(per_inch) = self.pixels {
             quantize_to_pixels(&mut runs, &font, per_inch);
@@ -388,6 +391,39 @@ impl FontMetrics for RealMetrics<'_> {
         &self, left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
     ) -> super::SpacingAdvance {
         super::linebreak::autospace_dn_boundary(left, left_font, right, right_font)
+    }
+
+    /// Android 上跨片段（跨 run）照样调字距：两侧度量属性相同、开了字距调整时，补上分开整形
+    /// 丢掉的那一对的调整量——两字合在一起量、减去各自量、再减去已另算的边界间距。
+    ///
+    /// 依据（2026-10-04 打印视图补测，纸页 10466）：41 个 `AV` 每 10 个字母换一种颜色（8 处 run
+    /// 边界都是 V→A，每处 −96 字体单位即 −11.25 twips），Word 排成一行；分开整形是 10489 twips，
+    /// 放不下。只量过只差颜色的 run；字号、字体不同的两侧不调（未测）。桌面没有读数，不调。
+    fn piece_boundary_kern(
+        &self, left: char, left_font: &FontSpec, right: char, right_font: &FontSpec,
+    ) -> super::SpacingAdvance {
+        if !self.kerning_by_default
+            || left_font != right_font
+            || left_font.fit_text.is_some()
+            || !kerning_font(left_font, true).kerning
+        {
+            return super::SpacingAdvance::default();
+        }
+        let (mut l, mut r) = ([0u8; 4], [0u8; 4]);
+        let (l, r) = (&*left.encode_utf8(&mut l), &*right.encode_utf8(&mut r));
+        let pair = format!("{l}{r}");
+        let between = self.boundary_spacing(left, left_font, right, right_font);
+        let font = left_font;
+        super::SpacingAdvance {
+            fit_twips: self.measure(&pair, font).advance
+                - self.measure(l, font).advance
+                - self.measure(r, font).advance
+                - between.fit_twips,
+            paint_pt: self.advance_pt(&pair, font)
+                - self.advance_pt(l, font)
+                - self.advance_pt(r, font)
+                - between.paint_pt,
+        }
     }
     fn measure(&self, text: &str, font: &FontSpec) -> TextMetrics {
         let shaped = self.shaped(text, font);

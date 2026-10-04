@@ -310,12 +310,12 @@ impl<'a> PreparedDocument<'a> {
         let metrics = RealMetrics::new(&fonts)
             .with_vertical_grid(vertical_grid)
             .with_horizontal_grid(horizontal_grid(options))
-            .with_kerning_always(kerning_always(options));
+            .with_kerning_by_default(kerning_by_default(options));
         let pages = layout.run(&metrics, options);
         let mut session = layout.finish(pages, *options, fonts.face_ids());
         session.fonts = Some((fonts, vertical_grid));
         session.horizontal = horizontal_grid(options);
-        session.kerning_always = kerning_always(options);
+        session.kerning_by_default = kerning_by_default(options);
         Ok(session)
     }
 
@@ -385,10 +385,10 @@ fn horizontal_grid(options: &LayoutOptions) -> HorizontalGrid {
     }
 }
 
-/// Android Word 不看 `w:kern`，总做字距调整（`kern-off` 与 `kern-on` 同为每行 82 个字母，见
-/// `font::real` 的 `kerning_font`）；桌面照 `w:kern` 的阈值。
+/// Android Word 不写 `w:kern` 也做字距调整，写了照阈值（见 `font::real` 的 `kerning_font`）；
+/// 桌面只照 `w:kern` 的阈值。
 #[cfg(feature = "fontenv")]
-fn kerning_always(options: &LayoutOptions) -> bool {
+fn kerning_by_default(options: &LayoutOptions) -> bool {
     options.platform == Platform::Android
 }
 
@@ -436,7 +436,7 @@ impl Layout {
             #[cfg(feature = "fontenv")]
             horizontal: HorizontalGrid::None,
             #[cfg(feature = "fontenv")]
-            kerning_always: false,
+            kerning_by_default: false,
             anchors: self.anchors,
             diagnostics: self.diagnostics,
             input_diagnostics: self.input_diagnostics,
@@ -469,7 +469,7 @@ pub struct DocumentSession {
     horizontal: HorizontalGrid,
     /// 不论 `w:kern` 总做字距调整（Android）；断行与绘制同一口径。
     #[cfg(feature = "fontenv")]
-    kerning_always: bool,
+    kerning_by_default: bool,
     anchors: Option<AnchorReport>,
     diagnostics: Vec<SessionDiagnostic>,
     input_diagnostics: usize,
@@ -657,7 +657,7 @@ impl DocumentSession {
             out["horizontalGrid"] = json!({ "devicePixelsPerInch": per_inch });
         }
         #[cfg(feature = "fontenv")]
-        if self.kerning_always {
+        if self.kerning_by_default {
             out["kerning"] = json!("always");
         }
         if !self.document.tables.is_empty() {
@@ -693,8 +693,8 @@ impl DocumentSession {
                 HorizontalGrid::DevicePixels { per_inch } => Some(per_inch),
                 HorizontalGrid::None => None,
             };
-            if pixels.is_some() || self.kerning_always {
-                return paint(Some(&crate::font::PaintShaper { inner, pixels, kerning_always: self.kerning_always }));
+            if pixels.is_some() || self.kerning_by_default {
+                return paint(Some(&crate::font::PaintShaper { inner, pixels, kerning_by_default: self.kerning_by_default }));
             }
         }
         paint(self.shaper())
