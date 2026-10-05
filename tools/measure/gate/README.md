@@ -66,3 +66,13 @@ scripts/verify.sh --update-baselines            # 重写 baseline.json 与 mac-t
 设备相关：`ANDROID_SERIAL`（缺省 `b0e3d198`）、`WORD_ANALYSE`（缺省 `~/code/word_analyse`；
 用它的 `tools/which_apk_libs_mapped.py`、`tools/read_fixture_print.sh` 和 line probe，word_analyse 只读）。
 需要 root 的手机与已装的手机 Word；界面文字按中文界面写死（「打印视图」/「移动设备视图」）。
+
+## 性能（`perf.py`）
+
+不在 `verify.sh` 里跑（要几十秒，且只在同一台机器上可比）。动了排版热路径时手动跑：
+
+    cargo build --release -p rsword-layout-core --features fontenv --bin layout-trace
+    python3 tools/measure/gate/perf.py --trace-bin target/release/layout-trace --output /tmp/rswl-perf
+
+文档在运行时生成（正文 / 单列表格 / 混排，1、10、100 页）。和 `perf-baseline.json` 比较：机器或字体不同时给 UNDECIDABLE；
+时间超过基线 1.5 倍 + 50 ms、或峰值内存超过 1.3 倍算回退，退出码 1。`--update-baseline` 重写基线。

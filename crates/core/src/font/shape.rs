@@ -17,6 +17,7 @@
 //! 由调用方按 `docx_layout::fontenv` 的覆盖查询先切好段再逐段 shape。
 
 use std::collections::HashMap;
+use std::sync::OnceLock;
 
 use rustybuzz::{Face, UnicodeBuffer};
 
@@ -24,15 +25,31 @@ use super::FontSpec;
 use crate::layout::{ShapedRun, TextShaper};
 use crate::layout::{TWIPS_PER_POINT, Twips};
 
+/// 解析好的 face：首次整形时建，之后复用。
+///
+/// `Face::from_slice` 要把 GSUB/GPOS 的覆盖表整个展开；原来每段文字建一次，
+/// 正文排版约四成时间花在这里（2026-10-05 采样）。同一份字节、同一个 TTC 序号
+/// 解析出的 face 是同一个值，复用它不改变任何整形结果。
+type LazyFace<'a> = OnceLock<Option<Face<'a>>>;
+
+self_cell::self_cell!(
+    /// （字节, TTC 序号）与借用它们的已解析 face。
+    struct FaceCell {
+        owner: (Vec<u8>, u32),
+        #[not_covariant]
+        dependent: LazyFace,
+    }
+);
+
 /// rustybuzz 整形器。
 ///
 /// 字体按 `face` 标识注册，须与 [`GlyphKey::face`] 以及栅格化器用的是同一套标识——
 /// 建议统一用 `docx_layout::fontenv` 的 `FaceId::sha256()`。
 #[derive(Default)]
 pub struct RustybuzzShaper {
-    /// (face 标识, 字节, TTC 序号)。用有序表而非哈希表：
+    /// (face 标识, 字节 + TTC 序号 + 解析缓存)。用有序表而非哈希表：
     /// `ShapedRun::face_index` 是下标，paint 层据此查 `FaceId`。
-    faces: Vec<(String, Vec<u8>, u32)>,
+    faces: Vec<(String, FaceCell)>,
     by_name: HashMap<String, usize>,
     /// 缺字体时用哪个 face 兜底。
     default_face: Option<usize>,
@@ -48,7 +65,8 @@ impl RustybuzzShaper {
         let name = face.into();
         let at = self.faces.len();
         self.by_name.insert(name.clone(), at);
-        self.faces.push((name, bytes, index));
+        self.faces
+            .push((name, FaceCell::new((bytes, index), |_| OnceLock::new())));
         if self.default_face.is_none() {
             self.default_face = Some(at);
         }
@@ -62,18 +80,24 @@ impl RustybuzzShaper {
 
     /// 按下标取 face 标识，供 paint 层构造 `FaceId` 列表。
     pub fn face_id(&self, index: usize) -> Option<&str> {
-        self.faces.get(index).map(|(n, _, _)| n.as_str())
+        self.faces.get(index).map(|(n, _)| n.as_str())
     }
 
     /// 全部 face 标识，顺序与下标一致。
     pub fn face_ids(&self) -> Vec<String> {
-        self.faces.iter().map(|(n, _, _)| n.clone()).collect()
+        self.faces.iter().map(|(n, _)| n.clone()).collect()
     }
 
-    /// 对指定 face 整形一段文字。
-    ///
-    /// 返回空表示该 face 未注册或字体无法解析——调用方应据此换字体重试，
-    /// 而不是把空结果当作「这段文字不占宽度」。
+    /// 在第 `face_index` 个 face 上调用 `f`；未注册或字体无法解析时给 `None`。
+    fn with_face<R>(&self, face_index: usize, f: impl FnOnce(&Face<'_>) -> R) -> Option<R> {
+        let (_, cell) = self.faces.get(face_index)?;
+        cell.with_dependent(|(bytes, index), lazy| {
+            lazy.get_or_init(|| Face::from_slice(bytes, *index))
+                .as_ref()
+                .map(f)
+        })
+    }
+
     /// 对指定 face 整形一段文字。
     ///
     /// **产出单位是 twips，不是像素**——整形结果由字体的 GSUB/GPOS 表决定，
@@ -136,97 +160,10 @@ impl RustybuzzShaper {
         size_centipoints: u64,
         kerning: bool,
     ) -> Vec<ShapedRun> {
-        let Some((_, bytes, index)) = self.faces.get(face_index) else {
-            return Vec::new();
-        };
-        let Some(face) = Face::from_slice(bytes, *index) else {
-            return Vec::new();
-        };
-
-        let mut buf = UnicodeBuffer::new();
-        for &(ch, cluster) in chars {
-            buf.add(ch, cluster);
-        }
-        // 这里只推断当前段的方向与脚本；不同脚本和双向文本须由调用方分段。
-        buf.guess_segment_properties();
-
-        // S-1：未启用 Word 连字选项时，关闭 Latin 的可选连字。
-        // AAT 字体可在 morx 默认标志中开启 rare/historical 连字：Zapfino
-        // 的 di 就走 rare（dlig），只关 liga/clig 仍会合成。rlig 保留。
-        // 只覆盖 Latin；其它脚本的 clig/rlig 可能是必需的文字成形步骤。
-        let mut features = Vec::new();
-        if buf.script() == rustybuzz::script::LATIN {
-            for tag in [b"liga", b"clig", b"dlig", b"hlig"] {
-                features.push(rustybuzz::Feature::new(
-                    rustybuzz::ttf_parser::Tag::from_bytes(tag),
-                    0,
-                    ..,
-                ));
-            }
-        }
-        // 字距调整默认**关**（OOXML `w:kern` 的语义，见 `FontSpec::kerning`）。
-        // rustybuzz 不传 feature 时默认开，所以必须显式关掉，不能靠不传。
-        if !kerning {
-            features.push(rustybuzz::Feature::new(
-                rustybuzz::ttf_parser::Tag::from_bytes(b"kern"),
-                0,
-                ..,
-            ));
-        }
-        let out = rustybuzz::shape(&face, &features, buf);
-
-        // rustybuzz 的位置量以字体设计单位计；先换到点，再换到 twips。
-        //
-        // **全程用 f64，且只在落位时取一次整。** 逐字形各取各的整会沿行累加：
-        // 实测 Word 给 `e` 5.3280pt、引擎给 5.3500pt（差 1 twip），
-        // 到第 20 个字形就攒到 3 twips（0.15pt）。
-        //
-        // 手法是：把未取整的累计推进量留在 f64 里，**推进量取相邻取整位置之差**。
-        // 这样任意前缀和都恰好等于「精确累计值取整」，位置不会漂——
-        // 而单个推进量仍是整 twips，`ShapedRun` 的契约不变。
-        let upem = f64::from(face.units_per_em());
-        if upem <= 0.0 {
-            return Vec::new();
-        }
-        let pt_size = size_centipoints as f64 / 100.0;
-        let exact = |v: i32| -> f64 { f64::from(v) * pt_size / upem * f64::from(TWIPS_PER_POINT) };
-
-        let infos = out.glyph_infos();
-        let positions = out.glyph_positions();
-        // cluster 起点按源顺序求后继，不能按输出顺序：RTL 输出顺序反向，
-        // 且一个 cluster 可产出多个字形；它们应共享同一个源区间。
-        let mut cluster_starts: Vec<u32> = infos.iter().map(|info| info.cluster).collect();
-        cluster_starts.push(source_end);
-        cluster_starts.sort_unstable();
-        cluster_starts.dedup();
-        let cluster_spans: HashMap<u32, u32> = cluster_starts
-            .windows(2)
-            .map(|pair| (pair[0], pair[1]))
-            .collect();
-        let mut acc = 0.0f64;
-        let mut acc_twips: Twips = 0;
-        let mut runs = Vec::with_capacity(infos.len());
-        for (info, pos) in infos.iter().zip(positions.iter()) {
-            let next = acc + exact(pos.x_advance);
-            let next_twips = next.round() as Twips;
-            runs.push(ShapedRun {
-                face_index,
-                glyph_id: info.glyph_id,
-                x_advance: next_twips - acc_twips,
-                // 精确值不参与上面的「取整位置之差」把戏：它本来就不丢精度。
-                x_advance_pt: exact(pos.x_advance) / f64::from(TWIPS_PER_POINT),
-                // 偏移是相对本字形的，不参与累计，各自取整即可。
-                x_offset: exact(pos.x_offset).round() as Twips,
-                y_offset: exact(pos.y_offset).round() as Twips,
-                source: cluster_spans
-                    .get(&info.cluster)
-                    .map(|&end| (info.cluster, end)),
-                size_centipoints: Some(size_centipoints),
-            });
-            acc = next;
-            acc_twips = next_twips;
-        }
-        runs
+        self.with_face(face_index, |face| {
+            shape_on_face(face, face_index, chars, source_end, size_centipoints, kerning)
+        })
+        .unwrap_or_default()
     }
 
     /// 已注册的 face 数。
@@ -237,6 +174,101 @@ impl RustybuzzShaper {
     pub fn is_empty(&self) -> bool {
         self.faces.is_empty()
     }
+}
+
+/// 在一个已解析的 face 上整形；参数见 [`RustybuzzShaper::shape_clusters_with_face_centipoints`]。
+fn shape_on_face(
+    face: &Face<'_>,
+    face_index: usize,
+    chars: &[(char, u32)],
+    source_end: u32,
+    size_centipoints: u64,
+    kerning: bool,
+) -> Vec<ShapedRun> {
+    let mut buf = UnicodeBuffer::new();
+    for &(ch, cluster) in chars {
+        buf.add(ch, cluster);
+    }
+    // 这里只推断当前段的方向与脚本；不同脚本和双向文本须由调用方分段。
+    buf.guess_segment_properties();
+
+    // S-1：未启用 Word 连字选项时，关闭 Latin 的可选连字。
+    // AAT 字体可在 morx 默认标志中开启 rare/historical 连字：Zapfino
+    // 的 di 就走 rare（dlig），只关 liga/clig 仍会合成。rlig 保留。
+    // 只覆盖 Latin；其它脚本的 clig/rlig 可能是必需的文字成形步骤。
+    let mut features = Vec::new();
+    if buf.script() == rustybuzz::script::LATIN {
+        for tag in [b"liga", b"clig", b"dlig", b"hlig"] {
+            features.push(rustybuzz::Feature::new(
+                rustybuzz::ttf_parser::Tag::from_bytes(tag),
+                0,
+                ..,
+            ));
+        }
+    }
+    // 字距调整默认**关**（OOXML `w:kern` 的语义，见 `FontSpec::kerning`）。
+    // rustybuzz 不传 feature 时默认开，所以必须显式关掉，不能靠不传。
+    if !kerning {
+        features.push(rustybuzz::Feature::new(
+            rustybuzz::ttf_parser::Tag::from_bytes(b"kern"),
+            0,
+            ..,
+        ));
+    }
+    let out = rustybuzz::shape(face, &features, buf);
+
+    // rustybuzz 的位置量以字体设计单位计；先换到点，再换到 twips。
+    //
+    // **全程用 f64，且只在落位时取一次整。** 逐字形各取各的整会沿行累加：
+    // 实测 Word 给 `e` 5.3280pt、引擎给 5.3500pt（差 1 twip），
+    // 到第 20 个字形就攒到 3 twips（0.15pt）。
+    //
+    // 手法是：把未取整的累计推进量留在 f64 里，**推进量取相邻取整位置之差**。
+    // 这样任意前缀和都恰好等于「精确累计值取整」，位置不会漂——
+    // 而单个推进量仍是整 twips，`ShapedRun` 的契约不变。
+    let upem = f64::from(face.units_per_em());
+    if upem <= 0.0 {
+        return Vec::new();
+    }
+    let pt_size = size_centipoints as f64 / 100.0;
+    let exact = |v: i32| -> f64 { f64::from(v) * pt_size / upem * f64::from(TWIPS_PER_POINT) };
+
+    let infos = out.glyph_infos();
+    let positions = out.glyph_positions();
+    // cluster 起点按源顺序求后继，不能按输出顺序：RTL 输出顺序反向，
+    // 且一个 cluster 可产出多个字形；它们应共享同一个源区间。
+    let mut cluster_starts: Vec<u32> = infos.iter().map(|info| info.cluster).collect();
+    cluster_starts.push(source_end);
+    cluster_starts.sort_unstable();
+    cluster_starts.dedup();
+    let cluster_spans: HashMap<u32, u32> = cluster_starts
+        .windows(2)
+        .map(|pair| (pair[0], pair[1]))
+        .collect();
+    let mut acc = 0.0f64;
+    let mut acc_twips: Twips = 0;
+    let mut runs = Vec::with_capacity(infos.len());
+    for (info, pos) in infos.iter().zip(positions.iter()) {
+        let next = acc + exact(pos.x_advance);
+        let next_twips = next.round() as Twips;
+        runs.push(ShapedRun {
+            face_index,
+            glyph_id: info.glyph_id,
+            x_advance: next_twips - acc_twips,
+            // 精确值不参与上面的「取整位置之差」把戏：它本来就不丢精度。
+            x_advance_pt: exact(pos.x_advance) / f64::from(TWIPS_PER_POINT),
+            // 偏移是相对本字形的，不参与累计，各自取整即可。
+            x_offset: exact(pos.x_offset).round() as Twips,
+            y_offset: exact(pos.y_offset).round() as Twips,
+            source: cluster_spans
+                .get(&info.cluster)
+                .map(|&end| (info.cluster, end)),
+            size_centipoints: Some(size_centipoints),
+        });
+        acc = next;
+        acc_twips = next_twips;
+    }
+    runs
 }
 
 impl TextShaper for RustybuzzShaper {
@@ -254,13 +286,12 @@ impl TextShaper for RustybuzzShaper {
         // `w:caps` / `w:smallCaps` 与 `FontRegistry::shape_text` 走同一个展开：
         // 小型大写一段文字里有两个字号，按字号分段整形。只有一个 face，
         // 它的 cmap 里没有的大写退回源字符（假定，见 `caps::display_chars_with`）。
-        let face = match font.caps {
-            super::Caps::None => None,
-            _ => self.faces.get(i).and_then(|(_, bytes, index)| Face::from_slice(bytes, *index)),
-        };
+        let caps = !matches!(font.caps, super::Caps::None);
         let covers = |source_ch: char, ch: char| {
-            (ch == source_ch || face.as_ref().is_none_or(|f| f.glyph_index(ch).is_some()))
-                .then_some(())
+            (!caps
+                || ch == source_ch
+                || self.with_face(i, |f| f.glyph_index(ch).is_some()).unwrap_or(true))
+            .then_some(())
         };
         let mut out = Vec::new();
         let mut seg: Vec<(char, u32)> = Vec::new();

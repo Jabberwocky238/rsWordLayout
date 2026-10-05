@@ -1,0 +1,79 @@
+{
+ "fonts": {
+  "calibri": "ea801e1f869b55464339058b1d4263d07cc074a18e20aa3ee1d07901423dee53",
+  "fallback": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b"
+ },
+ "machine": {
+  "arch": "arm64",
+  "cpu": "Apple M5",
+  "cpus": 10,
+  "memory": "25769803776",
+  "system": "Darwin"
+ },
+ "results": {
+  "body-1": {
+   "layoutSeconds": 0.0302,
+   "pages": 2,
+   "paintSeconds": 0.0016,
+   "peakRssBytes": 83083264,
+   "seconds": 0.0739
+  },
+  "body-10": {
+   "layoutSeconds": 0.2891,
+   "pages": 15,
+   "paintSeconds": 0.0157,
+   "peakRssBytes": 104824832,
+   "seconds": 0.3508
+  },
+  "body-100": {
+   "layoutSeconds": 2.9051,
+   "pages": 144,
+   "paintSeconds": 0.1665,
+   "peakRssBytes": 319225856,
+   "seconds": 3.1698
+  },
+  "mixed-1": {
+   "layoutSeconds": 0.0168,
+   "pages": 2,
+   "paintSeconds": 0.001,
+   "peakRssBytes": 82657280,
+   "seconds": 0.0609
+  },
+  "mixed-10": {
+   "layoutSeconds": 0.136,
+   "pages": 12,
+   "paintSeconds": 0.0082,
+   "peakRssBytes": 99139584,
+   "seconds": 0.1915
+  },
+  "mixed-100": {
+   "layoutSeconds": 1.3121,
+   "pages": 113,
+   "paintSeconds": 0.0815,
+   "peakRssBytes": 260767744,
+   "seconds": 1.4917
+  },
+  "table-1": {
+   "layoutSeconds": 0.0065,
+   "pages": 2,
+   "paintSeconds": 0.0004,
+   "peakRssBytes": 82034688,
+   "seconds": 0.0512
+  },
+  "table-10": {
+   "layoutSeconds": 0.0083,
+   "pages": 10,
+   "paintSeconds": 0.002,
+   "peakRssBytes": 94257152,
+   "seconds": 0.0571
+  },
+  "table-100": {
+   "layoutSeconds": 0.0505,
+   "pages": 97,
+   "paintSeconds": 0.0188,
+   "peakRssBytes": 216727552,
+   "seconds": 0.1648
+  }
+ },
+ "traceBin": "9b21366090e867fe1af40e565c4be4d9ba8bde170ddda39ed464db5a47dded5f"
+}

@@ -16,6 +16,8 @@
 //! --fallback-font <path>[#index]  CJK 回退链上的字体，可重复，按给出的顺序查。
 //!                        `#index` 只装 TTC 的那一个 face（如 Noto CJK 的 SC 是 `#2`）
 //! --no-fallback          不装回退字体（连默认的也不装）；缺字的 CJK 按名义 1 em
+//! --timing               各阶段耗时（装载、装字体、排版、绘制、轨迹）写到 stderr 一行 `timing …`
+//! --no-trace             不建也不写轨迹 JSON（性能闸门 `tools/measure/gate/perf.py` 用：只量排版与绘制）
 //! ```
 //!
 //! 环境变量 `RSWORD_FALLBACK_FONT=<path>[#index]`（多个按系统的路径分隔符隔开，Unix 是 `:`）
@@ -124,6 +126,8 @@ struct Args {
     /// `--fallback-font` 的原文，按给出的顺序。
     fallback_fonts: Vec<String>,
     no_fallback: bool,
+    timing: bool,
+    no_trace: bool,
 }
 
 /// 解析命令行（不含程序名）。单独拆出来是为了能测：默认值、显式选择、坏值被拒。
@@ -143,6 +147,8 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> Result<Args, String> {
             "--view" => args.view = parse_view(&value("--view")?)?,
             "--fallback-font" => args.fallback_fonts.push(value("--fallback-font")?),
             "--no-fallback" => args.no_fallback = true,
+            "--timing" => args.timing = true,
+            "--no-trace" => args.no_trace = true,
             "--margin" => {
                 args.margin = Some(value("--margin")?.parse().map_err(|e| format!("--margin {e}"))?)
             }
@@ -577,6 +583,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = args.input.ok_or("用法：layout-trace [选项] <input.docx> [output.json]")?;
     let output = args.output.unwrap_or_else(|| "trace.json".to_string());
 
+    let clock = std::time::Instant::now();
+    let mut phases: Vec<(&str, f64)> = Vec::new();
+    let lap = |name: &'static str, phases: &mut Vec<(&str, f64)>| {
+        let total: f64 = phases.iter().map(|p| p.1).sum();
+        phases.push((name, clock.elapsed().as_secs_f64() - total));
+    };
     let bytes = std::fs::read(&input)?;
     // 与 SVG CLI 同一个文档会话。不直接 `SessionTable::document()`：并排的 `w:rPr`
     // 解析器只留最后一个，`PreparedDocument::load` 先把它们并起来。
@@ -602,6 +614,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !prepared.has_layout_content() {
         return Err("没有可排版的段落".into());
     }
+    lap("load", &mut phases);
 
     // 装字体。没有整形器时 `paint_document` 不产字形序列，
     // 轨迹里就只有行、没有字形——那种轨迹过不了比较器的字形层，所以要说清楚。
@@ -626,6 +639,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !fallback_note.is_empty() {
         eprintln!("{}", fallback_note.trim_start_matches('；'));
     }
+
+    lap("fonts", &mut phases);
 
     // §6.2 的核查。放在排版之后、写出之前都行，但**必须在写出之前**。
     if !args.require.is_empty() {
@@ -674,7 +689,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for diagnostic in session.layout_diagnostics() {
         eprintln!("{diagnostic}");
     }
+    lap("layout", &mut phases);
     let record = LayoutRecord::from_paint(&session.paint());
+    lap("paint", &mut phases);
 
     let meta = TraceMeta {
         engine: format!("rsword-layout-core {}", env!("CARGO_PKG_VERSION")),
@@ -689,12 +706,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let document = session.document();
-    let mut trace: serde_json::Value = serde_json::from_str(&to_trace_json(&record, &meta))?;
-    trace["layoutInput"] = document.trace_metadata();
-    if !document.tables.is_empty() {
-        trace["tableLayout"] = session.table_layout();
+    if !args.no_trace {
+        let mut trace: serde_json::Value = serde_json::from_str(&to_trace_json(&record, &meta))?;
+        trace["layoutInput"] = document.trace_metadata();
+        if !document.tables.is_empty() {
+            trace["tableLayout"] = session.table_layout();
+        }
+        std::fs::write(&output, serde_json::to_string_pretty(&trace)?)?;
     }
-    std::fs::write(&output, serde_json::to_string_pretty(&trace)?)?;
+    lap("trace", &mut phases);
+    if args.timing {
+        let parts: Vec<String> = phases.iter().map(|(n, s)| format!("{n}={s:.4}")).collect();
+        eprintln!("timing {}", parts.join(" "));
+    }
 
     let lines: usize = record.pages.iter().map(|p| p.lines.len()).sum();
     println!(

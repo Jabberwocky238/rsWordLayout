@@ -36,6 +36,9 @@ zeno = "=0.3.3"
 # HarfBuzz shaping 算法的纯 Rust 移植。选它而不是链接 libs/harfbuzz 的 C 库，
 # 是因为 wasm 目标要能编译——纯 Rust 才走得通。
 rustybuzz = "=0.20.1"
+# 让整形器持有「字体字节 + 借用它的已解析 rustybuzz::Face」而不写 unsafe。
+# Face::from_slice 每次都重建 GSUB/GPOS 的覆盖表，逐段重建占了正文排版约四成时间。
+self_cell = "=1.3.0"
 
 [workspace.lints.rust]
 # cffi 要暴露 C ABI（extern "C" + 裸指针），与 forbid 不相容，所以整个 workspace 放开。

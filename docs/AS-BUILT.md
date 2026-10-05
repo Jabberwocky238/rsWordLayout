@@ -80,3 +80,12 @@
 - 不改引擎。读数转录为 225 条（word_analyse 打印视图 159、窄路径 32、手机补测 34），基线按字体哈希记录
 - 闸门：phone 193/225 · standin 171/225；窄路径回放 186/186 ×2；Mac 25 份与 `mac-traces.sha256` 相同
 - binary：`773cab7debb4`
+
+## 2026-10-05 整形缓存与性能闸门
+- 不改规则。`layout-trace` 加 `--timing` / `--no-trace`；`tools/measure/gate/perf.py` 生成正文 / 表格 / 混排 1、10、100 页文档，量墙钟时间与峰值内存
+- 采样（macOS `sample`，body-100）：约四成时间在 `Face::from_slice` 逐段重建 GSUB/GPOS 覆盖表，其次是 `slot_face` 逐字符两遍 `normalize_family`
+- 改法：整形器用 `self_cell` 持有字节与首次解析后的 `rustybuzz::Face`（不写 unsafe）；`FontRegistry` 按（族名, 字重, 斜体）缓存候选 face 顺序，注册字体时清空
+- 预测：只改耗时，输出逐字节不变
+- 结果（standin 字体，release，`--no-trace`）：body-100（144 页）排版 14.4 s → 2.9 s，全程 14.9 s → 3.2 s；mixed-100 6.8 s → 1.5 s；table-100 0.48 s → 0.17 s；峰值内存 291 → 304 MiB（缓存的 face）
+- 闸门：phone 193/225 · standin 171/225（不变）；窄路径回放 186/186 ×2；Mac 25 份逐字节不变；`perf-baseline.json` 写在本机
+- binary：`3bd433b29928`

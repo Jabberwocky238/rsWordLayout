@@ -172,7 +172,7 @@ default = []
 # 不需要任何字体库。
 #
 # rustybuzz 整形：产物是 glyph id 与 twips 推进量，与分辨率无关。
-shape = ["dep:rustybuzz"]
+shape = ["dep:rustybuzz", "dep:self_cell"]
 # skrifa 读轮廓 + zeno 栅格化。栅格化要知道目标 DPI，但它是**无状态纯函数**
 # （同一 key 同一结果），故留在 core；有状态的图集缓存才归 rsword-layout-gpu。
 raster = ["dep:skrifa", "dep:zeno"]
@@ -187,6 +187,7 @@ docx-layout-contract = { workspace = true }
 skrifa = { workspace = true, optional = true }
 zeno = { workspace = true, optional = true }
 rustybuzz = { workspace = true, optional = true }
+self_cell = { workspace = true, optional = true }
 
 [lints]
 workspace = true

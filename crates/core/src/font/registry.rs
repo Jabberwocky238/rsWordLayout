@@ -69,7 +69,13 @@ pub struct FontRegistry {
     id_of: std::collections::HashMap<String, FaceId>,
     /// 回退链，按声明顺序。只给 eastAsia 槽、且槽里的字体画不出的字符查。
     fallback: Vec<String>,
+    /// [`FontRegistry::slot_face`] 的候选顺序，按（族名, 字重, 是否斜体）记。
+    /// 候选与字符无关，原来逐字符重算（每次两遍 `normalize_family`），是正文排版的第二大开销。
+    /// 注册新字体时清空。
+    slot_candidates: SlotCandidates,
 }
+
+type SlotCandidates = std::sync::Mutex<std::collections::HashMap<(String, u16, bool), Vec<FaceId>>>;
 
 impl Default for FontRegistry {
     fn default() -> Self {
@@ -88,6 +94,7 @@ impl FontRegistry {
             index_of: std::collections::HashMap::new(),
             id_of: std::collections::HashMap::new(),
             fallback: Vec::new(),
+            slot_candidates: SlotCandidates::default(),
         }
     }
 
@@ -149,6 +156,7 @@ impl FontRegistry {
         self.raster.add_face(face.clone(), bytes, index);
         // 每次新增都要重新冻结：env 是不可变快照。
         self.env = Some(self.builder.freeze());
+        self.slot_candidates.get_mut().unwrap_or_else(|e| e.into_inner()).clear();
         Ok(face)
     }
 
@@ -226,21 +234,33 @@ impl FontRegistry {
     fn slot_face(&self, family: &str, ch: char, bold: bool, italic: bool) -> Option<String> {
         let env = self.env.as_ref()?;
         let weight = if bold { 700 } else { 400 };
+        let mut cache = self.slot_candidates.lock().unwrap_or_else(|e| e.into_inner());
+        let ids = cache
+            .entry((family.to_string(), weight, italic))
+            .or_insert_with(|| self.slot_candidate_ids(env, family, weight, italic));
+        ids.iter().find(|id| env.covers(id, ch)).map(face_key)
+    }
+
+    /// `slot_face` 依次试的 face：先族名，再字体表里的其它名称。
+    fn slot_candidate_ids(
+        &self,
+        env: &FontEnvironment,
+        family: &str,
+        weight: u16,
+        italic: bool,
+    ) -> Vec<FaceId> {
         // 族名优先，避免常规 face 的 full name 恰好等于族名时盖住粗体/斜体。
-        if let Some(face) = env
+        let mut out: Vec<FaceId> = env
             .candidates(family, weight, italic)
             .into_iter()
-            .find(|f| env.covers(f.id(), ch))
-        {
-            return Some(face_key(face.id()));
+            .map(|f| f.id().clone())
+            .collect();
+        if let Some(ids) = self.names.get(&normalize_family(family)) {
+            let mut named: Vec<_> = env.faces().filter(|f| ids.contains(f.id())).collect();
+            named.sort_by_key(|f| (f.italic() != italic, f.weight().abs_diff(weight), f.id()));
+            out.extend(named.into_iter().map(|f| f.id().clone()));
         }
-        let ids = self.names.get(&normalize_family(family))?;
-        let mut candidates: Vec<_> = env.faces().filter(|f| ids.contains(f.id())).collect();
-        candidates.sort_by_key(|f| (f.italic() != italic, f.weight().abs_diff(weight), f.id()));
-        candidates
-            .into_iter()
-            .find(|f| env.covers(f.id(), ch))
-            .map(|f| face_key(f.id()))
+        out
     }
 
     fn is_fallback(&self, id: &FaceId) -> bool {
