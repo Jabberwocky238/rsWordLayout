@@ -34,8 +34,8 @@ Word 读数才能落地（§5）。
 `reports/diff/docgrid-decided.md` 里写明的 161 个 Word 读数逐个转录，用当前引擎重排比较：
 打印视图用文档自身几何，窄路径用 `--view mobile --content-width 5329`，都带
 `--platform android`。这些是报告级读数，没有逐份原始日志绑定，与验收面板的 report-only
-同一等级，**不进严格分子**。脚本与结果在本机 `artifacts/word-analyse-p0-alignment-2026-10-04/`
-（不提交）。
+同一等级，**不进严格分子**。读数已转录进 `tools/measure/gate/readings.json`（§7），
+`scripts/verify.sh` 判。
 
 本轮之前 70 / 161 一致，fitText 与缩进两片之后 74 / 161，§3.5 之后 75 / 161，§3.6 之后 80 / 161，§3.7 之后 84 / 161，§3.8 之后 94 / 161，§3.9 之后 113 / 161，§3.10 之后 128 / 161，§3.11 之后 134 / 161，§3.12 之后 135 / 161（打印视图另加手机上的等线；只有 Calibri 替身时 93、109、115、116，见 §3.9）：
 
