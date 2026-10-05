@@ -89,3 +89,10 @@
 - 结果（standin 字体，release，`--no-trace`）：body-100（144 页）排版 14.4 s → 2.9 s，全程 14.9 s → 3.2 s；mixed-100 6.8 s → 1.5 s；table-100 0.48 s → 0.17 s；峰值内存 291 → 304 MiB（缓存的 face）
 - 闸门：phone 193/225 · standin 171/225（不变）；窄路径回放 186/186 ×2；Mac 25 份逐字节不变；`perf-baseline.json` 写在本机
 - binary：`3bd433b29928`
+
+## 2026-10-05 拆 `layout.rs`：缺省值、段距、行网格
+- 不改规则。`layout_document` 开头的预处理与相关常量、函数移到 `layout/defaults.rs`（Android 缺省字体、字号、段后）、`layout/spacing.rs`（行单位段距、contextualSpacing、`paragraph_gap_fine`）、`layout/grid.rs`（节步距、段落对齐网格、对齐行的推进与所需高度）；`layout.rs` 4028 → 3864 行
+- 节步距原先在 `section_line_unit` 与行网格的 match 里各写一遍，条件相同，合成 `grid::line_pitch`
+- 预测：输出逐字节不变
+- 闸门：phone 193/225 · standin 171/225（不变）；窄路径回放 186/186 ×2；Mac 25 份逐字节不变
+- binary：`128a7457a899`

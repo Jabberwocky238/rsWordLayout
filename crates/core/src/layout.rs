@@ -966,7 +966,7 @@ pub struct Para {
     /// 的段距照留（25 段，「任一段的开关管两侧」给 32）；两种样式交替时不去（21）。
     pub contextual_spacing: bool,
     /// 段后是桥接层补的 0：包里没有样式 part，段落有效属性也没写 `w:after` / `w:afterLines`。
-    /// Android 上换成 Word 的缺省段后 160 twips（见 [`ANDROID_DEFAULT_SPACE_AFTER`]）。
+    /// Android 上换成 Word 的缺省段后 160 twips（见 [`defaults::ANDROID_DEFAULT_SPACE_AFTER`]）。
     pub space_after_is_fallback: bool,
     /// 段落样式 id（没写 `w:pStyle` 时是缺省段落样式），给 [`Self::contextual_spacing`] 比样式用。
     pub style_id: Option<String>,
@@ -1259,62 +1259,6 @@ impl PageSetup {
     }
 }
 
-/// 段距行单位的一行（twips）：节有行网格时是 `w:linePitch`，否则 240。见 `Para::space_before_lines`。
-const ANDROID_DEFAULT_FAMILY: &str = "DengXian";
-
-/// 包里没有样式 part 时 Android Word 给没写段后的段落的缺省段后，twips（8pt）。
-///
-/// 依据（2026-10-04 补测第 10、11 条，Android 打印视图）：60 段精确 480、不写段前段后的 `sp-default`
-/// 一页 24 段（段后 0 是 32，160 是 `1 + floor((15398 − 480) / 640)` = 24）；`talltable-080`（格内段落不写段后）
-/// 一页 21 行，格内写明段后 0 是 28 行——差的正是每行 160。有样式 part 而文档默认值不写段后的情形没测，不换。
-const ANDROID_DEFAULT_SPACE_AFTER: Twips = 160;
-
-/// Android Word 的缺省字体：等线（DengXian，云字体）11pt。
-///
-/// 依据（2026-10-04 补测，Android 打印视图）：word_analyse 的纵向夹具都不写字体，其中显式 `w:sz=24`
-/// 的 `longpage-auto12pt` 页 0 是 47 行（「缺省 11pt」的预测；「12pt 起跳」51 行）；打开不写字体
-/// 的夹具时进程映射的是 `DengXian-54497409372.ttf`；不写字体的一串数字窄路径每行 45 个、打印视图
-/// 90 个，与等线 11pt 的字宽相符。只换桥接层补的缺省值（[`FontSpec::family_is_fallback`]、
-/// [`FontSpec::size_is_fallback`]），文档写了的照用。上下标的字号随之按比例缩。
-///
-/// 量不了等线时（`default_face` 为假：没装这个字体），没写字体的 run 字体、字号都照原来的替身排
-/// ——拿别的字体按 11pt 排只会更远；写了字体、没写字号的 run 照样换成 11pt。
-fn android_default_font(font: &mut FontSpec, default_face: bool) {
-    const FAMILY: &str = ANDROID_DEFAULT_FAMILY;
-    const SIZE_HALF_POINTS: u32 = 22;
-    if font.family_is_fallback {
-        if !default_face {
-            return;
-        }
-        font.family = FAMILY.to_string();
-        let hint = font.slots.hint;
-        font.slots = crate::font::FontSlots {
-            ascii: Some(FAMILY.to_string()),
-            h_ansi: Some(FAMILY.to_string()),
-            east_asia: Some(FAMILY.to_string()),
-            cs: Some(FAMILY.to_string()),
-            hint,
-        };
-        font.family_is_fallback = false;
-    }
-    if font.size_is_fallback {
-        if let Some(centipoints) = font.size_centipoints {
-            font.size_centipoints =
-                Some(centipoints * u64::from(SIZE_HALF_POINTS) / u64::from(font.size_half_points.max(1)));
-        }
-        font.size_half_points = SIZE_HALF_POINTS;
-        font.size_is_fallback = false;
-    }
-}
-
-fn section_line_unit(section: &crate::LayoutSection) -> Twips {
-    use crate::GridKind;
-    match (section.grid.kind(), section.grid.line_pitch()) {
-        (Ok(Some(GridKind::Lines | GridKind::LinesAndChars)), Ok(Some(pitch))) if pitch > 0 => pitch,
-        _ => 240,
-    }
-}
-
 /// 段落拍平之后的一截：断行游标在截上往前走，跨 run 回退时退回去。
 ///
 /// 每个 run 按制表符与 [`OBJECT_PLACEHOLDER`] 切开：制表符、占位符各自成一截，其余是文字截
@@ -1497,6 +1441,11 @@ use vertical::VerticalExtent;
 mod flow;
 use flow::{FlowRegion, FlowRegions};
 mod pagination;
+mod defaults;
+use defaults::ANDROID_DEFAULT_FAMILY;
+mod grid;
+mod spacing;
+use spacing::paragraph_gap_fine;
 #[cfg(test)]
 mod flow_tests;
 #[cfg(test)]
@@ -1712,16 +1661,6 @@ impl KeepReservation {
 
 fn lines_extent<'a>(lines: impl Iterator<Item = &'a PendingLine>) -> VerticalExtent {
     lines.fold(VerticalExtent::default(), |extent, line| extent.then(line.vertical))
-}
-
-/// Adjacent nonnegative paragraph spaces overlap. Preserve the existing signed
-/// displacement when either value is negative; it is not a collapsible gap.
-fn paragraph_gap_fine(after: Twips, before: Twips) -> i64 {
-    if after >= 0 && before >= 0 {
-        fine(after.max(before))
-    } else {
-        fine(after) + fine(before)
-    }
 }
 
 /// 模拟哪个平台上的 Word。
@@ -2078,42 +2017,16 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
                 paras.to_mut()[previous].keep_next = false;
             }
         }
-        // Android 上没写字体、字号的 run 用 Word 的缺省字体与字号（见 [`android_default_font`]）。
+        // Android 上没写字体、字号的 run 用 Word 的缺省字体与字号，没写段后的段落用缺省段后（见 `defaults`）。
         let mut tables = std::borrow::Cow::Borrowed(&document.tables[..]);
         let default_face = self.metrics.has_family(ANDROID_DEFAULT_FAMILY);
         if self.platform == Platform::Android {
-            let fallback = |p: &Para| p.runs.iter().any(|r| r.font.family_is_fallback || r.font.size_is_fallback);
-            if paras.iter().any(fallback) || document.implied_final_para.as_ref().is_some_and(fallback) {
-                for para in paras.to_mut() {
-                    para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
-                }
-            }
-            let cells = |t: &crate::LayoutTable| t.rows.iter().flat_map(|r| &r.cells).flat_map(|c| &c.paras).any(fallback);
-            if tables.iter().any(cells) {
-                for para in tables.to_mut().iter_mut()
-                    .flat_map(|t| &mut t.rows).flat_map(|r| &mut r.cells).flat_map(|c| &mut c.paras)
-                {
-                    para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
-                }
-            }
-        }
-        // Android 的缺省段后（见 [`ANDROID_DEFAULT_SPACE_AFTER`]），正文与表格单元格都换。
-        if self.platform == Platform::Android {
-            if paras.iter().any(|p| p.space_after_is_fallback) {
-                for para in paras.to_mut().iter_mut().filter(|p| p.space_after_is_fallback) {
-                    para.space_after = ANDROID_DEFAULT_SPACE_AFTER;
-                }
-            }
-            let cell_paras = |t: &crate::LayoutTable| t.rows.iter().flat_map(|r| &r.cells).flat_map(|c| &c.paras)
-                .any(|p| p.space_after_is_fallback);
-            if tables.iter().any(cell_paras) {
-                for para in tables.to_mut().iter_mut()
-                    .flat_map(|t| &mut t.rows).flat_map(|r| &mut r.cells).flat_map(|c| &mut c.paras)
-                    .filter(|p| p.space_after_is_fallback)
-                {
-                    para.space_after = ANDROID_DEFAULT_SPACE_AFTER;
-                }
-            }
+            defaults::apply_android_defaults(
+                &mut paras,
+                &mut tables,
+                document.implied_final_para.as_ref(),
+                default_face,
+            );
         }
         // 正文以表格结尾时接上 Word 补的空段（见 `LayoutDocument::implied_final_para`）。
         let mut sections = std::borrow::Cow::Borrowed(&document.sections[..]);
@@ -2123,90 +2036,17 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
         {
             let mut para = para.clone();
             if self.platform == Platform::Android {
-                para.runs.iter_mut().for_each(|run| android_default_font(&mut run.font, default_face));
-                if para.space_after_is_fallback {
-                    para.space_after = ANDROID_DEFAULT_SPACE_AFTER;
-                }
+                defaults::apply_android_defaults_to(&mut para, default_face);
             }
             paras.to_mut().push(para);
             last.para_range.end += 1;
         }
-        // 行单位段距按所在节换成 twips（见 `Para::space_before_lines`）。
-        for section in sections.iter() {
-            let unit = section_line_unit(section);
-            let Some(range) = paras.get(section.para_range.clone()) else { continue };
-            if range.iter().all(|p| p.space_before_lines.is_none() && p.space_after_lines.is_none()) {
-                continue;
-            }
-            if let Some(range) = paras.to_mut().get_mut(section.para_range.clone()) {
-                for para in range {
-                    let twips = |lines: i32| (f64::from(lines) * f64::from(unit) / 100.0).round() as Twips;
-                    if let Some(lines) = para.space_before_lines {
-                        para.space_before = twips(lines);
-                    }
-                    if let Some(lines) = para.space_after_lines {
-                        para.space_after = twips(lines);
-                    }
-                }
-            }
-        }
-        // 同样式的相邻段落去掉带 contextualSpacing 那段自己的段距（见 `Para::contextual_spacing`）。
-        // 中间隔着表格的两段不算相邻。
-        if paras.iter().any(|p| p.contextual_spacing) {
-            let adjacent = |i: usize| {
-                paras[i - 1].style_id == paras[i].style_id
-                    && !document.tables.iter().any(|t| t.before_para == i)
-            };
-            let drops: Vec<(bool, bool)> = (0..paras.len())
-                .map(|i| {
-                    let own = paras[i].contextual_spacing;
-                    (own && i > 0 && adjacent(i), own && i + 1 < paras.len() && adjacent(i + 1))
-                })
-                .collect();
-            // 去掉的段后仍按原值抵下一段的段前：段距是「上一段的段后，加上下一段段前超出它的部分」，
-            // 段后不占地方了，超出的部分照算（`both-phase`：段前 300、段后 100，带开关的段之后是 200）。
-            let declared_after: Vec<Twips> = paras.iter().map(|p| p.space_after).collect();
-            let paras = paras.to_mut();
-            for (i, (before, after)) in drops.into_iter().enumerate() {
-                if before {
-                    paras[i].space_before = 0;
-                }
-                if after {
-                    paras[i].space_after = 0;
-                    let next = &mut paras[i + 1];
-                    if declared_after[i] >= 0 && next.space_before >= 0 {
-                        next.space_before = (next.space_before - declared_after[i]).max(0);
-                    }
-                }
-            }
-        }
-        // Android 的行网格：给对齐网格的段落记上所在节的步距（见 `Para::grid_pitch`）。
-        // 连续分节换了网格的两节照装载诊断不用网格（换网格的时机没测）。移动视图没有页，没有读数，不用。
+        // 行单位段距按所在节换成 twips；同样式相邻段落的 contextualSpacing（见 `spacing`）。
+        spacing::resolve_line_units(&mut paras, &sections);
+        spacing::apply_contextual_spacing(&mut paras, &document.tables);
+        // Android 的行网格（见 `grid`）。移动视图没有页，没有读数，不用。
         if self.platform == Platform::Android && self.view == View::Print {
-            let switches = |a: &crate::LayoutSection, b: &crate::LayoutSection| {
-                matches!(b.kind, crate::SectionStart::Continuous | crate::SectionStart::NextColumn) && a.grid != b.grid
-            };
-            for (index, section) in sections.iter().enumerate() {
-                let pitch = match (section.grid.kind(), section.grid.line_pitch()) {
-                    (Ok(Some(crate::GridKind::Lines | crate::GridKind::LinesAndChars)), Ok(Some(pitch))) if pitch > 0 => pitch,
-                    _ => continue,
-                };
-                if index.checked_sub(1).is_some_and(|prev| switches(&sections[prev], section))
-                    || sections.get(index + 1).is_some_and(|next| switches(section, next))
-                {
-                    continue;
-                }
-                if let Some(range) = paras.to_mut().get_mut(section.para_range.clone()) {
-                    for para in range {
-                        if para.snap_to_grid != Some(false)
-                            && para.line_rule == LineRule::Auto
-                            && matches!(para.line_value, 240 | 0)
-                        {
-                            para.grid_pitch = Some(pitch);
-                        }
-                    }
-                }
-            }
+            grid::assign_grid_pitch(&mut paras, &sections);
         }
         // 移动视图按视图宽与声明版心宽之比缩段落缩进（见 `LayoutDocument::mobile_indent_scale`）。
         // 只缩正文段落；表格单元格里的段落在移动视图下怎么排没测，照原样。
@@ -3571,11 +3411,7 @@ impl<'m, M: FontMetrics> Engine<'m, M> {
     fn line_vertical(&self, para: &Para, content: Twips, natural_fine: i64) -> VerticalExtent {
         let height = self.line_height_fine(para, content, natural_fine);
         if let Some(pitch) = para.grid_pitch {
-            let pitch_fine = i64::from(pitch) * FINE_PER_TWIP;
-            let single_twips = (height + FINE_PER_TWIP / 2) / FINE_PER_TWIP;
-            let multiple = ((single_twips * FINE_PER_TWIP + pitch_fine - 1) / pitch_fine).max(1);
-            let step = multiple * pitch_fine;
-            return VerticalExtent { advance_fine: step, required_fine: height + (step - height).max(0) / 2 };
+            return grid::grid_line_extent(height, pitch);
         }
         if self.platform == Platform::Android && para.line_rule == LineRule::Auto && para.line_value > 240 {
             let single = natural_fine.max(i64::from(content) * FINE_PER_TWIP);
