@@ -1,0 +1,2082 @@
+[
+ {
+  "fixture": "wa:fittext",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   109
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:fittext-wide",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   60
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:fittext-over",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   10,
+   50
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:vanish",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   116
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:webhidden",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   86
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:specvanish",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   86
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:zero-paper",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   86
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:kern-off",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   82
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:kern-on",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   82
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:v-plain",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   76
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:breakme",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   102,
+   201,
+   303,
+   405,
+   504,
+   591
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-left",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   83
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-left-1440",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   80
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-left-1000",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   81
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-left-9600",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   45,
+   90
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-left-5000",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   65
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   85,
+   171
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-leftchars-long",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   187,
+   374
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-rightchars",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   187,
+   374
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-left-mix",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   85
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-first-mix",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   85,
+   171
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-hang",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   86,
+   169
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-first",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   83,
+   169
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-right",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   83
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-both",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   80
+  ],
+  "source": "word_analyse rsword-diff paper path",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-i",
+  "view": "print",
+  "check": "second_start",
+  "expected": 187,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-200",
+  "view": "print",
+  "check": "second_start",
+  "expected": 185,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-400",
+  "view": "print",
+  "check": "second_start",
+  "expected": 181,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-1000",
+  "view": "print",
+  "check": "second_start",
+  "expected": 167,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-2000",
+  "view": "print",
+  "check": "second_start",
+  "expected": 145,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-4000",
+  "view": "print",
+  "check": "second_start",
+  "expected": 101,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-8000",
+  "view": "print",
+  "check": "second_start",
+  "expected": 12,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:ind-chars-8400",
+  "view": "print",
+  "check": "second_start",
+  "expected": 3,
+  "source": "word_analyse indent.md paper first line",
+  "note": "读数取自移动视图状态，不是真正的打印视图（对齐文档 §3.3、补测第 9 条）；作为移动视图读数时一致",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:vanish",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   73,
+   116
+  ],
+  "source": "word_analyse rsword-diff narrow path",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:ind-left",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   40,
+   80
+  ],
+  "source": "word_analyse rsword-diff narrow path",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:longpage-double",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-360",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 42,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-400",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 38,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-240",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 64,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-after",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-after240",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-before240",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 25,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-both",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 33,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-both2",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-equal",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-b300a100",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto-15",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 34,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto-double",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto-triple",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 17,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto125",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 45,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto13",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 43,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto135",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 42,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto14",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 40,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto15pt",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 37,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto16",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 35,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto18",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 31,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-auto24",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 23,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-atleast200",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-atleast320",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 48,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-atleast400",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 38,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:before-lines",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:before-lines-50",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 25,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:before-both",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:after-both",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:after-lines",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:margin-top1440",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 30,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:margin-bottom1440",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 30,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:margin-header1440",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:page-10000-long",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 22,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:page-swapped-long",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-space",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 42,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-mixed",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 42,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-height",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 36,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-one",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-phase",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 30,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-before",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 42,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-before-top",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 41,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-before-phase",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 22,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-both",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 37,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:context-both-phase",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:widow-split",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:widow-on",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 31,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-odd",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 4,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-cont-pagesize",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 4,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:br-column-one",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 11,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:br-page",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 11,
+  "source": "word_analyse pagination-path / rsword-diff",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid60",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid75",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid99",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 39,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid100",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid125",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 41,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid150",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid151",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 50,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid200",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 38,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid240",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid280",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid290",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid293",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid296",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid297",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 26,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid298",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid300",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 51,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid312",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 49,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-grid315",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 48,
+  "source": "word_analyse docgrid.md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-double",
+  "view": "print",
+  "check": "pages",
+  "expected": 4,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:longpage-atleast400",
+  "view": "print",
+  "check": "pages",
+  "expected": 3,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-next",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-cont",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-odd",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-even",
+  "view": "print",
+  "check": "pages",
+  "expected": 3,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-cont-pagesize",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-cont-cols",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-cont-ladder-10",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:sect-cont-ladder-21",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:br-column",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:br-column-one",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:br-page",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:twocol",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:twocol64",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:twocol65",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:twocol70",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table24",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table28",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table31",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table32",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table32-noborder",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table32-rowh",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table32-tail",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30-h510",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30-h500",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30-h506",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30-h504",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30-h502",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table30-h503",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table34-h444",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:table18-h839",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:talltable-080",
+  "view": "print",
+  "check": "pages",
+  "expected": 4,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote32",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote31",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote30",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote24-h610",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote24-h605",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote20-h729",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote15-h974",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:footnote15-h975",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-139-n36",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-139-n37",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-139-n38",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-188-n40",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-188-n41",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-188-n42",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-220-n34",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-220-n35",
+  "view": "print",
+  "check": "pages",
+  "expected": 1,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:dg-decide-220-n36",
+  "view": "print",
+  "check": "pages",
+  "expected": 2,
+  "source": "word_analyse pagination-path / docgrid-decided",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:widow-split",
+  "view": "print",
+  "check": "page1_start",
+  "expected": 1933,
+  "source": "word_analyse widow/keep md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:widow-on",
+  "view": "print",
+  "check": "page1_start",
+  "expected": 1834,
+  "source": "word_analyse widow/keep md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:keep-next",
+  "view": "print",
+  "check": "page1_start",
+  "expected": 1054,
+  "source": "word_analyse widow/keep md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:keep-lines",
+  "view": "print",
+  "check": "page1_start",
+  "expected": 1054,
+  "source": "word_analyse widow/keep md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:page-break-before",
+  "view": "print",
+  "check": "page1_start",
+  "expected": 1054,
+  "source": "word_analyse widow/keep md",
+  "group": "word_analyse-print"
+ },
+ {
+  "fixture": "wa:zero-plain",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   43,
+   86
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:i-plain",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   95
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:m-plain",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   25
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-zeros",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   42
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-i",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   93
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-after-a",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   1,
+   43
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-stop-720",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   1,
+   39
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-stop-1440",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   1,
+   33,
+   76
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-right-1440",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   1,
+   45
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-right-fit",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   4,
+   48
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:tab-paper",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   42,
+   85
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:zero-scale",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   55
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:zero-scale-50",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   87
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:zero-scale-55",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   79
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:zero-scale-90",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   48
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:m-scale-80",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   32
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:latinscale",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   64,
+   130,
+   197,
+   259,
+   321,
+   383,
+   445,
+   507,
+   569,
+   631,
+   693,
+   755,
+   817,
+   879,
+   941
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:han-24",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   11,
+   22
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:han22",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   22
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:mix-cjk",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   20,
+   45
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:br-soft",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   5
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:br-bare",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   5
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:br-cr",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   5
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   21
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku-ascii",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   21
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku-fit",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   22
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku-pair",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   21
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku-open",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   21
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku-open-ascii",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   21
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:kinsoku-period",
+  "view": "mobile",
+  "check": "starts",
+  "expected": [
+   0,
+   21
+  ],
+  "source": "word_analyse narrow write-ups (tab/char-scale/han-size/br-soft/vanish/indent/kinsoku/mix-cjk)",
+  "group": "word_analyse-narrow"
+ },
+ {
+  "fixture": "wa:longpage-auto12pt",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 47,
+  "source": "对齐文档 2026-10-04 补测第 1条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/before-lines-sz48-n",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "对齐文档 2026-10-04 补测第 4条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/before-lines-grid312-n",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 19,
+  "source": "对齐文档 2026-10-04 补测第 4条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/ind-left-dig",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   80
+  ],
+  "source": "对齐文档 2026-10-04 补测第 9条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/px-i-19",
+  "view": "mobile",
+  "check": "second_start",
+  "expected": 119,
+  "source": "对齐文档 2026-10-04 补测第 3条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/px-i-23",
+  "view": "mobile",
+  "check": "second_start",
+  "expected": 102,
+  "source": "对齐文档 2026-10-04 补测第 3条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/px-i-27",
+  "view": "mobile",
+  "check": "second_start",
+  "expected": 84,
+  "source": "对齐文档 2026-10-04 补测第 3条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/px-0-29",
+  "view": "mobile",
+  "check": "second_start",
+  "expected": 35,
+  "source": "对齐文档 2026-10-04 补测第 3条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/px-M-25",
+  "view": "mobile",
+  "check": "second_start",
+  "expected": 25,
+  "source": "对齐文档 2026-10-04 补测第 3条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/dig-nofont",
+  "view": "mobile",
+  "check": "second_start",
+  "expected": 45,
+  "source": "对齐文档 §4（无字体数字窄路径每行 45）",
+  "group": "phone-2026-10-04",
+  "note": "不写字体：只在 phone 配置（装了等线）下可判"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/dig-nofont",
+  "view": "print",
+  "check": "second_start",
+  "expected": 90,
+  "source": "对齐文档 §4（无字体数字打印视图每行 90）",
+  "group": "phone-2026-10-04",
+  "note": "不写字体：只在 phone 配置（装了等线）下可判"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/cs-own-after",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 32,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/cs-own-before",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 31,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/cs-next-flag",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 25,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/cs-prev-flag",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 25,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/cs-diff-style",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/bp-explicit",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/bp-absent",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/bp-original",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 27,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/sr-doc",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/sr-root",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 30,
+  "source": "对齐文档 2026-10-04 补测第 8条（§3.8）",
+  "group": "phone-2026-10-04",
+  "note": "缺口：样式不加载时 Word 每段约 505 twips，来源未解释（对齐文档 §3.8）；这份读数只用来判定样式没加载"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/sp-default",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 24,
+  "source": "对齐文档 2026-10-04 补测第 10条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/tt-orig",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 21,
+  "source": "对齐文档 2026-10-04 补测第 11条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/tt-sp0",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 28,
+  "source": "对齐文档 2026-10-04 补测第 11条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/tt-sp0-nob",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 29,
+  "source": "对齐文档 2026-10-04 补测第 11条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/tt-sp0-nob-m0",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 29,
+  "source": "对齐文档 2026-10-04 补测第 11条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/fn-none",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 64,
+  "source": "对齐文档 2026-10-04 补测第 12条",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/fn-base",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 60,
+  "source": "对齐文档 2026-10-04 补测第 12条",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/fn-two-lines",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 58,
+  "source": "对齐文档 2026-10-04 补测第 12条",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/fn-line240",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 61,
+  "source": "对齐文档 2026-10-04 补测第 12条",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/fn-sep20",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 60,
+  "source": "对齐文档 2026-10-04 补测第 12条",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/fn-two-notes",
+  "view": "print",
+  "check": "page0_lines",
+  "expected": 58,
+  "source": "对齐文档 2026-10-04 补测第 12条",
+  "note": "脚注未实现（对齐文档 §5）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/kern-48",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   76,
+   83,
+   84,
+   167,
+   168,
+   251,
+   252,
+   335
+  ],
+  "source": "对齐文档 2026-10-04 补测第 6条（§3.5 表）",
+  "group": "phone-2026-10-04"
+ },
+ {
+  "fixture": "repo:fixtures/android-phone-2026-10-04/hang-tol",
+  "view": "print",
+  "check": "starts",
+  "expected": [
+   0,
+   102,
+   110,
+   111,
+   200,
+   208,
+   209,
+   308,
+   316,
+   317,
+   358,
+   417,
+   418,
+   459,
+   517,
+   518,
+   559,
+   633
+  ],
+  "source": "对齐文档 2026-10-04 补测第 5、7 条（末词超出 +3.4/+14.9/+30.8 换行；只靠挂出行尾空格放得下的三段留在本行）",
+  "group": "phone-2026-10-04"
+ }
+]

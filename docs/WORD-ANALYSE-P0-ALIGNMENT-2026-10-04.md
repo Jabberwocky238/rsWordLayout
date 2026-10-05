@@ -612,10 +612,14 @@ nextPage，换页的是第二节自己的类型。引擎对 `sect-cont-fit` 排 
 ## 7. 复现
 
 ```sh
-cargo build --offline --features fontenv --bin layout-trace
-python3 artifacts/word-analyse-p0-alignment-2026-10-04/sweep.py target/debug/layout-trace /tmp/sweep-out
+scripts/verify.sh                      # 测试、clippy、窄路径回放、读数、Mac 轨迹，一条命令
+scripts/verify.sh --quick --against OLD_BIN   # 跳过 cargo test/clippy，另做全夹具新旧对照
 ```
 
-`sweep.py` 的字体路径写死在脚本开头，换机器要改。窄路径的 32 个单行读数用同目录的
-`sweep_narrow.py`（参数：二进制、输出目录）。全量夹具对照用 `scan.py`
-（参数：旧二进制、新二进制、输出目录）。
+本文所有读数（word_analyse 打印视图 159 条、窄路径 32 条、2026-10-04 手机补测 34 条）已转录进
+`tools/measure/gate/readings.json`，每条写明出处；基线与字体哈希在 `baseline.json`，Mac 轨迹哈希在
+`mac-traces.sha256`。补测夹具在 `fixtures/android-phone-2026-10-04/`，生成脚本与采集脚本在
+`tools/measure/gate/capture/`。字体配置、UNDECIDABLE 规则、如何加一条读数见 `tools/measure/gate/README.md`。
+
+早先放在 `artifacts/word-analyse-p0-alignment-2026-10-04/` 的 `sweep.py` / `sweep_narrow.py` / `scan.py`
+（未入库）由上面这些取代。
